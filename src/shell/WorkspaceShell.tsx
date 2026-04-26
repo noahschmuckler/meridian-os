@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance, GridPlacement, WorkspaceConfig } from '../types';
 import { Cell } from '../cell/Cell';
 import { StubBubble } from '../bubbles/_base/Bubble';
 import type { SeedDict } from '../data/seedResolver';
 import { resolveSeedTokens } from '../data/seedResolver';
+import { DraggableBubble } from '../mechanics/DraggableBubble';
 
 interface WorkspaceShellProps {
   workspace: WorkspaceConfig;
@@ -12,18 +13,20 @@ interface WorkspaceShellProps {
   onBackToHome: () => void;
 }
 
-function gridStyle(p: GridPlacement): JSX.CSSProperties {
-  return {
-    gridColumn: `${p.col + 1} / span ${p.width}`,
-    gridRow: `${p.row + 1} / span ${p.height}`,
-  };
-}
-
 export function WorkspaceShell({ workspace, seeds, onBackToHome }: WorkspaceShellProps): JSX.Element {
   const grid = workspace.layoutHints.grid;
-  const placements = workspace.layoutHints.placements;
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Resolve seed tokens once per render of the workspace.
+  // Mutable per-session placements: drag/resize updates this; reinit on workspace switch.
+  const [placements, setPlacements] = useState<Record<string, GridPlacement>>(workspace.layoutHints.placements);
+  useEffect(() => {
+    setPlacements(workspace.layoutHints.placements);
+  }, [workspace.id]);
+
+  const updatePlacement = (id: string) => (next: GridPlacement) => {
+    setPlacements((prev) => ({ ...prev, [id]: next }));
+  };
+
   const resolvedStandalones = useMemo<BubbleInstance[]>(
     () => workspace.standalones.map((b) => ({ ...b, props: resolveSeedTokens(b.props, seeds) })),
     [workspace, seeds],
@@ -31,6 +34,7 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome }: WorkspaceShel
 
   return (
     <div
+      ref={containerRef}
       class="workspace"
       style={{
         position: 'fixed',
@@ -49,7 +53,7 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome }: WorkspaceShel
           position: 'fixed',
           top: 12,
           right: 12,
-          zIndex: 10,
+          zIndex: 200,
           padding: '6px 12px',
           borderRadius: 999,
           background: 'var(--surface)',
@@ -64,9 +68,19 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome }: WorkspaceShel
         const p = placements[cell.id];
         if (!p) return null;
         return (
-          <div key={cell.id} style={gridStyle(p)}>
+          <DraggableBubble
+            key={cell.id}
+            placement={p}
+            gridCols={grid.cols}
+            gridRows={grid.rows}
+            containerRef={containerRef}
+            onChange={updatePlacement(cell.id)}
+            className="cell"
+            minWidth={3}
+            minHeight={3}
+          >
             <Cell cell={cell} workspace={workspace} seeds={seeds} />
-          </div>
+          </DraggableBubble>
         );
       })}
 
@@ -74,9 +88,17 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome }: WorkspaceShel
         const p = placements[b.id];
         if (!p) return null;
         return (
-          <div key={b.id} class="bubble" style={gridStyle(p)}>
+          <DraggableBubble
+            key={b.id}
+            placement={p}
+            gridCols={grid.cols}
+            gridRows={grid.rows}
+            containerRef={containerRef}
+            onChange={updatePlacement(b.id)}
+            className="bubble"
+          >
             <BubbleHost instance={b} />
-          </div>
+          </DraggableBubble>
         );
       })}
     </div>
@@ -98,5 +120,5 @@ function BubbleHost({ instance }: { instance: BubbleInstance }): JSX.Element {
     return () => bubble.unmount();
   }, [instance.id]);
 
-  return <div ref={ref} style={{ width: '100%', height: '100%' }} />;
+  return <div ref={ref} style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }} />;
 }

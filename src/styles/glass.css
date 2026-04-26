@@ -47,13 +47,22 @@
 
 .bubble__resize {
   position: absolute;
-  right: 2px;
-  bottom: 2px;
-  width: 14px;
-  height: 14px;
-  cursor: nwse-resize;
+  right: 4px;
+  bottom: 4px;
+  width: 18px;
+  height: 18px;
+  pointer-events: none; /* parent handles pointer; this is purely visual */
   opacity: 0.5;
-  background: linear-gradient(135deg, transparent 50%, var(--ink-faint) 50%, var(--ink-faint) 60%, transparent 60%, transparent 75%, var(--ink-faint) 75%, var(--ink-faint) 85%, transparent 85%);
+  background:
+    linear-gradient(135deg,
+      transparent 35%,
+      var(--ink-faint) 35%, var(--ink-faint) 45%,
+      transparent 45%, transparent 60%,
+      var(--ink-faint) 60%, var(--ink-faint) 70%,
+      transparent 70%, transparent 85%,
+      var(--ink-faint) 85%, var(--ink-faint) 95%,
+      transparent 95%);
+  border-bottom-right-radius: var(--radius-2);
 }
 
 .bubble__search {
