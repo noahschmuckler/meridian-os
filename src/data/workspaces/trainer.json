@@ -2,44 +2,43 @@
   "id": "trainer",
   "title": "Trainer",
   "icon": { "glyph": "🎓", "tint": "#0F6B42" },
-  "cells": [
-    {
-      "id": "trainer-chat",
-      "nucleus": {
-        "type": "llm-chat",
-        "props": { "greeting": "Training Dr. Patel today.", "defaultPersona": "trainer" }
-      },
-      "brain": {
-        "miniBubbles": [
-          { "id": "mini-hub", "label": "Patel hub state", "source": "patel.hub_state", "pinned": true },
-          { "id": "mini-last", "label": "Last session summary", "source": "patel.last_session", "pinned": false },
-          { "id": "mini-sp", "label": "Recommended SmartPhrases", "source": "patel.smartphrases", "pinned": false }
-        ],
-        "hydrationRules": { "onAttach": "auto-add", "onDrop": "auto-add" }
-      },
-      "organelles": [
-        {
-          "id": "blueprint",
-          "type": "blueprint-tree",
-          "title": "Blueprint",
-          "props": {
-            "items": { "$seed": "patel.blueprint" },
-            "hubState": { "$seed": "patel.hub_state_full" }
-          },
-          "resize": { "initial": "m", "states": {} }
-        },
-        {
-          "id": "followups",
-          "type": "follow-ups-rail",
-          "title": "Follow-ups",
-          "props": { "items": { "$seed": "patel.followups" } },
-          "resize": { "initial": "s", "states": {} }
-        }
-      ],
-      "scriptedTriggers": []
-    }
-  ],
+  "cells": [],
   "standalones": [
+    {
+      "id": "chat",
+      "type": "llm-chat",
+      "title": "Trainer chat",
+      "props": {
+        "greeting": "Training Dr. Patel today. Day 1 covered SmartPhrases + In-Basket; LOS rubric + HCC missed.",
+        "defaultPersona": "trainer",
+        "brain": {
+          "miniBubbles": [
+            { "id": "mini-hub", "label": "Patel hub state", "source": "patel.hub_state", "pinned": true },
+            { "id": "mini-last", "label": "Last session summary", "source": "patel.last_session", "pinned": false },
+            { "id": "mini-sp", "label": "Recommended SmartPhrases", "source": "patel.smartphrases", "pinned": false }
+          ],
+          "hydrationRules": { "onAttach": "auto-add", "onDrop": "auto-add" }
+        }
+      },
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "blueprint",
+      "type": "blueprint-tree",
+      "title": "Blueprint",
+      "props": {
+        "items": { "$seed": "patel.blueprint" },
+        "hubState": { "$seed": "patel.hub_state_full" }
+      },
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "followups",
+      "type": "follow-ups-rail",
+      "title": "Follow-ups",
+      "props": { "items": { "$seed": "patel.followups" } },
+      "resize": { "initial": "m", "states": {} }
+    },
     {
       "id": "dossier",
       "type": "provider-dossier",
@@ -72,11 +71,13 @@
   "layoutHints": {
     "grid": { "cols": 12, "rows": 8 },
     "placements": {
-      "trainer-chat":  { "col": 0, "row": 0, "width": 7, "height": 6 },
-      "dossier":       { "col": 7, "row": 0, "width": 5, "height": 3 },
-      "questionnaire": { "col": 7, "row": 3, "width": 5, "height": 3 },
-      "dropzone":      { "col": 0, "row": 6, "width": 4, "height": 2 },
-      "generated":     { "col": 4, "row": 6, "width": 8, "height": 2 }
+      "chat":          { "col": 0, "row": 0, "width": 5, "height": 6 },
+      "blueprint":     { "col": 5, "row": 0, "width": 7, "height": 4 },
+      "dossier":       { "col": 5, "row": 4, "width": 4, "height": 2 },
+      "questionnaire": { "col": 9, "row": 4, "width": 3, "height": 2 },
+      "followups":     { "col": 0, "row": 6, "width": 5, "height": 2 },
+      "dropzone":      { "col": 5, "row": 6, "width": 3, "height": 2 },
+      "generated":     { "col": 8, "row": 6, "width": 4, "height": 2 }
     }
   },
   "scripted": {
@@ -85,5 +86,5 @@
     "onDrop": {}
   },
   "seed": { "sources": ["patel-cohort"] },
-  "morphIds": ["trainer-chat"]
+  "morphIds": ["chat"]
 }

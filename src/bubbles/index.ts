@@ -12,6 +12,7 @@ import { GeneratedSessionsRail } from './generated-sessions-rail';
 import { Dropzone } from './dropzone';
 import { ProviderDossier } from './provider-dossier';
 import { Placeholder } from './placeholder';
+import { LlmChat } from './llm-chat';
 
 export interface BubbleProps {
   instance: BubbleInstance;
@@ -25,6 +26,7 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'dropzone': Dropzone,
   'provider-dossier': ProviderDossier,
   'placeholder': Placeholder,
+  'llm-chat': LlmChat,
 };
 
 export function getPrimitiveComponent(type: BubblePrimitiveType): ComponentType<BubbleProps> {

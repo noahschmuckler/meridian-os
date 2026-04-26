@@ -75,6 +75,7 @@ export interface BrainBubbleConfig {
 export interface ChatProps {
   greeting?: string;
   defaultPersona?: string;
+  brain?: BrainBubbleConfig;
   // canned response config is referenced via scripted actions, not embedded here
 }
 
