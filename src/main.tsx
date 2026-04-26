@@ -41,6 +41,7 @@ const workspaces: Record<string, WorkspaceConfig> = {
 const seeds: SeedDict = loadSeeds({ patel: patelSeed });
 
 const activeWorkspaceId = signal<string | null>(null);
+const entryFrom = signal<DOMRect | null>(null);
 
 function App(): JSX.Element {
   const id = activeWorkspaceId.value;
@@ -49,7 +50,11 @@ function App(): JSX.Element {
       <WorkspaceShell
         workspace={workspaces[id]}
         seeds={seeds}
-        onBackToHome={() => (activeWorkspaceId.value = null)}
+        entryFrom={entryFrom.value}
+        onBackToHome={() => {
+          activeWorkspaceId.value = null;
+          entryFrom.value = null;
+        }}
       />
     );
   }
@@ -58,7 +63,10 @@ function App(): JSX.Element {
       home={home}
       workspaces={workspaces}
       activeWorkspaceId={id}
-      onTapWorkspace={(wid) => (activeWorkspaceId.value = wid)}
+      onTapWorkspace={(wid, rect) => {
+        entryFrom.value = rect;
+        activeWorkspaceId.value = wid;
+      }}
     />
   );
 }

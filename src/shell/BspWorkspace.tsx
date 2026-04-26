@@ -36,14 +36,7 @@ interface Props {
   seeds: SeedDict;
 }
 
-interface BubbleBundle {
-  kind: 'cell' | 'standalone';
-  cellRef: WorkspaceConfig['cells'][number] | null;
-  instance: BubbleInstance | null;
-  placement: GridPlacement;
-  minW: number;
-  minH: number;
-}
+import { persistentWorkspaceStates, type BubbleBundle } from './workspaceState';
 
 const DEFAULT_MIN_W = 1;
 const DEFAULT_MIN_H = 1;
@@ -64,16 +57,6 @@ interface LiftedState {
 }
 
 let _placeholderSeq = 0;
-
-// === Workspace persistence ===
-// Each workspace's bubble registry and BSP root persist across switches so
-// bubbles feel tangible — the chat that was in Trainer is still that exact
-// chat (same history, same attached memories) when you return.
-interface PersistedState {
-  registry: Record<string, BubbleBundle>;
-  root: BSPRoot;
-}
-const persistentWorkspaceStates = new Map<string, PersistedState>();
 
 export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
