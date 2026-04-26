@@ -14,6 +14,21 @@ body {
   color: var(--ink);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+
+  /* Suppress iOS long-press selection magnifier + callout menu so the
+     bubble lift gesture doesn't double as text selection. Specific
+     content can opt back in via .allow-select. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.allow-select, .allow-select * {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
 }
 
 button {
