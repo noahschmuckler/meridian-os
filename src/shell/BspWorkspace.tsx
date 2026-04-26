@@ -37,7 +37,16 @@ interface Props {
   onBackToHome?: () => void;
 }
 
-import { persistentWorkspaceStates, savedLayouts, cloneSnapshot, type BubbleBundle, type SavedLayout } from './workspaceState';
+import {
+  persistentWorkspaceStates,
+  savedLayouts,
+  setWorkspaceState,
+  deleteWorkspaceState,
+  setSavedLayouts as persistSavedLayouts,
+  cloneSnapshot,
+  type BubbleBundle,
+  type SavedLayout,
+} from './workspaceState';
 
 const DEFAULT_MIN_W = 1;
 const DEFAULT_MIN_H = 1;
@@ -128,12 +137,12 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     }
   }, [root, workspace.id]);
 
-  // Persist registry + root to the module-level map whenever they change so
-  // the next entry to this workspace finds the same bubbles in the same
-  // arrangement, with the same attached memories and chat history.
+  // Persist registry + root to the module-level map (and localStorage) so
+  // the next entry — including across page refreshes — finds the same
+  // bubbles in the same arrangement.
   useEffect(() => {
     if (root) {
-      persistentWorkspaceStates.set(workspace.id, { registry, root });
+      setWorkspaceState(workspace.id, { registry, root });
     }
   }, [registry, root, workspace.id]);
 
@@ -629,7 +638,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
 
   // === Reset workspace to JSON template ===
   function resetWorkspace(): void {
-    persistentWorkspaceStates.delete(workspace.id);
+    deleteWorkspaceState(workspace.id);
     setRegistry(initialRegistry(workspace, placements));
     setRoot(null); // buildBSP effect rebuilds from initialRegistry
   }
@@ -644,7 +653,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     };
     const next = [...saves, snapshot];
     setSaves(next);
-    savedLayouts.set(workspace.id, next);
+    persistSavedLayouts(workspace.id, next);
   }
 
   function loadLayout(idx: number): void {
@@ -658,7 +667,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
   function deleteLayout(idx: number): void {
     const next = saves.filter((_, i) => i !== idx);
     setSaves(next);
-    savedLayouts.set(workspace.id, next);
+    persistSavedLayouts(workspace.id, next);
   }
 
   // === FAB long-press ===

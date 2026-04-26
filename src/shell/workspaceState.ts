@@ -44,6 +44,71 @@ export function cloneSnapshot<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+// === localStorage persistence — hydrate on module load, write on each set ===
+
+const STORAGE_KEY_STATES = 'meridian-os.workspaceStates.v1';
+const STORAGE_KEY_SAVES = 'meridian-os.savedLayouts.v1';
+
+function hydrate(): void {
+  try {
+    const states = localStorage.getItem(STORAGE_KEY_STATES);
+    if (states) {
+      const parsed = JSON.parse(states) as Record<string, PersistedState>;
+      for (const [id, val] of Object.entries(parsed)) {
+        persistentWorkspaceStates.set(id, val);
+      }
+    }
+    const saves = localStorage.getItem(STORAGE_KEY_SAVES);
+    if (saves) {
+      const parsed = JSON.parse(saves) as Record<string, SavedLayout[]>;
+      for (const [id, val] of Object.entries(parsed)) {
+        savedLayouts.set(id, val);
+      }
+    }
+  } catch (err) {
+    console.warn('[workspaceState] failed to hydrate from localStorage', err);
+  }
+}
+
+function persistStates(): void {
+  try {
+    const obj: Record<string, PersistedState> = {};
+    persistentWorkspaceStates.forEach((v, k) => {
+      obj[k] = v;
+    });
+    localStorage.setItem(STORAGE_KEY_STATES, JSON.stringify(obj));
+  } catch (err) {
+    console.warn('[workspaceState] failed to persist states', err);
+  }
+}
+
+function persistSaves(): void {
+  try {
+    const obj: Record<string, SavedLayout[]> = {};
+    savedLayouts.forEach((v, k) => {
+      obj[k] = v;
+    });
+    localStorage.setItem(STORAGE_KEY_SAVES, JSON.stringify(obj));
+  } catch (err) {
+    console.warn('[workspaceState] failed to persist saves', err);
+  }
+}
+
+hydrate();
+
+export function setWorkspaceState(id: string, state: PersistedState): void {
+  persistentWorkspaceStates.set(id, state);
+  persistStates();
+}
+export function deleteWorkspaceState(id: string): void {
+  persistentWorkspaceStates.delete(id);
+  persistStates();
+}
+export function setSavedLayouts(id: string, layouts: SavedLayout[]): void {
+  savedLayouts.set(id, layouts);
+  persistSaves();
+}
+
 export interface PreviewBubble {
   id: string;
   type: BubblePrimitiveType;

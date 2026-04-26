@@ -52,6 +52,7 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome, entryFrom }: Wo
   }, [workspace.id, entryFrom]);
 
   function handleBack(): void {
+    if (phase === 'exiting') return; // already on exit path; ignore double-fires
     const el = wrapperRef.current;
     if (!el || !entryFrom) {
       onBackToHome();
@@ -81,7 +82,14 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome, entryFrom }: Wo
     <div
       ref={wrapperRef}
       class={`workspace-shell${phaseClass}`}
-      style={{ position: 'fixed', inset: 0, transformOrigin: 'center center' }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: 'var(--vh, 100vh)',
+        transformOrigin: 'center center',
+      }}
     >
       <BspWorkspace workspace={workspace} seeds={seeds} onBackToHome={handleBack} />
     </div>

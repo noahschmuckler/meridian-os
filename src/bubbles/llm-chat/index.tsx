@@ -1,10 +1,10 @@
 // llm-chat primitive: chat surface with its own brain bubble (visible context).
 // Independent of any cell — chat is a peer bubble, brain belongs to the chat.
-// v1: input is functional; the assistant returns a Lorem ipsum segment so the
-// chat-history weight grows in the brain fullness bar as messages accumulate.
 //
-// Messages are persisted to the parent BspWorkspace via onMessagesChange so
-// the chat survives workspace switches — bubbles have tangible identity.
+// Fully controlled: messages live in the parent's registry (instance.props.messages)
+// and flow back via onMessagesChange. No local message state, so a workspace
+// reset (which clears registry messages) immediately empties the chat. Same
+// for save-state load.
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
@@ -59,25 +59,28 @@ function chatHistoryWeight(messages: Message[]): number {
 
 export function LlmChat({ instance, onDismissMini, onMessagesChange }: Props): JSX.Element {
   const p = instance.props as LlmChatProps;
-  // Initial messages: persisted ones from props, or seed with the greeting.
-  const initial: Message[] =
-    p.messages && p.messages.length > 0
-      ? p.messages
-      : p.greeting
-        ? [{ id: 'sys-greeting', role: 'system', text: p.greeting }]
-        : [];
-  const [messages, setMessages] = useState<Message[]>(initial);
+  const propsMessages = p.messages;
+  const messages: Message[] = propsMessages ?? [];
+
+  // Seed the greeting message whenever there are no messages and a greeting
+  // is configured. Fires on first mount and again after a reset / fresh load.
+  useEffect(() => {
+    if ((!propsMessages || propsMessages.length === 0) && p.greeting) {
+      onMessagesChange?.([{ id: 'sys-greeting', role: 'system', text: p.greeting }]);
+    }
+  }, [propsMessages, p.greeting]);
+
+  // Latest-messages ref so async assistant replies can append to whatever the
+  // current state is, not a stale closure copy.
+  const latestRef = useRef<Message[]>(messages);
+  latestRef.current = messages;
+
   const [input, setInput] = useState('');
-  const messagesRef = useRef<HTMLDivElement>(null);
+  const messagesElRef = useRef<HTMLDivElement>(null);
   const seq = useRef(0);
 
-  // Persist to parent on every change (debounced via Preact's batching).
   useEffect(() => {
-    onMessagesChange?.(messages);
-  }, [messages]);
-
-  useEffect(() => {
-    const el = messagesRef.current;
+    const el = messagesElRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages.length]);
 
@@ -85,16 +88,22 @@ export function LlmChat({ instance, onDismissMini, onMessagesChange }: Props): J
     return `${prefix}-${Date.now()}-${++seq.current}`;
   }
 
+  function appendMessage(m: Message): void {
+    const next = [...latestRef.current, m];
+    latestRef.current = next;
+    onMessagesChange?.(next);
+  }
+
   function submit(e: Event): void {
     e.preventDefault();
     const text = input.trim();
     if (!text) return;
     const userMsg: Message = { id: nextId('u'), role: 'user', text };
-    setMessages((prev) => [...prev, userMsg]);
+    appendMessage(userMsg);
     setInput('');
     window.setTimeout(() => {
       const reply: Message = { id: nextId('a'), role: 'assistant', text: loremReply() };
-      setMessages((prev) => [...prev, reply]);
+      appendMessage(reply);
     }, 350 + Math.random() * 350);
   }
 
@@ -108,7 +117,7 @@ export function LlmChat({ instance, onDismissMini, onMessagesChange }: Props): J
       </div>
       {p.brain && <BrainBubble brain={p.brain} chatHistoryWeight={weight} onDismiss={onDismissMini} />}
       <div class="bubble__body" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
-        <div class="llm-chat__messages" ref={messagesRef}>
+        <div class="llm-chat__messages" ref={messagesElRef}>
           {messages.map((m) => (
             <div key={m.id} class={`llm-chat__msg llm-chat__msg--${m.role}`}>
               {m.text}

@@ -114,6 +114,13 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* Lock interaction during fly-in / fly-out so tile taps and bubble lifts
+   can't fire mid-transition. Animation completes within ~480ms either way. */
+.workspace-shell.is-entering,
+.workspace-shell.is-exiting {
+  pointer-events: none;
+}
+
 .bubble:hover {
   box-shadow: var(--shadow-2);
 }
@@ -285,7 +292,7 @@
 /* === Home screen === workspaces sit slightly past focal distance */
 .home {
   width: 100vw;
-  height: 100vh;
+  height: var(--vh, 100vh);
   padding: 48px 64px;
   display: flex;
   align-items: center;
@@ -712,7 +719,10 @@
 /* === BSP layout === */
 .bsp-workspace {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: var(--vh, 100vh);
 }
 
 /* Splitter walls — invisible until hovered, then a thin accent line */
@@ -956,19 +966,27 @@
   font-size: 24px;
 }
 
-/* Save-state row — numbered slots; empty slots are dashed, filled slots
-   are solid accent-soft. Tap empty to save, tap filled to load. */
+/* Save-state row — numbered slots arranged in 2-column rows so a long save
+   history stacks vertically (1,2 / 3,4 / 5,6 / …) and scrolls smoothly
+   inside the pill. Three pairs visible before scroll kicks in. */
 .bsp-fab-saves {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 32px);
   gap: 6px;
-  align-items: center;
+  align-content: start;
   background: var(--surface-strong);
   border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-1);
-  padding: 6px;
-  border-radius: 999px;
+  padding: 8px;
+  border-radius: var(--radius-2);
+  max-height: 124px; /* 3 rows × 32 + 2 gaps × 6 + 16 padding */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-faint) transparent;
   animation: fab-rise var(--duration-2) var(--ease-out) both;
 }
+.bsp-fab-saves::-webkit-scrollbar { width: 6px; }
+.bsp-fab-saves::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 999px; }
 
 .bsp-fab-save {
   width: 32px;
