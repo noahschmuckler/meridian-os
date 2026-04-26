@@ -24,8 +24,8 @@ const REL_WEIGHT: Record<AttachRelationship, number> = {
   edit: 0.18,
 };
 
-// Always-present base: the chat history itself takes some context.
-const CHAT_HISTORY_WEIGHT = 0.05;
+// Default base weight for chat history when not explicitly provided.
+const DEFAULT_CHAT_HISTORY_WEIGHT = 0.05;
 
 const REL_FILL_COLOR: Record<AttachRelationship, string> = {
   deep: 'hsl(150, 60%, 35%)',
@@ -39,11 +39,12 @@ const EMPTY_COLOR = 'hsl(150, 30%, 92%)';
 
 interface BrainProps {
   brain: BrainBubbleConfig;
+  chatHistoryWeight?: number;
   onDismiss?: (miniId: string) => void;
 }
 
-export function BrainBubble({ brain, onDismiss }: BrainProps): JSX.Element {
-  const { gradient, usage, overfilled } = computeFill(brain.miniBubbles);
+export function BrainBubble({ brain, chatHistoryWeight, onDismiss }: BrainProps): JSX.Element {
+  const { gradient, usage, overfilled } = computeFill(brain.miniBubbles, chatHistoryWeight ?? DEFAULT_CHAT_HISTORY_WEIGHT);
 
   return (
     <div
@@ -86,9 +87,9 @@ function pct(u: number): string {
   return `${Math.round(u * 100)}%`;
 }
 
-function computeFill(miniBubbles: MiniBubble[]): { gradient: string; usage: number; overfilled: boolean } {
+function computeFill(miniBubbles: MiniBubble[], chatWeight: number): { gradient: string; usage: number; overfilled: boolean } {
   const segments: { color: string; size: number }[] = [
-    { color: CHAT_HISTORY_COLOR, size: CHAT_HISTORY_WEIGHT },
+    { color: CHAT_HISTORY_COLOR, size: chatWeight },
   ];
   for (const m of miniBubbles) {
     const w = m.relationship ? REL_WEIGHT[m.relationship] : 0.01;
