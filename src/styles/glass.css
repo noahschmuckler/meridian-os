@@ -414,3 +414,55 @@
   width: 100%;
   height: 100%;
 }
+
+/* === BSP layout === */
+.bsp-workspace {
+  position: fixed;
+  inset: 0;
+}
+
+/* Splitter walls — invisible until hovered, then a thin accent line */
+.bsp-splitter {
+  background: transparent;
+  position: absolute;
+}
+.bsp-splitter::before {
+  content: '';
+  position: absolute;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--duration-1) var(--ease-out);
+  border-radius: 2px;
+}
+.bsp-splitter--h::before {
+  left: 50%;
+  top: 50%;
+  width: 36px;
+  height: 3px;
+  transform: translate(-50%, -50%);
+}
+.bsp-splitter--v::before {
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+}
+.bsp-splitter:hover::before { opacity: 0.7; }
+.bsp-splitter:active::before { opacity: 1; }
+
+/* Corner handle — pulsing dot at intersections */
+.bsp-corner {
+  background: transparent;
+}
+.bsp-corner::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--duration-1) var(--ease-out), transform var(--duration-1) var(--ease-out);
+}
+.bsp-corner:hover::before { opacity: 0.85; }
+.bsp-corner:active::before { opacity: 1; transform: scale(1.15); }
