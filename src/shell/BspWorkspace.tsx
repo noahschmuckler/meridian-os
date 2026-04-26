@@ -37,7 +37,7 @@ interface Props {
   onBackToHome?: () => void;
 }
 
-import { persistentWorkspaceStates, type BubbleBundle } from './workspaceState';
+import { persistentWorkspaceStates, savedLayouts, cloneSnapshot, type BubbleBundle, type SavedLayout } from './workspaceState';
 
 const DEFAULT_MIN_W = 1;
 const DEFAULT_MIN_H = 1;
@@ -102,6 +102,11 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
   const [vaultOpen, setVaultOpen] = useState<{ placeholderId: string } | null>(null);
   const [fabExpanded, setFabExpanded] = useState(false);
   const [trashHovered, setTrashHovered] = useState(false);
+  const [saves, setSaves] = useState<SavedLayout[]>(() => savedLayouts.get(workspace.id) ?? []);
+
+  useEffect(() => {
+    setSaves(savedLayouts.get(workspace.id) ?? []);
+  }, [workspace.id]);
 
   // Build BSP from registry only when we don't already have one (first entry
   // to a workspace). Persisted root is preserved across switches.
@@ -629,6 +634,33 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     setRoot(null); // buildBSP effect rebuilds from initialRegistry
   }
 
+  // === Save / load layouts ===
+  function saveCurrentLayout(): void {
+    if (!root) return;
+    const snapshot: SavedLayout = {
+      registry: cloneSnapshot(registry),
+      root: cloneSnapshot(root),
+      savedAt: Date.now(),
+    };
+    const next = [...saves, snapshot];
+    setSaves(next);
+    savedLayouts.set(workspace.id, next);
+  }
+
+  function loadLayout(idx: number): void {
+    const layout = saves[idx];
+    if (!layout) return;
+    setRegistry(cloneSnapshot(layout.registry));
+    setRoot(cloneSnapshot(layout.root));
+    setFabExpanded(false);
+  }
+
+  function deleteLayout(idx: number): void {
+    const next = saves.filter((_, i) => i !== idx);
+    setSaves(next);
+    savedLayouts.set(workspace.id, next);
+  }
+
   // === FAB long-press ===
   const fabPressRef = useRef<{ timer: number | null } | null>(null);
 
@@ -939,6 +971,28 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
       <div class={`bsp-fab-stack${fabExpanded ? ' is-expanded' : ''}${lifted ? ' is-trash' : ''}${trashHovered ? ' is-trash-active' : ''}`}>
         {fabExpanded && (
           <>
+            <div class="bsp-fab-saves">
+              {saves.map((_, i) => (
+                <button
+                  key={`save-${i}`}
+                  class="bsp-fab-save bsp-fab-save--filled"
+                  onClick={() => loadLayout(i)}
+                  onContextMenu={(e) => { e.preventDefault(); deleteLayout(i); }}
+                  title={`Load layout ${i + 1} (right-click or two-finger tap to delete)`}
+                  aria-label={`Load saved layout ${i + 1}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                class="bsp-fab-save bsp-fab-save--empty"
+                onClick={saveCurrentLayout}
+                title={`Save current layout to slot ${saves.length + 1}`}
+                aria-label={`Save layout to slot ${saves.length + 1}`}
+              >
+                {saves.length + 1}
+              </button>
+            </div>
             <button
               class="bsp-fab-action"
               onClick={() => { setFabExpanded(false); resetWorkspace(); }}

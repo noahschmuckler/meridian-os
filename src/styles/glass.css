@@ -863,6 +863,54 @@
   font-size: 24px;
 }
 
+/* Save-state row — numbered slots; empty slots are dashed, filled slots
+   are solid accent-soft. Tap empty to save, tap filled to load. */
+.bsp-fab-saves {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  background: var(--surface-strong);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-1);
+  padding: 6px;
+  border-radius: 999px;
+  animation: fab-rise var(--duration-2) var(--ease-out) both;
+}
+
+.bsp-fab-save {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-1) var(--ease-out),
+              background var(--duration-1) var(--ease-out);
+}
+.bsp-fab-save--empty {
+  background: transparent;
+  border: 1.5px dashed var(--ink-faint);
+  color: var(--ink-faint);
+}
+.bsp-fab-save--empty:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.06);
+}
+.bsp-fab-save--filled {
+  background: var(--accent);
+  border: 0;
+  color: white;
+}
+.bsp-fab-save--filled:hover {
+  transform: scale(1.06);
+  background: hsl(150, 70%, 32%);
+}
+.bsp-fab-save--filled:active { transform: scale(0.95); }
+
 /* === Attach-to-chat menu === */
 .attach-menu-backdrop {
   position: fixed;

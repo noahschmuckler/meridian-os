@@ -26,6 +26,24 @@ export interface PersistedState {
 
 export const persistentWorkspaceStates = new Map<string, PersistedState>();
 
+// Per-workspace named layout save states. Numbered slots; user fills slot N
+// from the FAB save row, slot N+1 then appears as the next empty slot.
+export interface SavedLayout {
+  registry: Record<string, BubbleBundle>;
+  root: BSPRoot;
+  savedAt: number;
+}
+export const savedLayouts = new Map<string, SavedLayout[]>();
+
+/**
+ * Clone a save snapshot via JSON round-trip. Registry + BSP root are
+ * plain-data-shaped (numbers, strings, arrays, nested objects) so this is
+ * safe and ensures saved state is decoupled from current mutations.
+ */
+export function cloneSnapshot<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 export interface PreviewBubble {
   id: string;
   type: BubblePrimitiveType;
