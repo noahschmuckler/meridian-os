@@ -627,6 +627,7 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         const isPlaceholder = b.instance?.type === 'placeholder';
         const baseClass = b.kind === 'cell' ? 'cell' : 'bubble';
         const phClass = isPlaceholder ? ' bubble--placeholder' : '';
+        const typeClass = b.instance?.type ? ` t-${b.instance.type}` : '';
         const isHidden = lifted?.bubbleId === leaf.bubbleId;
 
         const style: JSX.CSSProperties = {
@@ -653,7 +654,7 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
 
         if (b.kind === 'cell' && b.cellRef) {
           return (
-            <div key={leaf.bubbleId} class={`${baseClass}${phClass}`} style={style} {...handlers}>
+            <div key={leaf.bubbleId} class={`${baseClass}${phClass}${typeClass}`} style={style} {...handlers}>
               <Cell cell={b.cellRef} workspace={workspace} seeds={seeds} />
             </div>
           );
@@ -668,7 +669,7 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
             }
           : {};
         return (
-          <div key={leaf.bubbleId} class={`${baseClass}${phClass}`} style={style} {...handlers}>
+          <div key={leaf.bubbleId} class={`${baseClass}${phClass}${typeClass}`} style={style} {...handlers}>
             <Comp instance={inst} seeds={seeds} {...extraProps} />
           </div>
         );

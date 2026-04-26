@@ -66,7 +66,7 @@ function PreviewBubbleEl({ bubble, grid }: { bubble: PreviewBubble; grid: { cols
   const height = (bubble.region.height / grid.rows) * 100;
   return (
     <div
-      class={`home__tile-bubble home__tile-bubble--${bubble.type}`}
+      class={`home__tile-bubble t-${bubble.type}`}
       style={{
         left: `${left}%`,
         top: `${top}%`,

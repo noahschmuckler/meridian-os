@@ -16,6 +16,21 @@
   container-type: size; /* enable container queries for compact-mode borderization */
 }
 
+/* Mondrian-style identity stripe: a colored top bar matching the bubble's
+   --type-color, set in t-* classes. Same color fills the entire tile in
+   miniature on the home grid. */
+.bubble::before,
+.cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--type-color, transparent);
+  z-index: 1;
+}
+
 .bubble:hover {
   box-shadow: var(--shadow-2);
 }
@@ -239,11 +254,13 @@
 }
 
 /* Preview fills the whole tile; bubbles morph to the tile's aspect ratio
-   via percent-positioning so a 12x8 workspace reads cleanly in a 3:2 frame. */
+   via percent-positioning so a 12x8 workspace reads cleanly in a 3:2 frame.
+   Mondrian language: black background shows through as firm grid lines
+   between solid color blocks (each bubble = a primary-color block in mini). */
 .home__tile-preview {
   position: absolute;
   inset: 0;
-  background: var(--bg-deep);
+  background: #0f0f0f;
   overflow: hidden;
 }
 
@@ -280,29 +297,47 @@
 
 .home__tile-bubble {
   position: absolute;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  margin: 1px;
-  background: var(--accent-soft);
+  border: 0;
+  border-radius: 0;
+  background: var(--type-color, #f5f5f5);
+  /* margin creates the black gap between adjacent blocks → Mondrian lines */
+  margin: 2px;
+  width: calc(var(--w, 0%) - 0px);
 }
 
-/* Per-type tile preview colors */
-.home__tile-bubble--llm-chat                  { background: hsl(150, 50%, 55%); border-color: hsl(150, 50%, 45%); }
-.home__tile-bubble--brain-bubble              { background: hsl(150, 40%, 70%); }
-.home__tile-bubble--blueprint-tree            { background: hsl(210, 45%, 65%); border-color: hsl(210, 45%, 55%); }
-.home__tile-bubble--follow-ups-rail           { background: hsl(30, 60%, 65%); border-color: hsl(30, 60%, 55%); }
-.home__tile-bubble--generated-sessions-rail   { background: hsl(280, 35%, 70%); border-color: hsl(280, 35%, 60%); }
-.home__tile-bubble--dropzone                  { background: var(--surface-strong); border: 1px dashed var(--ink-faint); }
-.home__tile-bubble--provider-dossier          { background: hsl(0, 35%, 75%); border-color: hsl(0, 35%, 65%); }
-.home__tile-bubble--questionnaire             { background: hsl(50, 55%, 70%); border-color: hsl(50, 55%, 60%); }
-.home__tile-bubble--placeholder               { background: hsl(0, 0%, 80%); border-style: dashed; }
-.home__tile-bubble--markdown                  { background: hsl(220, 20%, 75%); border-color: hsl(220, 20%, 65%); }
-.home__tile-bubble--spreadsheet               { background: hsl(140, 30%, 70%); border-color: hsl(140, 30%, 60%); }
-.home__tile-bubble--email-thread              { background: hsl(190, 35%, 70%); border-color: hsl(190, 35%, 60%); }
-.home__tile-bubble--faq-block                 { background: hsl(260, 30%, 75%); border-color: hsl(260, 30%, 65%); }
-.home__tile-bubble--dashboard-numbers         { background: hsl(170, 40%, 65%); border-color: hsl(170, 40%, 55%); }
-.home__tile-bubble--meeting-tracker           { background: hsl(20, 45%, 70%); border-color: hsl(20, 45%, 60%); }
-.home__tile-bubble--glidepath-chart           { background: hsl(110, 35%, 65%); border-color: hsl(110, 35%, 55%); }
+/* === Mondrian-inspired type palette ===
+   Primary blocks: red, blue, yellow. White and near-black for empty/output.
+   --type-color is shared by tile-preview blocks (full fill) and workspace
+   bubbles (top stripe). One source of truth for a bubble's identity color. */
+
+/* Red — action / urgency */
+.t-follow-ups-rail        { --type-color: #d92e2e; }
+.t-dashboard-numbers      { --type-color: #d92e2e; }
+.t-glidepath-chart        { --type-color: #d92e2e; }
+
+/* Blue — structure / reference / calendar */
+.t-blueprint-tree         { --type-color: #1f4cae; }
+.t-spreadsheet            { --type-color: #1f4cae; }
+.t-meeting-tracker        { --type-color: #1f4cae; }
+.t-faq-block              { --type-color: #1f4cae; }
+
+/* Yellow — communication / live / generative */
+.t-llm-chat               { --type-color: #f4c020; }
+.t-email-thread           { --type-color: #f4c020; }
+.t-questionnaire          { --type-color: #f4c020; }
+.t-generated-sessions-rail{ --type-color: #f4c020; }
+
+/* Off-white — content / notes / identity */
+.t-markdown               { --type-color: #f5f5f0; }
+.t-provider-dossier       { --type-color: #f5f5f0; }
+
+/* Special — placeholder and dropzone read as empty/awaiting */
+.t-placeholder            { --type-color: #cfcfcf; }
+.t-dropzone               { --type-color: #e8e8e0; }
+.home__tile-bubble.t-dropzone   { outline: 2px dashed #555; outline-offset: -4px; }
+.home__tile-bubble.t-placeholder{ outline: 2px dashed #888; outline-offset: -4px; }
+.home__tile-bubble.t-markdown,
+.home__tile-bubble.t-provider-dossier { outline: 1px solid #1a1a1a; outline-offset: -1px; }
 
 /* === blueprint-tree === */
 .bp-phase {
