@@ -335,12 +335,14 @@
 
 .home__tile-bubble {
   position: absolute;
-  border: 0;
   border-radius: 0;
   background: var(--type-color, #f5f5f5);
-  /* Margins create the firm black gridlines between adjacent color blocks.
-     3px each side → 6px black line where two blocks meet — true Mondrian. */
-  margin: 3px;
+  /* Black border lives inside the percentage-positioned box (box-sizing:
+     border-box), so adjacent bubbles' borders combine into a 6px Mondrian
+     gridline without ever extending past the painting's bounds. Margin
+     would have pushed bubbles outside their percentage rect → clipping. */
+  border: 3px solid #0f0f0f;
+  box-sizing: border-box;
 }
 
 /* === Mondrian-inspired type palette ===
