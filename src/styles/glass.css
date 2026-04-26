@@ -226,26 +226,26 @@
   transform-style: preserve-3d;
 }
 
-/* Each tile is a Mondrian painting: no frame, no glass surface, no rounded
-   corners — just a black canvas subdivided by margins (the firm gridlines)
-   with primary-color blocks for each bubble. Aspect 3:2 matches the
-   workspace's 12x8 grid. */
+/* Tile = painting + caption stacked. The painting carries the canvas
+   aesthetic (black background, color blocks); the caption is plain text
+   beneath, leaving the painting unobstructed. */
 .home__tile {
-  aspect-ratio: 3 / 2;
-  background: #0f0f0f;
+  background: transparent;
   border: 0;
   border-radius: 0;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.10);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
   padding: 0;
-  transition: transform var(--duration-1) var(--ease-out),
-              box-shadow var(--duration-1) var(--ease-out);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform var(--duration-1) var(--ease-out);
 }
 
 .home__tile:hover {
   transform: translateY(-4px) translateZ(24px);
+}
+
+.home__tile:hover .home__tile-painting {
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
@@ -254,36 +254,27 @@
   filter: saturate(0.5);
 }
 
-/* Preview is the tile — no separate inner frame; bubble blocks sit directly
-   on the tile's black canvas, separated by thin margins that read as
-   Mondrian gridlines. */
-.home__tile-preview {
-  position: absolute;
-  inset: 0;
+/* The painting: a black canvas subdivided by margins (firm gridlines) with
+   primary-color blocks for each bubble. Aspect 3:2 matches the workspace's
+   12x8 grid. */
+.home__tile-painting {
+  aspect-ratio: 3 / 2;
+  background: #0f0f0f;
+  position: relative;
   overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.10);
+  transition: box-shadow var(--duration-1) var(--ease-out);
 }
 
-/* Title overlay: a small label sitting on top of the painting at top-left,
-   like a museum placard signed onto the canvas. */
-.home__tile-title {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 5;
-  pointer-events: none;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid #1a1a1a;
-  padding: 3px 9px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-}
-
-.home__tile-label {
-  font-size: 11px;
+.home__tile-caption {
+  text-align: center;
+  font-size: 12px;
   font-weight: 700;
-  color: #0f0f0f;
-  letter-spacing: 0.06em;
+  color: var(--ink);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
 
 .home__tile-empty {
   position: absolute;
