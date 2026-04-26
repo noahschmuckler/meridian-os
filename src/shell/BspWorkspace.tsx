@@ -22,6 +22,7 @@ import {
   findCorners,
   removeLeaf,
   splitLeafInsert,
+  splitRootInsert,
   replaceLeaf,
   findLargestLeaf,
   type BSPRoot,
@@ -254,7 +255,34 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
       const liftedBundle = registry[current.bubbleId];
       if (!liftedBundle) return null;
 
-      // Find target leaf under pointer
+      // 1) Check screen-edge drop first. Drag toward an edge to create a new
+      //    row/column spanning the full width/height — primary way to switch
+      //    a horizontal-only layout into a vertically-stacked one.
+      const containerRect = containerRef.current?.getBoundingClientRect();
+      if (containerRect) {
+        const EDGE_PX = 48;
+        const px = e.clientX - containerRect.left;
+        const py = e.clientY - containerRect.top;
+        let edge: 'top' | 'bottom' | 'left' | 'right' | null = null;
+        if (py < EDGE_PX) edge = 'top';
+        else if (py > containerRect.height - EDGE_PX) edge = 'bottom';
+        else if (px < EDGE_PX) edge = 'left';
+        else if (px > containerRect.width - EDGE_PX) edge = 'right';
+        if (edge) {
+          const after = splitRootInsert(
+            root,
+            edge,
+            current.bubbleId,
+            liftedBundle.minW,
+            liftedBundle.minH,
+            0.3,
+          );
+          setRoot(after);
+          return null;
+        }
+      }
+
+      // 2) Find target leaf under pointer for an in-bubble split.
       const col = pxToCol(e.clientX);
       const row = pxToRow(e.clientY);
       const { leaves } = renderBSP(root);
@@ -488,6 +516,16 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
           </div>
         );
       })()}
+
+      {/* Edge drop zones (visible during lift) */}
+      {lifted && (
+        <>
+          <div class="bsp-edge bsp-edge--top" />
+          <div class="bsp-edge bsp-edge--bottom" />
+          <div class="bsp-edge bsp-edge--left" />
+          <div class="bsp-edge bsp-edge--right" />
+        </>
+      )}
 
       {/* Summon button */}
       <button

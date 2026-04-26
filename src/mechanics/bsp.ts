@@ -381,6 +381,44 @@ function replaceInNode(node: BSPNode, targetId: string, newId: string): BSPNode 
 }
 
 /**
+ * Insert a new bubble at the workspace edge — wrap the existing root in a
+ * new split. Used for "drop near screen edge" gestures that create a new
+ * row or column spanning the full width/height of the workspace.
+ */
+export function splitRootInsert(
+  root: BSPRoot,
+  side: 'left' | 'right' | 'top' | 'bottom',
+  newBubbleId: string,
+  newMinW = 1,
+  newMinH = 1,
+  ratio = 0.3,
+): BSPRoot {
+  const orientation: Orientation = side === 'left' || side === 'right' ? 'v' : 'h';
+  const splitAt =
+    orientation === 'v'
+      ? root.region.col + root.region.w * (side === 'left' ? ratio : 1 - ratio)
+      : root.region.row + root.region.h * (side === 'top' ? ratio : 1 - ratio);
+
+  const newLeaf: BSPLeaf = {
+    kind: 'leaf',
+    bubbleId: newBubbleId,
+    minW: newMinW,
+    minH: newMinH,
+  };
+
+  const isFirstChild = side === 'left' || side === 'top';
+  const newNode: BSPSplit = {
+    kind: 'split',
+    id: nextSplitId(),
+    orientation,
+    splitAt,
+    children: isFirstChild ? [newLeaf, root.node] : [root.node, newLeaf],
+  };
+
+  return { ...root, node: newNode };
+}
+
+/**
  * Find the largest leaf in the tree (by area). Used for "+ summon" to know
  * where to insert a new placeholder when no specific drop target is given.
  */
