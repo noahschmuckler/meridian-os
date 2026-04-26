@@ -334,9 +334,37 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-1);
   padding: 3px;
-  max-height: 180px;
+  max-height: 200px;
   overflow-y: auto;
 }
+.brain__task-header {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 3px 6px 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+  position: sticky;
+  top: -3px;
+  background: var(--surface-strong);
+  z-index: 1;
+}
+.brain__sort {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+}
+.brain__sort:hover { color: var(--ink-soft); }
+.brain__sort.is-active { color: var(--ink); }
 .brain__row {
   display: grid;
   grid-template-columns: 10px 1fr auto auto;

@@ -87,8 +87,19 @@ export function BrainBubble({
   const [view, setView] = useState<'bar' | 'task'>('bar');
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [menu, setMenu] = useState<{ segId: string; x: number; y: number } | null>(null);
+  const [sortKey, setSortKey] = useState<'name' | 'type' | 'pct'>('pct');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  function clickSort(key: 'name' | 'type' | 'pct'): void {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortDir(key === 'pct' ? 'desc' : 'asc'); // default % desc, name/type asc
+    }
+  }
 
   const segments = useMemo<Segment[]>(() => {
     const list: Segment[] = [];
@@ -185,6 +196,19 @@ export function BrainBubble({
   const hoverPos = hoverId ? positions.find((p) => p.id === hoverId) ?? null : null;
   const menuSeg = menu ? segById.get(menu.segId) ?? null : null;
 
+  const sortedSegments = [...segments].sort((a, b) => {
+    let cmp = 0;
+    if (sortKey === 'name') cmp = a.label.localeCompare(b.label);
+    else if (sortKey === 'type') cmp = a.typeLabel.localeCompare(b.typeLabel);
+    else cmp = a.weight - b.weight;
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
+
+  function sortIndicator(key: 'name' | 'type' | 'pct'): string {
+    if (sortKey !== key) return '';
+    return sortDir === 'asc' ? ' ▲' : ' ▼';
+  }
+
   return (
     <div
       ref={containerRef}
@@ -245,7 +269,34 @@ export function BrainBubble({
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          {segments.map((seg) => (
+          <div class="brain__task-header">
+            <span />
+            <button
+              type="button"
+              class={`brain__sort${sortKey === 'name' ? ' is-active' : ''}`}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => { e.stopPropagation(); clickSort('name'); }}
+            >
+              Name{sortIndicator('name')}
+            </button>
+            <button
+              type="button"
+              class={`brain__sort${sortKey === 'type' ? ' is-active' : ''}`}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => { e.stopPropagation(); clickSort('type'); }}
+            >
+              Type{sortIndicator('type')}
+            </button>
+            <button
+              type="button"
+              class={`brain__sort${sortKey === 'pct' ? ' is-active' : ''}`}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => { e.stopPropagation(); clickSort('pct'); }}
+            >
+              %{sortIndicator('pct')}
+            </button>
+          </div>
+          {sortedSegments.map((seg) => (
             <div
               key={seg.id}
               class={`brain__row brain__row--${seg.kind}`}
