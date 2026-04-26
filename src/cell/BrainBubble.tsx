@@ -214,11 +214,14 @@ export function BrainBubble({
         })}
       </div>
         <button
+          type="button"
           class="brain__edit-btn"
           aria-label={view === 'task' ? 'Close brain editor' : 'Open brain editor'}
-          aria-pressed={view === 'task'}
+          aria-pressed={view === 'task' ? 'true' : 'false'}
           title={view === 'task' ? 'Close brain editor' : 'Open brain editor'}
-          onClick={(e) => { e.stopPropagation(); toggleView(); }}
+          onPointerDown={(e) => { e.stopPropagation(); }}
+          onPointerUp={(e) => { e.stopPropagation(); toggleView(); }}
+          onClick={(e) => { e.stopPropagation(); }}
         >
           🔧
         </button>
@@ -237,12 +240,17 @@ export function BrainBubble({
       )}
 
       {view === 'task' && (
-        <div class="brain__task" onClick={(e) => e.stopPropagation()}>
+        <div
+          class="brain__task"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
           {segments.map((seg) => (
             <div
               key={seg.id}
               class={`brain__row brain__row--${seg.kind}`}
-              onClick={(e) => openMenuAt(seg, e)}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => openMenuAt(seg, e as unknown as MouseEvent)}
             >
               <span class="brain__row-swatch" style={{ background: seg.color }} />
               <span class="brain__row-name">{seg.label}</span>
@@ -258,13 +266,17 @@ export function BrainBubble({
           ref={menuRef}
           class="brain__menu"
           style={{ left: clamp(menu.x, 4, 320), top: menu.y + 6 }}
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
           {menuItemsFor(menuSeg).map((item) => (
             <button
+              type="button"
               key={item.key}
               class={`brain__menu-item${item.danger ? ' brain__menu-item--danger' : ''}`}
-              onClick={() => {
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => {
+                e.stopPropagation();
                 runAction(menuSeg, item.key, {
                   onDismissMini,
                   onSetMiniRelationship,
