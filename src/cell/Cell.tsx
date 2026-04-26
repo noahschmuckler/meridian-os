@@ -11,6 +11,9 @@ interface CellProps {
   seeds: SeedDict;
 }
 
+// NOTE: Cell is no longer used by the trainer workspace (chat is now a peer
+// bubble). Kept around for any future workspace that genuinely wants the
+// nucleus-organelles framing.
 export function Cell({ cell, workspace: _workspace, seeds }: CellProps): JSX.Element {
   const organelles: BubbleInstance[] = cell.organelles.map((b) => ({
     ...b,

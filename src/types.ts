@@ -57,11 +57,14 @@ export interface BubbleInstance {
   search?: { enabled: boolean; placeholder?: string };
 }
 
+export type AttachRelationship = 'deep' | 'summary' | 'reference' | 'edit';
+
 export interface MiniBubble {
   id: string;
   label: string;
   source: string; // points at organelle id or seed key
   pinned: boolean;
+  relationship?: AttachRelationship;
 }
 
 export interface BrainBubbleConfig {

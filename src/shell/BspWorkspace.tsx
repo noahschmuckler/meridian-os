@@ -10,7 +10,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
-import type { BubbleInstance, GridPlacement, WorkspaceConfig } from '../types';
+import type { AttachRelationship, BubbleInstance, ChatProps, GridPlacement, MiniBubble, WorkspaceConfig } from '../types';
 import { Cell } from '../cell/Cell';
 import { getPrimitiveComponent } from '../bubbles';
 import type { SeedDict } from '../data/seedResolver';
@@ -84,6 +84,15 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
   const [root, setRoot] = useState<BSPRoot | null>(null);
   const [isWallDragging, setIsWallDragging] = useState(false);
   const [lifted, setLifted] = useState<LiftedState | null>(null);
+  const [attachMenu, setAttachMenu] = useState<{
+    sourceBubbleId: string;
+    sourceTitle: string;
+    chatId: string;
+    chatTitle: string;
+    originalRoot: BSPRoot;
+    anchorX: number;
+    anchorY: number;
+  } | null>(null);
 
   useEffect(() => {
     try {
@@ -322,6 +331,27 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
 
       const targetBundle = registry[target.bubbleId];
 
+      // Drop on chat: open the attach-relationship menu instead of splitting.
+      // The lifted bubble sits in limbo (BSP already excludes it) until the
+      // user picks a relationship or cancels.
+      if (
+        targetBundle?.instance?.type === 'llm-chat' &&
+        current.bubbleId !== target.bubbleId
+      ) {
+        const sourceBundle = registry[current.bubbleId];
+        const sourceTitle = sourceBundle?.instance?.title ?? sourceBundle?.cellRef?.id ?? current.bubbleId;
+        setAttachMenu({
+          sourceBubbleId: current.bubbleId,
+          sourceTitle,
+          chatId: target.bubbleId,
+          chatTitle: targetBundle.instance.title,
+          originalRoot: current.originalRoot,
+          anchorX: e.clientX,
+          anchorY: e.clientY,
+        });
+        return null;
+      }
+
       // Drop on placeholder: consume the placeholder, take its exact slot.
       if (targetBundle?.instance?.type === 'placeholder') {
         const after = replaceLeaf(root, target.bubbleId, current.bubbleId);
@@ -391,6 +421,85 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
       );
       setRoot(after);
       return null;
+    });
+  }
+
+  // === Attach to chat ===
+  function commitAttach(rel: AttachRelationship): void {
+    if (!attachMenu) return;
+    const { sourceBubbleId, chatId, originalRoot, sourceTitle } = attachMenu;
+    // Add a mini-bubble to the chat's brain (mutate registry).
+    setRegistry((prev) => {
+      const chat = prev[chatId];
+      if (!chat?.instance) return prev;
+      const oldProps = chat.instance.props as ChatProps;
+      const oldMini: MiniBubble[] = oldProps.brain?.miniBubbles ?? [];
+      const newMini: MiniBubble = {
+        id: `mb-${sourceBubbleId}-${rel}-${Date.now()}`,
+        label: sourceTitle,
+        source: sourceBubbleId,
+        pinned: rel === 'edit' || rel === 'summary',
+        relationship: rel,
+      };
+      return {
+        ...prev,
+        [chatId]: {
+          ...chat,
+          instance: {
+            ...chat.instance,
+            props: {
+              ...oldProps,
+              brain: {
+                miniBubbles: [...oldMini, newMini],
+                hydrationRules: oldProps.brain?.hydrationRules ?? {},
+              },
+            },
+          },
+        },
+      };
+    });
+    if (rel === 'summary') {
+      // Source is consumed — remove from registry; BSP already excludes it.
+      setRegistry((prev) => {
+        const next = { ...prev };
+        delete next[sourceBubbleId];
+        return next;
+      });
+    } else {
+      // Source returns to its original slot (still on screen, now linked).
+      setRoot(originalRoot);
+    }
+    setAttachMenu(null);
+  }
+
+  function cancelAttach(): void {
+    if (!attachMenu) return;
+    setRoot(attachMenu.originalRoot);
+    setAttachMenu(null);
+  }
+
+  function dismissMini(chatId: string, miniId: string): void {
+    setRegistry((prev) => {
+      const chat = prev[chatId];
+      if (!chat?.instance) return prev;
+      const oldProps = chat.instance.props as ChatProps;
+      const oldMini: MiniBubble[] = oldProps.brain?.miniBubbles ?? [];
+      return {
+        ...prev,
+        [chatId]: {
+          ...chat,
+          instance: {
+            ...chat.instance,
+            props: {
+              ...oldProps,
+              brain: {
+                miniBubbles: oldMini.filter((m) => m.id !== miniId),
+                hydrationRules: oldProps.brain?.hydrationRules ?? {},
+              },
+            },
+          },
+        },
+      };
     });
   }
 
@@ -487,9 +596,12 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         const inst = resolvedById[leaf.bubbleId];
         if (!inst) return null;
         const Comp = getPrimitiveComponent(inst.type);
+        const extraProps = inst.type === 'llm-chat'
+          ? { onDismissMini: (miniId: string) => dismissMini(leaf.bubbleId, miniId) }
+          : {};
         return (
           <div key={leaf.bubbleId} class={`${baseClass}${phClass}`} style={style} {...handlers}>
-            <Comp instance={inst} seeds={seeds} />
+            <Comp instance={inst} seeds={seeds} {...extraProps} />
           </div>
         );
       })}
@@ -627,6 +739,39 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
               />
             ))}
         </>
+      )}
+
+      {/* Attach-to-chat menu (modal) */}
+      {attachMenu && (
+        <div class="attach-menu-backdrop" onClick={cancelAttach}>
+          <div class="attach-menu" onClick={(e) => e.stopPropagation()}>
+            <div class="attach-menu__hdr">
+              <strong>{attachMenu.sourceTitle}</strong> → <em>{attachMenu.chatTitle}</em>
+              <div class="attach-menu__sub">What should I do with this?</div>
+            </div>
+            <button class="attach-menu__opt" onClick={() => commitAttach('deep')}>
+              <span class="attach-menu__glyph">📖</span>
+              <span class="attach-menu__lbl">Read deeply</span>
+              <span class="attach-menu__desc">full content in active context · ready for open-book questions</span>
+            </button>
+            <button class="attach-menu__opt" onClick={() => commitAttach('summary')}>
+              <span class="attach-menu__glyph">📝</span>
+              <span class="attach-menu__lbl">Scan + summarize</span>
+              <span class="attach-menu__desc">commit a summary to memory · dismiss the original</span>
+            </button>
+            <button class="attach-menu__opt" onClick={() => commitAttach('reference')}>
+              <span class="attach-menu__glyph">🔗</span>
+              <span class="attach-menu__lbl">Reference only</span>
+              <span class="attach-menu__desc">keep available · don't actively read</span>
+            </button>
+            <button class="attach-menu__opt" onClick={() => commitAttach('edit')}>
+              <span class="attach-menu__glyph">✏️</span>
+              <span class="attach-menu__lbl">Editable</span>
+              <span class="attach-menu__desc">I have write access · I'll modify this</span>
+            </button>
+            <button class="attach-menu__cancel" onClick={cancelAttach}>Cancel</button>
+          </div>
+        </div>
       )}
 
       {/* Summon button */}
