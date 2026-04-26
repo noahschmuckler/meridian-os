@@ -1,42 +1,30 @@
-// Primitive registry. Phase 0: every primitive resolves to StubBubble (just renders type + title).
-// As primitives get real implementations, move them to their own folder and update the registry entry.
+// Primitive registry. Maps each BubblePrimitiveType to a Preact component.
+// Phase 1: 5 primitives have real implementations; the rest fall through to StubBubble.
 
-import { StubBubble } from './_base/Bubble';
-import type { Bubble, BubbleInstance, BubblePrimitiveType } from '../types';
+import type { ComponentType } from 'preact';
+import type { BubbleInstance, BubblePrimitiveType } from '../types';
+import type { SeedDict } from '../data/seedResolver';
 
-export type BubbleConstructor = (instance: BubbleInstance) => Bubble;
+import { StubBubble } from './_base/StubBubble';
+import { BlueprintTree } from './blueprint-tree';
+import { FollowUpsRail } from './follow-ups-rail';
+import { GeneratedSessionsRail } from './generated-sessions-rail';
+import { Dropzone } from './dropzone';
+import { ProviderDossier } from './provider-dossier';
 
-const stub: BubbleConstructor = (instance) => new StubBubble(instance);
+export interface BubbleProps {
+  instance: BubbleInstance;
+  seeds: SeedDict;
+}
 
-export const PRIMITIVE_REGISTRY: Record<BubblePrimitiveType, BubbleConstructor> = {
-  'llm-chat': stub,
-  'brain-bubble': stub,
-  'blueprint-tree': stub,
-  'follow-ups-rail': stub,
-  'generated-sessions-rail': stub,
-  'dropzone': stub,
-  'patient-info': stub,
-  'modules-stack': stub,
-  'openevidence-builder': stub,
-  'smartphrase-directory': stub,
-  'glidepath-chart': stub,
-  'email-threads-tracker': stub,
-  'meeting-tracker': stub,
-  'provider-dossier': stub,
-  'care-gap-accumulator': stub,
-  'status-pill-grid': stub,
-  'faq-block': stub,
-  'questionnaire': stub,
-  'exports-panel': stub,
-  'dashboard-numbers': stub,
-  'markdown': stub,
-  'spreadsheet': stub,
-  'email-thread': stub,
-  'manual-control-search': stub,
+const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>> = {
+  'blueprint-tree': BlueprintTree,
+  'follow-ups-rail': FollowUpsRail,
+  'generated-sessions-rail': GeneratedSessionsRail,
+  'dropzone': Dropzone,
+  'provider-dossier': ProviderDossier,
 };
 
-export function constructBubble(instance: BubbleInstance): Bubble {
-  const ctor = PRIMITIVE_REGISTRY[instance.type];
-  if (!ctor) throw new Error(`unknown primitive type: ${instance.type}`);
-  return ctor(instance);
+export function getPrimitiveComponent(type: BubblePrimitiveType): ComponentType<BubbleProps> {
+  return REGISTRY[type] ?? StubBubble;
 }

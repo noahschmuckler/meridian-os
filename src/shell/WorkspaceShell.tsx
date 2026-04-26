@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance, GridPlacement, WorkspaceConfig } from '../types';
 import { Cell } from '../cell/Cell';
-import { StubBubble } from '../bubbles/_base/Bubble';
+import { getPrimitiveComponent } from '../bubbles';
 import type { SeedDict } from '../data/seedResolver';
 import { resolveSeedTokens } from '../data/seedResolver';
 import { DraggableBubble } from '../mechanics/DraggableBubble';
@@ -17,7 +17,6 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome }: WorkspaceShel
   const grid = workspace.layoutHints.grid;
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Mutable per-session placements: drag/resize updates this; reinit on workspace switch.
   const [placements, setPlacements] = useState<Record<string, GridPlacement>>(workspace.layoutHints.placements);
   useEffect(() => {
     setPlacements(workspace.layoutHints.placements);
@@ -87,6 +86,7 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome }: WorkspaceShel
       {resolvedStandalones.map((b) => {
         const p = placements[b.id];
         if (!p) return null;
+        const Comp = getPrimitiveComponent(b.type);
         return (
           <DraggableBubble
             key={b.id}
@@ -97,28 +97,10 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome }: WorkspaceShel
             onChange={updatePlacement(b.id)}
             className="bubble"
           >
-            <BubbleHost instance={b} />
+            <Comp instance={b} seeds={seeds} />
           </DraggableBubble>
         );
       })}
     </div>
   );
-}
-
-function BubbleHost({ instance }: { instance: BubbleInstance }): JSX.Element {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const bubble = new StubBubble(instance);
-    bubble.mount(ref.current, {
-      instance,
-      props: instance.props,
-      seed: {},
-      emit: () => {},
-    });
-    return () => bubble.unmount();
-  }, [instance.id]);
-
-  return <div ref={ref} style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }} />;
 }

@@ -102,7 +102,7 @@ export interface CellConfig {
   id: string;
   nucleus: { type: 'llm-chat'; props: ChatProps };
   brain: BrainBubbleConfig;
-  organelles: string[]; // bubble instance ids attached
+  organelles: BubbleInstance[]; // inline bubble instances attached as organelles
   scriptedTriggers: ScriptedTriggerRef[];
 }
 

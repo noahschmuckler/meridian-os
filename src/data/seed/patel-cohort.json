@@ -1,5 +1,93 @@
 {
   "patel": {
+    "dossier": {
+      "name": "Dr. Anika Patel",
+      "role": "PCP · Family Medicine",
+      "start_date": "2026-04-21",
+      "prior_residency": "NYU Langone — Family Medicine (2022–2025)",
+      "prior_practice": "First post-residency role",
+      "signal": [
+        { "metric": "pajama time", "value": "—", "trend": "flat" },
+        { "metric": "encounters/day", "value": "4", "trend": "up" },
+        { "metric": "throughput", "value": "ramping", "trend": "up" },
+        { "metric": "HCC closure", "value": "—", "trend": "flat" }
+      ],
+      "disciplinary": []
+    },
+    "blueprint": [
+      { "item_id": "pre-cred",        "position": 1,  "phase": "Pre-Start",   "statement": "Credentialing initiated and tracked biweekly" },
+      { "item_id": "pre-payer",       "position": 2,  "phase": "Pre-Start",   "statement": "Payer enrollment submitted for all contracted payers" },
+      { "item_id": "pre-it",          "position": 3,  "phase": "Pre-Start",   "statement": "IT/EHR provisioned (Epic, Haiku, Imprivata, RSA, RMG, Outlook, Teams)" },
+      { "item_id": "pre-mentor",      "position": 4,  "phase": "Pre-Start",   "statement": "Mentor and medical director identified and briefed" },
+
+      { "item_id": "wk1-orient",      "position": 10, "phase": "Week 1",      "statement": "Formal orientation (mission, culture, compliance)" },
+      { "item_id": "wk1-tour",        "position": 11, "phase": "Week 1",      "statement": "Facility tours (clinic, lab, imaging, pharmacy)" },
+      { "item_id": "wk1-storyboard",  "position": 12, "phase": "Week 1",      "statement": "Epic Storyboard navigation + workspace personalization" },
+      { "item_id": "wk1-smartphr",    "position": 13, "phase": "Week 1",      "statement": "SmartPhrases — view, create, share" },
+      { "item_id": "wk1-orderprefs",  "position": 14, "phase": "Week 1",      "statement": "Order preferences — star with dose/qty/refills/pharmacy" },
+      { "item_id": "wk1-los",         "position": 15, "phase": "Week 1",      "statement": "Level-of-Service buttons + pop-up setup" },
+      { "item_id": "wk1-hcc",         "position": 16, "phase": "Week 1",      "statement": "HCC suggestions — find, agree/disagree, why" },
+      { "item_id": "wk1-problemlist", "position": 17, "phase": "Week 1",      "statement": "Problem-based charting + Problem List discipline" },
+
+      { "item_id": "wk2-shadow",      "position": 20, "phase": "Weeks 2–4",   "statement": "Side-by-side clinical days with mentor and medical director" },
+      { "item_id": "wk2-ordersets",   "position": 21, "phase": "Weeks 2–4",   "statement": "Personal SmartSets created for top 5 visit types" },
+      { "item_id": "wk2-inbasket",    "position": 22, "phase": "Weeks 2–4",   "statement": "In-Basket workflow + 5 quick-action result buttons" },
+      { "item_id": "wk2-caregaps",    "position": 23, "phase": "Weeks 2–4",   "statement": "Care-gap closure — where they appear, how to close" },
+      { "item_id": "wk2-awv",         "position": 24, "phase": "Weeks 2–4",   "statement": "AWV SmartSet walkthrough + diagnosis-not-screening rule" },
+      { "item_id": "wk2-rampup",      "position": 25, "phase": "Weeks 2–4",   "statement": "Schedule ramp-up: adding 1 patient per session as ready" },
+      { "item_id": "wk2-review30",    "position": 26, "phase": "Weeks 2–4",   "statement": "30-day formal review completed" },
+
+      { "item_id": "mo23-volume",     "position": 30, "phase": "Months 2–3",  "statement": "Patient volume approaching 60–75% of target" },
+      { "item_id": "mo23-billing",    "position": 31, "phase": "Months 2–3",  "statement": "Billing, coding, encounter closure proficiency" },
+      { "item_id": "mo23-quality",    "position": 33, "phase": "Months 2–3",  "statement": "Quality metrics dashboard reviewed" },
+      { "item_id": "mo23-review90",   "position": 34, "phase": "Months 2–3",  "statement": "90-day comprehensive review completed" },
+
+      { "item_id": "mo412-cadence",   "position": 40, "phase": "Months 4–12", "statement": "Monthly through Month 6, quarterly through Month 12" },
+      { "item_id": "mo412-billing",   "position": 42, "phase": "Months 4–12", "statement": "Billing audit (10 charts) — E&M accuracy + diagnosis linking" },
+      { "item_id": "mo412-dax",       "position": 43, "phase": "Months 4–12", "statement": "DAX Copilot optimization — tweaks, custom prompts, drift checks" }
+    ],
+    "hub_state_full": {
+      "pre-cred":        { "status": "covered",   "source": "manual" },
+      "pre-payer":       { "status": "covered",   "source": "manual" },
+      "pre-it":          { "status": "covered",   "source": "manual" },
+      "pre-mentor":      { "status": "covered",   "source": "manual" },
+      "wk1-orient":      { "status": "covered",   "source": "manual" },
+      "wk1-tour":        { "status": "covered",   "source": "manual" },
+      "wk1-storyboard":  { "status": "covered",   "source": "transcript" },
+      "wk1-smartphr":    { "status": "covered",   "source": "transcript" },
+      "wk1-orderprefs":  { "status": "covered",   "source": "transcript" },
+      "wk1-los":         { "status": "missed",    "source": "transcript" },
+      "wk1-hcc":         { "status": "missed",    "source": "transcript" },
+      "wk1-problemlist": { "status": "scheduled", "source": "manual" }
+    },
+    "followups": [
+      {
+        "id": "fu-pto",
+        "topic": "PTO request via Workday",
+        "trainee_question": "How do I request time off — is it Workday or a different system?",
+        "priority": "high"
+      },
+      {
+        "id": "fu-toc",
+        "topic": "Panel management for transitions of care",
+        "trainee_question": "Who tracks the post-discharge follow-ups for my panel?",
+        "priority": "med"
+      },
+      {
+        "id": "fu-los-recap",
+        "topic": "LOS rubric — recap with worked examples",
+        "priority": "high"
+      }
+    ],
+    "generated_modules": [
+      {
+        "module_id": "patel-day2-2026-04-25",
+        "title": "Day 2 — Targeted Follow-Up",
+        "generated_at": "2026-04-25T16:42:00Z",
+        "source_session_id": "onboarding-day1",
+        "carry_forward_count": 5
+      }
+    ],
     "hub_state": "5/12 items covered, 2 missed, 1 follow-up open",
     "last_session": "Day 1 covered SmartPhrases + In-Basket; missed LOS rubric, HCC.",
     "smartphrases": [".pcphpi", ".diabfu", ".visitwrap"]

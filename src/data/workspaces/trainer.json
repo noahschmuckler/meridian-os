@@ -17,28 +17,66 @@
         ],
         "hydrationRules": { "onAttach": "auto-add", "onDrop": "auto-add" }
       },
-      "organelles": ["blueprint", "agenda", "followups"],
+      "organelles": [
+        {
+          "id": "blueprint",
+          "type": "blueprint-tree",
+          "title": "Blueprint",
+          "props": {
+            "items": { "$seed": "patel.blueprint" },
+            "hubState": { "$seed": "patel.hub_state_full" }
+          },
+          "resize": { "initial": "m", "states": {} }
+        },
+        {
+          "id": "followups",
+          "type": "follow-ups-rail",
+          "title": "Follow-ups",
+          "props": { "items": { "$seed": "patel.followups" } },
+          "resize": { "initial": "s", "states": {} }
+        }
+      ],
       "scriptedTriggers": []
     }
   ],
   "standalones": [
-    { "id": "dossier", "type": "provider-dossier", "title": "Dr. Patel — Dossier",
-      "props": {}, "resize": { "initial": "m", "states": {} } },
-    { "id": "questionnaire", "type": "questionnaire", "title": "Week-0 Questionnaire",
-      "props": {}, "resize": { "initial": "s", "states": {} } },
-    { "id": "dropzone", "type": "dropzone", "title": "Drop transcript",
-      "props": {}, "resize": { "initial": "s", "states": {} } },
-    { "id": "generated", "type": "generated-sessions-rail", "title": "Generated sessions",
-      "props": {}, "resize": { "initial": "s", "states": {} } }
+    {
+      "id": "dossier",
+      "type": "provider-dossier",
+      "title": "Dr. Patel — Dossier",
+      "props": { "dossier": { "$seed": "patel.dossier" } },
+      "resize": { "initial": "m", "states": {} }
+    },
+    {
+      "id": "questionnaire",
+      "type": "questionnaire",
+      "title": "Week-0 Questionnaire",
+      "props": {},
+      "resize": { "initial": "s", "states": {} }
+    },
+    {
+      "id": "dropzone",
+      "type": "dropzone",
+      "title": "Drop transcript",
+      "props": {},
+      "resize": { "initial": "s", "states": {} }
+    },
+    {
+      "id": "generated",
+      "type": "generated-sessions-rail",
+      "title": "Generated sessions",
+      "props": { "sessions": { "$seed": "patel.generated_modules" } },
+      "resize": { "initial": "s", "states": {} }
+    }
   ],
   "layoutHints": {
     "grid": { "cols": 12, "rows": 8 },
     "placements": {
-      "trainer-chat": { "col": 0, "row": 0, "width": 7, "height": 5 },
-      "dossier": { "col": 7, "row": 0, "width": 5, "height": 3 },
-      "questionnaire": { "col": 7, "row": 3, "width": 5, "height": 2 },
-      "dropzone": { "col": 0, "row": 5, "width": 4, "height": 3 },
-      "generated": { "col": 4, "row": 5, "width": 8, "height": 3 }
+      "trainer-chat":  { "col": 0, "row": 0, "width": 7, "height": 6 },
+      "dossier":       { "col": 7, "row": 0, "width": 5, "height": 3 },
+      "questionnaire": { "col": 7, "row": 3, "width": 5, "height": 3 },
+      "dropzone":      { "col": 0, "row": 6, "width": 4, "height": 2 },
+      "generated":     { "col": 4, "row": 6, "width": 8, "height": 2 }
     }
   },
   "scripted": {
