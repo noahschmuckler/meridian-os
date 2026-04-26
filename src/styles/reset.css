@@ -5,6 +5,12 @@ html, body, #app {
   padding: 0;
   height: 100%;
   overflow: hidden; /* density-first: no app-level scroll */
+  /* Belt-and-suspenders alongside the viewport meta: disable native pan/zoom
+     so our pointer-driven gestures (long-press lift, splitter/corner drag,
+     double-tap maximize) own the touch surface. Scrollable children (chat
+     messages, blueprint list) re-enable pan-y locally. */
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 body {

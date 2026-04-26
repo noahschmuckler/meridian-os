@@ -149,6 +149,9 @@
   flex: 1;
   padding: 12px;
   overflow: auto; /* per-bubble, not page-level */
+  /* Allow vertical scroll within bubble bodies (FAQ lists, blueprint trees,
+     follow-ups) while the page-level touch-action stays none. */
+  touch-action: pan-y;
 }
 
 .bubble__resize {
@@ -640,6 +643,9 @@
   flex: 1;
   overflow: auto;
   min-height: 0;
+  /* Re-enable vertical scroll inside the chat history despite the global
+     touch-action: none on html/body. */
+  touch-action: pan-y;
 }
 .llm-chat__msg {
   padding: 6px 10px;
@@ -714,6 +720,35 @@
   -webkit-user-select: text;
   -moz-user-select: text;
   user-select: text;
+}
+
+/* Chat-internal reset controls — small, faded; live in the chat chrome.
+   Compact and Clear are independent of the workspace ⟲ reset. */
+.llm-chat__chrome-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.llm-chat__action {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--duration-1) var(--ease-out), color var(--duration-1) var(--ease-out);
+}
+.llm-chat__action:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.llm-chat__action:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: transparent;
+  color: var(--ink-faint);
 }
 
 /* === BSP layout === */

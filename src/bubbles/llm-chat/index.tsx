@@ -107,13 +107,49 @@ export function LlmChat({ instance, onDismissMini, onMessagesChange }: Props): J
     }, 350 + Math.random() * 350);
   }
 
+  function compactConversation(): void {
+    if (messages.length <= 1) return;
+    const summaryText =
+      '⤓ Conversation compacted — ' + LOREM_CHUNKS[Math.floor(Math.random() * LOREM_CHUNKS.length)];
+    const summary: Message = { id: nextId('compact'), role: 'system', text: summaryText };
+    latestRef.current = [summary];
+    onMessagesChange?.([summary]);
+  }
+
+  function clearConversation(): void {
+    if (p.greeting) {
+      const seed: Message = { id: nextId('sys-greet'), role: 'system', text: p.greeting };
+      latestRef.current = [seed];
+      onMessagesChange?.([seed]);
+    } else {
+      latestRef.current = [];
+      onMessagesChange?.([]);
+    }
+  }
+
   const weight = chatHistoryWeight(messages);
 
   return (
     <div class="llm-chat" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
         <span class="bubble__title">{instance.title}</span>
-        <span style={{ fontSize: 10, opacity: 0.6 }}>chat · {p.defaultPersona ?? 'default'}</span>
+        <div class="llm-chat__chrome-actions">
+          <button
+            class="llm-chat__action"
+            onClick={(e) => { e.stopPropagation(); compactConversation(); }}
+            title="Summarize prior turns and continue"
+            disabled={messages.length <= 1}
+          >
+            compact
+          </button>
+          <button
+            class="llm-chat__action"
+            onClick={(e) => { e.stopPropagation(); clearConversation(); }}
+            title="Clear conversation"
+          >
+            clear
+          </button>
+        </div>
       </div>
       {p.brain && <BrainBubble brain={p.brain} chatHistoryWeight={weight} onDismiss={onDismissMini} />}
       <div class="bubble__body" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>

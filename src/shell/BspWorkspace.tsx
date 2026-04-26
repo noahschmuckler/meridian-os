@@ -689,11 +689,50 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     setRoot(splitLeafInsert(root, target.bubbleId, 'right', id, DEFAULT_MIN_W, DEFAULT_MIN_H, 0.5));
   }
 
-  // === Reset workspace to JSON template ===
+  // === Reset workspace LAYOUT (positions only) ===
+  // Returns every JSON-template bubble to its original placement and size.
+  // PRESERVES chat history, attached brain items, and any other state on
+  // template bubbles. Drops bubbles that aren't in the JSON template
+  // (summoned placeholders, vault picks). Chat content has its own
+  // compact/clear inside the chat — workspace reset doesn't touch it.
   function resetWorkspace(): void {
-    deleteWorkspaceState(workspace.id);
-    setRegistry(initialRegistry(workspace, placements));
-    setRoot(null); // buildBSP effect rebuilds from initialRegistry
+    setRegistry((prev) => {
+      const next: Record<string, BubbleBundle> = {};
+      for (const cell of workspace.cells) {
+        const p = placements[cell.id];
+        if (!p) continue;
+        const existing = prev[cell.id];
+        next[cell.id] = existing
+          ? { ...existing, placement: p }
+          : {
+              kind: 'cell',
+              cellRef: cell,
+              instance: null,
+              placement: p,
+              minW: CELL_MIN_W,
+              minH: CELL_MIN_H,
+            };
+      }
+      for (const std of workspace.standalones) {
+        const p = placements[std.id];
+        if (!p) continue;
+        const existing = prev[std.id];
+        next[std.id] = existing
+          ? { ...existing, placement: p }
+          : {
+              kind: 'standalone',
+              cellRef: null,
+              instance: std,
+              placement: p,
+              minW: DEFAULT_MIN_W,
+              minH: DEFAULT_MIN_H,
+            };
+      }
+      return next;
+    });
+    setMaximized(null);
+    setRoot(null); // buildBSP rebuilds from the now-template-positioned registry
+    deleteWorkspaceState(workspace.id); // next persist will write the post-reset state
   }
 
   // === Save / load layouts ===
