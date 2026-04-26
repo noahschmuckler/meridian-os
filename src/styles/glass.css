@@ -221,31 +221,32 @@
 .home__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 28px;
+  gap: 32px;
   transform: rotateX(4deg) translateY(-12px) scale(0.97);
   transform-style: preserve-3d;
 }
 
-/* Tile aspect matches the workspace grid (12 cols x 8 rows = 3:2) so the
-   preview reads as a true scaled-down workspace, not a distorted mini. */
+/* Each tile is a Mondrian painting: no frame, no glass surface, no rounded
+   corners — just a black canvas subdivided by margins (the firm gridlines)
+   with primary-color blocks for each bubble. Aspect 3:2 matches the
+   workspace's 12x8 grid. */
 .home__tile {
   aspect-ratio: 3 / 2;
-  background: var(--surface);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-3);
-  box-shadow: var(--shadow-1);
+  background: #0f0f0f;
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.10);
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  padding: 0;
   transition: transform var(--duration-1) var(--ease-out),
               box-shadow var(--duration-1) var(--ease-out);
 }
 
 .home__tile:hover {
-  transform: translateY(-3px) translateZ(20px);
-  box-shadow: var(--shadow-2);
+  transform: translateY(-4px) translateZ(24px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .home__tile.is-greyed {
@@ -253,34 +254,35 @@
   filter: saturate(0.5);
 }
 
-/* Preview fills the whole tile; bubbles morph to the tile's aspect ratio
-   via percent-positioning so a 12x8 workspace reads cleanly in a 3:2 frame.
-   Mondrian language: black background shows through as firm grid lines
-   between solid color blocks (each bubble = a primary-color block in mini). */
+/* Preview is the tile — no separate inner frame; bubble blocks sit directly
+   on the tile's black canvas, separated by thin margins that read as
+   Mondrian gridlines. */
 .home__tile-preview {
   position: absolute;
   inset: 0;
-  background: #0f0f0f;
   overflow: hidden;
 }
 
-/* Title overlay floats at the bottom of the tile with a subtle gradient
-   for legibility against any preview content underneath. */
+/* Title overlay: a small label sitting on top of the painting at top-left,
+   like a museum placard signed onto the canvas. */
 .home__tile-title {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 24px 14px 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.85) 60%, rgba(255, 255, 255, 0.95) 100%);
+  top: 10px;
+  left: 10px;
+  z-index: 5;
   pointer-events: none;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #1a1a1a;
+  padding: 3px 9px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .home__tile-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink);
-  letter-spacing: 0.01em;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f0f0f;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .home__tile-empty {
@@ -290,7 +292,7 @@
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  color: var(--ink-faint);
+  color: rgba(245, 245, 240, 0.6);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -300,9 +302,9 @@
   border: 0;
   border-radius: 0;
   background: var(--type-color, #f5f5f5);
-  /* margin creates the black gap between adjacent blocks → Mondrian lines */
-  margin: 2px;
-  width: calc(var(--w, 0%) - 0px);
+  /* Margins create the firm black gridlines between adjacent color blocks.
+     3px each side → 6px black line where two blocks meet — true Mondrian. */
+  margin: 3px;
 }
 
 /* === Mondrian-inspired type palette ===
