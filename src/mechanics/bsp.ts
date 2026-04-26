@@ -249,6 +249,151 @@ function mutateSplit(node: BSPNode, region: Region, targetId: string, requested:
   }
 }
 
+// === Add / remove operations =========================================
+
+/**
+ * Remove a leaf from the BSP. Its parent split node is replaced by the
+ * sibling subtree (the slot collapses; neighbors flow in to fill).
+ * Throws if the bubble is the only leaf in the tree.
+ */
+export function removeLeaf(root: BSPRoot, bubbleId: string): BSPRoot {
+  const result = removeFromNode(root.node, bubbleId);
+  if (result.mode === 'not-found') return root;
+  if (result.mode === 'removed') {
+    throw new Error('cannot remove the last leaf in the workspace');
+  }
+  return { ...root, node: result.node };
+}
+
+type RemoveResult =
+  | { mode: 'removed' }
+  | { mode: 'kept'; node: BSPNode }
+  | { mode: 'not-found' };
+
+function removeFromNode(node: BSPNode, id: string): RemoveResult {
+  if (node.kind === 'leaf') {
+    return node.bubbleId === id ? { mode: 'removed' } : { mode: 'not-found' };
+  }
+  const a = removeFromNode(node.children[0], id);
+  if (a.mode === 'removed') {
+    return { mode: 'kept', node: node.children[1] };
+  }
+  if (a.mode === 'kept') {
+    return { mode: 'kept', node: { ...node, children: [a.node, node.children[1]] } };
+  }
+  const b = removeFromNode(node.children[1], id);
+  if (b.mode === 'removed') {
+    return { mode: 'kept', node: node.children[0] };
+  }
+  if (b.mode === 'kept') {
+    return { mode: 'kept', node: { ...node, children: [node.children[0], b.node] } };
+  }
+  return { mode: 'not-found' };
+}
+
+/**
+ * Split a target leaf in two and insert a new bubble on the specified side.
+ * The new leaf occupies `ratio` of the target's space (default 0.5).
+ */
+export function splitLeafInsert(
+  root: BSPRoot,
+  targetBubbleId: string,
+  side: 'left' | 'right' | 'top' | 'bottom',
+  newBubbleId: string,
+  newMinW = 1,
+  newMinH = 1,
+  ratio = 0.5,
+): BSPRoot {
+  const result = splitInNode(root.node, root.region, targetBubbleId, side, newBubbleId, newMinW, newMinH, ratio);
+  if (!result) return root;
+  return { ...root, node: result };
+}
+
+function splitInNode(
+  node: BSPNode,
+  region: Region,
+  targetId: string,
+  side: 'left' | 'right' | 'top' | 'bottom',
+  newId: string,
+  newMinW: number,
+  newMinH: number,
+  ratio: number,
+): BSPNode | null {
+  if (node.kind === 'leaf') {
+    if (node.bubbleId !== targetId) return null;
+
+    const orientation: Orientation = side === 'left' || side === 'right' ? 'v' : 'h';
+    const splitAt =
+      orientation === 'v'
+        ? region.col + region.w * (side === 'left' ? ratio : 1 - ratio)
+        : region.row + region.h * (side === 'top' ? ratio : 1 - ratio);
+
+    const newLeaf: BSPLeaf = {
+      kind: 'leaf',
+      bubbleId: newId,
+      minW: newMinW,
+      minH: newMinH,
+    };
+
+    const isFirstChild = side === 'left' || side === 'top';
+    return {
+      kind: 'split',
+      id: nextSplitId(),
+      orientation,
+      splitAt,
+      children: isFirstChild ? [newLeaf, node] : [node, newLeaf],
+    };
+  }
+
+  if (node.orientation === 'h') {
+    const topR = { col: region.col, row: region.row, w: region.w, h: node.splitAt - region.row };
+    const botR = { col: region.col, row: node.splitAt, w: region.w, h: region.row + region.h - node.splitAt };
+    const a = splitInNode(node.children[0], topR, targetId, side, newId, newMinW, newMinH, ratio);
+    if (a) return { ...node, children: [a, node.children[1]] };
+    const b = splitInNode(node.children[1], botR, targetId, side, newId, newMinW, newMinH, ratio);
+    if (b) return { ...node, children: [node.children[0], b] };
+  } else {
+    const leftR = { col: region.col, row: region.row, w: node.splitAt - region.col, h: region.h };
+    const rightR = { col: node.splitAt, row: region.row, w: region.col + region.w - node.splitAt, h: region.h };
+    const a = splitInNode(node.children[0], leftR, targetId, side, newId, newMinW, newMinH, ratio);
+    if (a) return { ...node, children: [a, node.children[1]] };
+    const b = splitInNode(node.children[1], rightR, targetId, side, newId, newMinW, newMinH, ratio);
+    if (b) return { ...node, children: [node.children[0], b] };
+  }
+  return null;
+}
+
+/**
+ * Replace one leaf's bubbleId with another (used for placeholder consumption).
+ */
+export function replaceLeaf(root: BSPRoot, targetId: string, newId: string): BSPRoot {
+  return { ...root, node: replaceInNode(root.node, targetId, newId) };
+}
+
+function replaceInNode(node: BSPNode, targetId: string, newId: string): BSPNode {
+  if (node.kind === 'leaf') {
+    return node.bubbleId === targetId ? { ...node, bubbleId: newId } : node;
+  }
+  return {
+    ...node,
+    children: [replaceInNode(node.children[0], targetId, newId), replaceInNode(node.children[1], targetId, newId)],
+  };
+}
+
+/**
+ * Find the largest leaf in the tree (by area). Used for "+ summon" to know
+ * where to insert a new placeholder when no specific drop target is given.
+ */
+export function findLargestLeaf(root: BSPRoot): { bubbleId: string; region: Region } | null {
+  const { leaves } = renderBSP(root);
+  if (leaves.length === 0) return null;
+  let best = leaves[0];
+  for (const l of leaves) {
+    if (l.region.w * l.region.h > best.region.w * best.region.h) best = l;
+  }
+  return { bubbleId: best.bubbleId, region: best.region };
+}
+
 // === Corner detection =================================================
 
 export interface BSPCorner {

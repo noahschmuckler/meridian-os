@@ -527,3 +527,72 @@
   .bubble__chrome { display: none; }
   .cell-inner > * { display: none; }
 }
+
+/* === Placeholder bubble === */
+.bubble--placeholder, .cell.bubble--placeholder {
+  background: rgba(140, 150, 148, 0.18);
+  border: 1px dashed rgba(120, 130, 128, 0.40);
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+}
+.placeholder__hint {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+.placeholder__sub {
+  font-size: 10px;
+  color: var(--ink-faint);
+  opacity: 0.7;
+}
+
+/* === Ghost (lifted bubble) === */
+.bubble--ghost {
+  border-color: var(--accent);
+  border-width: 1.5px;
+}
+
+/* When the workspace is in lift mode, hint at it via a subtle background tint */
+.bsp-workspace.is-lifting {
+  background: linear-gradient(180deg, var(--bg) 0%, var(--accent-soft) 100%);
+}
+
+/* === Summon button === */
+.bsp-summon {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  box-shadow: var(--shadow-2);
+  z-index: 150;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-1) var(--ease-out), box-shadow var(--duration-1) var(--ease-out);
+}
+.bsp-summon:hover {
+  transform: scale(1.05);
+}
+.bsp-summon:active {
+  transform: scale(0.96);
+}

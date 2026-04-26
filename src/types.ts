@@ -25,7 +25,8 @@ export type BubblePrimitiveType =
   | 'markdown'
   | 'spreadsheet'
   | 'email-thread'
-  | 'manual-control-search';
+  | 'manual-control-search'
+  | 'placeholder';
 
 export type SizeKey = 'xs' | 's' | 'm' | 'l' | 'xl';
 
