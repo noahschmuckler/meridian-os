@@ -134,16 +134,39 @@
   letter-spacing: 0.04em;
 }
 
-/* Brain bubble lives inside the chat nucleus; mini-bubbles cluster inside */
+/* Brain bubble — visible LLM context, with fullness fill as background */
 .brain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-1);
+  min-height: 32px;
+  border: 1px solid transparent;
+  transition: border-color var(--duration-1) var(--ease-out);
+}
+.brain--overfilled {
+  border-color: var(--warn);
+  box-shadow: 0 0 0 2px rgba(180, 83, 9, 0.15);
+}
+.brain__items {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 6px 8px;
-  background: var(--accent-soft);
-  border-radius: var(--radius-1);
-  min-height: 32px;
+  flex: 1;
+  min-width: 0;
 }
+.brain__meter {
+  font-size: 10px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.brain--overfilled .brain__meter { color: var(--warn); }
 
 .brain__mini {
   background: var(--surface-strong);
@@ -153,6 +176,7 @@
   font-size: 11px;
   color: var(--ink-soft);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .brain__mini.is-pinned {
@@ -741,3 +765,55 @@
 .brain__mini--summary   { border-color: #7C6FB8; color: #5B4FBF; }
 .brain__mini--reference { border-color: var(--ink-faint); }
 .brain__mini--edit      { border-color: var(--warn); color: var(--warn); }
+
+/* === Vault (placeholder → real bubble type) === */
+.vault {
+  background: var(--surface-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-2);
+  padding: 16px;
+  width: min(560px, 100%);
+  max-height: 80vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.vault__hdr {
+  font-size: 13px;
+  color: var(--ink);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.vault__sub {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+.vault__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+.vault__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: var(--radius-1);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: center;
+  cursor: pointer;
+  transition: background var(--duration-1) var(--ease-out), border-color var(--duration-1) var(--ease-out), transform var(--duration-1) var(--ease-out);
+}
+.vault__item:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.vault__glyph { font-size: 28px; line-height: 1; }
+.vault__lbl { font-size: 12px; font-weight: 600; color: var(--ink); }
+.vault__desc { font-size: 10px; color: var(--ink-soft); line-height: 1.3; }

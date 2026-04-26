@@ -10,7 +10,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
-import type { AttachRelationship, BubbleInstance, ChatProps, GridPlacement, MiniBubble, WorkspaceConfig } from '../types';
+import type { AttachRelationship, BubbleInstance, BubblePrimitiveType, ChatProps, GridPlacement, MiniBubble, WorkspaceConfig } from '../types';
 import { Cell } from '../cell/Cell';
 import { getPrimitiveComponent } from '../bubbles';
 import type { SeedDict } from '../data/seedResolver';
@@ -93,6 +93,7 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
     anchorX: number;
     anchorY: number;
   } | null>(null);
+  const [vaultOpen, setVaultOpen] = useState<{ placeholderId: string } | null>(null);
 
   useEffect(() => {
     try {
@@ -204,7 +205,15 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
   }
   function onBubblePointerUp(e: PointerEvent): void {
     const lp = longPressRef.current;
-    if (lp?.timer) window.clearTimeout(lp.timer);
+    if (lp?.timer) {
+      window.clearTimeout(lp.timer);
+      // Long-press timer hadn't fired yet → this was a tap. Placeholders open
+      // the vault on tap; other bubble types do nothing on tap (yet).
+      const bundle = registry[lp.bubbleId];
+      if (bundle?.instance?.type === 'placeholder') {
+        setVaultOpen({ placeholderId: lp.bubbleId });
+      }
+    }
     longPressRef.current = null;
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
@@ -503,6 +512,29 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
     });
   }
 
+  // === Vault (tap a placeholder to assign a real type) ===
+  function pickFromVault(type: BubblePrimitiveType, label: string): void {
+    if (!vaultOpen) return;
+    const id = vaultOpen.placeholderId;
+    setRegistry((prev) => {
+      const ph = prev[id];
+      if (!ph?.instance) return prev;
+      return {
+        ...prev,
+        [id]: {
+          ...ph,
+          instance: {
+            ...ph.instance,
+            type,
+            title: label,
+            props: {},
+          },
+        },
+      };
+    });
+    setVaultOpen(null);
+  }
+
   // === Summon placeholder ===
   function summonPlaceholder(): void {
     if (!root) return;
@@ -741,6 +773,28 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         </>
       )}
 
+      {/* Vault — tap a placeholder to assign it a real bubble type */}
+      {vaultOpen && (
+        <div class="attach-menu-backdrop" onClick={() => setVaultOpen(null)}>
+          <div class="vault" onClick={(e) => e.stopPropagation()}>
+            <div class="vault__hdr">
+              <strong>Vault</strong>
+              <div class="vault__sub">pick what this empty slot becomes</div>
+            </div>
+            <div class="vault__grid">
+              {VAULT_ITEMS.map((it) => (
+                <button key={it.type} class="vault__item" onClick={() => pickFromVault(it.type, it.label)}>
+                  <span class="vault__glyph">{it.glyph}</span>
+                  <span class="vault__lbl">{it.label}</span>
+                  <span class="vault__desc">{it.desc}</span>
+                </button>
+              ))}
+            </div>
+            <button class="attach-menu__cancel" onClick={() => setVaultOpen(null)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
       {/* Attach-to-chat menu (modal) */}
       {attachMenu && (
         <div class="attach-menu-backdrop" onClick={cancelAttach}>
@@ -786,6 +840,24 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
     </div>
   );
 }
+
+interface VaultItem {
+  type: BubblePrimitiveType;
+  label: string;
+  glyph: string;
+  desc: string;
+}
+
+const VAULT_ITEMS: VaultItem[] = [
+  { type: 'markdown', label: 'Markdown notes', glyph: '📄', desc: 'free-text notes, agendas, plans' },
+  { type: 'spreadsheet', label: 'Spreadsheet', glyph: '📊', desc: 'tabular data; exportable to Excel' },
+  { type: 'email-thread', label: 'Email thread', glyph: '✉️', desc: 'discussion thread + drafting' },
+  { type: 'faq-block', label: 'FAQ / reference', glyph: '📚', desc: 'expandable Q&A reference' },
+  { type: 'blueprint-tree', label: 'Phased blueprint', glyph: '🗂', desc: 'phased checklist with status pills' },
+  { type: 'dashboard-numbers', label: 'Metrics', glyph: '📈', desc: 'numbers + trends, resize-aware' },
+  { type: 'meeting-tracker', label: 'Meeting tracker', glyph: '📅', desc: 'past + planned meetings, summaries' },
+  { type: 'glidepath-chart', label: 'Glidepath', glyph: '🎯', desc: 'goal vs. current with target line' },
+];
 
 function initialRegistry(workspace: WorkspaceConfig, placements: Record<string, GridPlacement>): Record<string, BubbleBundle> {
   const m: Record<string, BubbleBundle> = {};
