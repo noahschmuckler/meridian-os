@@ -642,6 +642,35 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     });
   }
 
+  function setMiniRelationship(chatId: string, miniId: string, rel: AttachRelationship): void {
+    setRegistry((prev) => {
+      const chat = prev[chatId];
+      if (!chat?.instance) return prev;
+      const oldProps = chat.instance.props as ChatProps;
+      const oldMini: MiniBubble[] = oldProps.brain?.miniBubbles ?? [];
+      return {
+        ...prev,
+        [chatId]: {
+          ...chat,
+          instance: {
+            ...chat.instance,
+            props: {
+              ...oldProps,
+              brain: {
+                miniBubbles: oldMini.map((m) =>
+                  m.id === miniId
+                    ? { ...m, relationship: rel, pinned: rel === 'edit' || rel === 'summary' }
+                    : m,
+                ),
+                hydrationRules: oldProps.brain?.hydrationRules ?? {},
+              },
+            },
+          },
+        },
+      };
+    });
+  }
+
   // === Vault (tap a placeholder to assign a real type) ===
   function pickFromVault(type: BubblePrimitiveType, label: string): void {
     if (!vaultOpen) return;
@@ -883,6 +912,8 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
         const extraProps = inst.type === 'llm-chat'
           ? {
               onDismissMini: (miniId: string) => dismissMini(leaf.bubbleId, miniId),
+              onSetMiniRelationship: (miniId: string, rel: AttachRelationship) =>
+                setMiniRelationship(leaf.bubbleId, miniId, rel),
               onMessagesChange: (messages: unknown[]) => updateChatMessages(leaf.bubbleId, messages),
             }
           : {};
@@ -1068,10 +1099,10 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
               <span class="attach-menu__lbl">Scan + summarize</span>
               <span class="attach-menu__desc">commit a summary to memory · dismiss the original</span>
             </button>
-            <button class="attach-menu__opt" onClick={() => commitAttach('reference')}>
+            <button class="attach-menu__opt" onClick={() => commitAttach('held')}>
               <span class="attach-menu__glyph">🔗</span>
-              <span class="attach-menu__lbl">Reference only</span>
-              <span class="attach-menu__desc">keep available · don't actively read</span>
+              <span class="attach-menu__lbl">Held only</span>
+              <span class="attach-menu__desc">title + a sentence of context · don't read the full document</span>
             </button>
             <button class="attach-menu__opt" onClick={() => commitAttach('edit')}>
               <span class="attach-menu__glyph">✏️</span>

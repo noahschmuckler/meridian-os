@@ -57,7 +57,9 @@ export interface BubbleInstance {
   search?: { enabled: boolean; placeholder?: string };
 }
 
-export type AttachRelationship = 'deep' | 'summary' | 'reference' | 'edit';
+// 'held' replaces the older 'reference' — title + a sentence of context, no reading.
+// Old persisted state may still carry 'reference'; readers normalize it to 'held'.
+export type AttachRelationship = 'deep' | 'summary' | 'held' | 'edit';
 
 export interface MiniBubble {
   id: string;

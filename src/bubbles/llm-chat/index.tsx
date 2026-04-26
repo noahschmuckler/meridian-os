@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
-import type { BrainBubbleConfig, BubbleInstance } from '../../types';
+import type { AttachRelationship, BrainBubbleConfig, BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { BrainBubble } from '../../cell/BrainBubble';
 
@@ -29,6 +29,7 @@ interface Props {
   instance: BubbleInstance;
   seeds: SeedDict;
   onDismissMini?: (miniId: string) => void;
+  onSetMiniRelationship?: (miniId: string, rel: AttachRelationship) => void;
   onMessagesChange?: (messages: Message[]) => void;
 }
 
@@ -57,7 +58,14 @@ function chatHistoryWeight(messages: Message[]): number {
   return Math.min(0.95, 0.05 + totalChars / 20000);
 }
 
-export function LlmChat({ instance, onDismissMini, onMessagesChange }: Props): JSX.Element {
+// A compacted chat is the single ⤓-prefixed system message produced by compact().
+// Cheap detection from message shape — survives persistence with no schema change.
+const COMPACT_PREFIX = '⤓ ';
+function isCompactedChat(messages: Message[]): boolean {
+  return messages.length === 1 && messages[0].role === 'system' && messages[0].text.startsWith(COMPACT_PREFIX);
+}
+
+export function LlmChat({ instance, onDismissMini, onSetMiniRelationship, onMessagesChange }: Props): JSX.Element {
   const p = instance.props as LlmChatProps;
   const propsMessages = p.messages;
   const messages: Message[] = propsMessages ?? [];
@@ -127,7 +135,10 @@ export function LlmChat({ instance, onDismissMini, onMessagesChange }: Props): J
     }
   }
 
-  const weight = chatHistoryWeight(messages);
+  const compacted = isCompactedChat(messages);
+  // Compacted history is a small fixed share — the prior conversation has been
+  // summarized into a single line, so it occupies little context.
+  const weight = compacted ? 0.04 : chatHistoryWeight(messages);
 
   return (
     <div class="llm-chat" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -151,7 +162,17 @@ export function LlmChat({ instance, onDismissMini, onMessagesChange }: Props): J
           </button>
         </div>
       </div>
-      {p.brain && <BrainBubble brain={p.brain} chatHistoryWeight={weight} onDismiss={onDismissMini} />}
+      {p.brain && (
+        <BrainBubble
+          brain={p.brain}
+          chatHistoryWeight={weight}
+          chatCompacted={compacted}
+          onDismissMini={onDismissMini}
+          onSetMiniRelationship={onSetMiniRelationship}
+          onCompactChat={compactConversation}
+          onClearChat={clearConversation}
+        />
+      )}
       <div class="bubble__body" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
         <div class="llm-chat__messages" ref={messagesElRef}>
           {messages.map((m) => (

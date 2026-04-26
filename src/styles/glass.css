@@ -242,55 +242,127 @@
   letter-spacing: 0.04em;
 }
 
-/* Brain bubble — visible LLM context, with fullness fill as background */
+/* Brain bubble — task-manager status bar of the LLM's visible context.
+ * Default mode is just the bar; tap toggles to a labeled row view. */
 .brain {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 6px;
   border-radius: var(--radius-1);
-  min-height: 32px;
   border: 1px solid transparent;
   transition: border-color var(--duration-1) var(--ease-out);
+  cursor: pointer;
 }
 .brain--overfilled {
   border-color: var(--warn);
   box-shadow: 0 0 0 2px rgba(180, 83, 9, 0.15);
 }
-.brain__items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-}
-.brain__meter {
-  font-size: 10px;
-  color: var(--ink);
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 999px;
-  padding: 1px 8px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-.brain--overfilled .brain__meter { color: var(--warn); }
 
-.brain__mini {
+.brain__bar {
+  position: relative;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: hsl(150, 18%, 90%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.brain__bar-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  transition: filter 160ms var(--ease-out), background 200ms var(--ease-out);
+}
+.brain__bar-seg--free {
+  cursor: default;
+}
+.brain__bar-seg:not(.brain__bar-seg--free):hover {
+  filter: brightness(1.1) saturate(1.1);
+}
+
+.brain__floating-row {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  background: rgba(20, 22, 26, 0.94);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: 8px auto auto auto;
+  gap: 8px;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.brain__floating-row .brain__row-name { color: white; font-weight: 500; }
+.brain__floating-row .brain__row-type { color: rgba(255, 255, 255, 0.7); }
+.brain__floating-row .brain__row-pct { color: rgba(255, 255, 255, 0.85); font-variant-numeric: tabular-nums; }
+
+.brain__task {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   background: var(--surface-strong);
   border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 2px 10px;
+  border-radius: var(--radius-1);
+  padding: 3px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.brain__row {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 6px;
   font-size: 11px;
-  color: var(--ink-soft);
+  border-radius: 4px;
   cursor: pointer;
-  white-space: nowrap;
+  transition: background 120ms var(--ease-out);
 }
+.brain__row:hover { background: rgba(0, 0, 0, 0.05); }
+.brain__row--free { cursor: default; }
+.brain__row--free:hover { background: transparent; }
+.brain__row-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.brain__row-name { color: var(--ink); font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brain__row-type { color: var(--ink-faint); font-size: 10px; text-transform: lowercase; letter-spacing: 0.02em; }
+.brain__row-pct { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 
-.brain__mini.is-pinned {
-  border-color: var(--accent);
-  color: var(--accent);
+.brain__menu {
+  position: absolute;
+  z-index: 40;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-1);
+  padding: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
 }
+.brain__menu-item {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.brain__menu-item:hover { background: rgba(0, 0, 0, 0.05); }
+.brain__menu-item--danger { color: var(--warn); }
+.brain__menu-item--danger:hover { background: rgba(180, 83, 9, 0.08); }
 
 /* === Home screen === workspaces sit slightly past focal distance */
 .home {
@@ -1135,15 +1207,7 @@
 }
 .attach-menu__cancel:hover { color: var(--ink); }
 
-/* Brain mini-bubble — relationship glyph + click to dismiss */
-.brain__glyph {
-  font-size: 12px;
-  margin-right: 4px;
-}
-.brain__mini--deep      { border-color: var(--accent); }
-.brain__mini--summary   { border-color: #7C6FB8; color: #5B4FBF; }
-.brain__mini--reference { border-color: var(--ink-faint); }
-.brain__mini--edit      { border-color: var(--warn); color: var(--warn); }
+/* (chip-row styles removed — brain now renders as a status bar; see .brain__bar above) */
 
 /* === Vault (placeholder → real bubble type) === */
 .vault {
