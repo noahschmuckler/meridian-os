@@ -666,6 +666,9 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
 
   function onFabPointerDown(e: PointerEvent): void {
     e.stopPropagation();
+    // When the menu is already open, the FAB acts as a close target — no
+    // long-press timer; tap will dismiss on pointerup.
+    if (fabExpanded) return;
     fabPressRef.current = {
       timer: window.setTimeout(() => {
         setFabExpanded(true);
@@ -675,6 +678,12 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
   }
   function onFabPointerUp(e: PointerEvent): void {
     e.stopPropagation();
+    if (fabExpanded) {
+      // Tap while expanded = close. The "×" the FAB shows in this state
+      // now does what it suggests.
+      setFabExpanded(false);
+      return;
+    }
     const lp = fabPressRef.current;
     if (lp?.timer) {
       // Tap before long-press fired → summon placeholder (default action).
