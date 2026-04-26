@@ -18,7 +18,10 @@
 
 /* Mondrian-style identity stripe: a colored top bar matching the bubble's
    --type-color, set in t-* classes. Same color fills the entire tile in
-   miniature on the home grid. */
+   miniature on the home grid. During fly-in / fly-out the stripe expands
+   to cover the whole bubble — so each workspace bubble visually crossfades
+   from a full color block (tile mode) to its workspace mode (5px stripe +
+   content), matching the home tile painting. */
 .bubble::before,
 .cell::before {
   content: '';
@@ -26,9 +29,51 @@
   top: 0;
   left: 0;
   right: 0;
+  bottom: auto;
   height: 5px;
   background: var(--type-color, transparent);
-  z-index: 1;
+  z-index: 4;
+  pointer-events: none;
+  transition: height var(--duration-2) var(--ease-out);
+}
+
+/* Phase: entering — bubbles arrive as full color blocks (matching the
+   home tile painting), then crossfade to workspace mode. */
+.workspace-shell.is-entering .bubble::before,
+.workspace-shell.is-entering .cell::before {
+  animation: stripe-collapse 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.workspace-shell.is-entering .bubble > *,
+.workspace-shell.is-entering .cell > * {
+  animation: content-fade-in 380ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+}
+
+/* Phase: exiting — content fades out early; stripe expands back to a full
+   color block for the fly-down toward the home tile. */
+.workspace-shell.is-exiting .bubble::before,
+.workspace-shell.is-exiting .cell::before {
+  animation: stripe-expand 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.workspace-shell.is-exiting .bubble > *,
+.workspace-shell.is-exiting .cell > * {
+  animation: content-fade-out 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes stripe-collapse {
+  from { height: 100%; }
+  to   { height: 5px; }
+}
+@keyframes stripe-expand {
+  from { height: 5px; }
+  to   { height: 100%; }
+}
+@keyframes content-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes content-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 .bubble:hover {
