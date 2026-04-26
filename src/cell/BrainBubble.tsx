@@ -193,6 +193,9 @@ export function BrainBubble({
       onClick={toggleView}
     >
       <div class="brain__bar" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.min(1, totalReal) * 100)}>
+        {/* Segments are visual + hover hit-areas only. Clicks fall through to
+            the container's toggleView — so any tap on the bar toggles. Menus
+            live in task view (tap a row). */}
         {positions.map((p) => {
           const seg = segById.get(p.id);
           if (!seg) return null;
@@ -207,7 +210,6 @@ export function BrainBubble({
               }}
               onMouseEnter={() => setHoverId(seg.id)}
               onMouseLeave={() => setHoverId((id) => (id === seg.id ? null : id))}
-              onClick={(e) => openMenuAt(seg, e)}
             />
           );
         })}
