@@ -291,7 +291,10 @@
 }
 
 .home__tile:hover .home__tile-painting {
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.30),
+    0 28px 56px rgba(0, 0, 0, 0.40),
+    0 56px 100px rgba(0, 0, 0, 0.30);
 }
 
 .home__tile.is-greyed {
@@ -307,7 +310,12 @@
   background: #0f0f0f;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.10);
+  /* Hung-on-the-wall shadow stack: tight contact, main drop, long ambient.
+     Each successive layer gets longer + softer for a real painting feel. */
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    0 14px 28px rgba(0, 0, 0, 0.32),
+    0 32px 64px rgba(0, 0, 0, 0.22);
   transition: box-shadow var(--duration-1) var(--ease-out);
 }
 
