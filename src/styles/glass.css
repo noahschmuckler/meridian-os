@@ -471,7 +471,7 @@
 
 /* === Borderization — compact modes when a bubble is squeezed === */
 /* Medium-small: hide body, keep a single-line title */
-@container (max-width: 140px), (max-height: 90px) {
+@container (max-width: 140px) {
   .bubble__body { display: none; }
   .bubble__chrome {
     border-bottom: 0;
@@ -486,19 +486,44 @@
     white-space: nowrap;
     text-overflow: ellipsis;
   }
-  /* primitive-internal containers also collapse */
   .bp-tree > .bubble__body,
   .fur > .bubble__body,
   .gsr > .bubble__body,
   .dz > .dz__area,
   .dos > .bubble__body { display: none; }
-
+  .cell-organelles, .cell-chat-stub, .brain { display: none; }
+  .cell { padding: 4px 8px; }
+}
+@container (max-height: 90px) {
+  .bubble__body { display: none; }
+  .bubble__chrome {
+    border-bottom: 0;
+    padding: 4px 8px;
+    height: 100%;
+    align-items: center;
+  }
+  .bubble__chrome > *:not(.bubble__title) { display: none; }
+  .bubble__title {
+    font-size: 11px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .bp-tree > .bubble__body,
+  .fur > .bubble__body,
+  .gsr > .bubble__body,
+  .dz > .dz__area,
+  .dos > .bubble__body { display: none; }
   .cell-organelles, .cell-chat-stub, .brain { display: none; }
   .cell { padding: 4px 8px; }
 }
 
 /* Tiny: no chrome at all — pure glass ribbon */
-@container (max-width: 70px), (max-height: 48px) {
+@container (max-width: 70px) {
+  .bubble__chrome { display: none; }
+  .cell-inner > * { display: none; }
+}
+@container (max-height: 48px) {
   .bubble__chrome { display: none; }
   .cell-inner > * { display: none; }
 }
