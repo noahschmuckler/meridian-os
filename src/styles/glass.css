@@ -578,10 +578,10 @@
   z-index: 80;
   transition: opacity var(--duration-1) var(--ease-out);
 }
-.bsp-edge--top    { top: 0; left: 0; right: 0; height: 48px; box-shadow: inset 0 -1px 0 var(--accent); }
-.bsp-edge--bottom { bottom: 0; left: 0; right: 0; height: 48px; box-shadow: inset 0 1px 0 var(--accent); }
-.bsp-edge--left   { top: 0; bottom: 0; left: 0; width: 48px; box-shadow: inset -1px 0 0 var(--accent); }
-.bsp-edge--right  { top: 0; bottom: 0; right: 0; width: 48px; box-shadow: inset 1px 0 0 var(--accent); }
+.bsp-edge--top    { top: 0; left: 0; right: 0; height: 24px; box-shadow: inset 0 -1px 0 var(--accent); }
+.bsp-edge--bottom { bottom: 0; left: 0; right: 0; height: 24px; box-shadow: inset 0 1px 0 var(--accent); }
+.bsp-edge--left   { top: 0; bottom: 0; left: 0; width: 24px; box-shadow: inset -1px 0 0 var(--accent); }
+.bsp-edge--right  { top: 0; bottom: 0; right: 0; width: 24px; box-shadow: inset 1px 0 0 var(--accent); }
 
 /* === Summon button === */
 .bsp-summon {

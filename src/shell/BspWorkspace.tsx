@@ -255,12 +255,12 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
       const liftedBundle = registry[current.bubbleId];
       if (!liftedBundle) return null;
 
-      // 1) Check screen-edge drop first. Drag toward an edge to create a new
-      //    row/column spanning the full width/height — primary way to switch
-      //    a horizontal-only layout into a vertically-stacked one.
+      // 1) Screen-edge drop — narrow zone, only when pointer is right against
+      //    the screen edge. Creates a full-width row / full-height column at
+      //    the workspace root.
       const containerRect = containerRef.current?.getBoundingClientRect();
       if (containerRect) {
-        const EDGE_PX = 48;
+        const EDGE_PX = 24;
         const px = e.clientX - containerRect.left;
         const py = e.clientY - containerRect.top;
         let edge: 'top' | 'bottom' | 'left' | 'right' | null = null;
@@ -282,10 +282,12 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         }
       }
 
-      // 2) Find target leaf under pointer for an in-bubble split.
+      // 2) In-bubble drop. Split point follows the pointer (not 50/50), and
+      //    snaps to nearby existing alignment lines so the dropped bubble
+      //    naturally lines up with the rest of the layout.
       const col = pxToCol(e.clientX);
       const row = pxToRow(e.clientY);
-      const { leaves } = renderBSP(root);
+      const { leaves, splits } = renderBSP(root);
       const target = leaves.find(
         (l) =>
           col >= l.region.col &&
@@ -293,20 +295,17 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
           row >= l.region.row &&
           row < l.region.row + l.region.h,
       );
-
       if (!target) {
-        // Invalid drop — restore original layout
         setRoot(current.originalRoot);
         return null;
       }
 
       const targetBundle = registry[target.bubbleId];
 
-      // Special: drop on placeholder = consume placeholder, take its slot
+      // Drop on placeholder: consume the placeholder, take its exact slot.
       if (targetBundle?.instance?.type === 'placeholder') {
         const after = replaceLeaf(root, target.bubbleId, current.bubbleId);
         setRoot(after);
-        // Remove the placeholder from registry
         setRegistry((prev) => {
           const next = { ...prev };
           delete next[target.bubbleId];
@@ -315,7 +314,7 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         return null;
       }
 
-      // Determine which side of target to drop on
+      // Side = closest edge of target.
       const relX = (col - target.region.col) / target.region.w;
       const relY = (row - target.region.row) / target.region.h;
       const distLeft = relX;
@@ -329,8 +328,47 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
       else if (minDist === distTop) side = 'top';
       else side = 'bottom';
 
-      // 50/50 split — the dropped bubble takes half of the target's region
-      const after = splitLeafInsert(root, target.bubbleId, side, current.bubbleId, liftedBundle.minW, liftedBundle.minH, 0.5);
+      // Desired split position = pointer's grid coord on the perpendicular axis.
+      const orientation: 'v' | 'h' = side === 'left' || side === 'right' ? 'v' : 'h';
+      const desiredSplitAt = orientation === 'v' ? col : row;
+
+      // Snap to a nearby existing splitter line in the same orientation —
+      // gives "drop and align with what's already there" behavior.
+      const SNAP_THRESHOLD = 1.5;
+      let snappedSplitAt = desiredSplitAt;
+      let bestDist = SNAP_THRESHOLD;
+      for (const s of splits) {
+        if (s.orientation !== orientation) continue;
+        const dist = Math.abs(s.splitAt - desiredSplitAt);
+        if (dist < bestDist) {
+          bestDist = dist;
+          snappedSplitAt = s.splitAt;
+        }
+      }
+
+      // Convert split position to a ratio of target's relevant dimension,
+      // clamped so neither half collapses past min size.
+      let ratio: number;
+      if (side === 'left') {
+        ratio = (snappedSplitAt - target.region.col) / target.region.w;
+      } else if (side === 'right') {
+        ratio = (target.region.col + target.region.w - snappedSplitAt) / target.region.w;
+      } else if (side === 'top') {
+        ratio = (snappedSplitAt - target.region.row) / target.region.h;
+      } else {
+        ratio = (target.region.row + target.region.h - snappedSplitAt) / target.region.h;
+      }
+      ratio = Math.max(0.1, Math.min(0.9, ratio));
+
+      const after = splitLeafInsert(
+        root,
+        target.bubbleId,
+        side,
+        current.bubbleId,
+        liftedBundle.minW,
+        liftedBundle.minH,
+        ratio,
+      );
       setRoot(after);
       return null;
     });
