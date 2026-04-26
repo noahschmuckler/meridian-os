@@ -38,10 +38,6 @@ export function HomeScreen({ home, workspaces, activeWorkspaceId, onTapWorkspace
                 }}
                 data-workspace-id={ws.id}
               >
-                <div class="home__tile-title">
-                  <span class="home__tile-glyph">{ws.icon.glyph}</span>
-                  <span class="home__tile-label">{ws.title}</span>
-                </div>
                 <div class="home__tile-preview">
                   {preview.bubbles.length === 0 ? (
                     <span class="home__tile-empty">empty</span>
@@ -50,6 +46,9 @@ export function HomeScreen({ home, workspaces, activeWorkspaceId, onTapWorkspace
                       <PreviewBubbleEl key={b.id} bubble={b} grid={preview.grid} />
                     ))
                   )}
+                </div>
+                <div class="home__tile-title">
+                  <span class="home__tile-label">{ws.title}</span>
                 </div>
               </button>
             );
