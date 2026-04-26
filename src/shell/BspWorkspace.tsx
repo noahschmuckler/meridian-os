@@ -13,8 +13,16 @@ import type { JSX } from 'preact';
 import type { AttachRelationship, BubbleInstance, BubblePrimitiveType, ChatProps, GridPlacement, MiniBubble, WorkspaceConfig } from '../types';
 import { Cell } from '../cell/Cell';
 import { getPrimitiveComponent } from '../bubbles';
+import { PRIMITIVE_LABELS } from '../bubbles/labels';
 import type { SeedDict } from '../data/seedResolver';
 import { resolveSeedTokens } from '../data/seedResolver';
+import {
+  listFiles,
+  createFile,
+  updateFileName,
+  updateFileInstance,
+  type MeridianFile,
+} from '../data/filesystem';
 import {
   buildBSP,
   renderBSP,
@@ -135,6 +143,12 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     anchorY: number;
   } | null>(null);
   const [vaultOpen, setVaultOpen] = useState<{ placeholderId: string } | null>(null);
+  const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
+  const [renameDraft, setRenameDraft] = useState('');
+  // Bumped every time a file mutation should re-list — the filesystem is module-level
+  // (not React state), so we tell React when to re-render manually.
+  const [fsTick, setFsTick] = useState(0);
+  const bumpFs = () => setFsTick((n) => n + 1);
   const [fabExpanded, setFabExpanded] = useState(false);
   const [trashHovered, setTrashHovered] = useState(false);
   const [saves, setSaves] = useState<SavedLayout[]>(() => savedLayouts.get(workspace.id) ?? []);
@@ -400,13 +414,31 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
       if (!liftedBundle) return null;
 
       // 0) Trash drop — pointer in the bottom-right FAB zone removes the
-      //    lifted bubble entirely (BSP already excludes it; just delete from
-      //    registry so it can't return).
+      //    lifted bubble. Before removing, snapshot the bubble to the
+      //    filesystem so it can be summoned back from the vault later.
+      //    Skip placeholders (they have no content worth saving).
       const cRect = containerRef.current?.getBoundingClientRect();
       if (cRect) {
         const px = e.clientX - cRect.left;
         const py = e.clientY - cRect.top;
         if (px > cRect.width - 80 && py > cRect.height - 80) {
+          const inst = liftedBundle.instance;
+          if (inst && inst.type !== 'placeholder') {
+            if (inst.fileId) {
+              updateFileInstance(inst.fileId, inst);
+            } else {
+              const defaultLabel = PRIMITIVE_LABELS[inst.type];
+              const isDefaultName = inst.title === defaultLabel;
+              createFile({
+                name: isDefaultName ? undefined : inst.title,
+                type: inst.type,
+                scope: 'workspace',
+                workspaceId: workspace.id,
+                instance: inst,
+              });
+            }
+            bumpFs();
+          }
           setRegistry((prev) => {
             const next = { ...prev };
             delete next[current.bubbleId];
@@ -580,6 +612,36 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
   function commitAttach(rel: AttachRelationship): void {
     if (!attachMenu) return;
     const { sourceBubbleId, chatId, originalRoot, sourceTitle } = attachMenu;
+    // Ensure the source bubble is file-backed before attaching. If it's
+    // unnamed (title == its primitive's default label), auto-name it. The
+    // mini-bubble label and brain entry then reflect the algorithmic name.
+    const source = registry[sourceBubbleId]?.instance;
+    let attachLabel = sourceTitle;
+    if (source && source.type !== 'placeholder' && !source.fileId) {
+      const defaultLabel = PRIMITIVE_LABELS[source.type];
+      const isDefaultName = source.title === defaultLabel;
+      const file = createFile({
+        name: isDefaultName ? undefined : source.title,
+        type: source.type,
+        scope: 'workspace',
+        workspaceId: workspace.id,
+        instance: source,
+      });
+      attachLabel = file.name;
+      bumpFs();
+      // Mutate the registry instance to carry the fileId and updated title.
+      setRegistry((prev) => {
+        const b = prev[sourceBubbleId];
+        if (!b?.instance) return prev;
+        return {
+          ...prev,
+          [sourceBubbleId]: {
+            ...b,
+            instance: { ...b.instance, fileId: file.id, title: file.name },
+          },
+        };
+      });
+    }
     // Add a mini-bubble to the chat's brain (mutate registry).
     setRegistry((prev) => {
       const chat = prev[chatId];
@@ -588,7 +650,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
       const oldMini: MiniBubble[] = oldProps.brain?.miniBubbles ?? [];
       const newMini: MiniBubble = {
         id: `mb-${sourceBubbleId}-${rel}-${Date.now()}`,
-        label: sourceTitle,
+        label: attachLabel,
         source: sourceBubbleId,
         pinned: rel === 'edit' || rel === 'summary',
         relationship: rel,
@@ -722,6 +784,58 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
       };
     });
     setVaultOpen(null);
+  }
+
+  // Restore a file's saved bubble into the placeholder's slot. The placeholder's
+  // own id, attach, resize stay — we adopt the file's type, title, and props,
+  // and link back via fileId so future trash overwrites this file.
+  function pickFromFile(file: MeridianFile): void {
+    if (!vaultOpen) return;
+    const id = vaultOpen.placeholderId;
+    setRegistry((prev) => {
+      const ph = prev[id];
+      if (!ph?.instance) return prev;
+      return {
+        ...prev,
+        [id]: {
+          ...ph,
+          instance: {
+            ...ph.instance,
+            type: file.instance.type,
+            title: file.name,
+            props: file.instance.props,
+            fileId: file.id,
+          },
+        },
+      };
+    });
+    setVaultOpen(null);
+    setRenamingFileId(null);
+  }
+
+  function commitRename(fileId: string): void {
+    const trimmed = renameDraft.trim();
+    if (trimmed) {
+      const updated = updateFileName(fileId, trimmed);
+      // If a live bubble is viewing this file, refresh its title too.
+      if (updated) {
+        setRegistry((prev) => {
+          let changed = false;
+          const next: typeof prev = {};
+          for (const [k, b] of Object.entries(prev)) {
+            if (b.instance?.fileId === fileId && b.instance.title !== updated.name) {
+              next[k] = { ...b, instance: { ...b.instance, title: updated.name } };
+              changed = true;
+            } else {
+              next[k] = b;
+            }
+          }
+          return changed ? next : prev;
+        });
+      }
+      bumpFs();
+    }
+    setRenamingFileId(null);
   }
 
   // === Summon placeholder ===
@@ -1089,27 +1203,122 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
         </>
       )}
 
-      {/* Vault — tap a placeholder to assign it a real bubble type */}
-      {vaultOpen && (
-        <div class="attach-menu-backdrop" onClick={() => setVaultOpen(null)}>
-          <div class="vault" onClick={(e) => e.stopPropagation()}>
-            <div class="vault__hdr">
-              <strong>Vault</strong>
-              <div class="vault__sub">pick what this empty slot becomes</div>
+      {/* Vault — tap a placeholder to assign it a real bubble type, or restore
+          a previously saved file (the dismissed-then-summoned-back flow). */}
+      {vaultOpen && (() => {
+        // fsTick forces re-evaluation when the filesystem mutates; reference it
+        // so React re-renders. Module-level filesystem isn't reactive on its own.
+        void fsTick;
+        const localFiles = listFiles({ scope: 'workspace', workspaceId: workspace.id });
+        const otherFiles = listFiles({ scope: 'workspace' }).filter(
+          (f) => f.workspaceId !== workspace.id,
+        );
+        const globalFiles = listFiles({ scope: 'global' });
+        const otherByWs: Record<string, MeridianFile[]> = {};
+        for (const f of otherFiles) {
+          const k = f.workspaceId ?? '?';
+          (otherByWs[k] ??= []).push(f);
+        }
+        return (
+          <div class="attach-menu-backdrop" onClick={() => { setVaultOpen(null); setRenamingFileId(null); }}>
+            <div class="vault" onClick={(e) => e.stopPropagation()}>
+              <div class="vault__hdr">
+                <strong>Vault</strong>
+                <div class="vault__sub">pick a primitive — or summon a saved file</div>
+              </div>
+              <div class="vault__grid">
+                {VAULT_ITEMS.map((it) => (
+                  <button key={it.type} class="vault__item" onClick={() => pickFromVault(it.type, it.label)}>
+                    <span class="vault__glyph">{it.glyph}</span>
+                    <span class="vault__lbl">{it.label}</span>
+                    <span class="vault__desc">{it.desc}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div class="vault__section">
+                <div class="vault__section-hdr">This workspace · {workspace.title}</div>
+                {localFiles.length === 0 ? (
+                  <div class="vault__empty">no files yet — dismiss a bubble or attach an unnamed one to chat</div>
+                ) : (
+                  localFiles.map((f) => renderFileRow(f))
+                )}
+              </div>
+
+              <div class="vault__section">
+                <div class="vault__section-hdr">Other workspaces</div>
+                {Object.keys(otherByWs).length === 0 ? (
+                  <div class="vault__empty">nothing saved in other workspaces</div>
+                ) : (
+                  Object.entries(otherByWs).map(([wsid, files]) => (
+                    <div key={wsid} class="vault__sub-section">
+                      <div class="vault__sub-section-hdr">{wsid}</div>
+                      {files.map((f) => renderFileRow(f))}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div class="vault__section">
+                <div class="vault__section-hdr">Global</div>
+                {globalFiles.length === 0 ? (
+                  <div class="vault__empty">no global files yet</div>
+                ) : (
+                  globalFiles.map((f) => renderFileRow(f))
+                )}
+              </div>
+
+              <button class="attach-menu__cancel" onClick={() => { setVaultOpen(null); setRenamingFileId(null); }}>Cancel</button>
             </div>
-            <div class="vault__grid">
-              {VAULT_ITEMS.map((it) => (
-                <button key={it.type} class="vault__item" onClick={() => pickFromVault(it.type, it.label)}>
-                  <span class="vault__glyph">{it.glyph}</span>
-                  <span class="vault__lbl">{it.label}</span>
-                  <span class="vault__desc">{it.desc}</span>
-                </button>
-              ))}
-            </div>
-            <button class="attach-menu__cancel" onClick={() => setVaultOpen(null)}>Cancel</button>
           </div>
-        </div>
-      )}
+        );
+
+        function renderFileRow(f: MeridianFile): JSX.Element {
+          const renaming = renamingFileId === f.id;
+          return (
+            <div key={f.id} class="vault__file">
+              {renaming ? (
+                <input
+                  class="vault__file-rename"
+                  autoFocus
+                  value={renameDraft}
+                  onInput={(e) => setRenameDraft((e.currentTarget as HTMLInputElement).value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitRename(f.id);
+                    else if (e.key === 'Escape') setRenamingFileId(null);
+                  }}
+                  onBlur={() => commitRename(f.id)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <button
+                  type="button"
+                  class="vault__file-row"
+                  onClick={() => pickFromFile(f)}
+                  title="Summon into this slot"
+                >
+                  <span class="vault__file-name">{f.name}</span>
+                  <span class="vault__file-type">{PRIMITIVE_LABELS[f.type] ?? f.type}</span>
+                </button>
+              )}
+              {!renaming && (
+                <button
+                  type="button"
+                  class="vault__file-rename-btn"
+                  title="Rename"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setRenameDraft(f.name);
+                    setRenamingFileId(f.id);
+                  }}
+                >
+                  ✏️
+                </button>
+              )}
+            </div>
+          );
+        }
+      })()}
 
       {/* Attach-to-chat menu (modal) */}
       {attachMenu && (

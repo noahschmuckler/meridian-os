@@ -55,6 +55,10 @@ export interface BubbleInstance {
   };
   attach?: { cellId: string; slot: 'organelle' | 'nucleus' };
   search?: { enabled: boolean; placeholder?: string };
+  // File-backed: present when this bubble is a view over a MeridianFile.
+  // Set when summoned from the vault file picker, when auto-named on attach,
+  // or when restored from a snapshot. Renames update the file, not the path.
+  fileId?: string;
 }
 
 // 'held' replaces the older 'reference' — title + a sentence of context, no reading.
