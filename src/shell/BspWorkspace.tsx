@@ -663,21 +663,29 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
 
   // === FAB long-press ===
   const fabPressRef = useRef<{ timer: number | null } | null>(null);
+  // Marks the pointerup that releases the gesture that just opened the
+  // menu — so we don't immediately collapse it on finger-lift.
+  const justExpandedRef = useRef(false);
 
   function onFabPointerDown(e: PointerEvent): void {
     e.stopPropagation();
-    // When the menu is already open, the FAB acts as a close target — no
-    // long-press timer; tap will dismiss on pointerup.
     if (fabExpanded) return;
     fabPressRef.current = {
       timer: window.setTimeout(() => {
         setFabExpanded(true);
+        justExpandedRef.current = true;
         fabPressRef.current = null;
       }, 380),
     };
   }
   function onFabPointerUp(e: PointerEvent): void {
     e.stopPropagation();
+    if (justExpandedRef.current) {
+      // The gesture that just expanded the menu is now releasing — ignore
+      // this pointerup so the menu stays open until an actual selection.
+      justExpandedRef.current = false;
+      return;
+    }
     if (fabExpanded) {
       // Tap while expanded = close. The "×" the FAB shows in this state
       // now does what it suggests.
@@ -698,6 +706,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
       window.clearTimeout(fabPressRef.current.timer);
       fabPressRef.current = null;
     }
+    justExpandedRef.current = false;
   }
 
   // === Render ===
