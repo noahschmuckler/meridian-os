@@ -33,7 +33,14 @@ export function HomeScreen({ home, workspaces, activeWorkspaceId, onTapWorkspace
                 class={`home__tile${greyed ? ' is-greyed' : ''}`}
                 style={{ '--tint': ws.icon.tint } as JSX.CSSProperties}
                 onClick={(e) => {
-                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                  // Use the painting's rect (not the whole button). The
+                  // painting is the visual surface that will become the
+                  // workspace; the caption sits below it. Capturing the
+                  // painting rect makes the fly-up / fly-back align exactly
+                  // with what the user sees as the "miniature workspace."
+                  const btn = e.currentTarget as HTMLElement;
+                  const painting = btn.querySelector('.home__tile-painting') as HTMLElement | null;
+                  const rect = (painting ?? btn).getBoundingClientRect();
                   onTapWorkspace(ws.id, rect);
                 }}
                 data-workspace-id={ws.id}

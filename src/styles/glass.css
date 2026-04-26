@@ -76,6 +76,26 @@
   to   { opacity: 0; }
 }
 
+/* During exit, fade the workspace canvas from --bg → painting black so the
+   unmount → tile-reveal swap is visually continuous. The bubbles have
+   already morphed back to solid color blocks via stripe-expand by then,
+   so the workspace looks like a Mondrian painting on a black canvas at
+   the moment it lands on its tile. */
+.workspace-shell.is-exiting .bsp-workspace {
+  animation: workspace-bg-to-canvas 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.workspace-shell.is-entering .bsp-workspace {
+  animation: workspace-bg-from-canvas 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes workspace-bg-to-canvas {
+  from { background: var(--bg); }
+  to   { background: #0f0f0f; }
+}
+@keyframes workspace-bg-from-canvas {
+  from { background: #0f0f0f; }
+  to   { background: var(--bg); }
+}
+
 .bubble:hover {
   box-shadow: var(--shadow-2);
 }
