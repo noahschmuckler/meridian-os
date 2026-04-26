@@ -64,23 +64,7 @@ export function WorkspaceShell({ workspace, seeds, onBackToHome, entryFrom }: Wo
 
   return (
     <div ref={wrapperRef} class="workspace-shell" style={{ position: 'fixed', inset: 0, transformOrigin: 'center center' }}>
-      <BspWorkspace workspace={workspace} seeds={seeds} />
-      <button
-        onClick={handleBack}
-        style={{
-          position: 'fixed',
-          top: 12,
-          right: 12,
-          zIndex: 200,
-          padding: '6px 12px',
-          borderRadius: 999,
-          background: 'var(--surface)',
-          border: '1px solid var(--border)',
-          fontSize: 12,
-        }}
-      >
-        ← Home · {workspace.title}
-      </button>
+      <BspWorkspace workspace={workspace} seeds={seeds} onBackToHome={handleBack} />
     </div>
   );
 }

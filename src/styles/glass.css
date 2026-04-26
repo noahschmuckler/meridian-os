@@ -791,11 +791,25 @@
 .bsp-edge--left   { left: 0; width: 24px; box-shadow: inset -1px 0 0 var(--accent); border-radius: 0 4px 4px 0; }
 .bsp-edge--right  { right: 0; width: 24px; box-shadow: inset 1px 0 0 var(--accent); border-radius: 4px 0 0 4px; }
 
-/* === Summon button === */
-.bsp-summon {
+/* === Multi-function FAB === */
+.bsp-fab-stack {
   position: fixed;
   bottom: 18px;
   right: 18px;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.bsp-fab-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  background: transparent;
+}
+
+.bsp-fab {
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -805,18 +819,57 @@
   font-weight: 300;
   line-height: 1;
   box-shadow: var(--shadow-2);
-  z-index: 150;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform var(--duration-1) var(--ease-out), box-shadow var(--duration-1) var(--ease-out);
+  transition: transform var(--duration-1) var(--ease-out),
+              background var(--duration-1) var(--ease-out),
+              box-shadow var(--duration-1) var(--ease-out);
+  touch-action: none;
 }
-.bsp-summon:hover {
-  transform: scale(1.05);
+.bsp-fab:hover { transform: scale(1.05); }
+.bsp-fab:active { transform: scale(0.96); }
+
+/* Trash mode — bubble lifted; FAB inverts to a discard target. */
+.bsp-fab--trash {
+  background: var(--ink-soft);
+  font-size: 22px;
 }
-.bsp-summon:active {
-  transform: scale(0.96);
+.bsp-fab--trash-active {
+  background: var(--warn);
+  transform: scale(1.18);
+  box-shadow: 0 0 0 6px rgba(180, 83, 9, 0.18), var(--shadow-2);
+}
+
+/* Expanded menu actions (stacked above the main FAB) */
+.bsp-fab-action {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--surface-strong);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-1);
+  font-size: 20px;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--duration-1) var(--ease-out), background var(--duration-1) var(--ease-out);
+  animation: fab-rise var(--duration-2) var(--ease-out) both;
+}
+.bsp-fab-action:hover { background: var(--accent-soft); transform: scale(1.06); }
+.bsp-fab-action:active { transform: scale(0.96); }
+
+@keyframes fab-rise {
+  from { transform: translateY(12px) scale(0.6); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.bsp-fab-stack.is-expanded .bsp-fab {
+  background: var(--ink-soft);
+  font-size: 24px;
 }
 
 /* === Attach-to-chat menu === */

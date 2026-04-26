@@ -34,6 +34,7 @@ import {
 interface Props {
   workspace: WorkspaceConfig;
   seeds: SeedDict;
+  onBackToHome?: () => void;
 }
 
 import { persistentWorkspaceStates, type BubbleBundle } from './workspaceState';
@@ -58,7 +59,7 @@ interface LiftedState {
 
 let _placeholderSeq = 0;
 
-export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
+export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const grid = workspace.layoutHints.grid;
   const placements = workspace.layoutHints.placements;
@@ -99,6 +100,8 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
     anchorY: number;
   } | null>(null);
   const [vaultOpen, setVaultOpen] = useState<{ placeholderId: string } | null>(null);
+  const [fabExpanded, setFabExpanded] = useState(false);
+  const [trashHovered, setTrashHovered] = useState(false);
 
   // Build BSP from registry only when we don't already have one (first entry
   // to a workspace). Persisted root is preserved across switches.
@@ -264,11 +267,21 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
     longPressRef.current = null;
   }
 
-  // While lifted: track pointer at window level + commit on release
+  // While lifted: track pointer at window level + commit on release.
+  // Also watch whether the pointer is hovering the trash zone (bottom-right
+  // FAB area) so the FAB can show its trash state.
   useEffect(() => {
-    if (!lifted) return;
+    if (!lifted) {
+      setTrashHovered(false);
+      return;
+    }
     function onMove(e: PointerEvent): void {
       setLifted((prev) => (prev ? { ...prev, pointerX: e.clientX, pointerY: e.clientY } : null));
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      setTrashHovered(px > rect.width - 80 && py > rect.height - 80);
     }
     function onUp(e: PointerEvent): void {
       handleDrop(e);
@@ -288,6 +301,23 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
       if (!current || !root) return current;
       const liftedBundle = registry[current.bubbleId];
       if (!liftedBundle) return null;
+
+      // 0) Trash drop — pointer in the bottom-right FAB zone removes the
+      //    lifted bubble entirely (BSP already excludes it; just delete from
+      //    registry so it can't return).
+      const cRect = containerRef.current?.getBoundingClientRect();
+      if (cRect) {
+        const px = e.clientX - cRect.left;
+        const py = e.clientY - cRect.top;
+        if (px > cRect.width - 80 && py > cRect.height - 80) {
+          setRegistry((prev) => {
+            const next = { ...prev };
+            delete next[current.bubbleId];
+            return next;
+          });
+          return null;
+        }
+      }
 
       // 1) Screen-edge drop — segmented by which bubbles actually touch that
       //    edge in the pointer's perpendicular position. If two bubbles stack
@@ -592,6 +622,43 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
     setRoot(splitLeafInsert(root, target.bubbleId, 'right', id, DEFAULT_MIN_W, DEFAULT_MIN_H, 0.5));
   }
 
+  // === Reset workspace to JSON template ===
+  function resetWorkspace(): void {
+    persistentWorkspaceStates.delete(workspace.id);
+    setRegistry(initialRegistry(workspace, placements));
+    setRoot(null); // buildBSP effect rebuilds from initialRegistry
+  }
+
+  // === FAB long-press ===
+  const fabPressRef = useRef<{ timer: number | null } | null>(null);
+
+  function onFabPointerDown(e: PointerEvent): void {
+    e.stopPropagation();
+    fabPressRef.current = {
+      timer: window.setTimeout(() => {
+        setFabExpanded(true);
+        fabPressRef.current = null;
+      }, 380),
+    };
+  }
+  function onFabPointerUp(e: PointerEvent): void {
+    e.stopPropagation();
+    const lp = fabPressRef.current;
+    if (lp?.timer) {
+      // Tap before long-press fired → summon placeholder (default action).
+      window.clearTimeout(lp.timer);
+      fabPressRef.current = null;
+      summonPlaceholder();
+    }
+  }
+  function onFabPointerCancel(e: PointerEvent): void {
+    e.stopPropagation();
+    if (fabPressRef.current?.timer) {
+      window.clearTimeout(fabPressRef.current.timer);
+      fabPressRef.current = null;
+    }
+  }
+
   // === Render ===
   const rendered = root ? renderBSP(root) : null;
   const corners = root ? findCorners(root) : [];
@@ -865,15 +932,50 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         </div>
       )}
 
-      {/* Summon button */}
-      <button
-        class="bsp-summon"
-        onClick={summonPlaceholder}
-        title="Summon empty bubble"
-        aria-label="Summon empty bubble"
-      >
-        +
-      </button>
+      {/* Multi-function FAB (bottom-right) */}
+      {fabExpanded && (
+        <div class="bsp-fab-backdrop" onClick={() => setFabExpanded(false)} />
+      )}
+      <div class={`bsp-fab-stack${fabExpanded ? ' is-expanded' : ''}${lifted ? ' is-trash' : ''}${trashHovered ? ' is-trash-active' : ''}`}>
+        {fabExpanded && (
+          <>
+            <button
+              class="bsp-fab-action"
+              onClick={() => { setFabExpanded(false); resetWorkspace(); }}
+              title="Reset layout to template"
+              aria-label="Reset layout"
+            >
+              ⟲
+            </button>
+            <button
+              class="bsp-fab-action"
+              onClick={() => { setFabExpanded(false); onBackToHome?.(); }}
+              title="Back to home"
+              aria-label="Back to home"
+            >
+              ←
+            </button>
+            <button
+              class="bsp-fab-action"
+              onClick={() => { setFabExpanded(false); summonPlaceholder(); }}
+              title="Add empty bubble"
+              aria-label="Add empty bubble"
+            >
+              +
+            </button>
+          </>
+        )}
+        <button
+          class={`bsp-fab${lifted ? ' bsp-fab--trash' : ''}${trashHovered ? ' bsp-fab--trash-active' : ''}`}
+          onPointerDown={lifted ? undefined : onFabPointerDown}
+          onPointerUp={lifted ? undefined : onFabPointerUp}
+          onPointerCancel={onFabPointerCancel}
+          title={lifted ? 'Drop here to discard' : 'Tap to add bubble · long-press for menu'}
+          aria-label={lifted ? 'Trash' : 'Workspace controls'}
+        >
+          {lifted ? '🗑' : fabExpanded ? '×' : '+'}
+        </button>
+      </div>
     </div>
   );
 }
