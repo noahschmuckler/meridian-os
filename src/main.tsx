@@ -45,29 +45,33 @@ const entryFrom = signal<DOMRect | null>(null);
 
 function App(): JSX.Element {
   const id = activeWorkspaceId.value;
-  if (id && workspaces[id]) {
-    return (
-      <WorkspaceShell
-        workspace={workspaces[id]}
-        seeds={seeds}
-        entryFrom={entryFrom.value}
-        onBackToHome={() => {
-          activeWorkspaceId.value = null;
-          entryFrom.value = null;
+  // HomeScreen is always rendered. The WorkspaceShell mounts on top of it
+  // when a workspace is active. During the fly-back animation, the home
+  // behind becomes progressively visible as the workspace shrinks, so by
+  // the time the workspace unmounts there's nothing to "appear" — the tile
+  // is already in place underneath. No snap on landing.
+  return (
+    <>
+      <HomeScreen
+        home={home}
+        workspaces={workspaces}
+        activeWorkspaceId={id}
+        onTapWorkspace={(wid, rect) => {
+          entryFrom.value = rect;
+          activeWorkspaceId.value = wid;
         }}
       />
-    );
-  }
-  return (
-    <HomeScreen
-      home={home}
-      workspaces={workspaces}
-      activeWorkspaceId={id}
-      onTapWorkspace={(wid, rect) => {
-        entryFrom.value = rect;
-        activeWorkspaceId.value = wid;
-      }}
-    />
+      {id && workspaces[id] && (
+        <WorkspaceShell
+          workspace={workspaces[id]}
+          seeds={seeds}
+          entryFrom={entryFrom.value}
+          onBackToHome={() => {
+            activeWorkspaceId.value = null;
+          }}
+        />
+      )}
+    </>
   );
 }
 
