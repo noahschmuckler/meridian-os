@@ -25,6 +25,7 @@ import {
   splitRootInsert,
   replaceLeaf,
   findLargestLeaf,
+  maximizeLeaf,
   type BSPRoot,
   type RenderedSplit,
   type BSPCorner,
@@ -112,9 +113,12 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
   const [fabExpanded, setFabExpanded] = useState(false);
   const [trashHovered, setTrashHovered] = useState(false);
   const [saves, setSaves] = useState<SavedLayout[]>(() => savedLayouts.get(workspace.id) ?? []);
+  // Maximize state: which bubble is currently expanded + the BSP to restore on second double-tap.
+  const [maximized, setMaximized] = useState<{ bubbleId: string; prevRoot: BSPRoot } | null>(null);
 
   useEffect(() => {
     setSaves(savedLayouts.get(workspace.id) ?? []);
+    setMaximized(null);
   }, [workspace.id]);
 
   // Build BSP from registry only when we don't already have one (first entry
@@ -240,12 +244,9 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     const lp = longPressRef.current;
     if (lp?.timer) {
       window.clearTimeout(lp.timer);
-      // Long-press timer hadn't fired yet → this was a tap. Placeholders open
-      // the vault on tap; other bubble types do nothing on tap (yet).
-      const bundle = registry[lp.bubbleId];
-      if (bundle?.instance?.type === 'placeholder') {
-        setVaultOpen({ placeholderId: lp.bubbleId });
-      }
+      // Tap (long-press hadn't fired). Route through handleBubbleTap for
+      // single vs double detection.
+      handleBubbleTap(lp.bubbleId);
     }
     longPressRef.current = null;
     try {
@@ -253,6 +254,58 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     } catch {
       // already released
     }
+  }
+
+  // === Double-tap detection =============================================
+  const DOUBLE_TAP_MS = 300;
+  const tapPendingRef = useRef<{ bubbleId: string; timer: number; time: number } | null>(null);
+
+  function handleBubbleTap(bubbleId: string): void {
+    const pending = tapPendingRef.current;
+    if (pending && pending.bubbleId === bubbleId && Date.now() - pending.time < DOUBLE_TAP_MS) {
+      // Second tap on the same bubble within the window → double-tap.
+      window.clearTimeout(pending.timer);
+      tapPendingRef.current = null;
+      handleDoubleTapBubble(bubbleId);
+      return;
+    }
+    if (pending) window.clearTimeout(pending.timer);
+    tapPendingRef.current = {
+      bubbleId,
+      time: Date.now(),
+      timer: window.setTimeout(() => {
+        tapPendingRef.current = null;
+        handleSingleTapBubble(bubbleId);
+      }, DOUBLE_TAP_MS),
+    };
+  }
+
+  function handleSingleTapBubble(bubbleId: string): void {
+    const bundle = registry[bubbleId];
+    if (bundle?.instance?.type === 'placeholder') {
+      setVaultOpen({ placeholderId: bubbleId });
+    }
+    // Other bubble types currently have no single-tap action.
+  }
+
+  function handleDoubleTapBubble(bubbleId: string): void {
+    if (!root) return;
+    if (maximized && maximized.bubbleId === bubbleId) {
+      // Toggling off — restore to the layout from before the first maximize.
+      setRoot(maximized.prevRoot);
+      setMaximized(null);
+      return;
+    }
+    if (maximized) {
+      // Different bubble — restore first, then maximize the new one from
+      // the original layout (not the current maximized one).
+      const base = maximized.prevRoot;
+      setRoot(maximizeLeaf(base, bubbleId));
+      setMaximized({ bubbleId, prevRoot: base });
+      return;
+    }
+    setRoot(maximizeLeaf(root, bubbleId));
+    setMaximized({ bubbleId, prevRoot: root });
   }
 
   function triggerLift(leaf: RenderedLeaf, _leafEl: HTMLElement): void {

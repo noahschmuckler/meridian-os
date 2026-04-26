@@ -432,6 +432,90 @@ export function findLargestLeaf(root: BSPRoot): { bubbleId: string; region: Regi
   return { bubbleId: best.bubbleId, region: best.region };
 }
 
+// === Maximize a leaf to fill its workspace ===========================
+
+interface PathStep {
+  splitId: string;
+  orientation: Orientation;
+  region: Region;
+  childIdx: 0 | 1; // which child of the split contains the target leaf
+  otherMin: { minW: number; minH: number };
+}
+
+function findPathToLeaf(
+  node: BSPNode,
+  region: Region,
+  bubbleId: string,
+  acc: PathStep[] = [],
+): PathStep[] | null {
+  if (node.kind === 'leaf') {
+    return node.bubbleId === bubbleId ? acc : null;
+  }
+  const aRegion: Region =
+    node.orientation === 'h'
+      ? { col: region.col, row: region.row, w: region.w, h: node.splitAt - region.row }
+      : { col: region.col, row: region.row, w: node.splitAt - region.col, h: region.h };
+  const bRegion: Region =
+    node.orientation === 'h'
+      ? { col: region.col, row: node.splitAt, w: region.w, h: region.row + region.h - node.splitAt }
+      : { col: node.splitAt, row: region.row, w: region.col + region.w - node.splitAt, h: region.h };
+
+  const a = findPathToLeaf(
+    node.children[0],
+    aRegion,
+    bubbleId,
+    [...acc, { splitId: node.id, orientation: node.orientation, region, childIdx: 0, otherMin: subtreeMin(node.children[1]) }],
+  );
+  if (a) return a;
+  const b = findPathToLeaf(
+    node.children[1],
+    bRegion,
+    bubbleId,
+    [...acc, { splitId: node.id, orientation: node.orientation, region, childIdx: 1, otherMin: subtreeMin(node.children[0]) }],
+  );
+  return b;
+}
+
+/**
+ * Push every ancestor split's wall outward so the target leaf takes as
+ * much region as the constraint cascade allows. Other bubbles compress
+ * to their min sizes (becoming border ribbons via the existing
+ * borderization). Idempotent — calling twice does nothing extra.
+ */
+export function maximizeLeaf(root: BSPRoot, bubbleId: string): BSPRoot {
+  let current = root;
+  // Iterate a few times because the regions feeding subtreeMin shift as
+  // we push splits; convergence is fast (BSP is shallow).
+  for (let pass = 0; pass < 4; pass++) {
+    const path = findPathToLeaf(current.node, current.region, bubbleId);
+    if (!path || path.length === 0) break;
+    let changed = false;
+    for (const step of path) {
+      let desired: number;
+      if (step.childIdx === 0) {
+        // Leaf is in first child — push splitAt outward (toward end).
+        desired =
+          step.orientation === 'h'
+            ? step.region.row + step.region.h - step.otherMin.minH
+            : step.region.col + step.region.w - step.otherMin.minW;
+      } else {
+        // Leaf is in second child — pull splitAt inward (toward start).
+        desired =
+          step.orientation === 'h'
+            ? step.region.row + step.otherMin.minH
+            : step.region.col + step.otherMin.minW;
+      }
+      const next = setSplitAt(current, step.splitId, desired);
+      if (next !== current) {
+        current = next;
+        changed = true;
+      }
+    }
+    if (!changed) break;
+  }
+  return current;
+}
+
 // === Corner detection =================================================
 
 export interface BSPCorner {
