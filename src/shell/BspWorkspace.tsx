@@ -65,23 +65,45 @@ interface LiftedState {
 
 let _placeholderSeq = 0;
 
+// === Workspace persistence ===
+// Each workspace's bubble registry and BSP root persist across switches so
+// bubbles feel tangible — the chat that was in Trainer is still that exact
+// chat (same history, same attached memories) when you return.
+interface PersistedState {
+  registry: Record<string, BubbleBundle>;
+  root: BSPRoot;
+}
+const persistentWorkspaceStates = new Map<string, PersistedState>();
+
 export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const grid = workspace.layoutHints.grid;
   const placements = workspace.layoutHints.placements;
 
-  // Bubble registry: dynamic — placeholders summoned at runtime live here.
-  const [registry, setRegistry] = useState<Record<string, BubbleBundle>>(() =>
-    initialRegistry(workspace, placements),
-  );
+  // Bubble registry — load persisted state for this workspace if present,
+  // otherwise initialize from JSON. Persistence makes bubbles tangible.
+  const [registry, setRegistry] = useState<Record<string, BubbleBundle>>(() => {
+    const stored = persistentWorkspaceStates.get(workspace.id);
+    return stored ? stored.registry : initialRegistry(workspace, placements);
+  });
 
-  // Reset on workspace change.
+  const [root, setRoot] = useState<BSPRoot | null>(() => {
+    const stored = persistentWorkspaceStates.get(workspace.id);
+    return stored ? stored.root : null;
+  });
+
+  // On workspace change, swap in this workspace's persisted state (if any).
   useEffect(() => {
-    setRegistry(initialRegistry(workspace, placements));
+    const stored = persistentWorkspaceStates.get(workspace.id);
+    if (stored) {
+      setRegistry(stored.registry);
+      setRoot(stored.root);
+    } else {
+      setRegistry(initialRegistry(workspace, placements));
+      setRoot(null); // will be rebuilt by the buildBSP effect below
+    }
     setLifted(null);
   }, [workspace.id]);
-
-  const [root, setRoot] = useState<BSPRoot | null>(null);
   const [isWallDragging, setIsWallDragging] = useState(false);
   const [lifted, setLifted] = useState<LiftedState | null>(null);
   const [attachMenu, setAttachMenu] = useState<{
@@ -95,7 +117,10 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
   } | null>(null);
   const [vaultOpen, setVaultOpen] = useState<{ placeholderId: string } | null>(null);
 
+  // Build BSP from registry only when we don't already have one (first entry
+  // to a workspace). Persisted root is preserved across switches.
   useEffect(() => {
+    if (root !== null) return;
     try {
       const built = buildBSP(
         Object.entries(registry).map(([id, b]) => ({
@@ -109,9 +134,17 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
       setRoot(built);
     } catch (err) {
       console.warn('BSP construction failed', err);
-      setRoot(null);
     }
-  }, [workspace.id]);
+  }, [root, workspace.id]);
+
+  // Persist registry + root to the module-level map whenever they change so
+  // the next entry to this workspace finds the same bubbles in the same
+  // arrangement, with the same attached memories and chat history.
+  useEffect(() => {
+    if (root) {
+      persistentWorkspaceStates.set(workspace.id, { registry, root });
+    }
+  }, [registry, root, workspace.id]);
 
   // === Coord helpers ===
   function pxToCol(px: number): number {
@@ -487,6 +520,23 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
     setAttachMenu(null);
   }
 
+  function updateChatMessages(chatId: string, messages: unknown[]): void {
+    setRegistry((prev) => {
+      const chat = prev[chatId];
+      if (!chat?.instance) return prev;
+      return {
+        ...prev,
+        [chatId]: {
+          ...chat,
+          instance: {
+            ...chat.instance,
+            props: { ...chat.instance.props, messages },
+          },
+        },
+      };
+    });
+  }
+
   function dismissMini(chatId: string, miniId: string): void {
     setRegistry((prev) => {
       const chat = prev[chatId];
@@ -629,7 +679,10 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         if (!inst) return null;
         const Comp = getPrimitiveComponent(inst.type);
         const extraProps = inst.type === 'llm-chat'
-          ? { onDismissMini: (miniId: string) => dismissMini(leaf.bubbleId, miniId) }
+          ? {
+              onDismissMini: (miniId: string) => dismissMini(leaf.bubbleId, miniId),
+              onMessagesChange: (messages: unknown[]) => updateChatMessages(leaf.bubbleId, messages),
+            }
           : {};
         return (
           <div key={leaf.bubbleId} class={`${baseClass}${phClass}`} style={style} {...handlers}>

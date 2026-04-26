@@ -127,7 +127,6 @@ export interface WorkspaceConfig {
     onDrop?: Record<string, ScriptedAction[]>;
   };
   seed: { sources: string[] };
-  morphIds?: string[]; // bubble ids that persist across workspace switches
 }
 
 export interface Desktop {

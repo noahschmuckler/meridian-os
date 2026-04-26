@@ -85,6 +85,5 @@
     "onSearch": {},
     "onDrop": {}
   },
-  "seed": { "sources": ["patel-cohort"] },
-  "morphIds": ["chat"]
+  "seed": { "sources": ["patel-cohort"] }
 }

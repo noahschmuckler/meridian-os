@@ -2,6 +2,9 @@
 // Independent of any cell — chat is a peer bubble, brain belongs to the chat.
 // v1: input is functional; the assistant returns a Lorem ipsum segment so the
 // chat-history weight grows in the brain fullness bar as messages accumulate.
+//
+// Messages are persisted to the parent BspWorkspace via onMessagesChange so
+// the chat survives workspace switches — bubbles have tangible identity.
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
@@ -13,9 +16,10 @@ interface LlmChatProps {
   greeting?: string;
   defaultPersona?: string;
   brain?: BrainBubbleConfig;
+  messages?: Message[];
 }
 
-interface Message {
+export interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   text: string;
@@ -25,6 +29,7 @@ interface Props {
   instance: BubbleInstance;
   seeds: SeedDict;
   onDismissMini?: (miniId: string) => void;
+  onMessagesChange?: (messages: Message[]) => void;
 }
 
 const LOREM_CHUNKS = [
@@ -49,18 +54,27 @@ function loremReply(): string {
 
 function chatHistoryWeight(messages: Message[]): number {
   const totalChars = messages.reduce((s, m) => s + m.text.length, 0);
-  // Tune: ~2000 chars ≈ 10% of context. Caps at 95% (room for items).
   return Math.min(0.95, 0.05 + totalChars / 20000);
 }
 
-export function LlmChat({ instance, onDismissMini }: Props): JSX.Element {
+export function LlmChat({ instance, onDismissMini, onMessagesChange }: Props): JSX.Element {
   const p = instance.props as LlmChatProps;
-  const [messages, setMessages] = useState<Message[]>(() =>
-    p.greeting ? [{ id: 'sys-greeting', role: 'system', text: p.greeting }] : [],
-  );
+  // Initial messages: persisted ones from props, or seed with the greeting.
+  const initial: Message[] =
+    p.messages && p.messages.length > 0
+      ? p.messages
+      : p.greeting
+        ? [{ id: 'sys-greeting', role: 'system', text: p.greeting }]
+        : [];
+  const [messages, setMessages] = useState<Message[]>(initial);
   const [input, setInput] = useState('');
   const messagesRef = useRef<HTMLDivElement>(null);
-  let seq = useRef(0);
+  const seq = useRef(0);
+
+  // Persist to parent on every change (debounced via Preact's batching).
+  useEffect(() => {
+    onMessagesChange?.(messages);
+  }, [messages]);
 
   useEffect(() => {
     const el = messagesRef.current;
@@ -68,7 +82,7 @@ export function LlmChat({ instance, onDismissMini }: Props): JSX.Element {
   }, [messages.length]);
 
   function nextId(prefix: string): string {
-    return `${prefix}-${++seq.current}`;
+    return `${prefix}-${Date.now()}-${++seq.current}`;
   }
 
   function submit(e: Event): void {
@@ -78,7 +92,6 @@ export function LlmChat({ instance, onDismissMini }: Props): JSX.Element {
     const userMsg: Message = { id: nextId('u'), role: 'user', text };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
-    // Simulated assistant reply with brief delay so the chat feels alive.
     window.setTimeout(() => {
       const reply: Message = { id: nextId('a'), role: 'assistant', text: loremReply() };
       setMessages((prev) => [...prev, reply]);
@@ -101,7 +114,7 @@ export function LlmChat({ instance, onDismissMini }: Props): JSX.Element {
               {m.text}
             </div>
           ))}
-          {messages.length === 1 && (
+          {messages.length <= 1 && (
             <div class="llm-chat__msg llm-chat__msg--note">scripted in v1 · drag a bubble onto me to attach · type anything for a Lorem ipsum reply</div>
           )}
         </div>
