@@ -255,9 +255,11 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
       const liftedBundle = registry[current.bubbleId];
       if (!liftedBundle) return null;
 
-      // 1) Screen-edge drop — narrow zone, only when pointer is right against
-      //    the screen edge. Creates a full-width row / full-height column at
-      //    the workspace root.
+      // 1) Screen-edge drop — segmented by which bubbles actually touch that
+      //    edge in the pointer's perpendicular position. If two bubbles stack
+      //    vertically against the left edge, the left edge has two zones;
+      //    dropping in either becomes an in-bubble left-side split of that
+      //    specific bubble (not a full-height column).
       const containerRect = containerRef.current?.getBoundingClientRect();
       if (containerRect) {
         const EDGE_PX = 24;
@@ -269,14 +271,32 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         else if (px < EDGE_PX) edge = 'left';
         else if (px > containerRect.width - EDGE_PX) edge = 'right';
         if (edge) {
-          const after = splitRootInsert(
-            root,
-            edge,
-            current.bubbleId,
-            liftedBundle.minW,
-            liftedBundle.minH,
-            0.3,
-          );
+          const col = pxToCol(e.clientX);
+          const row = pxToRow(e.clientY);
+          const { leaves } = renderBSP(root);
+          // Find the leaf adjacent to this edge whose perpendicular span
+          // contains the pointer.
+          const segment = leaves.find((l) => {
+            if (edge === 'top') return l.region.row === 0 && col >= l.region.col && col < l.region.col + l.region.w;
+            if (edge === 'bottom') return l.region.row + l.region.h === grid.rows && col >= l.region.col && col < l.region.col + l.region.w;
+            if (edge === 'left') return l.region.col === 0 && row >= l.region.row && row < l.region.row + l.region.h;
+            return l.region.col + l.region.w === grid.cols && row >= l.region.row && row < l.region.row + l.region.h;
+          });
+          if (segment) {
+            const after = splitLeafInsert(
+              root,
+              segment.bubbleId,
+              edge,
+              current.bubbleId,
+              liftedBundle.minW,
+              liftedBundle.minH,
+              0.3,
+            );
+            setRoot(after);
+            return null;
+          }
+          // Fallback (shouldn't normally happen — workspace is fully tiled).
+          const after = splitRootInsert(root, edge, current.bubbleId, liftedBundle.minW, liftedBundle.minH, 0.3);
           setRoot(after);
           return null;
         }
@@ -555,13 +575,57 @@ export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
         );
       })()}
 
-      {/* Edge drop zones (visible during lift) */}
-      {lifted && (
+      {/* Edge drop zones (visible during lift) — segmented per bubble that touches each edge */}
+      {lifted && rendered && (
         <>
-          <div class="bsp-edge bsp-edge--top" />
-          <div class="bsp-edge bsp-edge--bottom" />
-          <div class="bsp-edge bsp-edge--left" />
-          <div class="bsp-edge bsp-edge--right" />
+          {rendered.leaves
+            .filter((l) => l.region.row === 0)
+            .map((l) => (
+              <div
+                key={`et-${l.bubbleId}`}
+                class="bsp-edge bsp-edge--top"
+                style={{
+                  left: `calc(${(l.region.col / grid.cols) * 100}% + 3px)`,
+                  width: `calc(${(l.region.w / grid.cols) * 100}% - 6px)`,
+                }}
+              />
+            ))}
+          {rendered.leaves
+            .filter((l) => l.region.row + l.region.h === grid.rows)
+            .map((l) => (
+              <div
+                key={`eb-${l.bubbleId}`}
+                class="bsp-edge bsp-edge--bottom"
+                style={{
+                  left: `calc(${(l.region.col / grid.cols) * 100}% + 3px)`,
+                  width: `calc(${(l.region.w / grid.cols) * 100}% - 6px)`,
+                }}
+              />
+            ))}
+          {rendered.leaves
+            .filter((l) => l.region.col === 0)
+            .map((l) => (
+              <div
+                key={`el-${l.bubbleId}`}
+                class="bsp-edge bsp-edge--left"
+                style={{
+                  top: `calc(${(l.region.row / grid.rows) * 100}% + 3px)`,
+                  height: `calc(${(l.region.h / grid.rows) * 100}% - 6px)`,
+                }}
+              />
+            ))}
+          {rendered.leaves
+            .filter((l) => l.region.col + l.region.w === grid.cols)
+            .map((l) => (
+              <div
+                key={`er-${l.bubbleId}`}
+                class="bsp-edge bsp-edge--right"
+                style={{
+                  top: `calc(${(l.region.row / grid.rows) * 100}% + 3px)`,
+                  height: `calc(${(l.region.h / grid.rows) * 100}% - 6px)`,
+                }}
+              />
+            ))}
         </>
       )}
 
