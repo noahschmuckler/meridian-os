@@ -56,6 +56,31 @@ const CELL_MIN_H = 1;
 const LONG_PRESS_MS = 380;
 const LONG_PRESS_MOVE_TOLERANCE_PX = 8;
 
+// True when the pointerdown landed on a native scrollbar gutter of any
+// scrollable ancestor. Walks from the event target upward; for each scrollable
+// element checks whether the pointer x/y is past its clientWidth / clientHeight
+// (the scrollbar gutter sits in that strip). Used to avoid hijacking
+// scrollbar drags as bubble lifts.
+function isPointerOnScrollbar(e: PointerEvent): boolean {
+  let el = e.target as HTMLElement | null;
+  while (el) {
+    const cs = window.getComputedStyle(el);
+    const scrollableY =
+      (cs.overflowY === 'auto' || cs.overflowY === 'scroll') && el.scrollHeight > el.clientHeight;
+    const scrollableX =
+      (cs.overflowX === 'auto' || cs.overflowX === 'scroll') && el.scrollWidth > el.clientWidth;
+    if (scrollableY || scrollableX) {
+      const rect = el.getBoundingClientRect();
+      const xInEl = e.clientX - rect.left;
+      const yInEl = e.clientY - rect.top;
+      if (scrollableY && xInEl > el.clientWidth && xInEl <= rect.width) return true;
+      if (scrollableX && yInEl > el.clientHeight && yInEl <= rect.height) return true;
+    }
+    el = el.parentElement;
+  }
+  return false;
+}
+
 interface LiftedState {
   bubbleId: string;
   ghostW: number;
@@ -217,6 +242,11 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
 
   function onBubblePointerDown(e: PointerEvent, leaf: RenderedLeaf, leafEl: HTMLElement): void {
     if (lifted || isWallDragging) return;
+    // If the press lands on a native scrollbar gutter inside the bubble, let the
+    // browser handle the scrollbar drag — don't capture the pointer or start
+    // the lift timer. Otherwise dragging the scrollbar elevator would lift
+    // the bubble.
+    if (isPointerOnScrollbar(e)) return;
     // Capture so the long-press timer is bound to *this* press, regardless of
     // where the pointer wanders next. Splitter/corner handlers still take
     // priority via z-index for direct hits on those elements.
