@@ -190,12 +190,11 @@ export function BrainBubble({
       ref={containerRef}
       class={`brain brain--${view}${overfilled ? ' brain--overfilled' : ''}`}
       aria-label="LLM context"
-      onClick={toggleView}
     >
+      <div class="brain__strip">
       <div class="brain__bar" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.min(1, totalReal) * 100)}>
-        {/* Segments are visual + hover hit-areas only. Clicks fall through to
-            the container's toggleView — so any tap on the bar toggles. Menus
-            live in task view (tap a row). */}
+        {/* Segments are visual + hover hit-areas only. The bar is read-only;
+            the wrench (right of the bar) opens the editable task view. */}
         {positions.map((p) => {
           const seg = segById.get(p.id);
           if (!seg) return null;
@@ -213,6 +212,16 @@ export function BrainBubble({
             />
           );
         })}
+      </div>
+        <button
+          class="brain__edit-btn"
+          aria-label={view === 'task' ? 'Close brain editor' : 'Open brain editor'}
+          aria-pressed={view === 'task'}
+          title={view === 'task' ? 'Close brain editor' : 'Open brain editor'}
+          onClick={(e) => { e.stopPropagation(); toggleView(); }}
+        >
+          🔧
+        </button>
       </div>
 
       {hoverSeg && hoverPos && view === 'bar' && (
