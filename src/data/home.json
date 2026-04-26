@@ -1,0 +1,21 @@
+{
+  "active": 0,
+  "desktops": [
+    {
+      "id": "desktop-1",
+      "grid": { "cols": 3, "rows": 2 },
+      "icons": [
+        { "workspaceId": "trainer", "pos": [0, 0] },
+        { "workspaceId": "provider", "pos": [1, 0] },
+        { "workspaceId": "qi-statin", "pos": [2, 0] },
+        { "workspaceId": "provider-file", "pos": [0, 1] },
+        { "workspaceId": "admin-cockpit", "pos": [1, 1] }
+      ]
+    },
+    {
+      "id": "desktop-2",
+      "grid": { "cols": 3, "rows": 2 },
+      "icons": []
+    }
+  ]
+}

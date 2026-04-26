@@ -1,0 +1,35 @@
+/* Design tokens. Carry meridian's palette; allow theme swap via :root override later. */
+:root {
+  /* Color */
+  --accent: #0F6B42;        /* forest green, ported from meridian */
+  --accent-soft: #E8F1EC;
+  --warn: #B45309;          /* amber */
+  --ink: #1A2520;
+  --ink-soft: #4A5A52;
+  --ink-faint: #8A9A92;
+  --bg: #F4F6F5;
+  --bg-deep: #E2E8E5;
+  --surface: #FFFFFFE6;     /* glass-ready */
+  --surface-strong: #FFFFFF;
+  --border: rgba(15, 107, 66, 0.10);
+  --border-strong: rgba(15, 107, 66, 0.20);
+  --shadow-1: 0 1px 2px rgba(15, 30, 22, 0.06), 0 4px 12px rgba(15, 30, 22, 0.04);
+  --shadow-2: 0 2px 6px rgba(15, 30, 22, 0.10), 0 12px 32px rgba(15, 30, 22, 0.08);
+
+  /* Type */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Layout */
+  --grid-cell: 80px;        /* base unit for the workspace grid */
+  --gap: 12px;
+  --radius-1: 10px;
+  --radius-2: 18px;
+  --radius-3: 28px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-1: 180ms;
+  --duration-2: 320ms;
+  --duration-morph: 480ms;
+}

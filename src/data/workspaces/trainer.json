@@ -1,0 +1,51 @@
+{
+  "id": "trainer",
+  "title": "Trainer",
+  "icon": { "glyph": "🎓", "tint": "#0F6B42" },
+  "cells": [
+    {
+      "id": "trainer-chat",
+      "nucleus": {
+        "type": "llm-chat",
+        "props": { "greeting": "Training Dr. Patel today.", "defaultPersona": "trainer" }
+      },
+      "brain": {
+        "miniBubbles": [
+          { "id": "mini-hub", "label": "Patel hub state", "source": "patel.hub_state", "pinned": true },
+          { "id": "mini-last", "label": "Last session summary", "source": "patel.last_session", "pinned": false },
+          { "id": "mini-sp", "label": "Recommended SmartPhrases", "source": "patel.smartphrases", "pinned": false }
+        ],
+        "hydrationRules": { "onAttach": "auto-add", "onDrop": "auto-add" }
+      },
+      "organelles": ["blueprint", "agenda", "followups"],
+      "scriptedTriggers": []
+    }
+  ],
+  "standalones": [
+    { "id": "dossier", "type": "provider-dossier", "title": "Dr. Patel — Dossier",
+      "props": {}, "resize": { "initial": "m", "states": {} } },
+    { "id": "questionnaire", "type": "questionnaire", "title": "Week-0 Questionnaire",
+      "props": {}, "resize": { "initial": "s", "states": {} } },
+    { "id": "dropzone", "type": "dropzone", "title": "Drop transcript",
+      "props": {}, "resize": { "initial": "s", "states": {} } },
+    { "id": "generated", "type": "generated-sessions-rail", "title": "Generated sessions",
+      "props": {}, "resize": { "initial": "s", "states": {} } }
+  ],
+  "layoutHints": {
+    "grid": { "cols": 12, "rows": 8 },
+    "placements": {
+      "trainer-chat": { "col": 0, "row": 0, "width": 7, "height": 5 },
+      "dossier": { "col": 7, "row": 0, "width": 5, "height": 3 },
+      "questionnaire": { "col": 7, "row": 3, "width": 5, "height": 2 },
+      "dropzone": { "col": 0, "row": 5, "width": 4, "height": 3 },
+      "generated": { "col": 4, "row": 5, "width": 8, "height": 3 }
+    }
+  },
+  "scripted": {
+    "onMount": [],
+    "onSearch": {},
+    "onDrop": {}
+  },
+  "seed": { "sources": ["patel-cohort"] },
+  "morphIds": ["trainer-chat"]
+}
