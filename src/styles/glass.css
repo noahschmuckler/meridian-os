@@ -13,6 +13,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  container-type: size; /* enable container queries for compact-mode borderization */
 }
 
 .bubble:hover {
@@ -97,6 +98,7 @@
   padding: var(--gap);
   box-shadow: var(--shadow-2);
   overflow: hidden;
+  container-type: size; /* enable container queries for compact-mode borderization */
 }
 
 .cell-organelle {
@@ -466,3 +468,37 @@
 }
 .bsp-corner:hover::before { opacity: 0.85; }
 .bsp-corner:active::before { opacity: 1; transform: scale(1.15); }
+
+/* === Borderization — compact modes when a bubble is squeezed === */
+/* Medium-small: hide body, keep a single-line title */
+@container (max-width: 140px), (max-height: 90px) {
+  .bubble__body { display: none; }
+  .bubble__chrome {
+    border-bottom: 0;
+    padding: 4px 8px;
+    height: 100%;
+    align-items: center;
+  }
+  .bubble__chrome > *:not(.bubble__title) { display: none; }
+  .bubble__title {
+    font-size: 11px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  /* primitive-internal containers also collapse */
+  .bp-tree > .bubble__body,
+  .fur > .bubble__body,
+  .gsr > .bubble__body,
+  .dz > .dz__area,
+  .dos > .bubble__body { display: none; }
+
+  .cell-organelles, .cell-chat-stub, .brain { display: none; }
+  .cell { padding: 4px 8px; }
+}
+
+/* Tiny: no chrome at all — pure glass ribbon */
+@container (max-width: 70px), (max-height: 48px) {
+  .bubble__chrome { display: none; }
+  .cell-inner > * { display: none; }
+}

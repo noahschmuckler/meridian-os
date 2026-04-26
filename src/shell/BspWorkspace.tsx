@@ -33,10 +33,13 @@ interface BubbleBundle {
   minH: number;
 }
 
-const DEFAULT_MIN_W = 2;
-const DEFAULT_MIN_H = 2;
-const CELL_MIN_W = 4;
-const CELL_MIN_H = 4;
+// Aggressive borderization: bubbles can shrink to a finger-catchable strip.
+// At smallest sizes, content is hidden via container queries — just visible
+// as a glass ribbon. User pulls the wall back out to restore it.
+const DEFAULT_MIN_W = 1;
+const DEFAULT_MIN_H = 1;
+const CELL_MIN_W = 1;
+const CELL_MIN_H = 1;
 
 export function BspWorkspace({ workspace, seeds }: Props): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
