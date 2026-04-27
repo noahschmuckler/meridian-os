@@ -6,9 +6,10 @@ import './styles/reset.css';
 import './styles/tokens.css';
 import './styles/glass.css';
 
-import type { HomeConfig, WorkspaceConfig } from './types';
+import type { HomeConfig, ModuleData, WorkspaceConfig } from './types';
 import { HomeScreen } from './shell/HomeScreen';
 import { WorkspaceShell } from './shell/WorkspaceShell';
+import { PrintView } from './shell/PrintView';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
 
@@ -66,6 +67,9 @@ const workspaces: Record<string, WorkspaceConfig> = {
 };
 
 const seeds: SeedDict = loadSeeds({ patel: patelSeed, clinical: clinicalModulesSeed });
+const clinicalModules = (
+  ((clinicalModulesSeed as { clinical?: { modules?: ModuleData[] } }).clinical?.modules) ?? []
+);
 
 const activeWorkspaceId = signal<string | null>(null);
 const entryFrom = signal<DOMRect | null>(null);
@@ -102,6 +106,7 @@ function App(): JSX.Element {
           }}
         />
       )}
+      <PrintView modules={clinicalModules} />
     </>
   );
 }

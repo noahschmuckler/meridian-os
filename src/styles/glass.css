@@ -559,6 +559,140 @@
 .t-clinical-tools         { --type-color: #f4c020; }
 .t-openevidence-builder   { --type-color: #f4c020; }
 
+/* === Print styles ===
+   Hide all bubble UI; show the print-view component (rendered hidden by
+   default on screen). Provider hits Cmd+P or the FAB print button to
+   trigger; the @page rule sets letter-size, 0.75in margins. */
+.print-view { display: none; }
+
+@media print {
+  body, html {
+    background: white !important;
+    color: #000;
+  }
+  .home-screen,
+  .workspace-shell,
+  .bsp-workspace,
+  .bsp-fab-stack,
+  .bsp-fab-backdrop,
+  .vault,
+  .attach-menu,
+  .attach-menu-backdrop,
+  .home-strip {
+    display: none !important;
+  }
+  .print-view {
+    display: block !important;
+    color: #1a1a1a;
+    background: #fff;
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.5;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+  .print-view h1 {
+    font-size: 22pt;
+    margin: 0 0 8pt;
+    border-bottom: 2pt solid #000;
+    padding-bottom: 4pt;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+  .print-view h2 {
+    font-size: 14pt;
+    margin: 16pt 0 6pt;
+    color: #000;
+    border-left: 4pt solid #444;
+    padding-left: 8pt;
+    page-break-after: avoid;
+  }
+  .print-view h3 {
+    font-size: 12pt;
+    margin: 8pt 0 4pt;
+    page-break-after: avoid;
+  }
+  .print-view h4 {
+    font-size: 11pt;
+    margin: 8pt 0 2pt;
+    font-weight: 700;
+    page-break-after: avoid;
+  }
+  .print-view p,
+  .print-view li {
+    font-size: 11pt;
+    margin: 0 0 6pt;
+  }
+  .print-view .print-intro {
+    font-style: italic;
+    color: #444;
+    margin-bottom: 12pt;
+  }
+  .print-view .print-list { padding-left: 24pt; }
+  .print-view .print-list li { margin: 4pt 0; }
+  .print-view .print-list--escalation li { color: #8b0000; }
+  .print-view .print-green-zone {
+    background: #f0f7f0;
+    border-left: 4pt solid #0F6B42;
+    padding: 8pt 12pt;
+    margin: 12pt 0;
+    page-break-inside: avoid;
+  }
+  .print-view .print-green-zone h3 {
+    color: #0F6B42;
+    margin-top: 0;
+  }
+  .print-view .print-smartphrase code {
+    font-family: 'Courier New', monospace;
+    background: #fff;
+    padding: 2pt 6pt;
+    border: 0.5pt solid #ccc;
+    font-size: 10pt;
+  }
+  .print-view .print-context {
+    background: #f5f5f5;
+    border-left: 4pt solid #666;
+    padding: 6pt 10pt;
+    margin: 12pt 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  .print-view .print-faq {
+    margin: 12pt 0;
+    page-break-inside: avoid;
+  }
+  .print-view .print-qa {
+    margin: 8pt 0 8pt 16pt;
+  }
+  .print-view .print-footer-note {
+    font-size: 9pt;
+    color: #666;
+    border-top: 1pt solid #ccc;
+    padding-top: 6pt;
+    margin-top: 16pt;
+    font-style: italic;
+  }
+  .print-view .print-references {
+    padding-left: 24pt;
+    font-size: 10pt;
+  }
+  .print-view .print-references li {
+    margin: 3pt 0;
+  }
+  .print-view--empty {
+    padding: 1in 0;
+    text-align: center;
+    color: #555;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @page {
+    size: letter;
+    margin: 0.75in;
+  }
+}
+
 /* Off-white — content / notes / identity */
 .t-markdown               { --type-color: #f5f5f0; }
 .t-provider-dossier       { --type-color: #f5f5f0; }

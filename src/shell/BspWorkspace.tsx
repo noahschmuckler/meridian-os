@@ -1581,6 +1581,14 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
             >
               +
             </button>
+            <button
+              class="bsp-fab-action"
+              onClick={() => { setFabExpanded(false); window.print(); }}
+              title="Print module"
+              aria-label="Print module"
+            >
+              ⎙
+            </button>
           </>
         )}
         <button
