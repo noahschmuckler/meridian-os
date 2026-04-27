@@ -14,7 +14,8 @@ import { ProviderDossier } from './provider-dossier';
 import { Placeholder } from './placeholder';
 import { LlmChat } from './llm-chat';
 import { Markdown } from './markdown';
-import { ClinicalModule } from './clinical-module';
+import { ClinicalModuleChecklist } from './clinical-module-checklist';
+import { ClinicalModuleEscalations } from './clinical-module-escalations';
 import { ClinicalModuleFaq } from './clinical-module-faq';
 
 export interface BubbleProps {
@@ -31,7 +32,8 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'placeholder': Placeholder,
   'llm-chat': LlmChat,
   'markdown': Markdown,
-  'clinical-module': ClinicalModule as ComponentType<BubbleProps>,
+  'clinical-module-checklist': ClinicalModuleChecklist as ComponentType<BubbleProps>,
+  'clinical-module-escalations': ClinicalModuleEscalations as ComponentType<BubbleProps>,
   'clinical-module-faq': ClinicalModuleFaq as ComponentType<BubbleProps>,
 };
 

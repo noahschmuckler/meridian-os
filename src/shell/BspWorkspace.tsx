@@ -1133,7 +1133,9 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
               onBodyChange: (body: string) => updateMarkdownBody(leaf.bubbleId, body),
               onToggleEditable: () => toggleMarkdownEditable(leaf.bubbleId),
             }
-          : inst.type === 'clinical-module' || inst.type === 'clinical-module-faq'
+          : inst.type === 'clinical-module-checklist'
+            || inst.type === 'clinical-module-escalations'
+            || inst.type === 'clinical-module-faq'
           ? {
               workspaceId: workspace.id,
               selfBubbleId: leaf.bubbleId,

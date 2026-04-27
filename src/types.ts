@@ -26,7 +26,8 @@ export type BubblePrimitiveType =
   | 'spreadsheet'
   | 'email-thread'
   | 'manual-control-search'
-  | 'clinical-module'
+  | 'clinical-module-checklist'
+  | 'clinical-module-escalations'
   | 'clinical-module-faq'
   | 'placeholder';
 

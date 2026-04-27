@@ -1,18 +1,27 @@
 {
   "id": "clinical-modules",
   "title": "Clinical Modules",
-  "icon": { "glyph": "🩹", "tint": "#1A6F8E" },
+  "icon": { "glyph": "🩹", "tint": "#0F6B42" },
   "cells": [],
   "standalones": [
     {
-      "id": "module-card",
-      "type": "clinical-module",
+      "id": "module-checklist",
+      "type": "clinical-module-checklist",
       "title": "Clinical Module",
       "props": {
         "modules": { "$seed": "clinical.modules" },
         "defaultModuleId": "lipid-management"
       },
       "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "module-escalations",
+      "type": "clinical-module-escalations",
+      "title": "Escalations",
+      "props": {
+        "modules": { "$seed": "clinical.modules" }
+      },
+      "resize": { "initial": "m", "states": {} }
     },
     {
       "id": "module-faq",
@@ -27,8 +36,9 @@
   "layoutHints": {
     "grid": { "cols": 12, "rows": 8 },
     "placements": {
-      "module-card": { "col": 0, "row": 0, "width": 6, "height": 8 },
-      "module-faq":  { "col": 6, "row": 0, "width": 6, "height": 8 }
+      "module-checklist":   { "col": 0, "row": 0, "width": 6, "height": 5 },
+      "module-escalations": { "col": 0, "row": 5, "width": 6, "height": 3 },
+      "module-faq":         { "col": 6, "row": 0, "width": 6, "height": 8 }
     }
   },
   "scripted": {

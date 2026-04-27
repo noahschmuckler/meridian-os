@@ -530,15 +530,20 @@
    bubbles (top stripe). One source of truth for a bubble's identity color. */
 
 /* Red — action / urgency */
-.t-follow-ups-rail        { --type-color: #d92e2e; }
-.t-dashboard-numbers      { --type-color: #d92e2e; }
-.t-glidepath-chart        { --type-color: #d92e2e; }
+.t-follow-ups-rail            { --type-color: #d92e2e; }
+.t-dashboard-numbers          { --type-color: #d92e2e; }
+.t-glidepath-chart            { --type-color: #d92e2e; }
+.t-clinical-module-escalations{ --type-color: #d92e2e; }
 
 /* Blue — structure / reference / calendar */
 .t-blueprint-tree         { --type-color: #1f4cae; }
 .t-spreadsheet            { --type-color: #1f4cae; }
 .t-meeting-tracker        { --type-color: #1f4cae; }
 .t-faq-block              { --type-color: #1f4cae; }
+.t-clinical-module-faq    { --type-color: #1f4cae; }
+
+/* Green — clinical decision / verified path */
+.t-clinical-module-checklist { --type-color: #0F6B42; }
 
 /* Yellow — communication / live / generative */
 .t-llm-chat               { --type-color: #f4c020; }
