@@ -6,14 +6,24 @@ The user is **Dr. Noah Schmuckler**, MD, primary-care medical director at Optum.
 
 ---
 
-## Status snapshot (last updated 2026-04-26)
+## Status snapshot (last updated 2026-04-27)
 
 - **Live:** https://meridian-os.pages.dev
 - **Repo:** https://github.com/noahschmuckler/meridian-os (private)
 - **Cloudflare Pages project:** `meridian-os`
-- **Latest commit:** filesystem v1 + markdown primitive + real LLM via Pages Function landed 2026-04-26.
+- **Latest commit:** `f06d7cf` (markdown rendering in chat + md-bubble view via `marked`).
 
-The OS shell is **production-quality**. The Trainer workspace is fully populated. The other four workspaces are empty tiles awaiting content.
+The OS shell is **production-quality**. The Trainer workspace is fully populated and now talks to a real LLM. The other four workspaces are empty tiles awaiting content; **Clinical Modules is the next workspace to build.**
+
+### Major systems landed since 2026-04-26
+- **Brain task-manager bar** (BrainBubble redesign): default is a colored progress bar, hover shows a floating row, the wrench icon opens a sortable Name / Type / % task-manager view. Per-row contextual menu: Read deeply / Compress / Toggle editable / Dismiss. Compacted chat history is its own segment color.
+- **`held` relationship replaces `reference`** — title + a sentence ("executive-assistant hold" semantics). Persisted `'reference'` is normalized at read time.
+- **Filesystem v1** (`src/data/filesystem.ts`) — id-keyed Map persisted to localStorage. Bubbles can be views over `MeridianFile` records. Auto-naming on attach (`{TypeLabel} N`). Snapshot-on-trash for every non-placeholder bubble. Two markdowns seeded into trainer (`Patel scratch pad`, `Prior session memory`).
+- **Vault redesign** — type tiles + three file sections (This workspace / Other workspaces / Global). ✏️ inline rename per file; tap → placeholder rehydrates from the file's instance.
+- **Markdown primitive** (`src/bubbles/markdown/index.tsx`) — view + textarea modes; chrome edit/view toggle; persists to file when fileId is set.
+- **Real LLM in chat** — `functions/api/chat.ts` POSTs to Anthropic Sonnet 4.6 with brain context built per relationship in `src/data/brainContext.ts`. Per-primitive content extractors (markdown body, blueprint tree, dossier, dropzone, etc.). Cache-controlled system blocks. Non-streaming. Requires `ANTHROPIC_API_KEY` Pages secret.
+- **Markdown rendering** — `src/lib/md.ts` (uses `marked`); chat replies + md-bubble view mode render via `dangerouslySetInnerHTML` inside scoped `.markdown-body` styles.
+- **Scrollbar fix** — pointerdown on a native scrollbar gutter no longer triggers the long-press lift.
 
 ### What's working end-to-end
 
@@ -25,17 +35,19 @@ The OS shell is **production-quality**. The Trainer workspace is fully populated
 
 **Bubble lifecycle** — Long-press to lift (slot collapses, ghost follows finger). Drop modes:
 - On any bubble's body: pointer-aware splitLeafInsert with alignment-snap to nearby splitter lines (1.5-cell threshold).
-- On a chat bubble: relationship menu modal — Read deeply / Scan + summarize / Reference only / Editable. Mini-bubble lands in the chat's brain.
+- On a chat bubble: relationship menu modal — Read deeply / Scan + summarize / Held only / Editable. Source bubble is auto-named (`{TypeLabel} N`) and filed if unnamed; the mini-bubble in the brain reflects the new name.
 - On a placeholder bubble: replaceLeaf — placeholder is consumed, dropped bubble takes the slot exactly.
 - On a screen-edge segment: split the adjacent bubble at that edge (segments are per-bubble that touches the edge in the pointer's perpendicular position).
-- On the bottom-right FAB during lift: trash (delete from registry).
+- On the bottom-right FAB during lift: snapshot the bubble to the per-workspace filesystem, then remove from registry. Summon back from the vault later.
 - Off any bubble: snap back via originalRoot.
 
 **Double-tap a bubble → maximize.** Walks ancestor splits, pushes each splitAt to its constraint-bounded extreme. Other bubbles compress to mins. Double-tap again restores. Different bubble while one is maximized: restore first, then maximize new from original layout.
 
-**Chat (llm-chat primitive)** — Fully controlled (messages live in `instance.props.messages`, no local state). Type-anything → user bubble + 350-700ms-delayed Lorem ipsum assistant reply. Brain bubble shows context with horizontal-gradient fullness bar — chat history segment grows with conversation length; attached items add color-tinted segments per relationship type (📖 deep 25%, ✏️ edit 18%, 📝 summary 4%, 🔗 reference 1.5%). Overfilled bar gets warn-orange border. Click any mini-bubble to dismiss.
+**Chat (llm-chat primitive)** — Fully controlled (messages live in `instance.props.messages`, no local state). Real Anthropic Sonnet 4.6 replies via `/api/chat`. Loading dots while in flight; AbortController cancels on a new send. Brain bubble shows context as a status bar (no chips); hover for floating row, wrench opens task-manager rows with sortable columns. Markdown rendering on assistant/system/user messages.
 
-**Vault** — Tap a placeholder → modal of 8 bubble types (markdown, spreadsheet, email-thread, faq-block, blueprint-tree, dashboard-numbers, meeting-tracker, glidepath-chart). Pick → placeholder transforms in place to that type.
+**Vault** — Tap a placeholder → modal with 8 type tiles at top *and* three file sections below (This workspace / Other workspaces / Global). Pick a type → placeholder becomes a fresh bubble of that type. Pick a file → placeholder rehydrates from the file's saved instance. ✏️ inline rename next to any file row.
+
+**Filesystem** — `src/data/filesystem.ts`. Id-keyed `Map<string, MeridianFile>` persisted to localStorage. Each file holds a serialized `BubbleInstance` plus metadata (name, type, scope, workspaceId, timestamps). Files survive bubble dismissal — that's the dismiss-and-summon-back demo flow. Two trainer markdowns are seeded on first boot.
 
 **Multi-function FAB** (bottom-right): tap = summon placeholder; long-press = expand menu (numbered save-state grid in 2-col rows with smooth vertical scroll, plus + / ← / ⟲ actions); during lift = trash target with warn pulse on hover; while expanded the FAB shows × and tap closes.
 
@@ -53,17 +65,33 @@ The OS shell is **production-quality**. The Trainer workspace is fully populated
 
 ## Pending plan (priority order)
 
-### Toward storyboard completion (the original wow flow)
+### Done (since 2026-04-26)
+- ~~Real LLM in chat~~ — Sonnet 4.6 via `/api/chat`.
+- ~~Filesystem v1~~ — auto-naming, snapshot-on-trash, vault file picker, file rename.
+- ~~Markdown primitive~~ — view + edit modes, file persistence, marked rendering.
+- ~~Brain task-manager redesign~~ — bar + wrench + sortable rows + per-row contextual menu.
 
-The user wants this as the **near-term target** — get the full storyboard from the plan file working, then circle back for production polish.
+### Next workspace target
 
-1. ~~**Real LLM behavior in chat**~~ **DONE 2026-04-26.** Cloudflare Pages Function at `/api/chat` proxies to Anthropic Sonnet 4.6 (`functions/api/chat.ts`) with brain context assembled per relationship type (`src/data/brainContext.ts`). Per-primitive extractors render markdown body / blueprint tree / dossier facts / etc. into the system prompt. Prompt-cache-controlled blocks for hot paths. Non-streaming; streaming is a follow-up. Requires `ANTHROPIC_API_KEY` set via `wrangler pages secret put`.
-2. **Provider workspace populated.** Patient-info stack (cyclable, toggleable), modules-stack (clinical reference modules), openevidence-builder (toggleable inputs from patient + modules + chat → submit query), smartphrase-directory, chart-closure accumulator (care-gap accept/deny → list), care-gap-accumulator. Realistic dummy patient on schedule. Once two workspaces are populated the OS reads as a *system*.
-3. **QI Statin workspace.** Glidepath-chart with target line, email-threads-tracker, meeting-tracker, pending-actions list, SMART goal modal. Dummy QI initiative metrics + email thread + meeting summaries.
-4. **Provider File workspace.** Drilldown view: provider-dossier expanded, Epic Signal data table (pajama time, throughput, chart-closure time), 1:1 cadence schedule, disciplinary record, complaint tracker. Dummy struggling-provider data.
-5. **Admin Cockpit workspace.** Region/office/provider drilldown, HEDIS metric dashboard, email-threads (duplicatable per topic), meeting trackers per topic.
-6. **Cross-workspace bubble drag** (the original wow #2). HydrationBus is a stub already. Lift a bubble, drag toward home strip, swipe to another workspace, drop into a chat — that workspace's brain hydrates with the bubble's content, scripted (or real LLM) response references it.
-7. **Per-bubble mini-search.** Active-search button on every bubble (currently only FAB summons). Type a primitive name → suggestion → attaches to the cell.
+**Clinical Modules** — cross-reference the dedicated memory `~/.claude/projects/-home-noahs-Documents-meridiandrafts-Onboarding/memory/project_meridian_os_clinical_modules.md` before designing. Two forms:
+- **Patient-agnostic** (near-term shippable; no enterprise blockers — could deploy without Epic / patient connections).
+- **Patient-integrated** (multiple blocks; build with dummy data).
+The user has vague ideas and wants to iterate from a draft. Goal: surface design pressure on the OS shell so it feeds back into the onboarding hub and future workspaces.
+
+### Toward storyboard completion (after Clinical Modules)
+1. **Provider workspace populated.** Patient-info stack (cyclable, toggleable), modules-stack (clinical reference modules), openevidence-builder (toggleable inputs from patient + modules + chat → submit query), smartphrase-directory, chart-closure accumulator (care-gap accept/deny → list), care-gap-accumulator. Realistic dummy patient on schedule.
+2. **QI Statin workspace.** Glidepath-chart with target line, email-threads-tracker, meeting-tracker, pending-actions list, SMART goal modal.
+3. **Provider File workspace.** Drilldown view: provider-dossier expanded, Epic Signal data table (pajama time, throughput, chart-closure time), 1:1 cadence schedule, disciplinary record, complaint tracker.
+4. **Admin Cockpit workspace.** Region/office/provider drilldown, HEDIS metric dashboard, email-threads (duplicatable per topic), meeting trackers per topic.
+5. **Cross-workspace bubble drag** (the original wow #2). HydrationBus is a stub already. Lift a bubble, drag toward home strip, swipe to another workspace, drop into a chat. User noted this likely needs the home page to render multiple workspaces at intermediate size for live drag-and-drop — saved as future scope.
+6. **Per-bubble mini-search.** Active-search button on every bubble. Type a primitive name → suggestion → attaches to the cell.
+
+### Bubbles-as-programs unlocks (longer horizon)
+
+After enough workspaces exist that we can see the patterns, land the bubble-manifest model: each primitive type can carry `prompts`, `tools`, `companions`, `harness`. Adoption joins the relationship menu as a 5th option when the source has harness. Atomic tool bubbles become a real archetype. See `~/.claude/projects/-home-noahs-Documents-meridiandrafts-Onboarding/memory/project_meridian_os_bubbles_as_programs.md`.
+
+### Streaming + write-trail + scope chip
+All deferred until after manifests + adoption. Write-trail in particular may not be needed once the brain shows adopted entries.
 
 ### Toward full v1 (after storyboard works)
 
@@ -121,8 +149,12 @@ src/
     dropzone/               Real (visual mock; ingest unwired)
     provider-dossier/       Real
     placeholder/            Real
-    llm-chat/               Real (fully controlled, brain integration)
+    llm-chat/               Real (fully controlled, brain integration, /api/chat)
+    markdown/               Real (view + edit modes, file-backed persistence)
     index.ts                PRIMITIVE_REGISTRY — type → component
+    labels.ts               PRIMITIVE_LABELS — defaultLabel per type
+  cell/
+    BrainBubble.tsx         Status-bar + sortable task-manager view; wrench toggle
   mechanics/
     bsp.ts                  BSP types + buildBSP / setSplitAt / removeLeaf /
                             splitLeafInsert / replaceLeaf / maximizeLeaf /
@@ -133,10 +165,15 @@ src/
     drag.ts, search.ts
   data/
     home.json               Workspace grid config
-    workspaces/trainer.json The only populated workspace
+    workspaces/trainer.json Trainer workspace config (Patel context)
     seed/patel-cohort.json  Dr. Patel's mid-onboarding state
     demo-script.json        Stub
     seedResolver.ts         { "$seed": "key.path" } token expansion
+    filesystem.ts           Emulated FS: id-keyed Map<MeridianFile> + localStorage
+    brainContext.ts         Per-relationship + per-primitive content extractors
+                            for the LLM system prompt
+  lib/
+    md.ts                   marked-based markdown renderer; HTML out
   styles/
     tokens.css              CSS variables, palette, typography
     glass.css               All component styles (large file; well-commented)
@@ -144,7 +181,10 @@ src/
   types.ts                  All shared TS interfaces
   main.tsx                  Boot, useVisualViewport hook, App
 
-functions/                  (none yet — Cloudflare Pages Functions live here when added)
+functions/
+  api/
+    chat.ts                 POST /api/chat — proxies to Anthropic Sonnet 4.6
+                            with per-relationship brain blocks + cache control
 public/
   _redirects                /* /index.html 200 (SPA fallback)
 deploy.sh                   npm run build + wrangler pages deploy dist
@@ -152,7 +192,7 @@ deploy.sh                   npm run build + wrangler pages deploy dist
 
 ### Data model (TS interfaces, in `src/types.ts`)
 
-`WorkspaceConfig` declares cells + standalones + layoutHints (12×8 grid + per-id placements) + scripted hooks + seed sources. `BubbleInstance` carries id, type, title, props (free shape), resize states, optional attach to a cell. `CellConfig` has nucleus + brain + organelles (inline). `BSPRoot` wraps a recursive `BSPNode` (leaf or split). `MiniBubble` has optional `relationship: 'deep' | 'summary' | 'reference' | 'edit'`.
+`WorkspaceConfig` declares cells + standalones + layoutHints (12×8 grid + per-id placements) + scripted hooks + seed sources. `BubbleInstance` carries id, type, title, props (free shape), resize states, optional attach to a cell, and an optional `fileId` linking to the filesystem. `CellConfig` has nucleus + brain + organelles (inline). `BSPRoot` wraps a recursive `BSPNode` (leaf or split). `MiniBubble` has optional `relationship: 'deep' | 'summary' | 'held' | 'edit'` (`reference` was renamed to `held`; old persisted state normalizes at read). `MeridianFile` (in `data/filesystem.ts`) holds a serialized `BubbleInstance` plus name / type / scope / workspaceId / timestamps.
 
 ### Persistence model
 
@@ -168,12 +208,12 @@ Both hydrate from localStorage on module load; helpers (`setWorkspaceState`, `de
 
 1. Open https://meridian-os.pages.dev → Mondrian home grid, 5 paintings hung at depth.
 2. Tap **Trainer** → flies up, color blocks crossfade to content. 7 populated bubbles arranged 12×8.
-3. **Type in the chat** — Lorem ipsum reply, brain history bar grows. Drop the **dossier** onto the chat → relationship menu → 📝 Summary → dossier disappears, summary mini-bubble in brain.
-4. **Resize** by dragging splitter walls or corner handles. **Double-tap** any bubble to maximize, double-tap again to restore.
-5. **Long-press a bubble** to lift; drag onto another → that bubble splits at the pointer's edge with alignment-snap. Drag near a screen edge → split the adjacent bubble at that segment. Drag to the bottom-right FAB → trash.
-6. **Tap +** to summon a placeholder. **Tap the placeholder** → vault modal → pick markdown / spreadsheet / etc. → placeholder transforms.
-7. **Long-press FAB** → menu: ⟲ resets layout (preserves chat); ← flies back home; + summons; numbered save slots in vertical pairs (tap empty to save, tap filled to load).
-8. **Inside chat header**: `compact` replaces messages with a summary; `clear` replaces with greeting. Brain weight responds.
+3. **Type in the chat** → real Sonnet 4.6 reply (loading dots while in flight). Brain bar grows with conversation length. Drop the **dossier** onto the chat → relationship menu → Scan + summarize → dossier disappears, summary mini-bubble in brain. Markdown in replies renders as headings/lists/code.
+4. **Tap the wrench** in the brain → task-manager rows (Name / Type / %), sortable by column. Tap a row → contextual menu (Read deeply / Compress / Toggle editable / Dismiss).
+5. **Long-press a bubble** to lift; drag onto another → that bubble splits at the pointer's edge with alignment-snap. Drag to FAB → snapshot saved to filesystem, bubble removed. Resummon from the vault's file section.
+6. **Tap +** → placeholder. **Tap the placeholder** → vault modal: 8 type tiles + three file sections (This workspace / Other workspaces / Global). Pick a type → fresh bubble. Pick a file → placeholder rehydrates from the file. ✏️ to rename a file inline.
+7. **Open the seeded `Patel scratch pad`** (markdown bubble) → defaults to edit mode, type, blur to save; reload restores. Toggle to view mode renders markdown. **Open `Prior session memory`** → opens in view mode with prose rendered.
+8. **Inside chat header**: `compact` replaces messages with a real recap line; `clear` replaces with greeting.
 9. **Refresh the page** → everything restores. Tile previews reflect the live layout.
 10. **Dismiss** → painting flies back to its tile, FAB fades out early, no jolt on landing.
 
