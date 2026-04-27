@@ -5,23 +5,95 @@
   "cells": [],
   "standalones": [
     {
+      "id": "topic-cv",
+      "type": "clinical-topic-cv",
+      "title": "Cardiometabolic",
+      "props": {
+        "topic": "Cardiometabolic",
+        "blurb": "Heart, vessels, kidneys, lipids.",
+        "moduleIds": ["lipid-management", "ckd"],
+        "modules": { "$seed": "clinical.modules" }
+      },
+      "resize": { "initial": "m", "states": {} }
+    },
+    {
+      "id": "topic-controlled",
+      "type": "clinical-topic-controlled",
+      "title": "Behavioral & Controlled Rx",
+      "props": {
+        "topic": "Behavioral & Controlled Rx",
+        "blurb": "Stimulants, opiates, benzodiazepines.",
+        "moduleIds": ["adhd", "opiates", "benzos"],
+        "modules": { "$seed": "clinical.modules" }
+      },
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "topic-general",
+      "type": "clinical-topic-general",
+      "title": "General Internal Med",
+      "props": {
+        "topic": "General Internal Med",
+        "blurb": "Common workups and triage decisions.",
+        "moduleIds": ["anemia", "abd-pain"],
+        "modules": { "$seed": "clinical.modules" }
+      },
+      "resize": { "initial": "m", "states": {} }
+    },
+    {
+      "id": "tools",
+      "type": "clinical-tools",
+      "title": "Clinical tools",
+      "props": {},
+      "resize": { "initial": "m", "states": {} }
+    },
+    {
+      "id": "chat",
+      "type": "llm-chat",
+      "title": "Clinical chat",
+      "props": {
+        "greeting": "Ask about any module — I can pull up checklists, escalations, or FAQs. (LLM module-routing wiring is the next iteration.)",
+        "defaultPersona": "clinical",
+        "brain": {
+          "miniBubbles": [],
+          "hydrationRules": { "onAttach": "auto-add", "onDrop": "auto-add" }
+        }
+      },
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "oe",
+      "type": "openevidence-builder",
+      "title": "OpenEvidence",
+      "props": {},
+      "resize": { "initial": "m", "states": {} }
+    },
+    {
       "id": "module-checklist",
       "type": "clinical-module-checklist",
-      "title": "Clinical Module",
+      "title": "Module · checklist",
       "props": {
-        "modules": { "$seed": "clinical.modules" },
-        "defaultModuleId": "lipid-management"
+        "modules": { "$seed": "clinical.modules" }
       },
       "resize": { "initial": "l", "states": {} }
     },
     {
       "id": "module-escalations",
       "type": "clinical-module-escalations",
-      "title": "Escalations",
+      "title": "Module · escalations",
       "props": {
         "modules": { "$seed": "clinical.modules" }
       },
       "resize": { "initial": "m", "states": {} }
+    },
+    {
+      "id": "module-faq",
+      "type": "clinical-module-faq",
+      "title": "Module · FAQ",
+      "props": {
+        "modules": { "$seed": "clinical.modules" }
+      },
+      "resize": { "initial": "l", "states": {} }
     },
     {
       "id": "prevent",
@@ -29,24 +101,17 @@
       "title": "PREVENT calculator",
       "props": {},
       "resize": { "initial": "l", "states": {} }
-    },
-    {
-      "id": "module-faq",
-      "type": "clinical-module-faq",
-      "title": "Module detail",
-      "props": {
-        "modules": { "$seed": "clinical.modules" }
-      },
-      "resize": { "initial": "l", "states": {} }
     }
   ],
   "layoutHints": {
     "grid": { "cols": 12, "rows": 8 },
     "placements": {
-      "module-checklist":   { "col": 0, "row": 0, "width": 4, "height": 5 },
-      "module-escalations": { "col": 0, "row": 5, "width": 4, "height": 3 },
-      "prevent":            { "col": 4, "row": 0, "width": 4, "height": 8 },
-      "module-faq":         { "col": 8, "row": 0, "width": 4, "height": 8 }
+      "topic-controlled": { "col": 0, "row": 0, "width": 6, "height": 4 },
+      "topic-cv":         { "col": 6, "row": 0, "width": 3, "height": 4 },
+      "topic-general":    { "col": 9, "row": 0, "width": 3, "height": 4 },
+      "tools":            { "col": 0, "row": 4, "width": 4, "height": 4 },
+      "chat":             { "col": 4, "row": 4, "width": 4, "height": 4 },
+      "oe":               { "col": 8, "row": 4, "width": 4, "height": 4 }
     }
   },
   "scripted": {

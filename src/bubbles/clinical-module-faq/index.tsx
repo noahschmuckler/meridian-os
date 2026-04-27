@@ -32,13 +32,13 @@ export function ClinicalModuleFaq({ instance, workspaceId, onRequestSiblingFocus
 
   function pickFaq(faqId: string): void {
     if (!selected) return;
-    focus.value = { moduleId: selected.module_id, focusedItemId: faqId };
+    focus.value = { mode: 'module', moduleId: selected.module_id, focusedItemId: faqId };
     onRequestSiblingFocus?.(selfBubbleId, 0.6);
   }
 
   function clearFocus(): void {
     if (!selected) return;
-    focus.value = { moduleId: selected.module_id, focusedItemId: null };
+    focus.value = { mode: 'module', moduleId: selected.module_id, focusedItemId: null };
   }
 
   if (!selected) {

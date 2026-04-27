@@ -17,6 +17,9 @@ import { Markdown } from './markdown';
 import { ClinicalModuleChecklist } from './clinical-module-checklist';
 import { ClinicalModuleEscalations } from './clinical-module-escalations';
 import { ClinicalModuleFaq } from './clinical-module-faq';
+import { ClinicalTopicBubble } from './clinical-topic-bubble';
+import { ClinicalTools } from './clinical-tools';
+import { OpenEvidenceBuilder } from './openevidence-builder';
 import { PreventCalculator } from './prevent-calculator';
 
 export interface BubbleProps {
@@ -36,6 +39,11 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'clinical-module-checklist': ClinicalModuleChecklist as ComponentType<BubbleProps>,
   'clinical-module-escalations': ClinicalModuleEscalations as ComponentType<BubbleProps>,
   'clinical-module-faq': ClinicalModuleFaq as ComponentType<BubbleProps>,
+  'clinical-topic-cv': ClinicalTopicBubble as ComponentType<BubbleProps>,
+  'clinical-topic-controlled': ClinicalTopicBubble as ComponentType<BubbleProps>,
+  'clinical-topic-general': ClinicalTopicBubble as ComponentType<BubbleProps>,
+  'clinical-tools': ClinicalTools as ComponentType<BubbleProps>,
+  'openevidence-builder': OpenEvidenceBuilder as ComponentType<BubbleProps>,
   'prevent-calculator': PreventCalculator as ComponentType<BubbleProps>,
 };
 

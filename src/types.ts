@@ -29,6 +29,10 @@ export type BubblePrimitiveType =
   | 'clinical-module-checklist'
   | 'clinical-module-escalations'
   | 'clinical-module-faq'
+  | 'clinical-topic-cv'
+  | 'clinical-topic-controlled'
+  | 'clinical-topic-general'
+  | 'clinical-tools'
   | 'prevent-calculator'
   | 'placeholder';
 

@@ -43,7 +43,7 @@ export function ClinicalModuleEscalations({ instance, workspaceId, onRequestSibl
   const moduleId = selected.module_id;
 
   function pickRow(faqRef: string): void {
-    focus.value = { moduleId, focusedItemId: faqRef };
+    focus.value = { mode: 'module', moduleId, focusedItemId: faqRef };
     onRequestSiblingFocus?.('module-faq', 0.6);
   }
 

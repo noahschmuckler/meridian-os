@@ -534,6 +534,7 @@
 .t-dashboard-numbers          { --type-color: #d92e2e; }
 .t-glidepath-chart            { --type-color: #d92e2e; }
 .t-clinical-module-escalations{ --type-color: #d92e2e; }
+.t-clinical-topic-cv          { --type-color: #d92e2e; }
 
 /* Blue — structure / reference / calendar */
 .t-blueprint-tree         { --type-color: #1f4cae; }
@@ -541,9 +542,13 @@
 .t-meeting-tracker        { --type-color: #1f4cae; }
 .t-faq-block              { --type-color: #1f4cae; }
 .t-clinical-module-faq    { --type-color: #1f4cae; }
+.t-clinical-topic-general { --type-color: #1A6F8E; }
 
 /* Green — clinical decision / verified path */
 .t-clinical-module-checklist { --type-color: #0F6B42; }
+
+/* Purple — behavioral / controlled */
+.t-clinical-topic-controlled  { --type-color: #6B4F9B; }
 
 /* Yellow — communication / live / generative */
 .t-llm-chat               { --type-color: #f4c020; }
@@ -551,6 +556,8 @@
 .t-questionnaire          { --type-color: #f4c020; }
 .t-generated-sessions-rail{ --type-color: #f4c020; }
 .t-prevent-calculator     { --type-color: #f4c020; }
+.t-clinical-tools         { --type-color: #f4c020; }
+.t-openevidence-builder   { --type-color: #f4c020; }
 
 /* Off-white — content / notes / identity */
 .t-markdown               { --type-color: #f5f5f0; }

@@ -24,7 +24,7 @@ import {
   type MeridianFile,
 } from '../data/filesystem';
 import { buildBrainContext } from '../data/brainContext';
-import { moduleFocusSignal } from '../data/moduleFocus';
+import { moduleFocusSignal, type WorkspaceMode } from '../data/moduleFocus';
 import {
   buildBSP,
   renderBSP,
@@ -68,14 +68,52 @@ const CELL_MIN_H = 1;
 const LONG_PRESS_MS = 380;
 const LONG_PRESS_MOVE_TOLERANCE_PX = 8;
 
-// Module → companion bubble types that auto-show when that module is picked
-// in the clinical-modules workspace. Outside this map the companion is
-// auto-hidden on module switch UNLESS the user manually summoned it during
-// the non-companion module session.
-const COMPANIONS_BY_MODULE: Record<string, BubblePrimitiveType[]> = {
-  'lipid-management': ['prevent-calculator'],
+// === Clinical Modules workspace: mode-aware layouts =====================
+//
+// Gallery mode shows topic bubbles + tools + the persistent llm-chat and
+// openevidence-builder. Module mode shows the per-module checklist /
+// escalations / FAQ + (optionally PREVENT for the lipid module) + the
+// SAME persistent llm-chat and oe bubbles, animated to their new
+// positions via the existing BSP transition CSS. Switching modes
+// rebuilds the BSP using the right placement table; bubbles that exist
+// in both modes (chat, oe) animate; bubbles that only exist in one mode
+// mount/unmount.
+
+const COMPANION_BUBBLE_BY_MODULE: Record<string, string[]> = {
+  'lipid-management': ['prevent'],
 };
-const OPTIONAL_COMPANION_TYPES: BubblePrimitiveType[] = ['prevent-calculator'];
+
+const GALLERY_LAYOUT: Record<string, GridPlacement> = {
+  'topic-controlled': { col: 0, row: 0, width: 6, height: 4 },
+  'topic-cv':         { col: 6, row: 0, width: 3, height: 4 },
+  'topic-general':    { col: 9, row: 0, width: 3, height: 4 },
+  'tools':            { col: 0, row: 4, width: 4, height: 4 },
+  'chat':             { col: 4, row: 4, width: 4, height: 4 },
+  'oe':               { col: 8, row: 4, width: 4, height: 4 },
+};
+
+const MODULE_LAYOUT_BASE: Record<string, GridPlacement> = {
+  'module-checklist':   { col: 0, row: 0, width: 3, height: 5 },
+  'module-escalations': { col: 0, row: 5, width: 3, height: 3 },
+  'module-faq':         { col: 3, row: 0, width: 4, height: 8 },
+  'chat':               { col: 7, row: 0, width: 5, height: 4 },
+  'oe':                 { col: 7, row: 4, width: 5, height: 4 },
+};
+
+const MODULE_LAYOUT_WITH_PREVENT: Record<string, GridPlacement> = {
+  'module-checklist':   { col: 0, row: 0, width: 3, height: 5 },
+  'module-escalations': { col: 0, row: 5, width: 3, height: 3 },
+  'module-faq':         { col: 3, row: 0, width: 3, height: 8 },
+  'prevent':            { col: 6, row: 0, width: 3, height: 8 },
+  'chat':               { col: 9, row: 0, width: 3, height: 4 },
+  'oe':                 { col: 9, row: 4, width: 3, height: 4 },
+};
+
+function clinicalModulesLayout(mode: WorkspaceMode, moduleId: string | null): Record<string, GridPlacement> {
+  if (mode === 'gallery') return GALLERY_LAYOUT;
+  const companions = moduleId ? COMPANION_BUBBLE_BY_MODULE[moduleId] ?? [] : [];
+  return companions.includes('prevent') ? MODULE_LAYOUT_WITH_PREVENT : MODULE_LAYOUT_BASE;
+}
 
 // True when the pointerdown landed on a native scrollbar gutter of any
 // scrollable ancestor. Walks from the event target upward; for each scrollable
@@ -174,19 +212,28 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
   }, [workspace.id]);
 
   // Build BSP from registry only when we don't already have one (first entry
-  // to a workspace). Persisted root is preserved across switches.
+  // to a workspace). Persisted root is preserved across switches. The
+  // clinical-modules workspace overrides registry placements with its
+  // mode-aware layout (gallery / module / module+prevent) so the initial
+  // build matches the current focus mode.
   useEffect(() => {
     if (root !== null) return;
     try {
-      const built = buildBSP(
-        Object.entries(registry).map(([id, b]) => ({
-          id,
-          placement: b.placement,
-          minW: b.minW,
-          minH: b.minH,
-        })),
-        { col: 0, row: 0, w: grid.cols, h: grid.rows },
-      );
+      let entries = Object.entries(registry).map(([id, b]) => ({
+        id,
+        placement: b.placement,
+        minW: b.minW,
+        minH: b.minH,
+      }));
+      if (workspace.id === 'clinical-modules') {
+        const focus = moduleFocusSignal(workspace.id).value;
+        const layout = clinicalModulesLayout(focus.mode, focus.moduleId);
+        entries = entries
+          .filter((e) => e.id in layout)
+          .map((e) => ({ ...e, placement: layout[e.id] }));
+      }
+      if (entries.length === 0) return;
+      const built = buildBSP(entries, { col: 0, row: 0, w: grid.cols, h: grid.rows });
       setRoot(built);
     } catch (err) {
       console.warn('BSP construction failed', err);
@@ -202,71 +249,35 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     }
   }, [registry, root, workspace.id]);
 
-  // Module-companion auto-show/hide. Subscribes to the workspace's module
-  // focus signal; on module change, optional companion bubbles (e.g. the
-  // PREVENT calculator) follow the new module's manifest. Manual user
-  // additions during a non-companion module session are preserved — the
-  // hide rule only fires when leaving a module that listed the companion
-  // as a default. Reset on workspace switch via the prev-module ref.
-  const prevModuleIdRef = useRef<string | null>(null);
+  // Mode-aware BSP rebuild for the clinical-modules workspace. On gallery →
+  // module (or vice versa, or on companion-changing module switches), tear
+  // down the current BSP and build a fresh one from the new layout. Bubbles
+  // that exist in both modes (chat, oe-builder) animate to their new
+  // positions via the BSP container's existing left/top/width/height CSS
+  // transitions; bubbles unique to one mode mount/unmount.
+  const lastSyncedRef = useRef<{ mode: WorkspaceMode; moduleId: string | null } | null>(null);
   const registryRef = useRef(registry);
   useEffect(() => { registryRef.current = registry; });
-  useEffect(() => { prevModuleIdRef.current = null; }, [workspace.id]);
+  useEffect(() => { lastSyncedRef.current = null; }, [workspace.id]);
   useEffect(() => {
     if (workspace.id !== 'clinical-modules') return;
     const focus = moduleFocusSignal(workspace.id);
     return focus.subscribe((current) => {
-      const nextMod = current.moduleId;
-      if (!nextMod) return;
-      const prevMod = prevModuleIdRef.current;
-      if (prevMod === nextMod) return;
-
-      const prevComp = new Set(prevMod ? COMPANIONS_BY_MODULE[prevMod] ?? [] : []);
-      const nextComp = new Set(COMPANIONS_BY_MODULE[nextMod] ?? []);
-      const isInitial = prevMod === null;
-
-      for (const type of OPTIONAL_COMPANION_TYPES) {
-        const reg = registryRef.current;
-        const entry = Object.entries(reg).find(([, b]) => b.instance?.type === type);
-        if (!entry) continue;
-        const [bubbleId, bundle] = entry;
-        const shouldShow = nextComp.has(type);
-        const wasCompanionOfPrev = prevComp.has(type);
-
-        setRoot((prev) => {
-          if (!prev) return prev;
-          const { leaves } = renderBSP(prev);
-          const isVisible = leaves.some((l) => l.bubbleId === bubbleId);
-
-          if (shouldShow && !isVisible) {
-            const rightmost = leaves.reduce(
-              (acc, l) => (l.region.col + l.region.w > acc.region.col + acc.region.w ? l : acc),
-              leaves[0],
-            );
-            if (!rightmost) return prev;
-            try {
-              return splitLeafInsert(prev, rightmost.bubbleId, 'left', bubbleId, bundle.minW, bundle.minH, 0.5);
-            } catch (err) {
-              console.warn('companion auto-show failed', err);
-              return prev;
-            }
-          }
-
-          // Hide rule: leaving a module that owned this companion, OR initial
-          // entry and the chosen module doesn't include it (cleanup of JSON
-          // default when the user opened on a non-companion module).
-          if (!shouldShow && isVisible && (wasCompanionOfPrev || isInitial)) {
-            try {
-              return removeLeaf(prev, bubbleId);
-            } catch {
-              return prev;
-            }
-          }
-          return prev;
-        });
+      const last = lastSyncedRef.current;
+      if (last && last.mode === current.mode && last.moduleId === current.moduleId) return;
+      const layout = clinicalModulesLayout(current.mode, current.moduleId);
+      const reg = registryRef.current;
+      const placements = Object.entries(reg)
+        .filter(([id]) => id in layout)
+        .map(([id, b]) => ({ id, placement: layout[id], minW: b.minW, minH: b.minH }));
+      if (placements.length === 0) return;
+      try {
+        const built = buildBSP(placements, { col: 0, row: 0, w: grid.cols, h: grid.rows });
+        setRoot(built);
+        lastSyncedRef.current = { mode: current.mode, moduleId: current.moduleId };
+      } catch (err) {
+        console.warn('mode-aware BSP rebuild failed', err);
       }
-
-      prevModuleIdRef.current = nextMod;
     });
   }, [workspace.id]);
 
@@ -1028,8 +1039,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
             };
       }
       for (const std of workspace.standalones) {
-        const p = placements[std.id];
-        if (!p) continue;
+        const p = placements[std.id] ?? FALLBACK_PLACEMENT;
         const existing = prev[std.id];
         next[std.id] = existing
           ? { ...existing, placement: p }
@@ -1218,6 +1228,12 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
               workspaceId: workspace.id,
               selfBubbleId: leaf.bubbleId,
               onRequestSiblingFocus: (targetId: string, share: number) => requestSiblingFocus(targetId, share),
+            }
+          : inst.type === 'clinical-topic-cv'
+            || inst.type === 'clinical-topic-controlled'
+            || inst.type === 'clinical-topic-general'
+          ? {
+              workspaceId: workspace.id,
             }
           : {};
         return (
@@ -1638,6 +1654,8 @@ function findParentSplit(
   });
 }
 
+const FALLBACK_PLACEMENT: GridPlacement = { col: 0, row: 0, width: 1, height: 1 };
+
 function initialRegistry(workspace: WorkspaceConfig, placements: Record<string, GridPlacement>): Record<string, BubbleBundle> {
   const m: Record<string, BubbleBundle> = {};
   for (const cell of workspace.cells) {
@@ -1652,9 +1670,12 @@ function initialRegistry(workspace: WorkspaceConfig, placements: Record<string, 
       minH: CELL_MIN_H,
     };
   }
+  // Include all standalones — even those without an entry in layoutHints. The
+  // placement is just a starting hint; mode-aware workspaces (clinical-modules)
+  // override placements per layout when building the BSP. Bubbles without an
+  // active layout entry stay in the registry but aren't rendered.
   for (const b of workspace.standalones) {
-    const p = placements[b.id];
-    if (!p) continue;
+    const p = placements[b.id] ?? FALLBACK_PLACEMENT;
     m[b.id] = {
       kind: 'standalone',
       cellRef: null,

@@ -1,13 +1,12 @@
 // Clinical module checklist primitive — green band, the "main page."
 //
-// Owns the module-picker dropdown (so swapping modules from this bubble
-// updates focus for all three clinical-module bubbles in the workspace).
-// Renders landing intro, the 4-item decision-gate checklist, then the
-// footer (green-zone label + smartphrase chip, context strip, footer note).
-// Tapping a row sets workspace focus to that item's faq_ref and asks the
-// host to grow the FAQ bubble to ~60% of its parent split.
+// Owns the "Back to modules" affordance (returns the workspace to gallery
+// mode, where topic bubbles host the module list). Renders landing intro,
+// the 4-item decision-gate checklist, then the footer (green-zone label +
+// smartphrase chip, context strip, footer note). Tapping a row sets
+// workspace focus to that item's faq_ref and asks the host to grow the
+// FAQ bubble to ~60% of its parent split.
 
-import { useEffect } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance, ModuleData } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
@@ -16,7 +15,6 @@ import { ModuleRow } from '../clinical-module-shared/row';
 
 interface ClinicalModuleChecklistProps {
   modules?: ModuleData[];
-  defaultModuleId?: string;
 }
 
 interface Props {
@@ -31,18 +29,11 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
   const modules: ModuleData[] = p.modules ?? [];
   const focus = moduleFocusSignal(workspaceId);
 
-  useEffect(() => {
-    if (focus.value.moduleId == null && modules.length > 0) {
-      const def = p.defaultModuleId ? modules.find((m) => m.module_id === p.defaultModuleId) : undefined;
-      focus.value = { moduleId: (def ?? modules[0]).module_id, focusedItemId: null };
-    }
-  }, [modules.length, p.defaultModuleId]);
-
-  const selected = modules.find((m) => m.module_id === focus.value.moduleId) ?? modules[0];
+  const selected = modules.find((m) => m.module_id === focus.value.moduleId);
   if (!selected) {
     return (
       <div class="cm-bubble" style={{ padding: 16, color: 'var(--ink-faint)' }}>
-        No clinical modules available.
+        No module selected.
       </div>
     );
   }
@@ -50,31 +41,44 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
   const focusedId = focus.value.focusedItemId;
 
   function pickRow(faqRef: string): void {
-    focus.value = { moduleId: selected.module_id, focusedItemId: faqRef };
+    if (!selected) return;
+    focus.value = { mode: 'module', moduleId: selected.module_id, focusedItemId: faqRef };
     onRequestSiblingFocus?.('module-faq', 0.6);
   }
 
-  function pickModule(e: Event): void {
-    const next = (e.currentTarget as HTMLSelectElement).value;
-    focus.value = { moduleId: next, focusedItemId: null };
-    onRequestSiblingFocus?.('module-faq', 0.5);
+  function backToModules(): void {
+    focus.value = { mode: 'gallery', moduleId: null, focusedItemId: null };
   }
 
   return (
     <div class="cm-bubble" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
-        <select
-          class="cm-bubble__picker"
-          value={selected.module_id}
-          onChange={pickModule}
+        <button
+          type="button"
+          title="Back to modules"
+          aria-label="Back to modules"
           onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          title="Switch module"
+          onClick={(e) => { e.stopPropagation(); backToModules(); }}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            font: 'inherit',
+            fontSize: 12,
+            padding: '0 8px 0 0',
+            opacity: 0.75,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            color: 'var(--type-color)',
+          }}
         >
-          {modules.map((m) => (
-            <option key={m.module_id} value={m.module_id}>{m.default_title}</option>
-          ))}
-        </select>
+          <span style={{ fontSize: 14, lineHeight: 1 }}>‹</span>
+          <span style={{ fontSize: 11 }}>modules</span>
+        </button>
+        <span class="bubble__title" style={{ color: 'var(--type-color)', fontSize: 12 }}>
+          {selected.default_title}
+        </span>
         <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 'auto' }}>
           {selected.checklist.length} checks
         </span>
