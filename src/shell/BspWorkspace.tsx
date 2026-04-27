@@ -24,6 +24,7 @@ import {
   type MeridianFile,
 } from '../data/filesystem';
 import { buildBrainContext } from '../data/brainContext';
+import { moduleFocusSignal } from '../data/moduleFocus';
 import {
   buildBSP,
   renderBSP,
@@ -66,6 +67,15 @@ const CELL_MIN_W = 1;
 const CELL_MIN_H = 1;
 const LONG_PRESS_MS = 380;
 const LONG_PRESS_MOVE_TOLERANCE_PX = 8;
+
+// Module → companion bubble types that auto-show when that module is picked
+// in the clinical-modules workspace. Outside this map the companion is
+// auto-hidden on module switch UNLESS the user manually summoned it during
+// the non-companion module session.
+const COMPANIONS_BY_MODULE: Record<string, BubblePrimitiveType[]> = {
+  'lipid-management': ['prevent-calculator'],
+};
+const OPTIONAL_COMPANION_TYPES: BubblePrimitiveType[] = ['prevent-calculator'];
 
 // True when the pointerdown landed on a native scrollbar gutter of any
 // scrollable ancestor. Walks from the event target upward; for each scrollable
@@ -191,6 +201,74 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
       setWorkspaceState(workspace.id, { registry, root });
     }
   }, [registry, root, workspace.id]);
+
+  // Module-companion auto-show/hide. Subscribes to the workspace's module
+  // focus signal; on module change, optional companion bubbles (e.g. the
+  // PREVENT calculator) follow the new module's manifest. Manual user
+  // additions during a non-companion module session are preserved — the
+  // hide rule only fires when leaving a module that listed the companion
+  // as a default. Reset on workspace switch via the prev-module ref.
+  const prevModuleIdRef = useRef<string | null>(null);
+  const registryRef = useRef(registry);
+  useEffect(() => { registryRef.current = registry; });
+  useEffect(() => { prevModuleIdRef.current = null; }, [workspace.id]);
+  useEffect(() => {
+    if (workspace.id !== 'clinical-modules') return;
+    const focus = moduleFocusSignal(workspace.id);
+    return focus.subscribe((current) => {
+      const nextMod = current.moduleId;
+      if (!nextMod) return;
+      const prevMod = prevModuleIdRef.current;
+      if (prevMod === nextMod) return;
+
+      const prevComp = new Set(prevMod ? COMPANIONS_BY_MODULE[prevMod] ?? [] : []);
+      const nextComp = new Set(COMPANIONS_BY_MODULE[nextMod] ?? []);
+      const isInitial = prevMod === null;
+
+      for (const type of OPTIONAL_COMPANION_TYPES) {
+        const reg = registryRef.current;
+        const entry = Object.entries(reg).find(([, b]) => b.instance?.type === type);
+        if (!entry) continue;
+        const [bubbleId, bundle] = entry;
+        const shouldShow = nextComp.has(type);
+        const wasCompanionOfPrev = prevComp.has(type);
+
+        setRoot((prev) => {
+          if (!prev) return prev;
+          const { leaves } = renderBSP(prev);
+          const isVisible = leaves.some((l) => l.bubbleId === bubbleId);
+
+          if (shouldShow && !isVisible) {
+            const rightmost = leaves.reduce(
+              (acc, l) => (l.region.col + l.region.w > acc.region.col + acc.region.w ? l : acc),
+              leaves[0],
+            );
+            if (!rightmost) return prev;
+            try {
+              return splitLeafInsert(prev, rightmost.bubbleId, 'left', bubbleId, bundle.minW, bundle.minH, 0.5);
+            } catch (err) {
+              console.warn('companion auto-show failed', err);
+              return prev;
+            }
+          }
+
+          // Hide rule: leaving a module that owned this companion, OR initial
+          // entry and the chosen module doesn't include it (cleanup of JSON
+          // default when the user opened on a non-companion module).
+          if (!shouldShow && isVisible && (wasCompanionOfPrev || isInitial)) {
+            try {
+              return removeLeaf(prev, bubbleId);
+            } catch {
+              return prev;
+            }
+          }
+          return prev;
+        });
+      }
+
+      prevModuleIdRef.current = nextMod;
+    });
+  }, [workspace.id]);
 
   // === Coord helpers ===
   function pxToCol(px: number): number {
