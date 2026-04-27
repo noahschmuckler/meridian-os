@@ -17,6 +17,7 @@ import { Markdown } from './markdown';
 import { ClinicalModuleChecklist } from './clinical-module-checklist';
 import { ClinicalModuleEscalations } from './clinical-module-escalations';
 import { ClinicalModuleFaq } from './clinical-module-faq';
+import { PreventCalculator } from './prevent-calculator';
 
 export interface BubbleProps {
   instance: BubbleInstance;
@@ -35,6 +36,7 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'clinical-module-checklist': ClinicalModuleChecklist as ComponentType<BubbleProps>,
   'clinical-module-escalations': ClinicalModuleEscalations as ComponentType<BubbleProps>,
   'clinical-module-faq': ClinicalModuleFaq as ComponentType<BubbleProps>,
+  'prevent-calculator': PreventCalculator as ComponentType<BubbleProps>,
 };
 
 export function getPrimitiveComponent(type: BubblePrimitiveType): ComponentType<BubbleProps> {

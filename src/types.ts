@@ -29,6 +29,7 @@ export type BubblePrimitiveType =
   | 'clinical-module-checklist'
   | 'clinical-module-escalations'
   | 'clinical-module-faq'
+  | 'prevent-calculator'
   | 'placeholder';
 
 export type SizeKey = 'xs' | 's' | 'm' | 'l' | 'xl';

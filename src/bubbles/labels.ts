@@ -38,5 +38,6 @@ export const PRIMITIVE_LABELS: Record<BubblePrimitiveType, string> = {
   'clinical-module-checklist': 'Module · checklist',
   'clinical-module-escalations': 'Module · escalations',
   'clinical-module-faq': 'Module · FAQ',
+  'prevent-calculator': 'PREVENT calculator',
   'placeholder': 'Empty slot',
 };

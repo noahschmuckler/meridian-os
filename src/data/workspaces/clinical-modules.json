@@ -24,6 +24,13 @@
       "resize": { "initial": "m", "states": {} }
     },
     {
+      "id": "prevent",
+      "type": "prevent-calculator",
+      "title": "PREVENT calculator",
+      "props": {},
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
       "id": "module-faq",
       "type": "clinical-module-faq",
       "title": "Module detail",
@@ -36,9 +43,10 @@
   "layoutHints": {
     "grid": { "cols": 12, "rows": 8 },
     "placements": {
-      "module-checklist":   { "col": 0, "row": 0, "width": 6, "height": 5 },
-      "module-escalations": { "col": 0, "row": 5, "width": 6, "height": 3 },
-      "module-faq":         { "col": 6, "row": 0, "width": 6, "height": 8 }
+      "module-checklist":   { "col": 0, "row": 0, "width": 4, "height": 5 },
+      "module-escalations": { "col": 0, "row": 5, "width": 4, "height": 3 },
+      "prevent":            { "col": 4, "row": 0, "width": 4, "height": 8 },
+      "module-faq":         { "col": 8, "row": 0, "width": 4, "height": 8 }
     }
   },
   "scripted": {
