@@ -874,6 +874,61 @@
   color: var(--ink-faint);
 }
 
+/* Markdown bubble */
+.md-bubble {
+  font-size: 13px;
+  color: var(--ink);
+}
+.md-bubble__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding: 8px 10px;
+  overflow: auto;
+}
+.md-bubble__view {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.45;
+  font-family: var(--font-prose, ui-sans-serif, system-ui, sans-serif);
+  flex: 1;
+}
+.md-bubble__empty {
+  color: var(--ink-faint);
+  font-size: 12px;
+  font-style: italic;
+}
+.md-bubble__textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  resize: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  line-height: 1.45;
+  padding: 0;
+  white-space: pre-wrap;
+}
+.md-bubble__toggle {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background var(--duration-1) var(--ease-out), color var(--duration-1) var(--ease-out);
+}
+.md-bubble__toggle:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 /* === BSP layout === */
 .bsp-workspace {
   position: fixed;

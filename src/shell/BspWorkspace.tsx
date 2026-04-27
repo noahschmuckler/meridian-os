@@ -709,6 +709,41 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     });
   }
 
+  // Markdown body edits flow back here. If the bubble is file-backed, we also
+  // write through to the underlying MeridianFile so a reload restores edits.
+  function updateMarkdownBody(bubbleId: string, body: string): void {
+    setRegistry((prev) => {
+      const b = prev[bubbleId];
+      if (!b?.instance) return prev;
+      const nextInstance = {
+        ...b.instance,
+        props: { ...b.instance.props, body },
+      };
+      if (nextInstance.fileId) {
+        updateFileInstance(nextInstance.fileId, nextInstance);
+        bumpFs();
+      }
+      return { ...prev, [bubbleId]: { ...b, instance: nextInstance } };
+    });
+  }
+
+  function toggleMarkdownEditable(bubbleId: string): void {
+    setRegistry((prev) => {
+      const b = prev[bubbleId];
+      if (!b?.instance) return prev;
+      const cur = (b.instance.props as { editable?: boolean }).editable === true;
+      const nextInstance = {
+        ...b.instance,
+        props: { ...b.instance.props, editable: !cur },
+      };
+      if (nextInstance.fileId) {
+        updateFileInstance(nextInstance.fileId, nextInstance);
+        bumpFs();
+      }
+      return { ...prev, [bubbleId]: { ...b, instance: nextInstance } };
+    });
+  }
+
   function dismissMini(chatId: string, miniId: string): void {
     setRegistry((prev) => {
       const chat = prev[chatId];
@@ -1059,6 +1094,11 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
               onSetMiniRelationship: (miniId: string, rel: AttachRelationship) =>
                 setMiniRelationship(leaf.bubbleId, miniId, rel),
               onMessagesChange: (messages: unknown[]) => updateChatMessages(leaf.bubbleId, messages),
+            }
+          : inst.type === 'markdown'
+          ? {
+              onBodyChange: (body: string) => updateMarkdownBody(leaf.bubbleId, body),
+              onToggleEditable: () => toggleMarkdownEditable(leaf.bubbleId),
             }
           : {};
         return (

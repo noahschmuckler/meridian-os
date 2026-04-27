@@ -13,6 +13,7 @@ import { Dropzone } from './dropzone';
 import { ProviderDossier } from './provider-dossier';
 import { Placeholder } from './placeholder';
 import { LlmChat } from './llm-chat';
+import { Markdown } from './markdown';
 
 export interface BubbleProps {
   instance: BubbleInstance;
@@ -27,6 +28,7 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'provider-dossier': ProviderDossier,
   'placeholder': Placeholder,
   'llm-chat': LlmChat,
+  'markdown': Markdown,
 };
 
 export function getPrimitiveComponent(type: BubblePrimitiveType): ComponentType<BubbleProps> {
