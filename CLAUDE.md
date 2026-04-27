@@ -11,7 +11,7 @@ The user is **Dr. Noah Schmuckler**, MD, primary-care medical director at Optum.
 - **Live:** https://meridian-os.pages.dev
 - **Repo:** https://github.com/noahschmuckler/meridian-os (private)
 - **Cloudflare Pages project:** `meridian-os`
-- **Latest commit:** `aa33ba6` (split workspace ⟲ from chat reset; iOS native zoom suppressed)
+- **Latest commit:** filesystem v1 + markdown primitive + real LLM via Pages Function landed 2026-04-26.
 
 The OS shell is **production-quality**. The Trainer workspace is fully populated. The other four workspaces are empty tiles awaiting content.
 
@@ -57,9 +57,7 @@ The OS shell is **production-quality**. The Trainer workspace is fully populated
 
 The user wants this as the **near-term target** — get the full storyboard from the plan file working, then circle back for production polish.
 
-1. **Real LLM behavior in chat** (highest leverage). Cloudflare Pages Function at `/api/chat` proxies to Anthropic with attached brain items as system-prompt context. Replaces `loremReply()`. Chat becomes a project-scoped assistant — drop the blueprint, ask "what did Patel miss?", get a real reply citing LOS and HCC. The hard gesture (drop-on-chat → relationship menu → brain mini-bubble) is already built; this makes it valuable, not just visual.
-   - **No enterprise restrictions** — meridian-os is hosted outside the enterprise environment. Real Anthropic API is fine **as long as data is dummy** (the seeded Patel cohort, the QI Statin fake metrics, etc.). No real PHI.
-   - Pattern is established in meridian-onboarding (`functions/api/onboarding/ingest.js`). Same structure here.
+1. ~~**Real LLM behavior in chat**~~ **DONE 2026-04-26.** Cloudflare Pages Function at `/api/chat` proxies to Anthropic Sonnet 4.6 (`functions/api/chat.ts`) with brain context assembled per relationship type (`src/data/brainContext.ts`). Per-primitive extractors render markdown body / blueprint tree / dossier facts / etc. into the system prompt. Prompt-cache-controlled blocks for hot paths. Non-streaming; streaming is a follow-up. Requires `ANTHROPIC_API_KEY` set via `wrangler pages secret put`.
 2. **Provider workspace populated.** Patient-info stack (cyclable, toggleable), modules-stack (clinical reference modules), openevidence-builder (toggleable inputs from patient + modules + chat → submit query), smartphrase-directory, chart-closure accumulator (care-gap accept/deny → list), care-gap-accumulator. Realistic dummy patient on schedule. Once two workspaces are populated the OS reads as a *system*.
 3. **QI Statin workspace.** Glidepath-chart with target line, email-threads-tracker, meeting-tracker, pending-actions list, SMART goal modal. Dummy QI initiative metrics + email thread + meeting summaries.
 4. **Provider File workspace.** Drilldown view: provider-dossier expanded, Epic Signal data table (pajama time, throughput, chart-closure time), 1:1 cadence schedule, disciplinary record, complaint tracker. Dummy struggling-provider data.

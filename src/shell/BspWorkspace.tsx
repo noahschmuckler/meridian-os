@@ -23,6 +23,7 @@ import {
   updateFileInstance,
   type MeridianFile,
 } from '../data/filesystem';
+import { buildBrainContext } from '../data/brainContext';
 import {
   buildBSP,
   renderBSP,
@@ -1094,6 +1095,11 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
               onSetMiniRelationship: (miniId: string, rel: AttachRelationship) =>
                 setMiniRelationship(leaf.bubbleId, miniId, rel),
               onMessagesChange: (messages: unknown[]) => updateChatMessages(leaf.bubbleId, messages),
+              brainContext: buildBrainContext(
+                ((inst.props as ChatProps).brain?.miniBubbles) ?? [],
+                registry,
+              ),
+              workspaceTitle: workspace.title,
             }
           : inst.type === 'markdown'
           ? {

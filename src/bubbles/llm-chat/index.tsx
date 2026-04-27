@@ -5,12 +5,17 @@
 // and flow back via onMessagesChange. No local message state, so a workspace
 // reset (which clears registry messages) immediately empties the chat. Same
 // for save-state load.
+//
+// Replies come from /api/chat (Cloudflare Pages Function calling Anthropic).
+// Brain context — content extracted per attached mini-bubble's relationship —
+// is assembled by the host (BspWorkspace) and threaded in via brainContext.
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { AttachRelationship, BrainBubbleConfig, BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { BrainBubble } from '../../cell/BrainBubble';
+import type { BrainContext } from '../../data/brainContext';
 
 interface LlmChatProps {
   greeting?: string;
@@ -31,26 +36,10 @@ interface Props {
   onDismissMini?: (miniId: string) => void;
   onSetMiniRelationship?: (miniId: string, rel: AttachRelationship) => void;
   onMessagesChange?: (messages: Message[]) => void;
-}
-
-const LOREM_CHUNKS = [
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-  'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-  'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
-  'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-  'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
-  'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti.',
-  'Et harum quidem rerum facilis est et expedita distinctio; nam libero tempore cum soluta nobis.',
-  'Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates.',
-];
-
-function loremReply(): string {
-  const n = 1 + Math.floor(Math.random() * 3);
-  const out: string[] = [];
-  for (let i = 0; i < n; i++) {
-    out.push(LOREM_CHUNKS[Math.floor(Math.random() * LOREM_CHUNKS.length)]);
-  }
-  return out.join(' ');
+  // Built by the host from this chat's brain + workspace registry. Sent to
+  // /api/chat as the structured context the LLM should reason from.
+  brainContext?: BrainContext;
+  workspaceTitle?: string;
 }
 
 function chatHistoryWeight(messages: Message[]): number {
@@ -59,13 +48,19 @@ function chatHistoryWeight(messages: Message[]): number {
 }
 
 // A compacted chat is the single ⤓-prefixed system message produced by compact().
-// Cheap detection from message shape — survives persistence with no schema change.
 const COMPACT_PREFIX = '⤓ ';
 function isCompactedChat(messages: Message[]): boolean {
   return messages.length === 1 && messages[0].role === 'system' && messages[0].text.startsWith(COMPACT_PREFIX);
 }
 
-export function LlmChat({ instance, onDismissMini, onSetMiniRelationship, onMessagesChange }: Props): JSX.Element {
+export function LlmChat({
+  instance,
+  onDismissMini,
+  onSetMiniRelationship,
+  onMessagesChange,
+  brainContext,
+  workspaceTitle,
+}: Props): JSX.Element {
   const p = instance.props as LlmChatProps;
   const propsMessages = p.messages;
   const messages: Message[] = propsMessages ?? [];
@@ -83,14 +78,18 @@ export function LlmChat({ instance, onDismissMini, onSetMiniRelationship, onMess
   const latestRef = useRef<Message[]>(messages);
   latestRef.current = messages;
 
+  // Ref to the in-flight reply so a new send can cancel it.
+  const abortRef = useRef<AbortController | null>(null);
+
   const [input, setInput] = useState('');
+  const [pending, setPending] = useState(false);
   const messagesElRef = useRef<HTMLDivElement>(null);
   const seq = useRef(0);
 
   useEffect(() => {
     const el = messagesElRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages.length]);
+  }, [messages.length, pending]);
 
   function nextId(prefix: string): string {
     return `${prefix}-${Date.now()}-${++seq.current}`;
@@ -102,23 +101,84 @@ export function LlmChat({ instance, onDismissMini, onSetMiniRelationship, onMess
     onMessagesChange?.(next);
   }
 
-  function submit(e: Event): void {
+  async function submit(e: Event): Promise<void> {
     e.preventDefault();
     const text = input.trim();
-    if (!text) return;
+    if (!text || pending) return;
     const userMsg: Message = { id: nextId('u'), role: 'user', text };
     appendMessage(userMsg);
     setInput('');
-    window.setTimeout(() => {
-      const reply: Message = { id: nextId('a'), role: 'assistant', text: loremReply() };
-      appendMessage(reply);
-    }, 350 + Math.random() * 350);
+
+    // Abort any in-flight reply.
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
+
+    setPending(true);
+    try {
+      // Build the conversation payload from history. System / compacted-history
+      // messages get folded into a leading "context" user-turn so they reach
+      // the model without being typed as 'system'.
+      const apiMessages = messages
+        .concat(userMsg)
+        .filter((m) => m.role === 'user' || m.role === 'assistant')
+        .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.text }));
+
+      const sysContext = messages
+        .filter((m) => m.role === 'system')
+        .map((m) => m.text)
+        .join('\n');
+
+      const reqBody = {
+        messages: sysContext
+          ? [{ role: 'user' as const, content: `Prior context: ${sysContext}` }, ...apiMessages]
+          : apiMessages,
+        brain: brainContext,
+        persona: p.defaultPersona,
+        workspaceTitle,
+      };
+
+      const r = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(reqBody),
+        signal: ac.signal,
+      });
+
+      if (!r.ok) {
+        const err = (await r.json().catch(() => ({}))) as { error?: string };
+        appendMessage({
+          id: nextId('a'),
+          role: 'assistant',
+          text: `⚠️ ${err.error ?? 'Server error ' + r.status}`,
+        });
+        return;
+      }
+      const data = (await r.json()) as { text?: string };
+      const replyText = (data.text ?? '').trim() || '(empty reply)';
+      appendMessage({ id: nextId('a'), role: 'assistant', text: replyText });
+    } catch (err: unknown) {
+      if ((err as { name?: string }).name === 'AbortError') return;
+      appendMessage({
+        id: nextId('a'),
+        role: 'assistant',
+        text: `⚠️ couldn't reach the model — ${String(err)}`,
+      });
+    } finally {
+      if (abortRef.current === ac) abortRef.current = null;
+      setPending(false);
+    }
   }
 
   function compactConversation(): void {
     if (messages.length <= 1) return;
     const summaryText =
-      '⤓ Conversation compacted — ' + LOREM_CHUNKS[Math.floor(Math.random() * LOREM_CHUNKS.length)];
+      '⤓ Conversation compacted — ' +
+      messages
+        .filter((m) => m.role !== 'system')
+        .slice(-4)
+        .map((m) => `${m.role}: ${m.text.slice(0, 80)}`)
+        .join(' · ');
     const summary: Message = { id: nextId('compact'), role: 'system', text: summaryText };
     latestRef.current = [summary];
     onMessagesChange?.([summary]);
@@ -136,8 +196,6 @@ export function LlmChat({ instance, onDismissMini, onSetMiniRelationship, onMess
   }
 
   const compacted = isCompactedChat(messages);
-  // Compacted history is a small fixed share — the prior conversation has been
-  // summarized into a single line, so it occupies little context.
   const weight = compacted ? 0.04 : chatHistoryWeight(messages);
 
   return (
@@ -180,18 +238,24 @@ export function LlmChat({ instance, onDismissMini, onSetMiniRelationship, onMess
               {m.text}
             </div>
           ))}
-          {messages.length <= 1 && (
-            <div class="llm-chat__msg llm-chat__msg--note">scripted in v1 · drag a bubble onto me to attach · type anything for a Lorem ipsum reply</div>
+          {pending && (
+            <div class="llm-chat__msg llm-chat__msg--assistant llm-chat__msg--pending">
+              <span class="llm-chat__dots"><span /><span /><span /></span>
+            </div>
+          )}
+          {messages.length <= 1 && !pending && (
+            <div class="llm-chat__msg llm-chat__msg--note">drag a bubble onto me to attach · ask me anything</div>
           )}
         </div>
         <form class="llm-chat__input" onSubmit={submit}>
           <input
             type="text"
-            placeholder="ask anything…"
+            placeholder={pending ? 'thinking…' : 'ask anything…'}
             value={input}
+            disabled={pending}
             onInput={(e) => setInput((e.currentTarget as HTMLInputElement).value)}
           />
-          <button type="submit" disabled={!input.trim()}>send</button>
+          <button type="submit" disabled={!input.trim() || pending}>send</button>
         </form>
       </div>
     </div>
