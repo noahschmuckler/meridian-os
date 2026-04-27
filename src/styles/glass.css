@@ -570,15 +570,17 @@
     background: white !important;
     color: #000;
   }
-  .home-screen,
+  .home,
+  .home__perspective,
+  .home__grid,
+  .home__tile,
   .workspace-shell,
   .bsp-workspace,
   .bsp-fab-stack,
   .bsp-fab-backdrop,
   .vault,
   .attach-menu,
-  .attach-menu-backdrop,
-  .home-strip {
+  .attach-menu-backdrop {
     display: none !important;
   }
   .print-view {
