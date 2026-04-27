@@ -36,6 +36,11 @@ export function ClinicalModuleFaq({ instance, workspaceId, onRequestSiblingFocus
     onRequestSiblingFocus?.(selfBubbleId, 0.6);
   }
 
+  function clearFocus(): void {
+    if (!selected) return;
+    focus.value = { moduleId: selected.module_id, focusedItemId: null };
+  }
+
   if (!selected) {
     return (
       <div class="cm-faq" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -54,6 +59,31 @@ export function ClinicalModuleFaq({ instance, workspaceId, onRequestSiblingFocus
   return (
     <div class="cm-faq" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
+        {focusedFaq && (
+          <button
+            type="button"
+            class="cm-faq__back"
+            title="Back to all topics"
+            aria-label="Back to all topics"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); clearFocus(); }}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              font: 'inherit',
+              fontSize: 13,
+              padding: '0 8px 0 0',
+              opacity: 0.75,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
+          >
+            <span style={{ fontSize: 14, lineHeight: 1 }}>‹</span>
+            <span style={{ fontSize: 11 }}>topics</span>
+          </button>
+        )}
         <span class="bubble__title">
           {focusedFaq ? focusedFaq.topic : `${selected.default_title.split(' — ')[0]} · detail`}
         </span>
