@@ -9,6 +9,7 @@ import type { JSX } from 'preact';
 import type { BubbleInstance, ModuleData } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
+import { userModulesSignal } from '../../data/userModules';
 import { ModuleRow } from '../clinical-module-shared/row';
 
 interface ClinicalModuleEscalationsProps {
@@ -24,7 +25,8 @@ interface Props {
 
 export function ClinicalModuleEscalations({ instance, workspaceId, onRequestSiblingFocus }: Props): JSX.Element {
   const p = instance.props as unknown as ClinicalModuleEscalationsProps;
-  const modules: ModuleData[] = p.modules ?? [];
+  const seedModules: ModuleData[] = p.modules ?? [];
+  const modules: ModuleData[] = [...seedModules, ...userModulesSignal.value];
   const focus = moduleFocusSignal(workspaceId);
 
   const selected = modules.find((m) => m.module_id === focus.value.moduleId);

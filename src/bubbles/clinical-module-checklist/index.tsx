@@ -11,6 +11,7 @@ import type { JSX } from 'preact';
 import type { BubbleInstance, ModuleData } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
+import { userModulesSignal } from '../../data/userModules';
 import { ModuleRow } from '../clinical-module-shared/row';
 
 interface ClinicalModuleChecklistProps {
@@ -26,7 +27,8 @@ interface Props {
 
 export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblingFocus }: Props): JSX.Element {
   const p = instance.props as unknown as ClinicalModuleChecklistProps;
-  const modules: ModuleData[] = p.modules ?? [];
+  const seedModules: ModuleData[] = p.modules ?? [];
+  const modules: ModuleData[] = [...seedModules, ...userModulesSignal.value];
   const focus = moduleFocusSignal(workspaceId);
 
   const selected = modules.find((m) => m.module_id === focus.value.moduleId);

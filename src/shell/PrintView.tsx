@@ -8,6 +8,7 @@
 
 import type { JSX } from 'preact';
 import { moduleFocusSignal } from '../data/moduleFocus';
+import { userModulesSignal } from '../data/userModules';
 import type { ModuleData } from '../types';
 
 interface Props {
@@ -16,7 +17,8 @@ interface Props {
 
 export function PrintView({ modules }: Props): JSX.Element {
   const focus = moduleFocusSignal('clinical-modules');
-  const m = modules.find((mod) => mod.module_id === focus.value.moduleId);
+  const all: ModuleData[] = [...modules, ...userModulesSignal.value];
+  const m = all.find((mod) => mod.module_id === focus.value.moduleId);
 
   if (!m) {
     return (
