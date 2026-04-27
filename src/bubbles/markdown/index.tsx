@@ -14,6 +14,7 @@ import { useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
+import { renderMarkdown } from '../../lib/md';
 
 interface MarkdownProps {
   body?: string;
@@ -82,7 +83,10 @@ export function Markdown({ instance, onBodyChange, onToggleEditable }: Props): J
         ) : body.trim() === '' ? (
           <div class="md-bubble__empty">empty · click <em>edit</em> to write</div>
         ) : (
-          <div class="md-bubble__view">{body}</div>
+          <div
+            class="md-bubble__view markdown-body"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }}
+          />
         )}
       </div>
     </div>

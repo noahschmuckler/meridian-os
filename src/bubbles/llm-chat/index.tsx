@@ -16,6 +16,7 @@ import type { AttachRelationship, BrainBubbleConfig, BubbleInstance } from '../.
 import type { SeedDict } from '../../data/seedResolver';
 import { BrainBubble } from '../../cell/BrainBubble';
 import type { BrainContext } from '../../data/brainContext';
+import { renderMarkdown } from '../../lib/md';
 
 interface LlmChatProps {
   greeting?: string;
@@ -234,9 +235,11 @@ export function LlmChat({
       <div class="bubble__body" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0 }}>
         <div class="llm-chat__messages" ref={messagesElRef}>
           {messages.map((m) => (
-            <div key={m.id} class={`llm-chat__msg llm-chat__msg--${m.role}`}>
-              {m.text}
-            </div>
+            <div
+              key={m.id}
+              class={`llm-chat__msg llm-chat__msg--${m.role} markdown-body`}
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(m.text) }}
+            />
           ))}
           {pending && (
             <div class="llm-chat__msg llm-chat__msg--assistant llm-chat__msg--pending">
