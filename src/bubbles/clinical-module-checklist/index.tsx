@@ -7,6 +7,7 @@
 // workspace focus to that item's faq_ref and asks the host to grow the
 // FAQ bubble to ~60% of its parent split.
 
+import { useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance, ModuleData } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
@@ -52,6 +53,48 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
     focus.value = { mode: 'gallery', moduleId: null, focusedItemId: null };
   }
 
+  const [busy, setBusy] = useState<null | 'docx' | 'pptx'>(null);
+
+  function downloadBlob(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  async function exportDocx(): Promise<void> {
+    if (!selected || busy) return;
+    setBusy('docx');
+    try {
+      const { generateModuleDocx } = await import('../../lib/generateDocx');
+      const blob = await generateModuleDocx(selected);
+      downloadBlob(blob, `${selected.module_id}.docx`);
+    } catch (err) {
+      alert('DOCX export failed: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function exportPptx(): Promise<void> {
+    if (!selected || busy) return;
+    setBusy('pptx');
+    try {
+      const { generateModulePptx } = await import('../../lib/generatePptx');
+      const blob = await generateModulePptx(selected);
+      downloadBlob(blob, `${selected.module_id}.pptx`);
+    } catch (err) {
+      alert('PPTX export failed: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <div class="cm-bubble" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
@@ -81,8 +124,44 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
         <span class="bubble__title" style={{ color: 'var(--type-color)', fontSize: 12 }}>
           {selected.default_title}
         </span>
-        <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 'auto' }}>
-          {selected.checklist.length} checks
+        <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <button
+            type="button"
+            title={busy === 'docx' ? 'Generating…' : 'Export as Word document'}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); void exportDocx(); }}
+            disabled={busy !== null}
+            style={{
+              border: '1px solid rgba(0,0,0,0.15)',
+              background: 'rgba(255,255,255,0.55)',
+              cursor: busy ? 'wait' : 'pointer',
+              font: 'inherit',
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 3,
+              opacity: busy && busy !== 'docx' ? 0.5 : 1,
+            }}
+          >{busy === 'docx' ? '…' : '.docx'}</button>
+          <button
+            type="button"
+            title={busy === 'pptx' ? 'Generating…' : 'Export as PowerPoint deck'}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); void exportPptx(); }}
+            disabled={busy !== null}
+            style={{
+              border: '1px solid rgba(0,0,0,0.15)',
+              background: 'rgba(255,255,255,0.55)',
+              cursor: busy ? 'wait' : 'pointer',
+              font: 'inherit',
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 3,
+              opacity: busy && busy !== 'pptx' ? 0.5 : 1,
+            }}
+          >{busy === 'pptx' ? '…' : '.pptx'}</button>
+          <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 4 }}>
+            {selected.checklist.length} checks
+          </span>
         </span>
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '8px 12px 12px' }}>

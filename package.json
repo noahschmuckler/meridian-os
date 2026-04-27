@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@preact/signals": "^2.9.0",
+    "docx": "^9.6.1",
     "mammoth": "^1.12.0",
     "marked": "^18.0.2",
+    "pptxgenjs": "^4.0.1",
     "preact": "^10.29.1"
   },
   "devDependencies": {
