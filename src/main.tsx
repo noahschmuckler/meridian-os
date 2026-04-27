@@ -14,7 +14,9 @@ import type { SeedDict } from './data/seedResolver';
 
 import homeConfigJson from './data/home.json';
 import trainerWs from './data/workspaces/trainer.json';
+import clinicalModulesWs from './data/workspaces/clinical-modules.json';
 import patelSeed from './data/seed/patel-cohort.json';
+import clinicalModulesSeed from './data/seed/clinical-modules.json';
 
 const home = homeConfigJson as HomeConfig;
 
@@ -56,13 +58,14 @@ const stubWorkspace = (id: string, title: string, glyph: string, tint: string): 
 
 const workspaces: Record<string, WorkspaceConfig> = {
   trainer: trainerWs as WorkspaceConfig,
+  'clinical-modules': clinicalModulesWs as WorkspaceConfig,
   provider: stubWorkspace('provider', 'Provider', '🩺', '#0F6B42'),
   'qi-statin': stubWorkspace('qi-statin', 'QI · Statin', '📊', '#B45309'),
   'provider-file': stubWorkspace('provider-file', 'Provider File', '📁', '#5B4FBF'),
   'admin-cockpit': stubWorkspace('admin-cockpit', 'Admin Cockpit', '🛰', '#1F4E79'),
 };
 
-const seeds: SeedDict = loadSeeds({ patel: patelSeed });
+const seeds: SeedDict = loadSeeds({ patel: patelSeed, clinical: clinicalModulesSeed });
 
 const activeWorkspaceId = signal<string | null>(null);
 const entryFrom = signal<DOMRect | null>(null);

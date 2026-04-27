@@ -9,7 +9,8 @@
         { "workspaceId": "provider", "pos": [1, 0] },
         { "workspaceId": "qi-statin", "pos": [2, 0] },
         { "workspaceId": "provider-file", "pos": [0, 1] },
-        { "workspaceId": "admin-cockpit", "pos": [1, 1] }
+        { "workspaceId": "admin-cockpit", "pos": [1, 1] },
+        { "workspaceId": "clinical-modules", "pos": [2, 1] }
       ]
     },
     {

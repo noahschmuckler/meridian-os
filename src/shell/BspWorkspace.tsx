@@ -36,6 +36,8 @@ import {
   findLargestLeaf,
   maximizeLeaf,
   type BSPRoot,
+  type BSPNode,
+  type Region,
   type RenderedSplit,
   type BSPCorner,
   type RenderedLeaf,
@@ -728,6 +730,31 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     });
   }
 
+  // Asked by a bubble to grow a sibling toward `targetShare` of the immediate
+  // parent split. Used by clinical-module-card to give the FAQ panel room
+  // when a row is tapped — without losing sight of the checkbox. Idempotent:
+  // if the target already has at least targetShare of its parent split,
+  // we don't push it bigger (so manual user-drags aren't fought).
+  function requestSiblingFocus(targetBubbleId: string, targetShare: number): void {
+    setRoot((prev) => {
+      if (!prev) return prev;
+      const parent = findParentSplit(prev.node, prev.region, targetBubbleId, null);
+      if (!parent) return prev;
+      const span = parent.orientation === 'h' ? parent.region.h : parent.region.w;
+      const start = parent.orientation === 'h' ? parent.region.row : parent.region.col;
+      const currentTargetShare =
+        parent.childIdx === 0
+          ? (parent.splitAt - start) / span
+          : (start + span - parent.splitAt) / span;
+      if (currentTargetShare >= targetShare - 0.02) return prev;
+      const desired =
+        parent.childIdx === 0
+          ? start + targetShare * span
+          : start + (1 - targetShare) * span;
+      return setSplitAt(prev, parent.splitId, desired);
+    });
+  }
+
   function toggleMarkdownEditable(bubbleId: string): void {
     setRegistry((prev) => {
       const b = prev[bubbleId];
@@ -1105,6 +1132,12 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
           ? {
               onBodyChange: (body: string) => updateMarkdownBody(leaf.bubbleId, body),
               onToggleEditable: () => toggleMarkdownEditable(leaf.bubbleId),
+            }
+          : inst.type === 'clinical-module' || inst.type === 'clinical-module-faq'
+          ? {
+              workspaceId: workspace.id,
+              selfBubbleId: leaf.bubbleId,
+              onRequestSiblingFocus: (targetId: string, share: number) => requestSiblingFocus(targetId, share),
             }
           : {};
         return (
@@ -1486,6 +1519,44 @@ const VAULT_ITEMS: VaultItem[] = [
   { type: 'meeting-tracker', label: 'Meeting tracker', glyph: '📅', desc: 'past + planned meetings, summaries' },
   { type: 'glidepath-chart', label: 'Glidepath', glyph: '🎯', desc: 'goal vs. current with target line' },
 ];
+
+// Walks the BSP tree to find the immediate parent split of `bubbleId`.
+// Returns the split's id, orientation, current splitAt, the parent split's
+// own region, and which child (0 or 1) contains the target. Used by
+// requestSiblingFocus to grow a target bubble toward a target share.
+interface ParentSplitInfo {
+  splitId: string;
+  orientation: 'h' | 'v';
+  splitAt: number;
+  region: Region;
+  childIdx: 0 | 1;
+}
+
+function findParentSplit(
+  node: BSPNode,
+  region: Region,
+  bubbleId: string,
+  parent: ParentSplitInfo | null,
+): ParentSplitInfo | null {
+  if (node.kind === 'leaf') {
+    return node.bubbleId === bubbleId ? parent : null;
+  }
+  const aRegion: Region =
+    node.orientation === 'h'
+      ? { col: region.col, row: region.row, w: region.w, h: node.splitAt - region.row }
+      : { col: region.col, row: region.row, w: node.splitAt - region.col, h: region.h };
+  const bRegion: Region =
+    node.orientation === 'h'
+      ? { col: region.col, row: node.splitAt, w: region.w, h: region.row + region.h - node.splitAt }
+      : { col: node.splitAt, row: region.row, w: region.col + region.w - node.splitAt, h: region.h };
+  const a = findParentSplit(node.children[0], aRegion, bubbleId, {
+    splitId: node.id, orientation: node.orientation, splitAt: node.splitAt, region, childIdx: 0,
+  });
+  if (a) return a;
+  return findParentSplit(node.children[1], bRegion, bubbleId, {
+    splitId: node.id, orientation: node.orientation, splitAt: node.splitAt, region, childIdx: 1,
+  });
+}
 
 function initialRegistry(workspace: WorkspaceConfig, placements: Record<string, GridPlacement>): Record<string, BubbleBundle> {
   const m: Record<string, BubbleBundle> = {};

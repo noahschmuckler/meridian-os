@@ -35,5 +35,7 @@ export const PRIMITIVE_LABELS: Record<BubblePrimitiveType, string> = {
   'spreadsheet': 'Spreadsheet',
   'email-thread': 'Email thread',
   'manual-control-search': 'Search',
+  'clinical-module': 'Module',
+  'clinical-module-faq': 'Module FAQ',
   'placeholder': 'Empty slot',
 };

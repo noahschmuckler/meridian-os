@@ -26,6 +26,8 @@ export type BubblePrimitiveType =
   | 'spreadsheet'
   | 'email-thread'
   | 'manual-control-search'
+  | 'clinical-module'
+  | 'clinical-module-faq'
   | 'placeholder';
 
 export type SizeKey = 'xs' | 's' | 'm' | 'l' | 'xl';
@@ -165,6 +167,52 @@ export type BubbleEvent =
   | { kind: 'request-resize'; size: SizeKey }
   | { kind: 'search-query'; query: string }
   | { kind: 'drag-out' }; // signals home-strip routing
+
+// Clinical module schema (matches schema_version 1.0.0 used in the meridian
+// JSON modules). Patient-agnostic content only — checklist items, escalations,
+// FAQs, and a footer note. No patient context or live data.
+export interface ModuleChecklistItem {
+  item_id: string;
+  position: number;
+  statement: string;
+  faq_ref: string;
+}
+
+export interface ModuleEscalationItem {
+  item_id: string;
+  position: number;
+  statement: string;
+  faq_ref: string;
+}
+
+export interface ModuleFaqQA {
+  question: string;
+  answer_html: string;
+}
+
+export interface ModuleFaqEntry {
+  faq_id: string;
+  topic: string;
+  title: string;
+  referenced_by?: string[];
+  items: ModuleFaqQA[];
+}
+
+export interface ModuleData {
+  schema_version: string;
+  module_id: string;
+  default_title: string;
+  landing_intro: string;
+  checklist_section_label: string;
+  checklist: ModuleChecklistItem[];
+  green_zone: { zone_label: string; narrative_html: string; smartphrase?: string };
+  escalation_section_label: string;
+  escalation: ModuleEscalationItem[];
+  context_strip?: { label: string; text: string };
+  footer_note?: string;
+  faqs: ModuleFaqEntry[];
+  references?: string[];
+}
 
 export interface Bubble<P = unknown> {
   id: string;

@@ -1,0 +1,40 @@
+{
+  "id": "clinical-modules",
+  "title": "Clinical Modules",
+  "icon": { "glyph": "🩹", "tint": "#1A6F8E" },
+  "cells": [],
+  "standalones": [
+    {
+      "id": "module-card",
+      "type": "clinical-module",
+      "title": "Clinical Module",
+      "props": {
+        "modules": { "$seed": "clinical.modules" },
+        "defaultModuleId": "lipid-management"
+      },
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "module-faq",
+      "type": "clinical-module-faq",
+      "title": "Module detail",
+      "props": {
+        "modules": { "$seed": "clinical.modules" }
+      },
+      "resize": { "initial": "l", "states": {} }
+    }
+  ],
+  "layoutHints": {
+    "grid": { "cols": 12, "rows": 8 },
+    "placements": {
+      "module-card": { "col": 0, "row": 0, "width": 6, "height": 8 },
+      "module-faq":  { "col": 6, "row": 0, "width": 6, "height": 8 }
+    }
+  },
+  "scripted": {
+    "onMount": [],
+    "onSearch": {},
+    "onDrop": {}
+  },
+  "seed": { "sources": ["clinical-modules"] }
+}

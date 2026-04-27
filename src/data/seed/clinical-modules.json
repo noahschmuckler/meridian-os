@@ -1,0 +1,1903 @@
+{
+  "clinical": {
+    "modules": [
+      {
+        "schema_version": "1.0.0",
+        "module_id": "lipid-management",
+        "default_title": "Lipid Management \u2014 CV Risk & Statin Prescribing",
+        "landing_intro": "Clinical decision support for lipid management and cardiovascular risk reduction in primary care. Use this module when evaluating a new patient on lipid therapy, initiating statins, or reviewing a patient not at LDL goal. Content is based on the AHA/ACC PREVENT Calculator (2023) and the 2018 AHA/ACC Cholesterol Guidelines.",
+        "checklist_section_label": "Before you decide \u2014 verify all four",
+        "checklist": [
+          {
+            "item_id": "risk-tier",
+            "position": 1,
+            "statement": "ASCVD risk tier calculated using PREVENT Calculator",
+            "faq_ref": "risk-tier"
+          },
+          {
+            "item_id": "statin-indication",
+            "position": 2,
+            "statement": "Statin indication addressed and documented",
+            "faq_ref": "statin-indication"
+          },
+          {
+            "item_id": "ldl-target",
+            "position": 3,
+            "statement": "LDL target identified and compared to current value",
+            "faq_ref": "ldl-target"
+          },
+          {
+            "item_id": "med-plan",
+            "position": 4,
+            "statement": "Medication plan documented with next follow-up",
+            "faq_ref": "med-plan"
+          }
+        ],
+        "green_zone": {
+          "zone_label": "Lipid management reviewed \u2014 criteria met",
+          "narrative_html": "<p>Risk tier calculated, statin indication addressed, LDL goal identified, and medication plan documented. Patient is either at goal or has an active intensification plan in place. Follow-up interval appropriate to risk tier.</p>",
+          "smartphrase": ".lipidreview"
+        },
+        "escalation_section_label": "Escalate if any apply",
+        "escalation": [
+          {
+            "item_id": "ldl-190",
+            "position": 1,
+            "statement": "LDL \u2265190 mg/dL regardless of calculated risk score",
+            "faq_ref": "ldl-190"
+          },
+          {
+            "item_id": "not-at-goal",
+            "position": 2,
+            "statement": "Not at LDL goal on maximally tolerated statin",
+            "faq_ref": "not-at-goal"
+          },
+          {
+            "item_id": "statin-hesitant",
+            "position": 3,
+            "statement": "Borderline/intermediate risk patient is statin-hesitant",
+            "faq_ref": "statin-hesitant"
+          },
+          {
+            "item_id": "very-high-risk",
+            "position": 4,
+            "statement": "Patient meets criteria for Very High Risk reclassification",
+            "faq_ref": "very-high-risk"
+          },
+          {
+            "item_id": "advanced-markers",
+            "position": 5,
+            "statement": "Advanced lipid markers indicated (ApoB, Lp(a))",
+            "faq_ref": "advanced-markers"
+          }
+        ],
+        "context_strip": {
+          "label": "Organizational Standard",
+          "text": "AHA/ACC PREVENT Calculator is the required organizational risk stratification tool, replacing Pooled Cohort Equations. Epic BPA integration targeting October/November 2026. Until live, calculate manually at acc.org/PREVENT. SUPD (Statin Use in Persons with Diabetes) is a tracked VBC metric \u2014 HEDIS benchmark ~90%. All diabetic patients must have statin therapy addressed and documented at each visit."
+        },
+        "footer_note": "Based on CV & Lipid Management Protocol (Draft, May 2026), Dr. Scott Hines MD \u2014 RBE East, Value-Based & Clinical Standards. ApoB, Lp(a), and CAC coverage confirmation pending \u2014 verify with payer before ordering. Not a substitute for clinical judgment. Module version 1.0.",
+        "faqs": [
+          {
+            "faq_id": "risk-tier",
+            "topic": "Risk Stratification",
+            "title": "Calculating ASCVD risk with the PREVENT Calculator",
+            "referenced_by": [
+              "risk-tier"
+            ],
+            "items": [
+              {
+                "question": "Why is PREVENT replacing the Pooled Cohort Equations?",
+                "answer_html": "<p>PREVENT incorporates kidney function (eGFR) and metabolic factors, and removes race as a variable \u2014 reducing known overestimation in certain populations. It is the 2023 AHA/ACC standard and Crystal Run's required organizational tool.</p>"
+              },
+              {
+                "question": "What are the four risk tiers and their thresholds?",
+                "answer_html": "<p><strong>Low: </strong>&lt;5% \u2014 no statin indicated. <strong>Borderline: </strong>5\u20137.5% \u2014 shared decision-making; statin reasonable if LDL \u226570 plus risk enhancers. <strong>Intermediate: </strong>7.5\u201320% \u2014 initiate statin. <strong>High: </strong>&gt;20% \u2014 high-intensity statin, no shared decision-making required.</p>"
+              },
+              {
+                "question": "What are risk-enhancing factors for borderline-risk patients?",
+                "answer_html": "<p>Family history of premature ASCVD, hs-CRP \u22652 mg/L, ABI &lt;0.9, elevated Lp(a) or ApoB. Presence of any of these at borderline risk (5\u20137.5%) with LDL \u226570 mg/dL supports statin initiation.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "statin-indication",
+            "topic": "Statin Indication",
+            "title": "When and how to initiate statin therapy",
+            "referenced_by": [
+              "statin-indication"
+            ],
+            "items": [
+              {
+                "question": "When is high-intensity statin indicated without shared decision-making?",
+                "answer_html": "<p><strong>Two automatic indications: </strong>(1) 10-year risk &gt;20%, or (2) LDL \u2265190 mg/dL regardless of risk score. Both are standard of care \u2014 document and initiate without requiring patient agreement process beyond standard informed consent.</p>"
+              },
+              {
+                "question": "When is shared decision-making required?",
+                "answer_html": "<p>All borderline-risk patients (5\u20137.5%). Document the conversation, the patient's preference, and the clinical factors considered. CAC score may support or defer initiation \u2014 CAC of 0 supports deferral; CAC &gt;100 or \u226575th percentile supports initiation.</p>"
+              },
+              {
+                "question": "What is the SUPD requirement for diabetic patients?",
+                "answer_html": "<p>Statin Use in Persons with Diabetes is a HEDIS-tracked VBC metric with an organizational benchmark of ~90%. Every diabetic patient must have statin therapy addressed and documented at each visit, even if the patient declines or is intolerant.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ldl-target",
+            "topic": "LDL Targets",
+            "title": "LDL goals by risk tier",
+            "referenced_by": [
+              "ldl-target"
+            ],
+            "items": [
+              {
+                "question": "What are the LDL targets by tier?",
+                "answer_html": "<p><strong>Very High Risk: </strong>&lt;55 mg/dL. <strong>High Risk: </strong>&lt;70 mg/dL. <strong>Intermediate Risk: </strong>&lt;70\u2013100 mg/dL depending on risk-enhancing factors. <strong>Borderline Risk: </strong>Shared decision-making \u2014 statin reasonable when LDL \u226570 plus risk enhancers.</p>"
+              },
+              {
+                "question": "What defines Very High Risk?",
+                "answer_html": "<p>Established ASCVD plus a second major cardiovascular event, OR one prior ASCVD event plus any of the following: diabetes, CKD, poorly controlled hypertension, current smoking, or LDL \u2265100 mg/dL on maximally tolerated statin. Note: prior MI alone is High Risk; any comorbidity escalates to Very High Risk.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "med-plan",
+            "topic": "Medication Plan",
+            "title": "Documenting the medication plan and follow-up",
+            "referenced_by": [
+              "med-plan"
+            ],
+            "items": [
+              {
+                "question": "What must be included in the medication plan documentation?",
+                "answer_html": "<p>Current statin name and intensity (low / moderate / high), whether patient is at LDL goal, next step if not at goal (intensify statin, add ezetimibe, or refer), and planned follow-up interval. Fasting lipid panel at 4\u201312 weeks after any change is standard.</p>"
+              },
+              {
+                "question": "What statin intensity classifications are used?",
+                "answer_html": "<p><strong>High-intensity: </strong>Rosuvastatin 20\u201340 mg, Atorvastatin 40\u201380 mg. <strong>Moderate-intensity: </strong>Rosuvastatin 5\u201310 mg, Atorvastatin 10\u201320 mg, Simvastatin 20\u201340 mg. <strong>Low-intensity: </strong>Simvastatin 10 mg, Pravastatin 10\u201320 mg \u2014 generally insufficient for high or very high risk patients.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ldl-190",
+            "topic": "LDL \u2265190",
+            "title": "Managing severely elevated LDL",
+            "referenced_by": [
+              "ldl-190"
+            ],
+            "items": [
+              {
+                "question": "What action is required for LDL \u2265190 mg/dL?",
+                "answer_html": "<p>Initiate high-intensity statin immediately \u2014 no shared decision-making required, no risk score threshold applies. Consider evaluation for familial hypercholesterolemia (FH). If LDL remains \u2265100 mg/dL on maximally tolerated statin, add ezetimibe and consider PCSK9 inhibitor referral to cardiology.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "not-at-goal",
+            "topic": "Not at LDL Goal",
+            "title": "Escalation pathway when LDL goal is not met",
+            "referenced_by": [
+              "not-at-goal"
+            ],
+            "items": [
+              {
+                "question": "What is the escalation sequence when a patient is not at LDL goal?",
+                "answer_html": "<p><strong>Step 1: </strong>Confirm adherence and maximize statin dose. <strong>Step 2: </strong>Add ezetimibe 10 mg daily \u2014 proven LDL reduction of 15\u201320%. <strong>Step 3: </strong>If still not at goal, refer to cardiology for PCSK9 inhibitor consideration (alirocumab, evolocumab). PCSK9 inhibitors require prior authorization and documented statin intolerance or failure.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "statin-hesitant",
+            "topic": "Statin-Hesitant Patient",
+            "title": "Using CAC scoring to guide shared decision-making",
+            "referenced_by": [
+              "statin-hesitant"
+            ],
+            "items": [
+              {
+                "question": "When is CAC scoring appropriate?",
+                "answer_html": "<p>Ages 40\u201375 with borderline to intermediate risk (5\u201320%) who are hesitant about statin initiation. CAC of 0 supports deferral with reassessment in 5\u20137 years. CAC &gt;100 or \u226575th percentile for age/sex supports initiation. Document the CAC result and the patient's decision in the chart.</p>"
+              },
+              {
+                "question": "Is CAC covered by insurance?",
+                "answer_html": "<p>Coverage confirmation is pending with the payer team. Verify before ordering. Cost is typically $75\u2013150 out of pocket when not covered.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "very-high-risk",
+            "topic": "Very High Risk Reclassification",
+            "title": "When to escalate from High to Very High Risk",
+            "referenced_by": [
+              "very-high-risk"
+            ],
+            "items": [
+              {
+                "question": "What triggers Very High Risk reclassification?",
+                "answer_html": "<p>Established ASCVD plus a second major event, OR any prior ASCVD event combined with: diabetes, CKD, poorly controlled hypertension, current smoking, or LDL \u2265100 mg/dL on maximally tolerated statin. Reclassification changes LDL target from &lt;70 to &lt;55 mg/dL and makes PCSK9 inhibitor referral appropriate if goal is not met.</p>"
+              },
+              {
+                "question": "Is cardiology referral required for Very High Risk patients?",
+                "answer_html": "<p>Not automatically required, but strongly consider referral when LDL goal (&lt;55 mg/dL) is not being met on maximally tolerated statin plus ezetimibe.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "advanced-markers",
+            "topic": "Advanced Lipid Markers",
+            "title": "ApoB and Lp(a) \u2014 when and how to order",
+            "referenced_by": [
+              "advanced-markers"
+            ],
+            "items": [
+              {
+                "question": "When are ApoB and Lp(a) indicated?",
+                "answer_html": "<p><strong>ApoB: </strong>Indicated for High and Very High Risk patients to assess residual risk beyond LDL, particularly when LDL appears controlled but cardiovascular risk remains unclear. <strong>Lp(a): </strong>Indicated once per lifetime for all patients with premature ASCVD, strong family history, or LDL \u2265190 not fully explained by diet/secondary causes.</p>"
+              },
+              {
+                "question": "Is ordering ApoB or Lp(a) currently approved?",
+                "answer_html": "<p><strong>Coverage and indications are pending confirmation with the payer team. </strong>Do not embed in order sets or SmartSets until confirmed. Manual ordering with documented clinical indication is acceptable in the interim.</p>"
+              }
+            ]
+          }
+        ],
+        "references": [
+          "Khan SS, et al. Novel Prediction Equations for Absolute Risk Assessment of Total Cardiovascular Disease Incorporating Cardiovascular-Kidney-Metabolic Health. Circulation. 2023;148(24):1982\u20132004.",
+          "Grundy SM, et al. 2018 AHA/ACC Guideline on the Management of Blood Cholesterol. JACC. 2019;73(24):e285\u2013e350.",
+          "Goff DC Jr, et al. 2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk. Journal of the American College of Cardiology. 2014;63(25 Pt B):2935\u20132959.",
+          "2022 ACC Expert Consensus Decision Pathway on Novel Therapies for Cardiovascular Risk Reduction.",
+          "European Atherosclerosis Society Lp(a) Consensus Statement, 2022.",
+          "Budoff MJ, et al. Coronary Artery Calcium: ACC/AHA Position Statement. JACC. 2018.",
+          "NCQA HEDIS Measures \u2014 updated annually at ncqa.org."
+        ]
+      },
+      {
+        "schema_version": "1.0.0",
+        "module_id": "ckd",
+        "default_title": "CKD & Cystatin C \u2014 Initial Workup",
+        "landing_intro": "A patient has an abnormal creatinine, or you've ordered cystatin C and the eGFR came back lower than expected. Use this checklist to complete a reasonable initial workup before escalating. Nephrology should receive a patient you've already started working \u2014 not one you're handing off cold.",
+        "checklist_section_label": "Before you escalate \u2014 complete all four",
+        "checklist": [
+          {
+            "item_id": "ckd-meds",
+            "position": 1,
+            "statement": "Review current medication list for nephrotoxins and renally-cleared drugs requiring dose adjustment",
+            "faq_ref": "ckd-meds"
+          },
+          {
+            "item_id": "ckd-baseline",
+            "position": 2,
+            "statement": "Establish baseline: order cystatin C if not yet done, BMP, CBC, urine albumin-to-creatinine ratio (uACR), urinalysis with microscopy",
+            "faq_ref": "ckd-baseline"
+          },
+          {
+            "item_id": "ckd-staging",
+            "position": 3,
+            "statement": "Stage the CKD using cystatin C-based eGFR (CKD-EPI 2021) and albuminuria category \u2014 document G and A stage",
+            "faq_ref": "ckd-staging"
+          },
+          {
+            "item_id": "ckd-bp",
+            "position": 4,
+            "statement": "Blood pressure at goal for CKD (< 120/80 if tolerated) \u2014 document current readings and agent",
+            "faq_ref": "ckd-bp"
+          }
+        ],
+        "green_zone": {
+          "zone_label": "All boxes checked \u2014 You've done the work",
+          "narrative_html": "Initial workup complete. Document staging and baseline using SmartPhrase below. Safe to manage stage G1\u2013G3a with standard interventions while awaiting nephrology input if needed. <strong>You are institutionally supported.</strong>",
+          "smartphrase": ".CKDINIT"
+        },
+        "escalation_section_label": "Escalate to nephrology e-consult if any apply",
+        "escalation": [
+          {
+            "item_id": "ckd-rapid",
+            "position": 1,
+            "statement": "eGFR decline > 5 mL/min/1.73m\u00b2 in 12 months, or > 10 in 24 months",
+            "faq_ref": "ckd-rapid"
+          },
+          {
+            "item_id": "ckd-severe",
+            "position": 2,
+            "statement": "eGFR < 30 (G4\u2013G5) at any point",
+            "faq_ref": "ckd-severe"
+          },
+          {
+            "item_id": "ckd-protein",
+            "position": 3,
+            "statement": "uACR > 300 mg/g (severely increased albuminuria)",
+            "faq_ref": "ckd-protein"
+          },
+          {
+            "item_id": "ckd-unexplained",
+            "position": 4,
+            "statement": "Unexplained CKD \u2014 no clear etiology after initial workup (no diabetes, no hypertension, no obstructive history)",
+            "faq_ref": "ckd-unexplained"
+          },
+          {
+            "item_id": "ckd-hematuria",
+            "position": 5,
+            "statement": "Persistent hematuria with dysmorphic RBCs on microscopy",
+            "faq_ref": "ckd-hematuria"
+          }
+        ],
+        "context_strip": null,
+        "footer_note": "For internal use only. This is a viable first pathway, not the only pathway. Experienced providers retain clinical discretion.",
+        "faqs": [
+          {
+            "faq_id": "ckd-meds",
+            "topic": "Medication Review",
+            "title": "Nephrotoxins and dose-adjusted drugs \u2014 what to look for",
+            "referenced_by": [
+              "ckd-meds"
+            ],
+            "items": [
+              {
+                "question": "What medications should I flag immediately?",
+                "answer_html": "<p><strong>High-priority nephrotoxins to review in any CKD patient:</strong></p>\n<p><span class=\"pill warn\">NSAIDs</span> (including OTC ibuprofen/naproxen) \u2014 counsel to discontinue.</p>\n<p><span class=\"pill neutral\">Metformin</span> \u2014 generally safe to eGFR 30, reduce monitoring frequency below 45, hold below 30.</p>\n<p><span class=\"pill neutral\">SGLT2 inhibitors</span> \u2014 reassess below eGFR 45 (varies by agent and indication).</p>\n<p><span class=\"pill green\">ACE inhibitors / ARBs</span> \u2014 do not discontinue for mild creatinine bump (up to 30% rise is acceptable and expected); do reassess if rise exceeds that threshold.</p>\n<p><span class=\"pill neutral\">Gabapentin/pregabalin</span> \u2014 dose reduction required below eGFR 60.</p>\n<p><span class=\"pill warn\">Renally-cleared antibiotics</span> \u2014 flag for any acute prescribing: nitrofurantoin contraindicated below eGFR 45.</p>"
+              },
+              {
+                "question": "My patient is on an NSAID for chronic pain. Do I stop it today?",
+                "answer_html": "<p>In CKD G3a and above (eGFR &lt; 60), the recommendation is to discontinue chronic NSAID use. Have a direct conversation: frame it as protecting kidney function, not removing pain management.</p>\n<p>Offer alternatives \u2014 acetaminophen, topical diclofenac for localized pain, or a warm handoff to pain management if the underlying condition warrants it. Document the conversation and the plan.</p>"
+              },
+              {
+                "question": "Should I adjust doses myself or wait for nephrology?",
+                "answer_html": "<p>For common medications with well-established renal dosing (metformin, gabapentin, many antibiotics), adjust now using the eGFR-based thresholds above. Do not wait for nephrology to make changes that are your responsibility as the PCP.</p>\n<p>The e-consult is for guidance on management strategy \u2014 not for permission to stop nephrotoxins.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ckd-baseline",
+            "topic": "Initial Lab Workup",
+            "title": "What to order and why \u2014 the CKD baseline panel",
+            "referenced_by": [
+              "ckd-baseline"
+            ],
+            "items": [
+              {
+                "question": "Why cystatin C if I already have a creatinine-based eGFR?",
+                "answer_html": "<p>Creatinine-based eGFR is affected by muscle mass, diet, and race \u2014 it systematically overestimates GFR in patients with low muscle mass (elderly, frail, malnourished) and can underestimate in bodybuilders.</p>\n<p>Cystatin C is filtered at a constant rate regardless of these variables. The CKD-EPI 2021 equation using both markers is now the preferred standard. When cystatin C eGFR is meaningfully lower than creatinine eGFR, believe cystatin C \u2014 it's the more accurate number.</p>"
+              },
+              {
+                "question": "My patient's cystatin C eGFR came back 15 points lower than their creatinine eGFR. Is that real?",
+                "answer_html": "<p>Often yes. This is the most common anxiety point with cystatin C adoption. The lower number is not an error \u2014 it's a more accurate reflection of true GFR, particularly in older or leaner patients.</p>\n<p>Stage and manage based on the cystatin C result. If this moves the patient into a higher-risk category, that's exactly the information you needed.</p>"
+              },
+              {
+                "question": "What does the uACR add?",
+                "answer_html": "<p>Albuminuria is an independent risk factor for CKD progression and cardiovascular disease, separate from eGFR. A patient can have eGFR 65 with uACR &gt; 300 and be at higher risk than a patient with eGFR 52 and uACR &lt; 30.</p>\n<p>Staging requires both dimensions \u2014 the G stage (eGFR) and the A stage (albuminuria). You cannot complete a CKD staging without it.</p>"
+              },
+              {
+                "question": "Does the urinalysis with microscopy need to be a fresh catch?",
+                "answer_html": "<p>Ideally yes \u2014 a fresh midstream catch within 2 hours of collection gives the most reliable microscopy, particularly for RBC morphology. If the patient is in office, collect it that day.</p>\n<p>If ordering remotely, instruct accordingly and note in the order.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ckd-staging",
+            "topic": "CKD Staging",
+            "title": "Staging with cystatin C eGFR \u2014 what the numbers mean",
+            "referenced_by": [
+              "ckd-staging"
+            ],
+            "items": [
+              {
+                "question": "What are the GFR stages and what do they mean clinically?",
+                "answer_html": "<p><strong>Using CKD-EPI 2021 cystatin C-based eGFR:</strong></p>\n<p><span class=\"pill green\">G1: \u2265 90</span> \u2014 Normal or high. CKD diagnosis requires other markers (albuminuria, structural abnormality). Monitor.</p>\n<p><span class=\"pill green\">G2: 60\u201389</span> \u2014 Mildly decreased. Monitor annually if stable.</p>\n<p><span class=\"pill neutral\">G3a: 45\u201359</span> \u2014 Mildly to moderately decreased. Begin medication review, BP optimization, RAAS therapy if proteinuric.</p>\n<p><span class=\"pill warn\">G3b: 30\u201344</span> \u2014 Moderately to severely decreased. Nephrology e-consult appropriate. Begin anemia workup, mineral/bone disease labs.</p>\n<p><span class=\"pill warn\">G4: 15\u201329</span> \u2014 Severely decreased. Nephrology referral (not just e-consult). RRT planning discussion begins.</p>\n<p><span class=\"pill warn\">G5: &lt; 15</span> \u2014 Kidney failure. Active nephrology co-management required.</p>"
+              },
+              {
+                "question": "My patient is G3a. What do I actually do at this visit?",
+                "answer_html": "<p>Three things: (1) Start or optimize an ACE inhibitor or ARB if they have albuminuria or diabetes \u2014 this is the single highest-impact intervention in early CKD. (2) Get BP below 120/80 if tolerated. (3) Counsel on nephrotoxin avoidance and dietary sodium restriction.</p>\n<p>An SGLT2 inhibitor is indicated if they have diabetes or heart failure \u2014 this is now a standard of care intervention, not a specialist decision.</p>"
+              },
+              {
+                "question": "Do I need to tell the patient they have CKD?",
+                "answer_html": "<p>Yes \u2014 this is a diagnosis, and it should be documented and communicated as such. Many patients with CKD G3 have been managed for years without anyone saying the words. Naming it clearly allows the patient to understand the stakes, engage in self-management, and make informed decisions.</p>\n<p>Use plain language: <em>\"Your kidneys are working at about X% of normal. This is a condition called chronic kidney disease. It's manageable and we caught it at a stage where we can do a lot to protect them.\"</em></p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ckd-bp",
+            "topic": "Blood Pressure Management",
+            "title": "BP targets in CKD \u2014 tighter than you might think",
+            "referenced_by": [
+              "ckd-bp"
+            ],
+            "items": [
+              {
+                "question": "Is 130/80 good enough?",
+                "answer_html": "<p>Current KDIGO 2021 guidelines recommend a target of &lt; 120 mmHg systolic if tolerated, based on SPRINT trial data. This is a meaningful shift from the older 130/80 standard.</p>\n<p>In practice, tolerability is the limiting factor \u2014 orthostatic symptoms, syncope risk in elderly patients, and baseline hypotension all require individualization. Document your target and your rationale.</p>"
+              },
+              {
+                "question": "Which agents are preferred?",
+                "answer_html": "<p>ACE inhibitor or ARB is first-line in CKD with albuminuria (uACR &gt; 30) or diabetes, regardless of BP. Do not use both together \u2014 dual RAAS blockade increases harm without added benefit.</p>\n<p>For additional BP control: dihydropyridine calcium channel blockers (amlodipine) and thiazide-like diuretics (chlorthalidone preferred over HCTZ in CKD) are appropriate add-ons. Loop diuretics for volume management in G4\u2013G5.</p>"
+              },
+              {
+                "question": "My patient's creatinine bumped after I started the ACE inhibitor. Should I stop it?",
+                "answer_html": "<p>Not automatically. A rise in creatinine of up to 30% after initiating an ACE inhibitor or ARB is expected, acceptable, and does not indicate harm \u2014 it reflects the intended hemodynamic effect on the glomerulus.</p>\n<p>Recheck in 2 weeks. If the rise is greater than 30% or potassium rises above 5.5, then hold and reassess. If you stop every ACE inhibitor that causes any creatinine bump, you will deprive CKD patients of their most protective therapy.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ckd-rapid",
+            "topic": "Rapid Progression",
+            "title": "eGFR declining faster than expected \u2014 what to do",
+            "referenced_by": [
+              "ckd-rapid"
+            ],
+            "items": [
+              {
+                "question": "How do I know if the decline is rapid?",
+                "answer_html": "<p>Pull prior creatinine values from the chart \u2014 at minimum 12 months back, ideally 24. Calculate the trajectory. A decline of more than 5 mL/min/1.73m\u00b2 per year is considered rapid and warrants e-consult regardless of current stage.</p>\n<p>A single low value without prior data is not the same as demonstrated progression \u2014 establish the trend first.</p>"
+              },
+              {
+                "question": "Could something acute be driving this?",
+                "answer_html": "<p>Yes \u2014 always rule out AKI superimposed on CKD before concluding progression. Recent illness, volume depletion, new nephrotoxin exposure, or urinary obstruction can all cause acute drops.</p>\n<p>If there's any question, recheck in 4\u20136 weeks after addressing potential acute factors before framing as progression.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ckd-severe",
+            "topic": "Advanced CKD",
+            "title": "eGFR < 30 \u2014 escalation and preparation",
+            "referenced_by": [
+              "ckd-severe"
+            ],
+            "items": [
+              {
+                "question": "What changes at G4?",
+                "answer_html": "<p>Several things happen simultaneously at G4 that go beyond standard PCP management:</p>\n<p>(1) Nephrology referral (not just e-consult) is indicated. (2) Mineral and bone disease workup: PTH, phosphorus, 25-OH vitamin D, calcium. (3) Anemia of CKD evaluation. (4) RRT planning conversation \u2014 not to alarm, but to inform. Patients who arrive at dialysis having never discussed it are poorly prepared.</p>"
+              },
+              {
+                "question": "Should I be starting erythropoiesis-stimulating agents?",
+                "answer_html": "<p>ESA initiation in CKD is a nephrology decision. Your role at G4 is to identify anemia, complete the workup (iron studies, B12, folate, retic count), correct iron deficiency if present, and document.</p>\n<p>The e-consult to nephrology should include this workup so they can advise on ESA candidacy with full information in hand.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ckd-protein",
+            "topic": "Proteinuria",
+            "title": "Severely increased albuminuria \u2014 uACR > 300",
+            "referenced_by": [
+              "ckd-protein"
+            ],
+            "items": [
+              {
+                "question": "Is this nephrotic range?",
+                "answer_html": "<p>Not necessarily \u2014 nephrotic range proteinuria is traditionally defined as &gt; 3.5 g/day on 24-hour urine, or roughly uACR &gt; 2000\u20133500 mg/g. A uACR of 300\u20132000 is severely increased but not nephrotic.</p>\n<p>However, any uACR &gt; 300 warrants e-consult regardless of eGFR, as it indicates significant glomerular pathology and accelerated progression risk.</p>"
+              },
+              {
+                "question": "Should I repeat it before acting?",
+                "answer_html": "<p>A single elevated uACR should be confirmed on a second sample (ideally first morning void) before staging \u2014 transient elevations occur with fever, exercise, and UTI.</p>\n<p>However, if the value is markedly elevated (&gt; 300) and there's no obvious transient cause, begin the workup in parallel with confirmation rather than waiting.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ckd-unexplained",
+            "topic": "Unknown Etiology",
+            "title": "CKD without a clear cause",
+            "referenced_by": [
+              "ckd-unexplained"
+            ],
+            "items": [
+              {
+                "question": "My patient has CKD but no diabetes, no hypertension, no obstructive history. What now?",
+                "answer_html": "<p>This is the e-consult indication \u2014 unexplained CKD requires nephrology input to consider glomerulonephritis, genetic nephropathy, or other primary renal disease.</p>\n<p>Before the consult, complete: urinalysis with microscopy (looking for casts), uACR, renal ultrasound, serum protein electrophoresis in patients &gt; 40 (to screen for myeloma), ANA and complement if clinical picture suggests autoimmune.</p>\n<p>Document what you've ruled out \u2014 the nephrologist can then focus on what remains.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ckd-hematuria",
+            "topic": "Hematuria",
+            "title": "Persistent hematuria with dysmorphic RBCs",
+            "referenced_by": [
+              "ckd-hematuria"
+            ],
+            "items": [
+              {
+                "question": "What do dysmorphic RBCs mean?",
+                "answer_html": "<p>Dysmorphic RBCs \u2014 particularly acanthocytes \u2014 on urine microscopy indicate glomerular origin of bleeding, as opposed to urothelial sources (stone, tumor, infection). This is a nephrology finding, not a urology finding.</p>\n<p>If the microscopy report specifically mentions dysmorphic RBCs or acanthocytes, the e-consult goes to nephrology, not to urology for cystoscopy.</p>"
+              },
+              {
+                "question": "What if the report just says \"RBCs present\" without commenting on morphology?",
+                "answer_html": "<p>Standard urinalysis does not assess morphology \u2014 that requires microscopy with a trained eye. If you have &gt; 5 RBCs/hpf on two separate specimens without an obvious benign cause, request formal microscopy.</p>\n<p>In many practices this requires a specific order or a call to the lab.</p>"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "schema_version": "1.0.0",
+        "module_id": "adhd",
+        "default_title": "ADHD Stimulants \u2014 Inherited Patient",
+        "landing_intro": "A new or transitioning patient is on stimulant medication. Use this checklist to determine whether to continue, document, or escalate. Tap any item for guidance.",
+        "checklist_section_label": "Before you decide \u2014 verify all four",
+        "checklist": [
+          {
+            "item_id": "pdmp",
+            "position": 1,
+            "statement": "PDMP reviewed \u2014 no concerning pattern",
+            "faq_ref": "pdmp"
+          },
+          {
+            "item_id": "sud",
+            "position": 2,
+            "statement": "No active substance use disorder (or documented awareness & plan)",
+            "faq_ref": "sud"
+          },
+          {
+            "item_id": "efficacy",
+            "position": 3,
+            "statement": "Medication appears effective \u2014 patient functional, no recent dose escalation requests",
+            "faq_ref": "efficacy"
+          },
+          {
+            "item_id": "early-fills",
+            "position": 4,
+            "statement": "No early fill requests in the past 12 months",
+            "faq_ref": "early-fills"
+          }
+        ],
+        "green_zone": {
+          "zone_label": "All boxes checked \u2014 Continue",
+          "narrative_html": "Continue current regimen. Document using SmartPhrase below. <strong>You are institutionally supported.</strong>",
+          "smartphrase": ".CSADHD-CONT"
+        },
+        "escalation_section_label": "Escalate to psychiatry e-consult if any apply",
+        "escalation": [
+          {
+            "item_id": "dx-vibes",
+            "position": 1,
+            "statement": "Diagnosis based on self-report alone \u2014 no prior formal workup documented",
+            "faq_ref": "dx-vibes"
+          },
+          {
+            "item_id": "ceiling-dose",
+            "position": 2,
+            "statement": "Dose at or near ceiling, or recently escalated without documented clinical rationale",
+            "faq_ref": "ceiling-dose"
+          },
+          {
+            "item_id": "functional",
+            "position": 3,
+            "statement": "Functional decline or behavioral red flags despite medication",
+            "faq_ref": "functional"
+          },
+          {
+            "item_id": "combo-stim",
+            "position": 4,
+            "statement": "Patient requesting combination stimulants or multi-agent regimen",
+            "faq_ref": "combo-stim"
+          }
+        ],
+        "context_strip": {
+          "label": "National context",
+          "text": "Primary care providers across the US manage a meaningful proportion of adult ADHD stimulant prescriptions. You are not an outlier for inheriting these patients. The question is not whether to manage \u2014 it is how to manage safely."
+        },
+        "footer_note": "This is a viable first pathway, not the only pathway. Experienced providers retain clinical discretion. This framework provides institutional backing when followed.",
+        "faqs": [
+          {
+            "faq_id": "pdmp",
+            "topic": "PDMP Review",
+            "title": "What counts as a \"concerning pattern\"?",
+            "referenced_by": [
+              "pdmp"
+            ],
+            "items": [
+              {
+                "question": "How often should I check the PDMP?",
+                "answer_html": "<p>At minimum, check at the first appointment with a new-to-you patient and at every controlled substance renewal thereafter. Quarterly checks at prescription renewal visits are a reasonable standard for stable patients.</p>\n<p>New York State requires PDMP review prior to prescribing controlled substances. This is a legal obligation, not a preference.</p>"
+              },
+              {
+                "question": "What specifically am I looking for?",
+                "answer_html": "<p><strong>Red flags that warrant pause before prescribing:</strong></p>\n<p><span class=\"pill warn\">Multiple prescribers</span> \u2014 stimulants from more than one provider in the past 12 months without clear documented coordination.</p>\n<p><span class=\"pill warn\">Multiple pharmacies</span> \u2014 controlled substances filled at 3+ pharmacies without a clear geographic or insurance reason.</p>\n<p><span class=\"pill warn\">Concurrent opiates</span> \u2014 stimulants plus opioids without documented pain management rationale.</p>\n<p><span class=\"pill warn\">Dose mismatch</span> \u2014 quantity dispensed doesn't match what any single prescriber would authorize (suggests supplemental sourcing).</p>\n<p><span class=\"pill green\">Reassuring pattern</span> \u2014 same prescriber, same pharmacy, consistent quantity, no gaps suggesting diversion, no overlapping controlled substances.</p>"
+              },
+              {
+                "question": "I see something concerning. What do I do?",
+                "answer_html": "<p>Do not prescribe at this visit. Have a direct, non-accusatory conversation with the patient: <em>\"I'm seeing some things in the prescription history I want to understand before we go further.\"</em></p>\n<p>Document exactly what you found and what the patient told you. This is protective for you and the institution regardless of what you decide next.</p>\n<p>If the concern is significant, this is an appropriate trigger for an e-consult to psychiatry with the specific question of <strong>safe prescribing plan</strong> rather than routine review.</p>"
+              },
+              {
+                "question": "The prior provider didn't document any PDMP checks. Does that mean I'm starting over?",
+                "answer_html": "<p>Yes \u2014 when you become the prescriber of record, the documentation obligation transfers to you. The prior provider's omission is their liability, not yours, but it does mean your first check is essential before issuing your first prescription.</p>\n<p>Think of it as a brief triage at the first handoff appointment. It takes under two minutes and is your best protection.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "sud",
+            "topic": "Substance Use History",
+            "title": "What if there's a substance use disorder in the history?",
+            "referenced_by": [
+              "sud"
+            ],
+            "items": [
+              {
+                "question": "The patient has a past SUD. Is that a dealbreaker?",
+                "answer_html": "<p>Not automatically \u2014 but it shifts the burden of documentation significantly. A patient in sustained, well-documented remission who has been stable on stimulants for years is a different clinical picture than a patient with active use.</p>\n<p>The key question: is the current prescription part of a coordinated plan, or did it evolve informally without the SUD history being factored in?</p>\n<p>If there's no documented awareness of the SUD history in the prior prescribing record, this is a case for psychiatry e-consult \u2014 not to decide whether to continue, but to have a documented expert review in the chart.</p>"
+              },
+              {
+                "question": "What does \"documented awareness and plan\" look like?",
+                "answer_html": "<p>At minimum: a note that the provider is aware of the SUD history, has considered it in the prescribing decision, and has a monitoring plan. This can be brief.</p>\n<p>Example language: <em>\"Patient has history of [SUD], currently in remission x [timeframe]. Stimulant therapy reviewed in this context. Continued with close monitoring including PDMP review at each renewal and urine drug screen [frequency].\"</em></p>\n<p>SmartPhrase <span class=\"pill neutral\">.CSADHD-SUD-AWARE</span> covers this documentation.</p>"
+              },
+              {
+                "question": "The patient currently uses cannabis. Does that count?",
+                "answer_html": "<p>Cannabis use alone does not automatically disqualify a patient from stimulant continuation, but it should be documented and acknowledged. The concern is whether cannabis use represents a broader pattern of substance use that increases misuse risk.</p>\n<p>Heavy or problematic cannabis use warrants the same documentation escalation as any other SUD history. Occasional use in a stable, well-functioning patient is a clinical judgment call \u2014 document your reasoning either way.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "efficacy",
+            "topic": "Treatment Effectiveness",
+            "title": "How do I assess whether the medication is actually working?",
+            "referenced_by": [
+              "efficacy"
+            ],
+            "items": [
+              {
+                "question": "I'm inheriting the patient \u2014 I never saw them before treatment. How can I judge efficacy?",
+                "answer_html": "<p>You're assessing current functional status, not comparing to a baseline you never witnessed. Ask directly: <em>\"How are things going at work / school / home? Are you managing the things you were struggling with before medication?\"</em></p>\n<p>If the patient can describe specific, credible improvements in function \u2014 and there's no evidence of dose escalation, misuse, or new concerns \u2014 that's a reasonable basis for continuation.</p>\n<p>You're not re-validating the original diagnosis. You're verifying that an ongoing prescription is doing what it's supposed to do.</p>"
+              },
+              {
+                "question": "The patient says it's working but I'm not sure I believe them.",
+                "answer_html": "<p>This is a clinical judgment call that doesn't have a bright-line answer. A few considerations:</p>\n<p>Is there corroboration? Prior notes from a previous provider, a therapist, a partner or employer? Even a prior rating scale in the chart?</p>\n<p>Are there behavioral inconsistencies? Does the patient's presentation, history, or PDMP pattern suggest misuse or diversion rather than treatment?</p>\n<p>If your clinical instinct is firing and you can't articulate why you're comfortable, that's the moment to pause, document, and consider an e-consult. That consult is not punitive \u2014 it's you doing exactly what the framework asks.</p>"
+              },
+              {
+                "question": "Should I be using a rating scale at follow-up visits?",
+                "answer_html": "<p>Formal rating scales (Adult ADHD Self-Report Scale, Conners Adult ADHD Rating Scale) are better suited to initial evaluation and are not expected at every follow-up for established patients.</p>\n<p>Brief structured questions \u2014 functional domains, side effects, adherence \u2014 are sufficient and documentable for ongoing management. The goal is a consistent, reproducible assessment, not a diagnostic workup at every visit.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "early-fills",
+            "topic": "Fill Patterns",
+            "title": "Early fill requests \u2014 what's the threshold?",
+            "referenced_by": [
+              "early-fills"
+            ],
+            "items": [
+              {
+                "question": "How early is \"too early\"?",
+                "answer_html": "<p>A single request more than 5 days early is worth a conversation. A pattern of requests more than 5 days early across multiple fill cycles is a red flag warranting documentation and possible escalation.</p>\n<p>Context matters: a patient who ran out early once because of a vacation schedule is different from a patient who consistently fills 10 days early over 12 months.</p>\n<p><span class=\"pill warn\">Pattern: 2+ early fills in 12 months</span> \u2014 document, address directly with patient, consider urine drug screen.</p>"
+              },
+              {
+                "question": "Can I fill early for travel or vacation?",
+                "answer_html": "<p>New York State Schedule II controlled substances (most stimulants) cannot be post-dated or filled early beyond the state dispensing window, regardless of reason. Patients traveling internationally should plan ahead with their prescribing provider well in advance \u2014 this is not something that can be resolved at the last minute.</p>\n<p>For domestic travel, most pharmacies can fill within a few days of the allowed window. Counsel patients to plan accordingly.</p>"
+              },
+              {
+                "question": "The patient says they lost the medication. What do I do?",
+                "answer_html": "<p>Lost or stolen Schedule II controlled substances are not replaced as a matter of policy. This is both a regulatory constraint and a risk management position.</p>\n<p>Communicate this clearly and without apology: <em>\"I understand this is frustrating. Unfortunately, Schedule II medications can't be replaced in these circumstances \u2014 this is a regulatory requirement, not a decision I'm making about you personally.\"</em></p>\n<p>Document the report, check the PDMP, and note the conversation. A single loss event is not necessarily disqualifying for continued prescribing, but it should be in the chart.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "dx-vibes",
+            "topic": "Diagnostic Basis",
+            "title": "The prior diagnosis looks thin. Now what?",
+            "referenced_by": [
+              "dx-vibes"
+            ],
+            "items": [
+              {
+                "question": "The chart has an ADHD diagnosis but no workup. Am I on the hook for that?",
+                "answer_html": "<p>You are not responsible for the prior diagnostic process, but you are responsible for decisions made from this point forward. Continuing a prescription is a clinical decision \u2014 meaning it's yours, and it should be defensible.</p>\n<p>The question isn't \"was this diagnosis legitimate?\" It's \"do I have enough information to comfortably continue this medication?\" If the answer is no, the e-consult pathway exists precisely for this situation.</p>"
+              },
+              {
+                "question": "What does a \"formal workup\" actually mean? Is neuropsychological testing required?",
+                "answer_html": "<p>Neuropsychological testing is not required for an ADHD diagnosis and is not the standard of care in most clinical settings. A reasonable workup includes:</p>\n<p>A validated rating scale (e.g., Adult ADHD Self-Report Scale) completed by the patient. A structured clinical interview addressing symptom onset, duration, and functional impairment across settings. Consideration of differential diagnoses \u2014 anxiety, mood disorders, sleep disorders, and thyroid disease can all mimic ADHD.</p>\n<p>If none of this is in the chart, that's thin \u2014 but it's a very common chart. The e-consult purpose here is to get a psychiatrist's eyes on the case so you have expert documentation in the record. It changes the risk profile for both of you.</p>"
+              },
+              {
+                "question": "The patient is stable, functional, and has been on the medication for 5 years. Does the shaky diagnosis still matter?",
+                "answer_html": "<p>Clinically, a 5-year stable course with demonstrated functional benefit is meaningful evidence in its own right. The medication is clearly doing something for this person.</p>\n<p>That said, \"doing something\" doesn't always mean treating ADHD \u2014 stimulants improve focus and executive function across many conditions and in some people without a formal diagnosis. The diagnostic question remains open.</p>\n<p>For practical purposes: a long-stable patient with no red flags and a thin chart is a lower priority for formal re-evaluation than a recent diagnosis, a request to escalate dose, or emerging behavioral concerns. Use clinical judgment on triage order.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "ceiling-dose",
+            "topic": "Dose Management",
+            "title": "Ceiling doses and recent escalations",
+            "referenced_by": [
+              "ceiling-dose"
+            ],
+            "items": [
+              {
+                "question": "What are the ceiling doses for common stimulants?",
+                "answer_html": "<p><span class=\"pill neutral\">Amphetamine salts (Adderall)</span> \u2014 FDA max 60 mg/day for adults. Doses above 40 mg/day in primary care warrant documentation of rationale.</p>\n<p><span class=\"pill neutral\">Methylphenidate (Ritalin, Concerta)</span> \u2014 FDA max 60 mg/day. Extended-release formulations vary by product; check prescribing information.</p>\n<p><span class=\"pill neutral\">Lisdexamfetamine (Vyvanse)</span> \u2014 FDA max 70 mg/day. This is a hard ceiling due to the prodrug formulation.</p>\n<p>Doses above FDA maximum are outside this framework and require specialist co-management.</p>"
+              },
+              {
+                "question": "The patient was escalated to max dose by the prior provider. Do I continue?",
+                "answer_html": "<p>Continuing a maximum-dose prescription is within primary care scope if it's clinically justified and documented. The burden of documentation is higher at the ceiling than at moderate doses.</p>\n<p>At first visit: review the chart for the rationale behind escalation. If it's documented and coherent \u2014 continue with your own documented review.</p>\n<p>If there's no documented rationale for the ceiling dose \u2014 or if the escalation happened recently and rapidly \u2014 this is an e-consult trigger. The question for psychiatry: <em>\"Patient is at maximum dose of [medication] without clear documented rationale. Please review current plan and advise whether to maintain, taper, or restructure.\"</em></p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "functional",
+            "topic": "Functional Concerns",
+            "title": "When function declines despite medication",
+            "referenced_by": [
+              "functional"
+            ],
+            "items": [
+              {
+                "question": "What counts as a \"behavioral red flag\"?",
+                "answer_html": "<p>Behavioral red flags in this context are signs that the medication may be causing harm, being misused, or masking an underlying condition that's worsening:</p>\n<p><span class=\"pill warn\">Mood instability</span> \u2014 new or worsening irritability, emotional dysregulation, or rage that the patient or family attributes to medication timing.</p>\n<p><span class=\"pill warn\">Sleep severe enough to impair function</span> \u2014 beyond expected stimulant effect, especially if the patient is escalating to cope.</p>\n<p><span class=\"pill warn\">Cardiovascular symptoms</span> \u2014 palpitations, chest pain, or significant blood pressure elevation at current dose.</p>\n<p><span class=\"pill warn\">Increasing psychological dependence</span> \u2014 patient describes inability to function at all without the medication in ways that feel qualitatively different from therapeutic benefit.</p>"
+              },
+              {
+                "question": "Could this be something other than ADHD at this point?",
+                "answer_html": "<p>Yes \u2014 and this is one of Dr. Batson's core concerns about the diagnostic rigor of many adult ADHD diagnoses. Anxiety disorders, bipolar disorder (particularly type II), and PTSD all significantly overlap with ADHD symptom profiles.</p>\n<p>Stimulants can worsen anxiety, destabilize mood in bipolar disorder, and in some cases worsen trauma-related hyperarousal. If a patient is deteriorating on stimulants, these are worth considering.</p>\n<p>This doesn't mean stopping the medication unilaterally \u2014 it means this patient needs psychiatric input, and the e-consult should frame that question explicitly.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "combo-stim",
+            "topic": "Multi-Agent Requests",
+            "title": "Patient requesting combination or second stimulant",
+            "referenced_by": [
+              "combo-stim"
+            ],
+            "items": [
+              {
+                "question": "Is combination stimulant therapy ever appropriate?",
+                "answer_html": "<p>Combination stimulant therapy (e.g., long-acting amphetamine plus short-acting methylphenidate) exists in clinical practice, particularly in severe ADHD managed by specialists. It is outside the scope of primary care initiation and requires specialist documentation.</p>\n<p>If a patient arrives already on a multi-agent regimen, this is a situation where the e-consult precedes any continuation decision \u2014 not to refuse, but to have expert sign-off in the chart before you own this prescription.</p>"
+              },
+              {
+                "question": "The patient is asking me to add a booster dose to their existing medication.",
+                "answer_html": "<p>Adding a short-acting \"booster\" to a long-acting regimen is common in specialist practice and not inherently inappropriate. But initiating this in primary care without specialist guidance or documentation is high-exposure territory.</p>\n<p>The conversation with the patient: <em>\"That's a reasonable clinical question. I want to make sure we approach it the right way, which means getting a psychiatry review before we add anything new to your regimen. I'm not saying no \u2014 I'm saying let's do this properly.\"</em></p>\n<p>This is precisely the e-consult scenario: patient-requested escalation requiring specialist input before action.</p>"
+              },
+              {
+                "question": "The patient had a booster dose prescribed before and wants to restart it.",
+                "answer_html": "<p>Restarting a previously prescribed regimen is lower risk than initiating something new, especially if it's documented in prior records. The PDMP will show whether this was previously dispensed.</p>\n<p>If the prior prescribing record shows the combination was used, was safe, and was discontinued for a non-clinical reason (e.g., provider left the practice), continuation with documentation is defensible.</p>\n<p>If you're not comfortable, the e-consult is always available. That's not a failure \u2014 that's the framework doing its job.</p>"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "schema_version": "1.0.0",
+        "module_id": "anemia",
+        "default_title": "Anemia \u2014 Initial Workup Before Hematology",
+        "landing_intro": "A patient has a low hemoglobin. The reflex to immediately consult hematology is understandable \u2014 but a hematologist receiving a referral with only a CBC and no workup cannot do much from a distance. Your job is to complete a structured initial evaluation that answers the first-order question: what kind of anemia is this? Most anemia seen in primary care has a diagnosable and treatable cause that does not require hematology at all. For those that do, arriving with a completed workup transforms the consult from a hand-off into a collaboration.",
+        "checklist_section_label": "Before you escalate \u2014 complete all four",
+        "checklist": [
+          {
+            "item_id": "anemia-cbc",
+            "position": 1,
+            "statement": "CBC with differential reviewed \u2014 MCV categorized as microcytic, normocytic, or macrocytic",
+            "faq_ref": "anemia-cbc"
+          },
+          {
+            "item_id": "anemia-reticulocyte",
+            "position": 2,
+            "statement": "Reticulocyte count obtained \u2014 production vs. destruction vs. loss established",
+            "faq_ref": "anemia-reticulocyte"
+          },
+          {
+            "item_id": "anemia-iron",
+            "position": 3,
+            "statement": "Iron studies obtained if microcytic or mixed \u2014 serum iron, TIBC, ferritin, transferrin saturation",
+            "faq_ref": "anemia-iron"
+          },
+          {
+            "item_id": "anemia-b12folate",
+            "position": 4,
+            "statement": "B12 and folate obtained if macrocytic or normocytic with clinical suspicion",
+            "faq_ref": "anemia-b12folate"
+          }
+        ],
+        "green_zone": {
+          "zone_label": "All boxes checked \u2014 You have a working diagnosis",
+          "narrative_html": "Initial workup complete. You can now categorize and begin treating the most common causes \u2014 iron deficiency, B12 deficiency, folate deficiency, or anemia of chronic disease \u2014 without hematology involvement. Document findings and plan using SmartPhrase below. Hematology e-consult is indicated only for unexplained, refractory, or complex findings. <strong>You are institutionally supported.</strong>",
+          "smartphrase": ".ANEMIA-INIT"
+        },
+        "escalation_section_label": "Escalate to hematology e-consult if any apply",
+        "escalation": [
+          {
+            "item_id": "anemia-severe",
+            "position": 1,
+            "statement": "Hemoglobin < 7 g/dL or symptomatic at any level (chest pain, dyspnea at rest, hemodynamic instability)",
+            "faq_ref": "anemia-severe"
+          },
+          {
+            "item_id": "anemia-unexplained",
+            "position": 2,
+            "statement": "Workup complete \u2014 no etiology identified after iron studies, B12, folate, reticulocyte count, and clinical review",
+            "faq_ref": "anemia-unexplained"
+          },
+          {
+            "item_id": "anemia-hemolysis",
+            "position": 3,
+            "statement": "Evidence of hemolysis \u2014 elevated LDH, elevated indirect bilirubin, low haptoglobin, elevated reticulocyte count without blood loss",
+            "faq_ref": "anemia-hemolysis"
+          },
+          {
+            "item_id": "anemia-blasts",
+            "position": 4,
+            "statement": "Abnormal WBC or platelet count accompanying anemia \u2014 pancytopenia, blasts on differential, or thrombocytopenia without explanation",
+            "faq_ref": "anemia-blasts"
+          },
+          {
+            "item_id": "anemia-refractory",
+            "position": 5,
+            "statement": "Iron deficiency anemia not responding to 3 months of adequate oral iron replacement",
+            "faq_ref": "anemia-refractory"
+          },
+          {
+            "item_id": "anemia-ckd",
+            "position": 6,
+            "statement": "Anemia in setting of CKD G3b or above \u2014 see Meridian CKD module for coordinated workup",
+            "faq_ref": "anemia-ckd"
+          }
+        ],
+        "context_strip": null,
+        "footer_note": "For internal use only. This is a viable first pathway, not the only pathway. Experienced providers retain clinical discretion. Urgent findings \u2014 schistocytes, blasts, severe symptomatic anemia \u2014 require same-day escalation outside this e-consult framework.",
+        "faqs": [
+          {
+            "faq_id": "anemia-cbc",
+            "topic": "CBC Interpretation",
+            "title": "Reading the CBC \u2014 MCV as your first branch point",
+            "referenced_by": [
+              "anemia-cbc"
+            ],
+            "items": [
+              {
+                "question": "What MCV thresholds define the categories?",
+                "answer_html": "<p><strong>Standard laboratory reference ranges:</strong></p>\n<p><span class=\"pill warn\">Microcytic: MCV &lt; 80 fL</span> \u2014 think iron deficiency first, then thalassemia, then anemia of chronic disease (can be microcytic), then sideroblastic anemia (rare).</p>\n<p><span class=\"pill neutral\">Normocytic: MCV 80\u2013100 fL</span> \u2014 think anemia of chronic disease, early iron deficiency, renal anemia, hypothyroidism, mixed deficiency, or early bone marrow pathology.</p>\n<p><span class=\"pill warn\">Macrocytic: MCV &gt; 100 fL</span> \u2014 think B12 deficiency, folate deficiency, hypothyroidism, alcohol use, medications (methotrexate, hydroxyurea, zidovudine), or myelodysplastic syndrome in older patients.</p>\n<p>MCV is your first branch point. Every subsequent test order flows from this categorization.</p>"
+              },
+              {
+                "question": "The MCV is normal but the hemoglobin is low. Does that mean it's anemia of chronic disease?",
+                "answer_html": "<p>Normocytic anemia is the broadest category and requires the most differential thinking. Anemia of chronic disease is common but should be a diagnosis of context \u2014 meaning the patient has a known chronic inflammatory condition (rheumatoid arthritis, IBD, malignancy, CKD) that explains it.</p>\n<p>Normocytic anemia without a clear chronic disease context requires reticulocyte count as the next step to distinguish between underproduction and loss or destruction.</p>"
+              },
+              {
+                "question": "The RDW is elevated. What does that tell me?",
+                "answer_html": "<p>Elevated RDW (red cell distribution width) indicates anisocytosis \u2014 a mixed population of cell sizes. This is particularly useful in two scenarios:</p>\n<p>(1) A microcytic anemia with high RDW suggests iron deficiency rather than thalassemia (thalassemia tends to have normal or low RDW despite low MCV).</p>\n<p>(2) A normocytic anemia with high RDW may indicate a mixed deficiency \u2014 iron plus B12 or folate \u2014 where the two processes cancel each other out in terms of MCV while the RDW reflects the heterogeneity. When the MCV looks normal but the RDW is high, order both iron studies and B12/folate.</p>"
+              },
+              {
+                "question": "Should I be looking at the differential on every anemia CBC?",
+                "answer_html": "<p>Yes \u2014 the differential provides information the MCV alone cannot. Hypersegmented neutrophils (\u2265 5 lobes) are a classic finding in B12 or folate deficiency and may precede macrocytosis. Target cells suggest hemoglobinopathy or liver disease.</p>\n<p><span class=\"pill warn\">Schistocytes</span> (fragmented RBCs) indicate microangiopathic hemolytic anemia \u2014 TTP, HUS, DIC \u2014 and are an emergency finding. If you see schistocytes on a differential, escalate immediately.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-reticulocyte",
+            "topic": "Reticulocyte Count",
+            "title": "Production vs. destruction vs. loss \u2014 why this test matters",
+            "referenced_by": [
+              "anemia-reticulocyte"
+            ],
+            "items": [
+              {
+                "question": "What does the reticulocyte count tell me that the CBC doesn't?",
+                "answer_html": "<p>The reticulocyte count tells you what the bone marrow is doing in response to the anemia. A normal bone marrow facing anemia should increase production \u2014 reticulocytes should rise. If they don't, the problem is in the bone marrow or in the substrate (iron, B12, folate). If they are elevated, the marrow is responding appropriately, which means the problem is peripheral \u2014 blood loss or destruction (hemolysis).</p>"
+              },
+              {
+                "question": "How do I interpret the reticulocyte count correctly?",
+                "answer_html": "<p>Use the reticulocyte production index (RPI) rather than the raw reticulocyte percentage, which is misleading in anemia because it is expressed as a percentage of a smaller RBC pool:</p>\n<p><strong>RPI = (reticulocyte % \u00d7 patient hematocrit) \u00f7 45</strong></p>\n<p><span class=\"pill warn\">RPI &lt; 2: hypoproliferative</span> \u2014 bone marrow is not responding appropriately. Think iron deficiency, B12/folate deficiency, anemia of chronic disease, renal anemia, or bone marrow pathology.</p>\n<p><span class=\"pill green\">RPI &gt; 2: hyperproliferative</span> \u2014 marrow is responding. Think hemolysis or acute blood loss.</p>"
+              },
+              {
+                "question": "I ordered a reticulocyte count and it came back as a percentage only. Is that enough?",
+                "answer_html": "<p>A raw percentage without the RPI calculation is limited \u2014 you need to interpret it in context. A reticulocyte percentage of 2.5% sounds elevated but may represent an RPI of 1.2 in a severely anemic patient, indicating an inadequate response.</p>\n<p>Do the RPI calculation yourself using the formula above and document it in the note.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-iron",
+            "topic": "Iron Studies",
+            "title": "Iron deficiency \u2014 diagnosing and treating correctly",
+            "referenced_by": [
+              "anemia-iron"
+            ],
+            "items": [
+              {
+                "question": "What is the most reliable test for iron deficiency?",
+                "answer_html": "<p>Ferritin is the most sensitive single marker for iron deficiency when low \u2014 a ferritin &lt; 30 ng/mL is highly specific for iron deficiency in most clinical contexts. However, ferritin is an acute phase reactant and is elevated by inflammation, infection, liver disease, and malignancy.</p>\n<p>A patient with an inflammatory condition can have a ferritin of 80 ng/mL and still be iron deficient. In the context of chronic inflammation, a ferritin up to 100 ng/mL does not exclude iron deficiency \u2014 transferrin saturation &lt; 20% in this context supports the diagnosis. Use the full panel: serum iron, TIBC, ferritin, and transferrin saturation together.</p>"
+              },
+              {
+                "question": "I've confirmed iron deficiency. How do I treat it?",
+                "answer_html": "<p><strong>Oral iron is first-line for most patients:</strong></p>\n<p><span class=\"pill neutral\">Ferrous sulfate 325 mg (65 mg elemental iron) every other day</span> \u2014 as effective as daily dosing with significantly fewer GI side effects. This is a meaningful recent evidence update from the older twice-daily standard.</p>\n<p>Take on an empty stomach with vitamin C (orange juice) to maximize absorption. Avoid within 2 hours of calcium, antacids, PPIs, or thyroid medication.</p>\n<p>Recheck CBC and reticulocyte count in 4 weeks \u2014 you should see reticulocyte response within 1\u20132 weeks and hemoglobin rise of 1\u20132 g/dL by 4 weeks if the diagnosis and absorption are correct.</p>\n<p>Continue treatment for 3 months after hemoglobin normalizes to replete stores.</p>"
+              },
+              {
+                "question": "My patient cannot tolerate oral iron or has a PPI she won't stop. What are my options?",
+                "answer_html": "<p>IV iron is appropriate and effective for patients with malabsorption, intolerance to oral iron, inflammatory bowel disease, or who are on PPIs that cannot be discontinued. IV iron formulations (ferric carboxymaltose, low molecular weight iron dextran, ferumoxytol) can be administered in an infusion center.</p>\n<p>This is within primary care scope to order \u2014 you do not need hematology referral to initiate IV iron in uncomplicated iron deficiency anemia.</p>"
+              },
+              {
+                "question": "I found iron deficiency. Do I need to find the source?",
+                "answer_html": "<p>In most cases yes \u2014 iron deficiency in an adult is blood loss until proven otherwise. In premenopausal women with heavy menstrual bleeding, the source is often clinically apparent and colonoscopy is not mandatory in the absence of GI symptoms or red flags.</p>\n<p><span class=\"pill warn\">In men and postmenopausal women</span>, iron deficiency requires GI evaluation \u2014 upper endoscopy and colonoscopy \u2014 to exclude occult GI blood loss including malignancy. Do not treat iron deficiency in a postmenopausal woman or any man without addressing the question of GI source.</p>"
+              },
+              {
+                "question": "Ferritin is 150 and transferrin saturation is 15%. Is this iron deficiency?",
+                "answer_html": "<p>Possibly \u2014 this pattern (normal or elevated ferritin, low transferrin saturation) in the context of chronic inflammation is called functional iron deficiency or iron-restricted erythropoiesis. The iron exists in stores but is not being released for use. This is distinct from absolute iron deficiency and is the hallmark of anemia of chronic disease with iron restriction.</p>\n<p>Treatment depends on the underlying condition \u2014 treating the inflammation is the primary intervention, supplemental iron has limited benefit in pure anemia of chronic disease, and IV iron may be considered in select cases (particularly CKD \u2014 see CKD module).</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-b12folate",
+            "topic": "B12 and Folate",
+            "title": "Macrocytic anemia \u2014 deficiencies and their distinctions",
+            "referenced_by": [
+              "anemia-b12folate"
+            ],
+            "items": [
+              {
+                "question": "When should I order B12 and folate?",
+                "answer_html": "<p>Always order both when MCV &gt; 100. Also consider ordering in: normocytic anemia with elevated RDW, hypersegmented neutrophils on differential, neurological symptoms (peripheral neuropathy, cognitive change, balance problems), history of gastric bypass or significant GI resection, strict vegan diet without supplementation, chronic PPI use (reduces B12 absorption over years), metformin use (reduces B12 absorption \u2014 check annually in long-term users), or active alcohol use disorder.</p>"
+              },
+              {
+                "question": "The B12 level is 250 pg/mL \u2014 normal range starts at 200. Is this enough to exclude deficiency?",
+                "answer_html": "<p>No \u2014 serum B12 is an unreliable marker at the low-normal range. Levels between 200\u2013400 pg/mL can be associated with functional deficiency, particularly in symptomatic patients.</p>\n<p>If clinical suspicion is present, order methylmalonic acid (MMA) and homocysteine \u2014 both are elevated in B12 deficiency and are more sensitive markers of functional deficiency than serum B12 alone. A normal MMA effectively excludes B12 deficiency regardless of the serum level.</p>"
+              },
+              {
+                "question": "I've confirmed B12 deficiency. Do I need to find the cause before treating?",
+                "answer_html": "<p>Treat first, investigate in parallel. B12 deficiency with neurological symptoms is a semi-urgent treatment situation \u2014 neurological damage from B12 deficiency can be permanent if prolonged. Initiate replacement immediately.</p>\n<p>The most common cause in older adults is pernicious anemia (autoimmune gastritis with intrinsic factor deficiency) \u2014 check anti-intrinsic factor antibody and anti-parietal cell antibody. If pernicious anemia is confirmed, parenteral B12 (IM cyanocobalamin) is traditionally used, though high-dose oral B12 (1000\u20132000 mcg daily) is absorbed adequately via passive diffusion even without intrinsic factor and is now considered equivalent by most guidelines.</p>"
+              },
+              {
+                "question": "Folate is low. Is the workup the same as B12?",
+                "answer_html": "<p>Folate deficiency is simpler in etiology \u2014 it is almost always dietary (poor intake, alcohol use disorder, malabsorption) or medication-related (methotrexate, trimethoprim, phenytoin). Unlike B12 deficiency, folate deficiency does not cause neurological symptoms \u2014 if a macrocytic anemia patient has neurological symptoms, look harder at B12 regardless of folate level.</p>\n<p>Treatment is oral folic acid 1 mg daily. Identify and address the underlying cause \u2014 folate deficiency in a patient not on a causative medication should prompt dietary and alcohol use assessment.</p>"
+              },
+              {
+                "question": "My patient is on methotrexate and has macrocytic anemia. Is this just expected?",
+                "answer_html": "<p>Methotrexate causes macrocytosis by folate antagonism \u2014 this is an expected pharmacological effect and does not necessarily indicate deficiency or require dose change. However, if the anemia is significant or the patient is symptomatic, check folate level and ensure they are on folic acid supplementation (standard with methotrexate therapy).</p>\n<p>Coordinate with the prescribing provider before making changes to the methotrexate regimen.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-severe",
+            "topic": "Severe or Symptomatic Anemia",
+            "title": "When anemia is urgent \u2014 thresholds and immediate management",
+            "referenced_by": [
+              "anemia-severe"
+            ],
+            "items": [
+              {
+                "question": "What are the symptoms that make any hemoglobin level urgent?",
+                "answer_html": "<p>Chest pain, dyspnea at rest, tachycardia, hypotension, syncope, or altered mental status in the context of anemia require same-day evaluation regardless of the absolute hemoglobin level.</p>\n<p>A patient with hemoglobin of 9 g/dL who is having chest pain and tachycardia is more urgent than a patient with hemoglobin of 6.5 g/dL who is ambulatory and asymptomatic. Symptoms drive urgency more than numbers.</p>"
+              },
+              {
+                "question": "At what hemoglobin level should I be considering transfusion?",
+                "answer_html": "<p><strong>Transfusion thresholds in stable outpatients:</strong></p>\n<p><span class=\"pill warn\">Hemoglobin &lt; 7 g/dL</span> \u2014 transfusion is generally indicated in symptomatic patients. In asymptomatic, young, otherwise healthy patients with a clearly reversible cause (iron deficiency being actively treated), watchful waiting with close monitoring is sometimes appropriate \u2014 discuss with hematology.</p>\n<p><span class=\"pill neutral\">Hemoglobin 7\u20138 g/dL</span> \u2014 transfusion guided by symptoms and underlying condition. Patients with cardiac disease or limited cardiopulmonary reserve may need transfusion at higher thresholds.</p>\n<p><span class=\"pill green\">Hemoglobin &gt; 8 g/dL</span> \u2014 transfusion rarely indicated in stable outpatients without active bleeding or severe symptoms.</p>\n<p>Outpatient transfusion can be arranged through infusion centers \u2014 this does not require ER admission for a stable but significantly anemic patient.</p>"
+              },
+              {
+                "question": "The patient has hemoglobin of 6.8 and is mildly symptomatic on exertion. Do I send them to the ER?",
+                "answer_html": "<p>Not necessarily \u2014 if the patient is stable, ambulatory, not having chest pain or tachycardia, and you can arrange outpatient transfusion within 24\u201348 hours, this is manageable without an ER visit. Call the infusion center, arrange the transfusion, and ensure the patient has clear return precautions.</p>\n<p>If outpatient transfusion cannot be arranged promptly or the patient's condition is at all unstable, send to the ER with a direct communication to the receiving team.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-unexplained",
+            "topic": "Unexplained Anemia",
+            "title": "Workup complete \u2014 still no answer",
+            "referenced_by": [
+              "anemia-unexplained"
+            ],
+            "items": [
+              {
+                "question": "I've done the full initial workup and I can't explain the anemia. What have I potentially missed?",
+                "answer_html": "<p><strong>Review this list before the e-consult:</strong></p>\n<p><span class=\"pill neutral\">Hypothyroidism</span> \u2014 TSH should be part of any unexplained normocytic or macrocytic anemia workup.</p>\n<p><span class=\"pill neutral\">Renal insufficiency</span> \u2014 check creatinine and eGFR; anemia of CKD is common and underrecognized.</p>\n<p><span class=\"pill neutral\">Chronic liver disease</span> \u2014 LFTs, consider hepatitis screening.</p>\n<p><span class=\"pill neutral\">Lead toxicity</span> \u2014 in patients with occupational exposure, recent immigration from high-exposure regions, or pica; order blood lead level.</p>\n<p><span class=\"pill neutral\">Medication review</span> \u2014 many drugs cause anemia through various mechanisms; review the full medication list.</p>\n<p><span class=\"pill neutral\">Alcohol use</span> \u2014 often underreported; ask directly.</p>\n<p><span class=\"pill neutral\">Inflammatory markers</span> \u2014 ESR, CRP, ferritin as acute phase reactant; anemia of chronic inflammation may not have an obvious clinical source.</p>"
+              },
+              {
+                "question": "What does the hematology e-consult ask look like for unexplained anemia?",
+                "answer_html": "<p>Be specific and include your workup: <em>\"Patient with [degree] [MCV category] anemia, hemoglobin [X]. Workup completed: iron studies [results], B12 [result], folate [result], reticulocyte count/RPI [result], TSH [result], CMP [result]. No clear etiology identified. No evidence of hemolysis. CBC differential without abnormal forms. Requesting evaluation for underlying cause and management recommendation.\"</em></p>\n<p>A hematologist receiving this consult can move directly to the next tier of evaluation rather than repeating your workup.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-hemolysis",
+            "topic": "Hemolytic Anemia",
+            "title": "When the marrow is working but the cells are being destroyed",
+            "referenced_by": [
+              "anemia-hemolysis"
+            ],
+            "items": [
+              {
+                "question": "What lab pattern confirms hemolysis?",
+                "answer_html": "<p><strong>The hemolysis panel:</strong> elevated LDH (released from lysed RBCs), elevated indirect bilirubin (from heme catabolism), low or undetectable haptoglobin (binds free hemoglobin and is consumed), and elevated reticulocyte count/RPI (marrow responding to peripheral destruction).</p>\n<p>Not all markers need to be abnormal simultaneously \u2014 low haptoglobin alone has high specificity for hemolysis. Order the full panel and document which markers are positive.</p>"
+              },
+              {
+                "question": "I have confirmed hemolysis. What are the common causes I should consider before hematology?",
+                "answer_html": "<p><strong>Categorize by mechanism:</strong></p>\n<p><span class=\"pill neutral\">Immune-mediated</span> \u2014 warm autoimmune hemolytic anemia (AIHA). Order direct antiglobulin test (DAT/Coombs). A positive DAT confirms immune-mediated destruction and is the most common cause of hemolysis in primary care patients. Associated with autoimmune conditions, CLL, and certain medications (methyldopa, penicillin, cephalosporins).</p>\n<p><span class=\"pill warn\">Microangiopathic</span> \u2014 schistocytes on smear: TTP, HUS, DIC, malignant hypertension. This is an emergency \u2014 do not manage outpatient.</p>\n<p><span class=\"pill neutral\">Hereditary</span> \u2014 G6PD deficiency (often triggered by infection, oxidative drugs, fava beans \u2014 order G6PD level), hereditary spherocytosis (spherocytes on smear, family history), sickle cell disease (usually known).</p>"
+              },
+              {
+                "question": "I see schistocytes on the peripheral smear. What do I do?",
+                "answer_html": "<p>Treat as urgent. Schistocytes indicate microangiopathic hemolytic anemia \u2014 RBCs being sheared by damaged small vessels. TTP (thrombotic thrombocytopenic purpura) is life-threatening and time-sensitive \u2014 check platelet count immediately.</p>\n<p><span class=\"pill warn\">Thrombocytopenia plus microangiopathic hemolytic anemia is TTP until proven otherwise</span> and requires same-day hematology contact, not an e-consult. Send the patient to the ER with a direct communication.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-blasts",
+            "topic": "Abnormal CBC Accompanying Anemia",
+            "title": "When anemia is part of a bigger picture",
+            "referenced_by": [
+              "anemia-blasts"
+            ],
+            "items": [
+              {
+                "question": "The CBC shows anemia plus thrombocytopenia. What does that mean?",
+                "answer_html": "<p>Bicytopenia (two cell lines low) is a more concerning finding than isolated anemia. The differential includes: bone marrow failure (aplastic anemia), infiltrative bone marrow process (hematologic malignancy, metastatic solid tumor), hypersplenism, autoimmune destruction of multiple cell lines, B12/folate deficiency (can cause pancytopenia), or medications (chemotherapy, immunosuppressants, some antibiotics).</p>\n<p>This requires hematology e-consult \u2014 not after a prolonged workup, but promptly.</p>"
+              },
+              {
+                "question": "The differential mentions \"atypical lymphocytes.\" How concerned should I be?",
+                "answer_html": "<p>Context matters. Atypical lymphocytes are common in viral infections \u2014 EBV (infectious mononucleosis), CMV, and other viral syndromes produce reactive atypical lymphocytes that are benign and self-limited. In a young patient with fever, pharyngitis, and lymphadenopathy, check monospot and EBV titers.</p>\n<p>In an older patient without a viral prodrome, persistent atypical lymphocytes or a lymphocytosis that doesn't resolve warrants hematology e-consult to evaluate for lymphoproliferative disease.</p>"
+              },
+              {
+                "question": "The report says \"blasts seen.\" What do I do?",
+                "answer_html": "<p><span class=\"pill warn\">Contact hematology today</span> \u2014 do not wait for an e-consult response. Blasts on a peripheral smear suggest acute leukemia until proven otherwise. This is a same-day phone call to hematology, not a portal message.</p>\n<p>While arranging urgent evaluation, do not start any new medications that could affect the marrow picture. Be direct with the patient that you have found something that requires urgent specialist evaluation.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-refractory",
+            "topic": "Refractory Iron Deficiency",
+            "title": "Not responding to oral iron \u2014 what to do next",
+            "referenced_by": [
+              "anemia-refractory"
+            ],
+            "items": [
+              {
+                "question": "How do I know if the oral iron trial has been adequate?",
+                "answer_html": "<p>An adequate trial requires: correct diagnosis (confirmed iron deficiency, not anemia of chronic disease), correct dose (ferrous sulfate 325 mg on alternate days or equivalent), correct administration (empty stomach, with vitamin C, away from PPIs and calcium), and sufficient duration (minimum 4 weeks for reticulocyte response, 8\u201312 weeks for meaningful hemoglobin rise).</p>\n<p>Before calling a trial a failure, verify all four. The most common reason for apparent treatment failure is PPI use that was not addressed.</p>"
+              },
+              {
+                "question": "I've confirmed adequate trial and there's been no response. What are the possibilities?",
+                "answer_html": "<p>Ongoing blood loss exceeding replacement \u2014 the source has not been identified or is continuing. Malabsorption \u2014 celiac disease, gastric bypass, inflammatory bowel disease, H. pylori gastritis. Incorrect diagnosis \u2014 reconsider whether this is truly iron deficiency or functional iron deficiency in the context of inflammation.</p>\n<p>H. pylori infection specifically is associated with refractory iron deficiency anemia and should be tested if not already done (urea breath test or stool antigen).</p>"
+              },
+              {
+                "question": "When is IV iron the right answer for refractory cases?",
+                "answer_html": "<p>IV iron is appropriate when oral iron has genuinely failed after an adequate trial, when malabsorption is confirmed or strongly suspected, when the patient cannot tolerate oral iron, or when rapid repletion is needed (preoperative optimization, severe symptomatic anemia).</p>\n<p>IV iron does not require hematology referral \u2014 it can be ordered by primary care and administered in an infusion center. Refractory iron deficiency that fails IV iron, or iron deficiency without an identified source in a patient who has had appropriate GI evaluation, is the threshold for hematology e-consult.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "anemia-ckd",
+            "topic": "Anemia in CKD",
+            "title": "Renal anemia \u2014 coordination with the CKD module",
+            "referenced_by": [
+              "anemia-ckd"
+            ],
+            "items": [
+              {
+                "question": "How is anemia of CKD different from other anemias?",
+                "answer_html": "<p>Anemia of CKD is normocytic and normochromic, caused primarily by reduced erythropoietin production by the damaged kidneys. It typically becomes clinically apparent at eGFR &lt; 45 (G3b) and is nearly universal at G4\u2013G5.</p>\n<p>It is a diagnosis of exclusion in the context of CKD \u2014 meaning iron deficiency, B12 deficiency, and other causes should be ruled out before attributing anemia solely to CKD. Many CKD patients have coexisting iron deficiency that is treatable and should be corrected before considering erythropoiesis-stimulating agents.</p>"
+              },
+              {
+                "question": "My CKD patient has anemia. What workup do I do?",
+                "answer_html": "<p>Complete the standard Meridian anemia workup first \u2014 CBC with differential, reticulocyte count, iron studies, B12, folate. Additionally order PTH, phosphorus, and 25-OH vitamin D if not recently done as part of CKD mineral metabolism assessment.</p>\n<p>Then cross-reference with the Meridian CKD module for integrated management. The CKD e-consult to nephrology should include the anemia workup so the nephrologist can advise on ESA candidacy with complete information.</p>"
+              },
+              {
+                "question": "Should I start an ESA (erythropoiesis-stimulating agent)?",
+                "answer_html": "<p>ESA initiation is a nephrology decision in the primary care context. Your role is to identify the anemia, complete the workup, correct any iron deficiency (IV iron preferred in CKD \u2014 oral iron is poorly absorbed in CKD patients and worsens constipation), and document.</p>\n<p>Do not initiate ESA therapy without nephrology input \u2014 ESAs carry risks including accelerated cardiovascular events and increased tumor progression risk in malignancy, and dosing requires monitoring that is typically managed by nephrology.</p>"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "schema_version": "1.0.0",
+        "module_id": "abd-pain",
+        "default_title": "Abdominal Pain \u2014 Can I discharge this patient?",
+        "landing_intro": "A patient presents to urgent care with abdominal pain. Our job \u2014 in 15\u201320 minutes \u2014 is to decide between safe discharge, close-interval re-evaluation, or ER transfer. This checklist supports that decision after a focused H&P and any reasonable rapid testing. ER referral with a reasonable workup is always appropriate and is never penalized. The only penalty is no workup at all.",
+        "checklist_section_label": "Before you discharge \u2014 verify all four",
+        "checklist": [
+          {
+            "item_id": "abd-vitals",
+            "position": 1,
+            "statement": "Vitals and clinical appearance are reassuring \u2014 no fever > 101.3\u00b0F, not persistently tachycardic, tolerates oral intake, ambulates, and pain is controlled on oral analgesia",
+            "faq_ref": "abd-vitals"
+          },
+          {
+            "item_id": "abd-peritoneal",
+            "position": 2,
+            "statement": "No peritoneal signs on exam \u2014 no rebound, involuntary guarding, rigidity, marked distention, or pulsatile mass",
+            "faq_ref": "abd-peritoneal"
+          },
+          {
+            "item_id": "abd-labs",
+            "position": 3,
+            "statement": "Labs, if drawn, are reassuring \u2014 no severe leukocytosis or left shift, CRP < 50 mg/L, lipase < 3\u00d7 upper limit of normal \u2014 or labs were not clinically indicated",
+            "faq_ref": "abd-labs"
+          },
+          {
+            "item_id": "abd-imaging",
+            "position": 4,
+            "statement": "Imaging, if performed, shows no findings requiring urgent intervention \u2014 or imaging was not clinically indicated for this presentation",
+            "faq_ref": "abd-imaging"
+          }
+        ],
+        "green_zone": {
+          "zone_label": "All four boxes checked \u2014 Discharge with ER precautions and 24-hour re-evaluation",
+          "narrative_html": "<p>Disposition supported: <strong>discharge home with ER-precautions return instructions</strong> and a scheduled re-evaluation within 24\u201330 hours (in-house PCP visit, structured telephone callback, or a planned UC return). The follow-up is not optional \u2014 it's the safety net that makes same-visit discharge defensible. Roughly <strong>20\u201325% of non-specific abdominal pain patients have a diagnostic change at re-evaluation</strong> (Boendermaker 2018), and that structured return is what catches the ones the first visit missed.</p><p><strong>Explicit return precautions</strong> \u2014 written and read back: worsening or migrating pain, vomiting blood, bloody or black stools, new fever, inability to tolerate fluids, fainting, or any change in mental status. Any of these \u2192 ER, not back to UC.</p><p><strong>Documentation</strong>: use the SmartPhrase below \u2014 it captures the four-point rubric, the negatives, the return precautions, and the follow-up arrangement. <em>ER referral with a reasonable workup is always appropriate. The only penalty is no workup.</em></p>",
+          "smartphrase": ".UCABDPAINDC"
+        },
+        "escalation_section_label": "Transfer to ER or call surgeon immediately if any apply",
+        "escalation": [
+          {
+            "item_id": "abd-hemodynamic",
+            "position": 1,
+            "statement": "Hemodynamic instability \u2014 hypotension, persistent tachycardia despite fluids, altered mental status, or signs of sepsis",
+            "faq_ref": "abd-hemodynamic"
+          },
+          {
+            "item_id": "abd-peritonitis",
+            "position": 2,
+            "statement": "Peritoneal signs or rigid abdomen \u2014 suspected perforation, peritonitis, or ischemic bowel",
+            "faq_ref": "abd-peritonitis"
+          },
+          {
+            "item_id": "abd-mesenteric",
+            "position": 3,
+            "statement": "Pain out of proportion to exam \u2014 especially in elderly, atrial fibrillation, or post-prandial patterns (mesenteric ischemia)",
+            "faq_ref": "abd-mesenteric"
+          },
+          {
+            "item_id": "abd-sudden",
+            "position": 4,
+            "statement": "Sudden-onset excruciating pain \u2014 perforation, AAA rupture, aortic dissection, ovarian or testicular torsion",
+            "faq_ref": "abd-sudden"
+          }
+        ],
+        "context_strip": {
+          "label": "Urgent care throughput",
+          "text": "Target visit 15\u201320 minutes. Current average ~30. ER referral with a reasonable workup is never penalized \u2014 over-workup is the hidden cost."
+        },
+        "footer_note": "First-draft v1 \u2014 dedicated sub-modules for pregnancy / women of childbearing age, pediatric, and geriatric abdominal pain are planned. Iteration welcomed.",
+        "faqs": [
+          {
+            "faq_id": "abd-vitals",
+            "topic": "Vitals & appearance",
+            "title": "What 'reassuring' actually means \u2014 and why pediatrics is different",
+            "referenced_by": [
+              "abd-vitals"
+            ],
+            "items": [
+              {
+                "question": "What counts as reassuring vitals and appearance?",
+                "answer_html": "<p><strong>Temperature</strong>: no fever > 101.3\u00b0F (38.5\u00b0C). A low-grade temp in a well-appearing adult is not a discharge-blocker on its own, but document and factor it in.</p><p><strong>Heart rate</strong>: not persistently tachycardic after analgesia and fluids. Pain and anxiety drive HR; a tachycardia that does not respond to a reasonable intervention is a yellow flag.</p><p><strong>Blood pressure</strong>: at baseline. Normotension with the patient's known baseline counts.</p><p><strong>Appearance</strong>: tolerating oral intake, ambulating, pain controlled on oral analgesia. The patient who can't sit up for a pretzel and a sip of water is not going home on oral ibuprofen.</p><p>The underlying principle is <em>trajectory</em>: the patient you're about to discharge should look better than they did walking in, not the same.</p>"
+              },
+              {
+                "question": "A single borderline vital \u2014 does it flip the decision?",
+                "answer_html": "<p>Not on its own. One isolated vital needs a reason and a recheck:</p><p><span class=\"pill neutral\">HR 105 on arrival</span> \u2014 recheck after analgesia + 500 mL NS. If it normalizes, that's a pain/volume signal, not a disease signal.</p><p><span class=\"pill warn\">Temp 100.9\u00b0F</span> \u2014 combine with the rest of the picture. Febrile + RLQ pain + elevated WBC is a different patient than febrile + URI + diffuse abdominal discomfort.</p><p><span class=\"pill warn\">Persistent tachycardia despite intervention</span> \u2014 move toward the red zone. This is the signal that shouldn't be ignored.</p><p>Document the recheck. A single captured vital without a second look is a malpractice exposure, not a clinical decision.</p>"
+              },
+              {
+                "question": "What about children? (stub \u2014 dedicated pediatric module planned)",
+                "answer_html": "<p><strong>The adult rubric does not apply directly to children.</strong> A pediatric abdominal pain module is on the roadmap. Key differences to keep in mind in the meantime:</p><p>\u2022 <strong>Pediatric vitals are age-dependent</strong> \u2014 a HR of 140 is different at 2 years old than at 20. Use age-normed tables, not adult ranges.</p><p>\u2022 <strong>Classic pediatric red flags</strong>: bilious emesis (any age \u2192 surgical until proven otherwise), the intussusception triad (intermittent colicky pain, vomiting, currant-jelly stools \u2014 though most cases don't show the full triad), testicular exam in any boy with abdominal pain (torsion presents as abdominal pain), Henoch-Sch\u00f6nlein purpura with palpable purpura + abdominal pain.</p><p>\u2022 <strong>Dehydration assessment</strong> weighs heavier than in adults \u2014 capillary refill, mucous membranes, urine output, activity level.</p><p>\u2022 <strong>Lower threshold for PCP/ED handoff</strong>. If the in-house pediatrician is available, that's your partner; if not, a warm handoff to ED is the safer path in v1.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "abd-peritoneal",
+            "topic": "Exam",
+            "title": "Reading the abdomen \u2014 guarding, rigidity, and what the cough test tells you",
+            "referenced_by": [
+              "abd-peritoneal"
+            ],
+            "items": [
+              {
+                "question": "How do I differentiate voluntary from involuntary guarding?",
+                "answer_html": "<p><strong>Voluntary guarding</strong> softens with distraction. Talk to the patient, ask about their kids, bend their knees, re-approach the exam. If the abdominal wall relaxes when they're not thinking about it, it's voluntary \u2014 that's pain avoidance, not peritonitis.</p><p><strong>Involuntary guarding</strong> does not relax. The abdominal wall stays tight regardless of distraction or positioning. That's a reflex arc from an irritated peritoneum \u2014 it's a sign, not a behavior.</p><p><strong>Rigidity</strong> is the extreme end: a board-like abdomen that doesn't move with respiration. That patient is not going home \u2014 they're going to the ER or to your in-house surgeon.</p>"
+              },
+              {
+                "question": "What's the cough test, and why does it matter for urgent care?",
+                "answer_html": "<p>Ask the patient to cough, or to jump/hop if they can tolerate it. Reproduction of focal abdominal pain with cough or jar is a reliable indicator of peritoneal irritation \u2014 it's the cheapest, fastest peritoneal-signs screen available and does not require you to touch the abdomen.</p><p>In a time-pressured UC environment, it's an efficient triage tool. A patient who jumps off the exam table cleanly is not peritonitic. A patient who winces and grabs their side with cough deserves a closer look.</p>"
+              },
+              {
+                "question": "Elderly and immunocompromised patients don't always mount a classic exam \u2014 what then?",
+                "answer_html": "<p><strong>Lower your threshold.</strong> Elderly, diabetic, and immunocompromised patients can have surgical abdomens without fever, without marked tenderness, and without classic guarding. The literature is consistent: atypical presentations are the norm, not the exception.</p><p>If the patient is age &gt; 65, immunocompromised, on chronic steroids, or significantly obese, a normal-looking exam is <em>less</em> reassuring than it would be in a 30-year-old. Weight imaging more heavily, lower the bar for ER transfer, and do not let an unimpressive exam override the rest of the clinical picture.</p><p>See the elderly/immunocompromised stub under 'Pain out of proportion to exam' for more detail.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "abd-labs",
+            "topic": "Labs",
+            "title": "What to order, what the thresholds mean, and the pregnancy question",
+            "referenced_by": [
+              "abd-labs"
+            ],
+            "items": [
+              {
+                "question": "When are labs actually required vs. optional?",
+                "answer_html": "<p>Labs are a tool, not a ritual. A well-appearing patient with a benign exam and a clear benign etiology (gastroenteritis that's improving, musculoskeletal wall tenderness, constipation with relief after bowel movement) does not automatically need a CBC + BMP + lipase + CRP. Order labs when they will change disposition, not to paper-chart a workup.</p><p><strong>Order labs when:</strong></p><p>\u2022 The diagnosis is uncertain and you're entertaining a surgical or infectious cause.</p><p>\u2022 The patient is in a higher-risk group (elderly, immunocompromised, diabetic) where the exam may underestimate severity.</p><p>\u2022 You need a negative result to support a discharge decision that would otherwise feel borderline.</p><p><strong>Consider skipping labs when:</strong></p><p>\u2022 The history and exam point convincingly to a benign etiology.</p><p>\u2022 The patient is well-appearing and the clinical trajectory is improving during observation.</p><p>A documented reasonable workup does not require every box checked \u2014 it requires the right boxes for this patient.</p>"
+              },
+              {
+                "question": "Where do the CRP < 50 and lipase < 3\u00d7 ULN thresholds come from?",
+                "answer_html": "<p><strong>CRP &lt; 50 mg/L</strong>: derived from emergency-medicine literature on non-specific abdominal pain discharge safety \u2014 values above 50 correlate with surgical pathology at meaningfully higher rates. This is an <em>institution-calibrated</em> number and should be treated as a decision aid, not a rule. A CRP of 55 in a well-appearing patient with an otherwise benign workup is different from a CRP of 55 with peritoneal signs.</p><p><strong>Lipase &lt; 3\u00d7 ULN</strong>: the standard cutoff for excluding acute pancreatitis. Elevations in the 1\u20133\u00d7 range can reflect non-specific inflammation, renal dysfunction, or other causes; &gt; 3\u00d7 is the action threshold. Pair with clinical picture \u2014 a painful patient with lipase 2.5\u00d7 ULN still deserves a conversation with imaging or surgery.</p><p>Caveat: these thresholds are derived from adult, non-pregnant, general UC/ED populations. Special populations need different calibration.</p>"
+              },
+              {
+                "question": "Pregnancy / women of childbearing age \u2014 urine \u03b2-hCG vs. serum (stub \u2014 dedicated module planned)",
+                "answer_html": "<p><strong>Urine \u03b2-hCG is the workhorse in UC.</strong> Results in minutes, adequate sensitivity for the discharge-decision timeframe. A <em>negative</em> urine \u03b2-hCG in a woman of childbearing age with lower abdominal pain is generally sufficient to proceed down the general-adult discharge rubric, provided the rest of the picture is reassuring.</p><p><strong>Serum quantitative \u03b2-hCG is orderable in-house, but turnaround is measured in hours.</strong> If ordered later in the day it may not result until the next day \u2014 it is <em>not</em> a real-time UC decision aid. Use serum when:</p><p>\u2022 Urine is positive and you need viability / ectopic workup (pair with pelvic US).</p><p>\u2022 Urine is negative but clinical suspicion for very early pregnancy is high enough that the sensitivity gap matters (i.e., you need a number, not a yes/no).</p><p><strong>Document</strong>: what you ordered, the result, and whether the turnaround was compatible with a same-visit disposition. If you ordered serum late in the day knowing it wouldn't return, that needs a management plan (recheck tomorrow, ED referral, or scheduled return).</p><p><strong>Ectopic must be actively considered</strong> in any positive-pregnancy woman with lower abdominal pain \u2014 in-house OB/GYN consult or ER transfer before discharge. A pregnant patient with abdominal pain is not a general-adult discharge case.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "abd-imaging",
+            "topic": "Imaging",
+            "title": "When to image, when not to, and how to document the choice",
+            "referenced_by": [
+              "abd-imaging"
+            ],
+            "items": [
+              {
+                "question": "When is imaging actually indicated?",
+                "answer_html": "<p>Imaging is indicated when the result will change disposition. Common UC scenarios where it will:</p><p>\u2022 <strong>RLQ pain with any concern for appendicitis</strong> \u2014 US first in children and thin adults; CT if US non-diagnostic or patient is obese.</p><p>\u2022 <strong>Flank pain with hematuria</strong> \u2014 non-contrast CT for stone evaluation.</p><p>\u2022 <strong>RUQ pain with Murphy's sign</strong> \u2014 US for cholecystitis.</p><p>\u2022 <strong>Suspected AAA</strong> \u2014 bedside US if available, CT with contrast otherwise.</p><p>\u2022 <strong>Post-operative or known-anatomy patients</strong> (hernias, prior bowel surgery) with pain \u2014 imaging nearly always indicated.</p><p>\u2022 <strong>Any patient where your gestalt is unsure and the patient is in a higher-risk group</strong> \u2014 elderly, immunocompromised, diabetic.</p>"
+              },
+              {
+                "question": "How do I document the rationale for NOT imaging?",
+                "answer_html": "<p>The documentation for not imaging is as important as the documentation for imaging. Record:</p><p>\u2022 The differential you considered.</p><p>\u2022 The exam and lab findings that made a surgical or life-threatening cause unlikely.</p><p>\u2022 The specific return precautions given.</p><p>\u2022 The follow-up arrangement (who, when, how).</p><p>Example phrasing: <em>\"Considered appendicitis, cholecystitis, and diverticulitis; given benign exam without peritoneal signs, reassuring labs, and improvement with observation, imaging deferred. Patient instructed to return immediately for worsening pain, fever, vomiting, or inability to tolerate fluids; scheduled 24-hour phone re-evaluation.\"</em></p><p>A documented thought process is a defense. A sparse note is not.</p>"
+              },
+              {
+                "question": "What about the throughput cost of CT?",
+                "answer_html": "<p>A same-visit CT with contrast in UC typically adds 45\u201390 minutes to the visit (IV placement, labs for creatinine if not already drawn, the scan itself, the read, and the clinician review). That's the difference between a 20-minute visit and a 90-minute visit.</p><p>CT is the right call when it will change disposition. It is the wrong call when it's being ordered to generate a negative result that wasn't going to change your plan anyway. 'Defensive imaging' is expensive \u2014 in time, in radiation, in patient throughput \u2014 and the cumulative cost at the clinic level is real.</p><p>If the question is 'do I need imaging to safely discharge,' the right answer is often a thoughtful re-exam and a scheduled re-evaluation rather than a scan.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "abd-hemodynamic",
+            "topic": "ER escalation",
+            "title": "Hemodynamic instability \u2014 logistics and stabilization",
+            "referenced_by": [
+              "abd-hemodynamic"
+            ],
+            "items": [
+              {
+                "question": "What are the logistics of ER transfer from UC?",
+                "answer_html": "<p><strong>Call EMS early.</strong> Don't wait for the patient to decompensate further. Once you've identified instability, the clock starts and the next task is transfer, not workup.</p><p>While EMS is en route: maintain IV access (two large-bore if possible), start fluid resuscitation, place on monitors (pulse ox, BP cycling, rhythm if available), obtain a focused last-round of vitals and a point-of-care glucose, and start the transfer documentation.</p><p><strong>Call the receiving ER</strong> with a concise handoff: demographics, presentation, vitals trend, what you've done, what they're walking into. A 90-second phone call saves 30 minutes on the other end.</p>"
+              },
+              {
+                "question": "What can I actually do in UC before EMS arrives?",
+                "answer_html": "<p>Available in most UCs: IV fluids (NS or LR boluses), supplemental O\u2082, broad-spectrum antibiotics if sepsis is the concern (don't wait for the ED to draw cultures \u2014 one dose started now is better than three hours later), analgesia appropriate to the picture, anti-emetics.</p><p>Not available: blood products, vasopressors, ICU-level monitoring, operative intervention, prolonged observation. If the patient needs any of those, the transfer is already the correct call.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "abd-peritonitis",
+            "topic": "Surgical escalation",
+            "title": "Peritoneal signs \u2014 ER vs. in-house surgical path",
+            "referenced_by": [
+              "abd-peritonitis"
+            ],
+            "items": [
+              {
+                "question": "Do I call our in-house general surgeon or send straight to the ER?",
+                "answer_html": "<p><strong>If the patient is unstable</strong>: ER. The in-house surgeon does not have ICU, anesthesia, or OR resources in our UC footprint.</p><p><strong>If the patient is stable with clear surgical pathology</strong> (e.g., appendicitis on imaging, well-appearing, tolerating oral intake): a direct-to-surgeon conversation is reasonable and often faster. The surgeon can decide between same-day outpatient OR, ER admission via their service, or scheduled next-day surgery.</p><p>Err toward the ER when the picture is unclear or the patient's trajectory is uncertain. A surgical consult pathway is not a substitute for ED-level resources.</p>"
+              },
+              {
+                "question": "What can our in-house surgical capability actually do?",
+                "answer_html": "<p><strong>Available in-house</strong>: outpatient endoscopy, outpatient OR for elective or same-day straightforward cases, specialty consults (GI, urology, gynecology, general surgery) for same-day phone or in-person evaluation.</p><p><strong>Not available in-house</strong>: cath lab, IR, ICU, regular hospital beds for observation or routine medical admission, blood banking, anesthesia support for emergent cases.</p><p>Translation: anything that needs admission, blood products, interventional radiology, or ICU-level monitoring goes to the ER regardless of how tightly coupled the surgical consult is.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "abd-mesenteric",
+            "topic": "Mesenteric ischemia",
+            "title": "Pain out of proportion \u2014 the one we miss",
+            "referenced_by": [
+              "abd-mesenteric"
+            ],
+            "items": [
+              {
+                "question": "Why is mesenteric ischemia the classic 'miss' in abdominal pain?",
+                "answer_html": "<p>Because the exam doesn't match the pain. Patients report severe, often excruciating pain \u2014 but the abdomen on exam is soft, minimally tender, no peritoneal signs. The reflex is to reassure: 'the exam is benign.' The reflex is wrong.</p><p><strong>The classic triad</strong> \u2014 pain out of proportion to exam + a risk factor (AFib, recent MI, heart failure, hypercoagulable state, vasculopathy, age &gt; 65) + metabolic acidosis on labs (if drawn) \u2014 is a transfer. Lactate, if available, is helpful but absence of elevation does not rule it out.</p><p><strong>Post-prandial pattern</strong> \u2014 worse after eating, often with weight loss from food avoidance \u2014 suggests chronic mesenteric ischemia. Still a transfer for workup, just a different urgency profile.</p><p>If your gestalt is that the patient is more uncomfortable than the exam suggests, and they have a vascular risk profile: transfer. Don't let a soft belly reassure you.</p>"
+              },
+              {
+                "question": "Elderly, immunocompromised, obese \u2014 lower threshold across the board (stub \u2014 dedicated geriatric module planned)",
+                "answer_html": "<p><strong>These three groups all fail the classic rubric</strong>: atypical presentations, muted exams, normal-range vitals masking real pathology.</p><p>\u2022 <strong>Age &gt; 65</strong>: vascular causes (mesenteric ischemia, AAA), perforated viscus without classic peritoneal signs, diverticulitis with atypical location. Mortality for a missed surgical abdomen in elderly patients is substantially higher than in younger patients \u2014 the discharge threshold should reflect that.</p><p>\u2022 <strong>Immunocompromised</strong> (chronic steroids, active chemo, transplant, advanced HIV, uncontrolled diabetes): can have surgical abdomens without fever, without leukocytosis, without marked tenderness. Treat exam and labs as less sensitive than in the general adult population.</p><p>\u2022 <strong>Obese patients</strong>: exam is genuinely harder, imaging is more often necessary, and BMI &gt; 35 is independently associated with delayed diagnosis in abdominal pain literature.</p><p>Practical rule in v1: in any of these groups, imaging has a lower threshold, a negative workup is less reassuring, and 'discharge with 24-hour follow-up' needs a tighter follow-up loop (phone call, not hope). A dedicated geriatric/immunocompromised module is on the roadmap.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "abd-sudden",
+            "topic": "Sudden-onset pain",
+            "title": "Thunderclap abdominal pain \u2014 the differential",
+            "referenced_by": [
+              "abd-sudden"
+            ],
+            "items": [
+              {
+                "question": "What's the differential for sudden-onset, excruciating abdominal pain?",
+                "answer_html": "<p>Pain that starts at maximum intensity \u2014 the patient can name the minute it began \u2014 is a different animal from pain that built up over hours.</p><p><strong>Vascular catastrophes</strong>: AAA rupture (older patient, male, hypotension, pulsatile mass or back pain), aortic dissection (tearing pain, often radiating to the back, pulse differential between arms).</p><p><strong>Perforated viscus</strong>: perforated ulcer, perforated diverticulum, perforated appendicitis. Pain often generalizes rapidly from a focal onset; free air on imaging.</p><p><strong>Torsion</strong>: ovarian torsion (reproductive-age female, sudden pelvic pain \u00b1 nausea/vomiting), testicular torsion (any male with abdominal pain \u2014 check the testicles), volvulus in elderly patients.</p><p><strong>Acute mesenteric ischemia</strong>: can present as sudden onset in embolic disease (AFib patient with sudden severe pain).</p><p><strong>Ruptured ectopic</strong>: reproductive-age female with positive \u03b2-hCG, sudden pain, hemodynamic changes. See the pregnancy stub under Labs.</p><p>All of these are ER transfers \u2014 not UC workups.</p>"
+              },
+              {
+                "question": "How is this different from gradual-onset severe pain?",
+                "answer_html": "<p>Gradual-onset severe pain still has a differential that includes surgical emergencies (appendicitis, cholecystitis, bowel obstruction), but the tempo allows more of a UC workup \u2014 imaging, labs, observation \u2014 before committing to disposition.</p><p><strong>Sudden-onset does not.</strong> The tempo itself is diagnostic, and the workup needs to happen in an environment with full resources. Transfer, then workup.</p><p>Document the timeline carefully: time of onset, what the patient was doing, whether pain was at maximum intensity immediately. That single data point \u2014 'pain started suddenly at maximum intensity at 2:15 PM' \u2014 is often what drives the escalation decision.</p>"
+              }
+            ]
+          }
+        ],
+        "references": [
+          "Yew KS, George MK, Allred HB. Acute Abdominal Pain in Adults: Evaluation and Diagnosis. American Family Physician. May 31, 2023.",
+          "Br\u00e9chet H, Vanquaethem H, Mestiri R, et al. Factors Associated With Hospitalization or Surgery for Abdominal Pain: A Retrospective Study. Internal and Emergency Medicine. 2026.",
+          "Rogers SO, Kirton OC. Acute Abdomen in the Modern Era. The New England Journal of Medicine. 2024.",
+          "Boendermaker AE, Coolsma CW, Emous M, Ter Avest E. Efficacy of Scheduled Return Visits for Emergency Department Patients With Non-Specific Abdominal Pain. Emergency Medicine Journal: EMJ. 2018.",
+          "Panwar Y, Shan S, Owels L, Kang C, Hodgson R. Inefficient Admissions for Abdominal Pain Under an Acute General Surgical Unit. World Journal of Surgery. 2023.",
+          "Broder JS, Oliveira J E Silva L, Bellolio F, et al. Guidelines for Reasonable and Appropriate Care in the Emergency Department 2 (GRACE-2): Low-Risk, Recurrent Abdominal Pain in the Emergency Department. Academic Emergency Medicine. 2022."
+        ]
+      },
+      {
+        "schema_version": "1.0.0",
+        "module_id": "opiates",
+        "default_title": "Chronic Opiates \u2014 Inherited Patient",
+        "landing_intro": "A patient is transferring to your panel on a chronic opiate regimen. This is one of the highest-anxiety handoffs in primary care \u2014 and one of the most common. Your job at the first visit is not to solve the problem. It is to establish the relationship, complete a structured assessment, and determine whether you can continue, need to modify, or need to escalate. Do not discontinue at the first visit without a safety plan in place.",
+        "checklist_section_label": "Before you decide \u2014 verify all four",
+        "checklist": [
+          {
+            "item_id": "opiates-pdmp",
+            "position": 1,
+            "statement": "PDMP reviewed \u2014 single prescriber, single pharmacy, consistent quantities, no concurrent controlled substances of concern",
+            "faq_ref": "opiates-pdmp"
+          },
+          {
+            "item_id": "opiates-agreement",
+            "position": 2,
+            "statement": "Controlled substance agreement on file or completed at this visit \u2014 patient understands monitoring expectations",
+            "faq_ref": "opiates-agreement"
+          },
+          {
+            "item_id": "opiates-uds",
+            "position": 3,
+            "statement": "Urine drug screen obtained at intake \u2014 results reviewed and documented",
+            "faq_ref": "opiates-uds"
+          },
+          {
+            "item_id": "opiates-mme",
+            "position": 4,
+            "statement": "Current MME calculated \u2014 dose is documented and clinical rationale is present for doses above 50 MME/day",
+            "faq_ref": "opiates-mme"
+          }
+        ],
+        "green_zone": {
+          "zone_label": "All boxes checked \u2014 Continue with monitoring",
+          "narrative_html": "Reasonable basis to continue current regimen at this visit. Document using SmartPhrase below. Schedule follow-up at 90 days or sooner if any concerns emerge. Monitoring is ongoing \u2014 this is not a one-time clearance. <strong>You are institutionally supported.</strong>",
+          "smartphrase": ".OPIATES-CONT"
+        },
+        "escalation_section_label": "Escalate if any apply",
+        "escalation": [
+          {
+            "item_id": "opiates-highdose",
+            "position": 1,
+            "statement": "Current dose \u2265 90 MME/day without documented pain management specialist involvement",
+            "faq_ref": "opiates-highdose"
+          },
+          {
+            "item_id": "opiates-combo",
+            "position": 2,
+            "statement": "Concurrent benzodiazepine prescription \u2014 any dose, any indication",
+            "faq_ref": "opiates-combo"
+          },
+          {
+            "item_id": "opiates-uds-fail",
+            "position": 3,
+            "statement": "UDS positive for non-prescribed controlled substance, or negative for prescribed opiate",
+            "faq_ref": "opiates-uds-fail"
+          },
+          {
+            "item_id": "opiates-pdmp-concern",
+            "position": 4,
+            "statement": "PDMP shows multiple prescribers, multiple pharmacies, or overlapping fills",
+            "faq_ref": "opiates-pdmp-concern"
+          },
+          {
+            "item_id": "opiates-behavior",
+            "position": 5,
+            "statement": "Repeated early refill requests, lost medications, or escalating contact between visits",
+            "faq_ref": "opiates-behavior"
+          },
+          {
+            "item_id": "opiates-oud",
+            "position": 6,
+            "statement": "Any clinical concern for opioid use disorder \u2014 consider MOUD rather than taper or discontinuation",
+            "faq_ref": "opiates-oud"
+          }
+        ],
+        "context_strip": null,
+        "footer_note": "For internal use only. This is a viable first pathway, not the only pathway. Experienced providers retain clinical discretion.",
+        "faqs": [
+          {
+            "faq_id": "opiates-pdmp",
+            "topic": "PDMP Review",
+            "title": "What am I looking for in the PDMP for opiate patients?",
+            "referenced_by": [
+              "opiates-pdmp"
+            ],
+            "items": [
+              {
+                "question": "How is the opiate PDMP review different from stimulants?",
+                "answer_html": "<p>The stakes are higher and the patterns are more specific. For opiates you are looking for: overlapping fills from any prescriber (suggests double-doctoring), concurrent benzodiazepine prescriptions (this is your most important safety flag \u2014 the combination dramatically increases overdose mortality), fill frequency relative to days supply (filling a 30-day supply every 20 days is a pattern), and cash-pay fills which bypass insurance tracking and may not appear on PDMP in all states.</p>\n<p>New York requires PDMP review prior to every opiate prescription \u2014 not just at intake.</p>"
+              },
+              {
+                "question": "I see a second prescriber in the PDMP. Is that automatically a problem?",
+                "answer_html": "<p>Not automatically \u2014 but it requires an explanation you can document. A patient seeing both a PCP and a pain management specialist may have legitimate dual prescribing if it is coordinated. An ER prescription for an acute injury is different from a pattern of monthly fills from two separate primary care offices.</p>\n<p>Ask the patient directly, document what they tell you, and contact the other prescriber if the answer is unclear.</p>"
+              },
+              {
+                "question": "What do I do if I find a concurrent benzo prescription?",
+                "answer_html": "<p>Do not prescribe the opiate at this visit without a safety plan. The opiate-benzodiazepine combination is the leading driver of prescription overdose mortality. This is not a reason to cut the patient off \u2014 it is a reason to have a direct conversation, understand who is managing the benzo, and develop a coordinated plan.</p>\n<p>See the escalation FAQ for next steps.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-agreement",
+            "topic": "Controlled Substance Agreement",
+            "title": "The CS agreement \u2014 what it is and what it isn't",
+            "referenced_by": [
+              "opiates-agreement"
+            ],
+            "items": [
+              {
+                "question": "Do I need a new agreement if the prior provider had one on file?",
+                "answer_html": "<p>Yes. When you become the prescriber of record, a new agreement should be completed. This is both a documentation standard and a clinical moment \u2014 reviewing the agreement with the patient at the first visit establishes expectations, gives you an opportunity to assess their understanding, and signals that this is a managed relationship, not an automatic continuation.</p>"
+              },
+              {
+                "question": "What should the agreement cover?",
+                "answer_html": "<p>At minimum: single prescriber and single pharmacy requirements, agreement to UDS monitoring, no early refills policy, no replacement for lost or stolen medications, expectations around dose changes (patient does not self-adjust), and acknowledgment that the goal of therapy is functional improvement, not pain elimination.</p>\n<p>SmartPhrase <span class=\"pill neutral\">.CSAGREE</span> populates the standard institutional template.</p>"
+              },
+              {
+                "question": "The patient refuses to sign. What do I do?",
+                "answer_html": "<p>A patient who refuses to sign a CS agreement is communicating something worth understanding before you respond. Ask why \u2014 occasionally there is a literacy or language barrier, or a prior negative experience with how the agreement was presented.</p>\n<p>If refusal is categorical and the patient cannot articulate a reason, document the refusal and the conversation. You are not obligated to prescribe without a signed agreement, and the institutional framework supports that position.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-uds",
+            "topic": "Urine Drug Screen",
+            "title": "UDS at intake \u2014 interpreting and acting on results",
+            "referenced_by": [
+              "opiates-uds"
+            ],
+            "items": [
+              {
+                "question": "What is the difference between a screening UDS and a confirmatory test?",
+                "answer_html": "<p>The point-of-care immunoassay (the cup test) is a screen \u2014 it is fast and useful but has meaningful false positive and false negative rates. A positive screen for an unexpected substance, or a negative screen for the prescribed opiate, should be confirmed with GC-MS or LC-MS/MS before you act on it clinically or document it as a confirmed finding.</p>\n<p>Do not discharge a patient based on a screen alone.</p>"
+              },
+              {
+                "question": "The UDS is negative for the prescribed opiate. What does that mean?",
+                "answer_html": "<p>Several possibilities: the patient did not take the medication as prescribed (most concerning \u2014 suggests diversion or stockpiling), the patient took it but timing of the dose relative to collection caused a false negative (less common with chronic dosing), or there is a metabolic variant affecting detection.</p>\n<p>Confirm with send-out testing. Have a non-accusatory conversation: <em>\"I want to make sure we understand this result together before drawing any conclusions.\"</em> Document the conversation and the plan for follow-up testing.</p>"
+              },
+              {
+                "question": "How often should UDS be repeated after intake?",
+                "answer_html": "<p>Risk-stratified. A stable patient with a clean PDMP, signed agreement, and no behavioral concerns: every 6\u201312 months is a defensible standard. A patient with any yellow flags: every 3 months. A patient with active concerns or recent escalation: at every visit until stable.</p>\n<p>Document your reasoning for the interval chosen.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-mme",
+            "topic": "MME Calculation",
+            "title": "Morphine milligram equivalents \u2014 calculating and contextualizing",
+            "referenced_by": [
+              "opiates-mme"
+            ],
+            "items": [
+              {
+                "question": "How do I calculate MME?",
+                "answer_html": "<p><strong>Multiply the daily dose by the conversion factor for that opioid:</strong></p>\n<p><span class=\"pill neutral\">Morphine</span> \u2014 1:1 (30 mg morphine = 30 MME)</p>\n<p><span class=\"pill neutral\">Oxycodone</span> \u2014 \u00d7 1.5 (30 mg oxycodone = 45 MME)</p>\n<p><span class=\"pill neutral\">Hydrocodone</span> \u2014 \u00d7 1 (30 mg hydrocodone = 30 MME)</p>\n<p><span class=\"pill neutral\">Hydromorphone</span> \u2014 \u00d7 5 (8 mg hydromorphone = 40 MME)</p>\n<p><span class=\"pill neutral\">Fentanyl patch</span> \u2014 mcg/hr \u00d7 2.4 (25 mcg/hr patch = 60 MME/day)</p>\n<p><span class=\"pill neutral\">Tramadol</span> \u2014 \u00d7 0.1 (200 mg tramadol = 20 MME)</p>\n<p>For patients on multiple opiates, sum the MME of all agents.</p>"
+              },
+              {
+                "question": "What are the thresholds I should know?",
+                "answer_html": "<p><strong>CDC guidance identifies key inflection points:</strong></p>\n<p><span class=\"pill warn\">50 MME/day</span> \u2014 increased overdose risk begins; reassess benefit/risk, ensure naloxone is prescribed and patient and household are trained.</p>\n<p><span class=\"pill warn\">90 MME/day</span> \u2014 avoid prescribing above this threshold without documented specialist involvement and clear clinical rationale. This is not a hard ceiling but a high-scrutiny zone. Above 90 MME without pain management co-management is an escalation indicator in this framework.</p>"
+              },
+              {
+                "question": "The patient is on 120 MME/day and has been stable for years. Do I taper them?",
+                "answer_html": "<p>Stability is meaningful clinical information. Abrupt taper of a long-stable high-dose patient causes harm \u2014 undertreated pain, withdrawal, loss of function, and in some cases drives patients to illicit opioids. Do not taper at the first visit.</p>\n<p>Complete the intake assessment, establish the relationship, prescribe with full documentation of your awareness of the dose and your clinical rationale for continuation, and use the e-consult to get pain management eyes on the chart. The question for the consult is: <em>\"Patient stable on X MME/day for Y years. Please review and advise on whether current plan is appropriate or whether structured taper is indicated.\"</em></p>"
+              },
+              {
+                "question": "Should I prescribe naloxone?",
+                "answer_html": "<p>Yes \u2014 for any patient on \u2265 50 MME/day, any patient on opiates plus any CNS depressant, any patient with a history of SUD or overdose, and any patient whose household includes children or others at risk of accidental exposure.</p>\n<p>Document that you prescribed it, that you counseled on administration, and that the household has access to it. This is now a standard of care expectation, not an optional add-on.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-highdose",
+            "topic": "High Dose Threshold",
+            "title": "\u2265 90 MME/day \u2014 what to do when you inherit a high-dose patient",
+            "referenced_by": [
+              "opiates-highdose"
+            ],
+            "items": [
+              {
+                "question": "Can I continue prescribing at this dose while I arrange the e-consult?",
+                "answer_html": "<p>Yes \u2014 do not abruptly discontinue or reduce at the first visit while awaiting specialist input. Continuity of an established regimen while arranging appropriate oversight is clinically and ethically defensible.</p>\n<p>Document your dose calculation, your awareness of the threshold, your safety measures (naloxone prescribed, UDS obtained, PDMP reviewed), and that e-consult to pain management is pending.</p>"
+              },
+              {
+                "question": "What is the e-consult ask at high dose?",
+                "answer_html": "<p>Be specific: <em>\"Patient inherited on [X] MME/day of [agent] for [indication]. No prior pain management documentation in chart. PDMP clean, UDS confirms prescribed medication, patient reports functional stability. Please review current regimen and advise: (1) whether dose is appropriate for indication, (2) whether structured taper is recommended, and (3) whether ongoing co-management is indicated.\"</em></p>"
+              },
+              {
+                "question": "The patient tells me their prior doctor \"always\" prescribed this and they'll go elsewhere if I change anything.",
+                "answer_html": "<p>Acknowledge the anxiety without making promises you can't keep: <em>\"I understand this medication has been important to your quality of life and I'm not here to take anything away from you today. I do need to complete my own assessment as your new provider, and I want to make sure we're doing this in a way that protects you.\"</em></p>\n<p>Do not let the threat of patient departure drive clinical decisions. Document the conversation.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-combo",
+            "topic": "Opiate-Benzo Combination",
+            "title": "Concurrent opiates and benzodiazepines \u2014 the highest-risk scenario",
+            "referenced_by": [
+              "opiates-combo"
+            ],
+            "items": [
+              {
+                "question": "How dangerous is this combination?",
+                "answer_html": "<p>It is the most dangerous combination in outpatient prescribing. Concurrent opioid and benzodiazepine use increases overdose mortality risk by a factor of 3\u20134 compared to opioids alone. Both drug classes cause respiratory depression through different mechanisms \u2014 the combination is synergistic, not additive.</p>\n<p>The FDA issued a black box warning on this combination in 2016. You cannot inherit this combination and continue it unchanged without a documented safety plan and specialist input.</p>"
+              },
+              {
+                "question": "The patient has legitimate indications for both. What do I do?",
+                "answer_html": "<p>This is precisely the e-consult scenario. The question is not whether either medication is individually justified \u2014 it is whether the combination is the safest available approach given the full clinical picture. Psychiatry or pain management input, depending on which medication is driving the combination, is required before you own both prescriptions.</p>\n<p>At this visit: prescribe whichever is the more immediately necessary (typically the opiate if chronic pain is the primary indication), document the combination as a known risk, prescribe naloxone, and initiate the e-consult urgently.</p>"
+              },
+              {
+                "question": "Can I just taper the benzo?",
+                "answer_html": "<p>Benzo taper in the context of chronic use requires its own careful management and is not something to initiate unilaterally at a first visit. A patient on chronic benzodiazepines is physically dependent \u2014 abrupt reduction risks withdrawal seizure.</p>\n<p>The taper plan should be coordinated, ideally with psychiatry input, and should be separate from the opiate management conversation so the patient is not facing two simultaneous tapers.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-uds-fail",
+            "topic": "Unexpected UDS Results",
+            "title": "UDS shows something unexpected \u2014 next steps",
+            "referenced_by": [
+              "opiates-uds-fail"
+            ],
+            "items": [
+              {
+                "question": "The UDS is positive for cocaine. Do I stop the opiate today?",
+                "answer_html": "<p>Confirm with send-out testing before taking action. If confirmed: do not prescribe at this visit. Have a direct, non-punitive conversation focused on safety: <em>\"I'm concerned about your safety if we combine these substances.\"</em> Document the conversation.</p>\n<p>This is an OUD evaluation trigger \u2014 consider whether what you're seeing is active substance use disorder that warrants MOUD rather than simply discontinuing the opiate. A patient with OUD who is cut off from prescribed opioids without treatment is at significantly elevated overdose risk from illicit opioid use.</p>"
+              },
+              {
+                "question": "The UDS is positive for fentanyl but the patient is not prescribed it.",
+                "answer_html": "<p>This is a high-acuity finding. Illicit fentanyl exposure indicates the patient is using street opioids \u2014 either supplementing their prescription or substituting for it. This is an OUD evaluation and MOUD conversation, not a straightforward prescription continuation decision.</p>\n<p>Do not prescribe additional controlled substances at this visit. Engage with empathy: the patient is at serious overdose risk and needs treatment, not termination from the practice.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-pdmp-concern",
+            "topic": "PDMP Red Flags",
+            "title": "Concerning PDMP patterns \u2014 how to respond",
+            "referenced_by": [
+              "opiates-pdmp-concern"
+            ],
+            "items": [
+              {
+                "question": "I see fills from three different pharmacies. Is that diversion?",
+                "answer_html": "<p>It is a red flag that requires explanation \u2014 it is not a confirmed finding. Ask directly and document the answer. Geographic reasons (pharmacy closures, travel, insurance network restrictions) are plausible. A pattern of cash-pay fills at multiple locations without a coherent explanation is more concerning.</p>\n<p>Confirm with send-out UDS to establish whether the patient is actually taking the medication. If the pattern is unexplained and confirmed, this is a case for e-consult before continuing.</p>"
+              },
+              {
+                "question": "What do I document when I find a PDMP concern?",
+                "answer_html": "<p>Document exactly what you found (dates, prescribers, pharmacies, quantities), what you asked the patient, what they told you, and what your clinical assessment is. This documentation protects you regardless of what you decide.</p>\n<p>If you choose to continue prescribing despite a flag, document your reasoning. If you choose not to prescribe, document your safety plan for the patient.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-behavior",
+            "topic": "Behavioral Concerns",
+            "title": "Early refills, lost medications, escalating contact",
+            "referenced_by": [
+              "opiates-behavior"
+            ],
+            "items": [
+              {
+                "question": "How many early refill requests trigger a formal response?",
+                "answer_html": "<p><span class=\"pill neutral\">1 request</span> \u2014 warrants a conversation and documentation.</p>\n<p><span class=\"pill warn\">2+ in 12 months</span> \u2014 warrants a formal written warning within the CS agreement framework, a UDS, and a PDMP review.</p>\n<p><span class=\"pill warn\">3+ in 12 months</span> \u2014 a pattern that requires e-consult before continuation.</p>\n<p>Document each instance at the time it occurs \u2014 patterns are only visible in retrospect if the individual events are in the chart.</p>"
+              },
+              {
+                "question": "The patient calls repeatedly between visits asking for early refills, dose increases, or exceptions. How do I manage this?",
+                "answer_html": "<p>Establish a clear protocol and communicate it once, in writing: controlled substance questions are addressed at scheduled visits only, not by phone or portal message. Exceptions are not made between visits. Document that this was communicated.</p>\n<p>Frequent between-visit contact around controlled substances is itself a behavioral flag \u2014 note it in the chart as part of the monitoring picture.</p>"
+              },
+              {
+                "question": "The patient says their medication was stolen. What are my obligations?",
+                "answer_html": "<p>Schedule II opiates are not replaced for loss or theft as a matter of institutional policy. Communicate this clearly and without apology. You may offer to file a police report with the patient if they wish to document the theft \u2014 this creates a record and is occasionally relevant.</p>\n<p>Document the report in the chart. A single loss event is not disqualifying for future prescribing, but it should be noted and factored into the monitoring picture going forward.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "opiates-oud",
+            "topic": "Opioid Use Disorder",
+            "title": "When chronic pain management becomes OUD \u2014 recognizing and responding",
+            "referenced_by": [
+              "opiates-oud"
+            ],
+            "items": [
+              {
+                "question": "How do I distinguish chronic pain requiring opiates from OUD?",
+                "answer_html": "<p>They coexist more often than they are mutually exclusive \u2014 a patient can have both legitimate chronic pain and opioid use disorder simultaneously. Signs that OUD may be present alongside or instead of pure pain management need:</p>\n<p>Continued use despite clear harm, inability to adhere to the agreed prescribing structure despite genuine effort, loss of control over use, withdrawal symptoms driving use more than pain relief, and social or functional deterioration attributable to opioid use.</p>"
+              },
+              {
+                "question": "If I think this is OUD, what is the pathway?",
+                "answer_html": "<p>MOUD \u2014 medication for opioid use disorder \u2014 is the evidence-based treatment and significantly outperforms taper or discontinuation for patient outcomes including overdose survival. Buprenorphine (Suboxone) can be initiated in primary care and is within your scope. Methadone for OUD requires an OTP clinic.</p>\n<p>The e-consult framing shifts: instead of \"please review pain management plan,\" it becomes <em>\"patient with chronic pain and possible OUD \u2014 please advise on MOUD candidacy and transition plan.\"</em> Do not frame OUD as a moral failure to the patient or in documentation.</p>"
+              },
+              {
+                "question": "Can I continue the opiate while initiating an OUD evaluation?",
+                "answer_html": "<p>Yes \u2014 do not abruptly discontinue while the evaluation is pending. A patient who is cut off from prescribed opioids without a treatment plan is at acute overdose risk from illicit opioid use.</p>\n<p>Continuity with close monitoring and an active referral in process is safer than discontinuation without a plan.</p>"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "schema_version": "1.0.0",
+        "module_id": "benzos",
+        "default_title": "Benzodiazepines \u2014 Inherited Patient",
+        "landing_intro": "A patient is transferring to your panel on a chronic benzodiazepine regimen. This is among the most clinically and emotionally charged handoffs in primary care. Benzodiazepine-dependent patients have often been on these medications for years, frequently have no memory of why they were started, and are acutely sensitive to any suggestion of change. Your job at the first visit is not to taper. It is to assess, document, establish trust, and determine the appropriate pathway forward. Abrupt discontinuation of chronic benzodiazepines causes withdrawal seizure and death \u2014 this is never the first move.",
+        "checklist_section_label": "Before you decide \u2014 verify all four",
+        "checklist": [
+          {
+            "item_id": "benzos-pdmp",
+            "position": 1,
+            "statement": "PDMP reviewed \u2014 single prescriber, single pharmacy, consistent quantities, no concurrent opiates or other CNS depressants of concern",
+            "faq_ref": "benzos-pdmp"
+          },
+          {
+            "item_id": "benzos-indication",
+            "position": 2,
+            "statement": "Documented indication on file or established at this visit \u2014 anxiety disorder, panic disorder, seizure disorder, alcohol withdrawal, or other documented rationale",
+            "faq_ref": "benzos-indication"
+          },
+          {
+            "item_id": "benzos-duration",
+            "position": 3,
+            "statement": "Duration of use and original prescribing context understood \u2014 short-term initiation vs. long-term chronic use",
+            "faq_ref": "benzos-duration"
+          },
+          {
+            "item_id": "benzos-function",
+            "position": 4,
+            "statement": "Current functional status assessed \u2014 patient able to describe daily activities, employment, relationships, and driving without significant impairment attributable to medication",
+            "faq_ref": "benzos-function"
+          }
+        ],
+        "green_zone": {
+          "zone_label": "All boxes checked \u2014 Continue with documented plan",
+          "narrative_html": "Reasonable basis to continue current regimen at this visit. Document indication, duration, dose, and monitoring plan using SmartPhrase below. Establish that the long-term goal is the lowest effective dose. This is not a taper conversation today \u2014 it is a foundation visit. <strong>You are institutionally supported.</strong>",
+          "smartphrase": ".BENZO-CONT"
+        },
+        "escalation_section_label": "Escalate if any apply",
+        "escalation": [
+          {
+            "item_id": "benzos-combo-opiate",
+            "position": 1,
+            "statement": "Concurrent opiate prescription \u2014 any dose, any indication \u2014 this is your highest-priority safety flag",
+            "faq_ref": "benzos-combo-opiate"
+          },
+          {
+            "item_id": "benzos-highdose",
+            "position": 2,
+            "statement": "Dose above equivalent of diazepam 40 mg/day without documented psychiatric specialist involvement",
+            "faq_ref": "benzos-highdose"
+          },
+          {
+            "item_id": "benzos-combo-other",
+            "position": 3,
+            "statement": "Concurrent prescription of another CNS depressant \u2014 sedating antihistamines, muscle relaxants, gabapentin, or Z-drugs",
+            "faq_ref": "benzos-combo-other"
+          },
+          {
+            "item_id": "benzos-no-indication",
+            "position": 4,
+            "statement": "No documentable psychiatric or neurological indication \u2014 medication appears continued without clinical rationale",
+            "faq_ref": "benzos-no-indication"
+          },
+          {
+            "item_id": "benzos-cognitive",
+            "position": 5,
+            "statement": "Cognitive concerns, fall history, or age \u2265 65 \u2014 benzodiazepines are Beers Criteria medications in older adults",
+            "faq_ref": "benzos-cognitive"
+          },
+          {
+            "item_id": "benzos-escalation",
+            "position": 6,
+            "statement": "Patient requesting dose increases, early refills, or reporting the medication \"stopped working\"",
+            "faq_ref": "benzos-escalation"
+          }
+        ],
+        "context_strip": null,
+        "footer_note": "For internal use only. This is a viable first pathway, not the only pathway. Experienced providers retain clinical discretion. Benzodiazepine discontinuation without a structured taper plan is never appropriate in physically dependent patients.",
+        "faqs": [
+          {
+            "faq_id": "benzos-pdmp",
+            "topic": "PDMP Review",
+            "title": "PDMP patterns specific to benzodiazepine patients",
+            "referenced_by": [
+              "benzos-pdmp"
+            ],
+            "items": [
+              {
+                "question": "What am I specifically looking for beyond the standard PDMP review?",
+                "answer_html": "<p>For benzodiazepine patients the critical flags are: concurrent opiate prescriptions (see escalation section \u2014 this is the most dangerous combination in outpatient prescribing), Z-drug co-prescriptions (zolpidem plus a benzodiazepine doubles CNS depression risk), fills from multiple prescribers without documented coordination, and quantities that exceed what a single prescriber's regimen would generate.</p>\n<p>Also look for recent ER visits \u2014 patients in benzo withdrawal or toxicity frequently present to emergency departments and this may appear in shared records but not the PDMP itself.</p>"
+              },
+              {
+                "question": "The patient is getting benzos from a psychiatrist and wants me to continue prescribing as well. Is that appropriate?",
+                "answer_html": "<p>No \u2014 benzodiazepines should have a single prescriber. If a psychiatrist is managing the underlying indication, the psychiatrist should own the prescription. If the patient is transitioning care and the psychiatrist is no longer involved, document the gap and initiate a warm handoff or e-consult before you assume the prescription.</p>\n<p>Two providers co-prescribing the same controlled substance class without explicit coordination is a liability for both and a safety risk for the patient.</p>"
+              },
+              {
+                "question": "How often is PDMP review required for benzo patients in New York?",
+                "answer_html": "<p>New York State requires PDMP review prior to every Schedule IV controlled substance prescription. Benzodiazepines are Schedule IV. This is a legal requirement at every prescribing encounter, not just at intake.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-indication",
+            "topic": "Documented Indication",
+            "title": "Establishing why this medication was started",
+            "referenced_by": [
+              "benzos-indication"
+            ],
+            "items": [
+              {
+                "question": "The chart has no documented indication. The patient just says they've been on it \"forever.\" What do I do?",
+                "answer_html": "<p>This is extremely common and does not by itself require you to stop prescribing. Your task is to establish an indication going forward \u2014 even if the original rationale is lost to history.</p>\n<p>Conduct a brief structured assessment at this visit: What symptoms does the medication treat? What happens when doses are missed? Is there an underlying anxiety disorder, panic disorder, or other condition that a proper diagnosis would capture? Document your clinical impression as the current indication. If no legitimate indication can be established, this is an e-consult trigger \u2014 not a reason to stop today.</p>"
+              },
+              {
+                "question": "The original indication was insomnia. Is that a supportable long-term indication?",
+                "answer_html": "<p>No \u2014 benzodiazepines are not indicated for chronic insomnia management and are not approved for this use long-term. If insomnia is the only documented indication, the patient likely has physical dependence without an ongoing therapeutic justification.</p>\n<p>This does not mean immediate taper \u2014 it means the e-consult framing is <em>\"patient on chronic benzodiazepine for insomnia indication, no psychiatric diagnosis on file, please advise on taper planning and alternative management.\"</em> CBT-I (cognitive behavioral therapy for insomnia) is the evidence-based first-line treatment and can be initiated in parallel.</p>"
+              },
+              {
+                "question": "What about anxiety that has never been formally diagnosed?",
+                "answer_html": "<p>Anxiety disorders are among the most underdiagnosed conditions in primary care. A patient who has been on a benzodiazepine for years for \"nerves\" or \"stress\" may have an untreated anxiety disorder that was managed symptomatically rather than definitively.</p>\n<p>Administering a GAD-7 at this visit takes four minutes and gives you a documented baseline. If the score is significant, you now have a diagnosis, a severity measure, and a rationale for the medication \u2014 as well as a basis for discussing whether an SSRI or SNRI plus therapy would be a more appropriate long-term approach.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-duration",
+            "topic": "Duration of Use",
+            "title": "Short-term vs. long-term \u2014 why it matters clinically",
+            "referenced_by": [
+              "benzos-duration"
+            ],
+            "items": [
+              {
+                "question": "At what point does benzodiazepine use become \"long-term\"?",
+                "answer_html": "<p>Physical dependence can develop within 4\u20136 weeks of daily use. Any patient using a benzodiazepine daily for more than 4 weeks should be considered potentially physically dependent and managed accordingly \u2014 meaning no abrupt discontinuation under any circumstances.</p>\n<p>Duration beyond 6 months with daily use represents established dependence in most patients regardless of dose.</p>"
+              },
+              {
+                "question": "The patient has been on this for 10 years. Is taper even realistic?",
+                "answer_html": "<p>Yes, but the timeline is long and the process requires patient partnership. A decade of daily benzodiazepine use is not resolved over weeks or months \u2014 a successful taper may take one to two years using a structured protocol (typically a diazepam conversion with gradual reduction).</p>\n<p>The first visit is not the moment to introduce this. The first visit is the moment to establish trust, complete the assessment, and plant a seed: <em>\"My goal over time is to make sure you're on the lowest dose that keeps you functional and safe. We're not changing anything today, but I want that to be our shared direction.\"</em> Document this framing.</p>"
+              },
+              {
+                "question": "Should I convert the patient to diazepam for easier taper management?",
+                "answer_html": "<p>Diazepam conversion is a taper strategy, not a first-visit intervention. Its advantage is a long half-life that allows for smoother reduction with less interdose withdrawal.</p>\n<p>This conversion is appropriate to plan in coordination with psychiatry e-consult, not to initiate unilaterally at a handoff visit. Document it as a future goal if relevant.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-function",
+            "topic": "Functional Assessment",
+            "title": "Assessing daily function on chronic benzodiazepines",
+            "referenced_by": [
+              "benzos-function"
+            ],
+            "items": [
+              {
+                "question": "What am I actually assessing when I ask about function?",
+                "answer_html": "<p>You are looking for evidence that the medication is providing net benefit versus harm at the current dose.</p>\n<p><span class=\"pill green\">Preserved function</span> \u2014 employed or engaged in meaningful daily activity, able to drive safely, maintaining relationships, no falls in the past 12 months, no memory complaints beyond baseline.</p>\n<p><span class=\"pill warn\">Functional impairment</span> \u2014 daytime sedation affecting work or safety, falls or near-falls, cognitive complaints, social withdrawal, inability to function without the medication at all (beyond expected physical dependence).</p>"
+              },
+              {
+                "question": "The patient drives and is on a high-dose benzodiazepine. What are my obligations?",
+                "answer_html": "<p>Benzodiazepines impair driving \u2014 this is well-established and dose-dependent. You have a clinical obligation to counsel the patient about impaired driving risk and document that you did so.</p>\n<p>In New York, physicians do not have a mandatory reporting obligation for medication-impaired drivers equivalent to seizure disorders, but the documentation of your counseling is your protection. If the patient is in a safety-sensitive occupation (commercial driver, healthcare worker, heavy machinery operator), this requires explicit conversation and documentation.</p>"
+              },
+              {
+                "question": "The patient says they can't function without it. How do I respond to that?",
+                "answer_html": "<p>Take it seriously \u2014 they are likely correct that they cannot function without it in the short term, because physical dependence is real. Validate this: <em>\"I believe you, and I'm not suggesting you stop taking it. What I want to understand is whether the medication is helping you live the life you want, or whether it has become something you need just to feel normal.\"</em></p>\n<p>This distinction \u2014 therapeutic benefit versus dependence maintenance \u2014 is the clinical and ethical core of the long-term benzo management question.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-combo-opiate",
+            "topic": "Opiate-Benzo Combination",
+            "title": "The combination that cannot be inherited unchanged",
+            "referenced_by": [
+              "benzos-combo-opiate"
+            ],
+            "items": [
+              {
+                "question": "I've inherited a patient on both. What is my first move?",
+                "answer_html": "<p>Do not prescribe both at this visit without a safety plan in place. This is the single highest-risk combination in outpatient prescribing \u2014 the FDA black box warning is unambiguous.</p>\n<p>At this visit: assess which medication is primary (which indication is more severe, which has been in place longer), prescribe whichever is more immediately necessary with a one-time bridge supply if needed, prescribe naloxone and counsel the patient and household on administration, and initiate urgent e-consults to the appropriate specialists \u2014 psychiatry for the benzo indication, pain management for the opiate, or a combined consult if available.</p>"
+              },
+              {
+                "question": "The patient has been on both for years with no adverse events. Doesn't that suggest it's safe for them specifically?",
+                "answer_html": "<p>No adverse event to date is not the same as safe. The combination increases overdose mortality risk regardless of individual tolerance. The absence of prior harm reflects probability, not immunity \u2014 and the probability of harm increases with duration of combined exposure.</p>\n<p><em>\"They've been fine so far\"</em> is not a documentable clinical rationale for continuing a black-box combination without specialist input.</p>"
+              },
+              {
+                "question": "Who owns the taper \u2014 me, psychiatry, or pain management?",
+                "answer_html": "<p>The taper of a patient on both opiates and benzodiazepines requires coordination between providers. As the PCP you own the care coordination \u2014 you do not necessarily own the execution of both tapers.</p>\n<p>The general principle is to taper one at a time, slowly, with the higher-risk agent (usually the benzodiazepine in terms of seizure risk) addressed with specialist guidance. The e-consult is not a hand-off \u2014 you remain the primary care provider. It is a request for a specific plan.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-highdose",
+            "topic": "High Dose Threshold",
+            "title": "Above diazepam 40 mg equivalent \u2014 thresholds and conversions",
+            "referenced_by": [
+              "benzos-highdose"
+            ],
+            "items": [
+              {
+                "question": "How do I convert my patient's medication to diazepam equivalents?",
+                "answer_html": "<p><strong>Common benzodiazepine to diazepam equivalents (approximate):</strong></p>\n<p><span class=\"pill neutral\">Diazepam 5 mg</span> = reference standard</p>\n<p><span class=\"pill neutral\">Alprazolam (Xanax) 0.5 mg</span> \u2248 diazepam 5 mg (alprazolam 2 mg/day = diazepam 20 mg equivalent)</p>\n<p><span class=\"pill neutral\">Lorazepam (Ativan) 1 mg</span> \u2248 diazepam 10 mg (lorazepam 4 mg/day = diazepam 40 mg equivalent)</p>\n<p><span class=\"pill neutral\">Clonazepam (Klonopin) 0.5 mg</span> \u2248 diazepam 10 mg (clonazepam 2 mg/day = diazepam 40 mg equivalent)</p>\n<p><span class=\"pill neutral\">Temazepam 10 mg</span> \u2248 diazepam 10 mg</p>\n<p>Calculate total daily diazepam equivalent before assessing dose category.</p>"
+              },
+              {
+                "question": "My patient is on alprazolam 2 mg TID. Is that high dose?",
+                "answer_html": "<p>Yes. Alprazolam 2 mg TID = 6 mg/day alprazolam = approximately diazepam 60 mg equivalent \u2014 well above the 40 mg threshold. Alprazolam is additionally concerning because of its short half-life, which produces significant interdose withdrawal and makes it one of the most difficult benzodiazepines to taper.</p>\n<p>This patient needs psychiatry e-consult before you continue prescribing at this dose. Document the equivalent calculation in the chart.</p>"
+              },
+              {
+                "question": "Can I continue at high dose while awaiting the e-consult?",
+                "answer_html": "<p>Yes \u2014 do not reduce or discontinue while the consult is pending. Prescribe one month at the current dose, document your awareness of the dose threshold, document that specialist input is pending, and schedule a follow-up for shortly after the expected consult response.</p>\n<p>Institutional support applies when you are actively working the framework.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-combo-other",
+            "topic": "CNS Depressant Combinations",
+            "title": "Other sedating medications \u2014 the cumulative burden",
+            "referenced_by": [
+              "benzos-combo-other"
+            ],
+            "items": [
+              {
+                "question": "Why is gabapentin specifically flagged?",
+                "answer_html": "<p>Gabapentin and pregabalin have sedating and respiratory depressant properties that are potentiated by benzodiazepines. The combination has been increasingly associated with overdose deaths, particularly in patients with underlying respiratory disease or concurrent opiate use.</p>\n<p>The FDA added a warning on this combination in 2019. A patient on a benzodiazepine plus gabapentin plus an opiate is in the highest risk tier regardless of individual doses.</p>"
+              },
+              {
+                "question": "My patient takes zolpidem for sleep and a benzodiazepine for anxiety. Is that a problem?",
+                "answer_html": "<p>Yes \u2014 Z-drugs (zolpidem, eszopiclone, zaleplon) act on the same GABA-A receptors as benzodiazepines and produce additive CNS depression. This combination is explicitly flagged in Beers Criteria and FDA guidance.</p>\n<p>At this visit: document the combination, counsel the patient on the risk, and identify which agent is primary. CBT-I is the appropriate long-term intervention for the insomnia component. Eliminating the Z-drug is generally lower risk than addressing the benzodiazepine first.</p>"
+              },
+              {
+                "question": "The patient is also on a muscle relaxant prescribed by orthopedics. What do I do?",
+                "answer_html": "<p>Contact the prescribing provider. Concurrent benzodiazepine and muscle relaxant prescribing (cyclobenzaprine, methocarbamol, carisoprodol) represents a polypharmacy CNS depressant burden that requires coordination.</p>\n<p><span class=\"pill warn\">Carisoprodol (Soma)</span> is particularly high-risk \u2014 it is metabolized to meprobamate, a barbiturate-like compound with significant abuse potential. Document your communication with the orthopedic provider and the agreed plan.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-no-indication",
+            "topic": "No Documentable Indication",
+            "title": "When there is no clinical reason on file",
+            "referenced_by": [
+              "benzos-no-indication"
+            ],
+            "items": [
+              {
+                "question": "The medication has been prescribed for years but I cannot find any psychiatric or neurological indication. What are my options?",
+                "answer_html": "<p>Three pathways:</p>\n<p>(1) Establish an indication at this visit through clinical assessment \u2014 administer GAD-7, PHQ-9, ask about panic attacks, take a sleep history. If a condition is present, diagnose and document it.</p>\n<p>(2) If no indication can be established and the patient is physically dependent, e-consult to psychiatry with the explicit question: <em>\"Patient on chronic benzodiazepine without documentable indication. Please advise on taper planning and whether any psychiatric diagnosis is present.\"</em></p>\n<p>(3) If the patient declines evaluation and insists on continuation without any clinical basis, document the conversation, document your clinical assessment, and make a reasoned decision about whether you can continue prescribing \u2014 knowing that \"no indication\" is a significant documentation liability.</p>"
+              },
+              {
+                "question": "Can I just write \"anxiety\" as the indication to have something in the chart?",
+                "answer_html": "<p>No \u2014 documenting a diagnosis you have not clinically assessed is not a solution and creates its own liability. If anxiety is present, assess it properly and document your assessment. If it is not present, do not fabricate it.</p>\n<p>The four-minute GAD-7 exists precisely so that this question has a documented answer.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-cognitive",
+            "topic": "Age and Cognitive Risk",
+            "title": "Benzodiazepines in older adults and patients with cognitive concerns",
+            "referenced_by": [
+              "benzos-cognitive"
+            ],
+            "items": [
+              {
+                "question": "Why are benzodiazepines specifically problematic in patients \u2265 65?",
+                "answer_html": "<p>Multiple converging risks: falls and hip fractures (benzodiazepines impair balance, reaction time, and depth perception), cognitive impairment (both acute confusion and potential long-term dementia risk with chronic use), paradoxical agitation in some older patients, and prolonged half-life of many agents in older adults due to reduced hepatic metabolism.</p>\n<p>The American Geriatrics Society Beers Criteria explicitly lists all benzodiazepines as potentially inappropriate in adults \u2265 65 regardless of indication.</p>"
+              },
+              {
+                "question": "My 72-year-old patient has been on lorazepam for 15 years and says it's the only thing that helps her sleep. Do I taper her?",
+                "answer_html": "<p>This is one of the most delicate scenarios in primary care. A 15-year history of daily use in a 72-year-old represents profound physical dependence, and taper carries real risks including withdrawal seizure and severe anxiety.</p>\n<p>The answer is not to continue unchanged and not to taper abruptly \u2014 it is to have an honest, unhurried conversation, document the risks of both continuation and taper, involve the patient in the decision, and obtain psychiatry e-consult for a guided taper plan if the patient is willing. For patients who are clearly not candidates for taper given age, functional status, and risk-benefit calculation, documenting that reasoning explicitly is a defensible position.</p>"
+              },
+              {
+                "question": "A patient with mild cognitive impairment is on a benzodiazepine. Should I be worried about causality?",
+                "answer_html": "<p>Yes \u2014 chronic benzodiazepine use is associated with accelerated cognitive decline and may be contributing to or causing the impairment. This does not mean the medication caused the dementia, but it is a modifiable risk factor that should be addressed.</p>\n<p>Involve neurology or geriatrics if the cognitive picture is complex. Document that the association has been considered.</p>"
+              }
+            ]
+          },
+          {
+            "faq_id": "benzos-escalation",
+            "topic": "Dose Escalation Requests",
+            "title": "When the patient says it stopped working",
+            "referenced_by": [
+              "benzos-escalation"
+            ],
+            "items": [
+              {
+                "question": "The patient says their current dose no longer controls their anxiety. They're asking for more. What do I do?",
+                "answer_html": "<p>Tolerance to the anxiolytic effect of benzodiazepines is expected with chronic use \u2014 this is pharmacology, not failure. The appropriate response is not to increase the dose.</p>\n<p>The appropriate response is: <em>\"What you're describing is something that happens with long-term use of this medication \u2014 it becomes less effective over time. The answer isn't more of the same medication; it's finding an approach that works better long-term.\"</em> This is the moment to introduce SSRIs, SNRIs, buspirone, or therapy as alternatives \u2014 not as replacements to be implemented today, but as a direction of travel. Document the conversation and initiate e-consult to psychiatry for transition planning.</p>"
+              },
+              {
+                "question": "Is dose escalation ever appropriate?",
+                "answer_html": "<p>In primary care, for chronic anxiety management, dose escalation of an established benzodiazepine regimen is almost never the right answer and should not occur without psychiatry input. There are narrow exceptions \u2014 acute situational escalation for a defined procedure or crisis \u2014 but these are time-limited and do not represent chronic dose increases.</p>\n<p>If a patient's anxiety is inadequately controlled on their current regimen, the clinical question is whether the underlying condition is being managed appropriately, not whether the benzodiazepine dose should be higher.</p>"
+              },
+              {
+                "question": "The patient threatens to go elsewhere if I won't increase the dose. How do I handle this?",
+                "answer_html": "<p>With clarity and without apology: <em>\"I understand you're frustrated, and I want to help you feel better. I'm not able to increase this medication \u2014 that's a clinical decision, not a personal one. What I can do is work with you on finding something that addresses the underlying anxiety more effectively.\"</em></p>\n<p>Document the request, your response, and the patient's reaction. A patient who leaves the practice over a refusal to escalate a benzodiazepine dose has self-selected out of a framework that was designed to protect them.</p>"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
