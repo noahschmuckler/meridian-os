@@ -18,8 +18,16 @@
 import { signal, type Signal } from '@preact/signals';
 
 // ---- Phase definitions (static, ported verbatim from Freiberg's artifact)
+//
+// Two parallel tracks:
+//   • mentor — physician-mentor's weekly/monthly/quarterly check-ins (PHASES)
+//   • ops    — director × office-manager operational check-ins (OM_PHASES)
+//
+// Mentor track has a `currentPhase` cursor on each provider; ops track does not
+// (every ops phase is "open" from day one and counted in the overall %).
 
-export type PhaseType = 'weekly' | 'monthly' | 'quarterly';
+export type PhaseType = 'weekly' | 'monthly' | 'quarterly' | 'ops';
+export type PhaseTrack = 'mentor' | 'ops';
 
 export interface PhaseItem {
   id: string;
@@ -31,109 +39,159 @@ export interface Phase {
   label: string;
   short: string;
   type: PhaseType;
+  track: PhaseTrack;
   /** True when the medical director is expected to attend this check-in. */
   md?: boolean;
   items: PhaseItem[];
 }
 
 export const PHASES: Phase[] = [
-  { id: 'w1', label: 'Week 1', short: 'W1', type: 'weekly', items: [
+  { id: 'w1', label: 'Week 1', short: 'W1', type: 'weekly', track: 'mentor', items: [
     { id: 'w1-1', text: 'Checked in on first-day/first-week experience' },
     { id: 'w1-2', text: 'Confirmed Epic login and EHR access working' },
     { id: 'w1-3', text: 'Reviewed clinic layout, team introductions' },
     { id: 'w1-4', text: 'Discussed initial schedule and ramp-up expectations' },
     { id: 'w1-5', text: 'Answered workflow or logistics questions' },
   ]},
-  { id: 'w2', label: 'Week 2', short: 'W2', type: 'weekly', items: [
+  { id: 'w2', label: 'Week 2', short: 'W2', type: 'weekly', track: 'mentor', items: [
     { id: 'w2-1', text: 'Checked in on EHR comfort level' },
     { id: 'w2-2', text: 'Reviewed SmartPhrase or order set progress' },
     { id: 'w2-3', text: 'Observed at least one patient encounter' },
     { id: 'w2-4', text: 'Discussed In Basket management setup' },
     { id: 'w2-5', text: 'Answered workflow or clinical questions' },
   ]},
-  { id: 'w3', label: 'Week 3', short: 'W3', type: 'weekly', items: [
+  { id: 'w3', label: 'Week 3', short: 'W3', type: 'weekly', track: 'mentor', items: [
     { id: 'w3-1', text: 'Reviewed order set and preference list progress' },
     { id: 'w3-2', text: 'Discussed care gap identification workflow' },
     { id: 'w3-3', text: 'Reviewed Problem List management habits' },
     { id: 'w3-4', text: 'Observed encounter documentation quality' },
     { id: 'w3-5', text: 'Addressed any emerging concerns' },
   ]},
-  { id: 'w4', label: 'Week 4', short: 'W4', type: 'weekly', md: true, items: [
+  { id: 'w4', label: 'Week 4', short: 'W4', type: 'weekly', track: 'mentor', md: true, items: [
     { id: 'w4-1', text: 'End-of-month progress assessment' },
     { id: 'w4-2', text: 'Reviewed patient volume and readiness to ramp' },
     { id: 'w4-3', text: 'Assessed EHR efficiency' },
     { id: 'w4-4', text: 'Discussed schedule adjustment needs' },
     { id: 'w4-5', text: 'Prepared for Medical Director review' },
   ]},
-  { id: 'w5', label: 'Week 5', short: 'W5', type: 'weekly', items: [
+  { id: 'w5', label: 'Week 5', short: 'W5', type: 'weekly', track: 'mentor', items: [
     { id: 'w5-1', text: 'Checked in on volume ramp-up comfort' },
     { id: 'w5-2', text: 'Reviewed referral and order routing accuracy' },
     { id: 'w5-3', text: 'Discussed BPA navigation' },
     { id: 'w5-4', text: 'Observed encounter closing and billing' },
     { id: 'w5-5', text: 'Answered clinical or workflow questions' },
   ]},
-  { id: 'w6', label: 'Week 6', short: 'W6', type: 'weekly', items: [
+  { id: 'w6', label: 'Week 6', short: 'W6', type: 'weekly', track: 'mentor', items: [
     { id: 'w6-1', text: 'Reviewed MyChart response quality' },
     { id: 'w6-2', text: 'Discussed medication reconciliation' },
     { id: 'w6-3', text: 'Assessed care gap closure consistency' },
     { id: 'w6-4', text: 'Reviewed workspace personalization' },
     { id: 'w6-5', text: 'Addressed emerging concerns' },
   ]},
-  { id: 'w7', label: 'Week 7', short: 'W7', type: 'weekly', items: [
+  { id: 'w7', label: 'Week 7', short: 'W7', type: 'weekly', track: 'mentor', items: [
     { id: 'w7-1', text: 'Assessed independence readiness' },
     { id: 'w7-2', text: 'Reviewed quality metrics together' },
     { id: 'w7-3', text: 'Discussed billable encounter types' },
     { id: 'w7-4', text: 'Observed complex patient management' },
     { id: 'w7-5', text: 'Answered remaining workflow questions' },
   ]},
-  { id: 'w8', label: 'Week 8', short: 'W8', type: 'weekly', md: true, items: [
+  { id: 'w8', label: 'Week 8', short: 'W8', type: 'weekly', track: 'mentor', md: true, items: [
     { id: 'w8-1', text: 'End-of-weekly-phase assessment' },
     { id: 'w8-2', text: 'Reviewed overall EHR proficiency' },
     { id: 'w8-3', text: 'Assessed readiness for monthly cadence' },
     { id: 'w8-4', text: 'Discussed ongoing learning goals' },
     { id: 'w8-5', text: 'Prepared for Medical Director review' },
   ]},
-  { id: 'm3', label: 'Month 3', short: 'M3', type: 'monthly', md: true, items: [
+  { id: 'm3', label: 'Month 3', short: 'M3', type: 'monthly', track: 'mentor', md: true, items: [
     { id: 'm3-1', text: 'Patient volume vs. target review' },
     { id: 'm3-2', text: 'Care gap and Problem List habits assessed' },
     { id: 'm3-3', text: 'Referral routing and order accuracy' },
     { id: 'm3-4', text: 'Billing/coding proficiency' },
     { id: 'm3-5', text: 'Semi-independent practice readiness' },
   ]},
-  { id: 'm4', label: 'Month 4', short: 'M4', type: 'monthly', items: [
+  { id: 'm4', label: 'Month 4', short: 'M4', type: 'monthly', track: 'mentor', items: [
     { id: 'm4-1', text: 'Ongoing optimization check-in' },
     { id: 'm4-2', text: 'EHR efficiency metrics review' },
     { id: 'm4-3', text: 'Complex case management discussion' },
     { id: 'm4-4', text: 'Workload sustainability assessment' },
     { id: 'm4-5', text: 'Emerging workflow issues addressed' },
   ]},
-  { id: 'm5', label: 'Month 5', short: 'M5', type: 'monthly', items: [
+  { id: 'm5', label: 'Month 5', short: 'M5', type: 'monthly', track: 'mentor', items: [
     { id: 'm5-1', text: 'Full capacity approach assessment' },
     { id: 'm5-2', text: 'Burnout and wellbeing screening' },
     { id: 'm5-3', text: 'Quality and care gap closure rates' },
     { id: 'm5-4', text: 'Professional development goals' },
     { id: 'm5-5', text: 'Month 6 formal review readiness' },
   ]},
-  { id: 'm6', label: 'Month 6', short: 'M6', type: 'monthly', md: true, items: [
+  { id: 'm6', label: 'Month 6', short: 'M6', type: 'monthly', track: 'mentor', md: true, items: [
     { id: 'm6-1', text: 'Formal 6-month milestone assessment' },
     { id: 'm6-2', text: 'Full capacity confirmation' },
     { id: 'm6-3', text: 'Quality dashboard comprehensive review' },
     { id: 'm6-4', text: 'Quarterly transition plan' },
     { id: 'm6-5', text: 'Summary prepared for Medical Director' },
   ]},
-  { id: 'q3', label: 'Month 9', short: 'Q3', type: 'quarterly', md: true, items: [
+  { id: 'q3', label: 'Month 9', short: 'Q3', type: 'quarterly', track: 'mentor', md: true, items: [
     { id: 'q3-1', text: 'Continued development and CE planning' },
     { id: 'q3-2', text: 'Professional goals check-in' },
     { id: 'q3-3', text: 'Quality and patient satisfaction review' },
     { id: 'q3-4', text: 'Emerging issues or support needs' },
   ]},
-  { id: 'q4', label: 'Month 12', short: 'Q4', type: 'quarterly', md: true, items: [
+  { id: 'q4', label: 'Month 12', short: 'Q4', type: 'quarterly', track: 'mentor', md: true, items: [
     { id: 'q4-1', text: 'Annual comprehensive integration review' },
     { id: 'q4-2', text: 'Full performance metrics assessment' },
     { id: 'q4-3', text: 'Mentorship transition (formal → peer)' },
     { id: 'q4-4', text: 'Year 2 development plan' },
   ]},
 ];
+
+// Office-manager / ops track. Director × OM monthly conversations focused on
+// operational signals (patient flow, billing, no-shows, staff sentiment).
+// Director-only edit; mentors do not see this track.
+export const OM_PHASES: Phase[] = [
+  { id: 'om1', label: 'Month 1 Ops', short: 'OM1', type: 'ops', track: 'ops', items: [
+    { id: 'om1-1', text: 'Provider arriving on time and staying on schedule?' },
+    { id: 'om1-2', text: 'Front desk handling patient flow smoothly?' },
+    { id: 'om1-3', text: 'Any patient complaints or compliments?' },
+    { id: 'om1-4', text: 'Operational bottlenecks? (rooming, checkout, labs)' },
+    { id: 'om1-5', text: 'MA/nursing team adapting to workflow?' },
+  ]},
+  { id: 'om2', label: 'Month 2 Ops', short: 'OM2', type: 'ops', track: 'ops', items: [
+    { id: 'om2-1', text: 'Patient volume ramping as expected?' },
+    { id: 'om2-2', text: 'Referrals and orders routing correctly?' },
+    { id: 'om2-3', text: 'Encounter closure turnaround impacting billing?' },
+    { id: 'om2-4', text: 'Staff concerns about communication or teamwork?' },
+    { id: 'om2-5', text: 'No-show/cancellation rates normal?' },
+  ]},
+  { id: 'om3', label: 'Month 3 Ops', short: 'OM3', type: 'ops', track: 'ops', items: [
+    { id: 'om3-1', text: 'Provider functioning independently (ops view)?' },
+    { id: 'om3-2', text: 'Patient satisfaction trends?' },
+    { id: 'om3-3', text: 'Billing cycle and claim denial rates?' },
+    { id: 'om3-4', text: 'Staff satisfaction with new provider?' },
+    { id: 'om3-5', text: 'Operational changes needed for ramp-up?' },
+  ]},
+  { id: 'om6', label: 'Month 6 Ops', short: 'OM6', type: 'ops', track: 'ops', items: [
+    { id: 'om6-1', text: 'At or near target volume (scheduling view)?' },
+    { id: 'om6-2', text: 'Revenue per visit and coding accuracy?' },
+    { id: 'om6-3', text: 'Patient retention — are patients rebooking?' },
+    { id: 'om6-4', text: 'Ongoing operational friction points?' },
+    { id: 'om6-5', text: 'Office manager overall integration assessment' },
+  ]},
+  { id: 'om9', label: 'Month 9 Ops', short: 'OM9', type: 'ops', track: 'ops', items: [
+    { id: 'om9-1', text: 'Continued operational performance' },
+    { id: 'om9-2', text: 'Patient access or scheduling challenges?' },
+    { id: 'om9-3', text: 'Impact on team morale and workflow' },
+    { id: 'om9-4', text: 'Upcoming needs (panel, template changes)' },
+  ]},
+  { id: 'om12', label: 'Month 12 Ops', short: 'OM12', type: 'ops', track: 'ops', items: [
+    { id: 'om12-1', text: 'Comprehensive year-one operational assessment' },
+    { id: 'om12-2', text: 'Comparison to established provider benchmarks' },
+    { id: 'om12-3', text: 'Recommendations for Year 2 support' },
+    { id: 'om12-4', text: 'Office manager formal evaluation input' },
+  ]},
+];
+
+/** Combined phase list — used by phase-id lookups that don't care about track. */
+export const ALL_PHASES: Phase[] = [...PHASES, ...OM_PHASES];
 
 // ---- Org records
 
@@ -258,6 +316,23 @@ function buildSeedCheckoffs(): Record<string, CheckoffEntry> {
     });
   });
   // p6: just started, no checkoffs
+
+  // Ops-track seed: directors complete OM phases for far-along Westside +
+  // Eastside providers. Each fill is by the provider's home director.
+  const fillOps = (pid: string, phaseIds: string[], by: string): void => {
+    phaseIds.forEach((phid) => {
+      const ph = OM_PHASES.find((p) => p.id === phid);
+      if (!ph) return;
+      ph.items.forEach((it) => { c[`${pid}:${phid}:${it.id}`] = { by, at: 'seed' }; });
+    });
+  };
+  // Westside (md1, Dr. Rivera): p1 furthest along, p2 mid, p3 just started
+  fillOps('p1', ['om1', 'om2', 'om3'], 'md1');
+  fillOps('p2', ['om1', 'om2'], 'md1');
+  fillOps('p3', ['om1'], 'md1');
+  // Eastside (md2, Dr. Patel): p7 mid (m3), p8 just started ops
+  fillOps('p7', ['om1', 'om2'], 'md2');
+  fillOps('p8', ['om1'], 'md2');
   return c;
 }
 
@@ -338,25 +413,32 @@ export function getPhaseProgress(
   providerId: string,
   phaseId: string,
 ): { done: number; total: number; pct: number } {
-  const phase = PHASES.find((p) => p.id === phaseId);
+  const phase = ALL_PHASES.find((p) => p.id === phaseId);
   if (!phase) return { done: 0, total: 0, pct: 0 };
   const done = phase.items.filter((it) => data.checkoffs[`${providerId}:${phaseId}:${it.id}`]).length;
   return { done, total: phase.items.length, pct: Math.round((done / phase.items.length) * 100) };
 }
 
-export function getOverallProgress(data: MentorshipData, providerId: string): number {
+// Mentor track only counts phases up through the provider's currentPhase
+// (future phases are "not yet expected"). Ops track has no cursor — every ops
+// phase is open from day one and counts toward the denominator.
+export function getOverallProgress(
+  data: MentorshipData,
+  providerId: string,
+  track: PhaseTrack = 'mentor',
+): number {
   const prov = data.providers.find((p) => p.id === providerId);
   if (!prov) return 0;
+  const phases = track === 'ops' ? OM_PHASES : PHASES;
   const phIdx = PHASES.findIndex((p) => p.id === prov.currentPhase);
   let total = 0;
   let done = 0;
-  PHASES.forEach((ph, i) => {
-    if (i <= phIdx) {
-      ph.items.forEach((it) => {
-        total++;
-        if (data.checkoffs[`${providerId}:${ph.id}:${it.id}`]) done++;
-      });
-    }
+  phases.forEach((ph, i) => {
+    if (track === 'mentor' && i > phIdx) return;
+    ph.items.forEach((it) => {
+      total++;
+      if (data.checkoffs[`${providerId}:${ph.id}:${it.id}`]) done++;
+    });
   });
   return total > 0 ? Math.round((done / total) * 100) : 0;
 }
