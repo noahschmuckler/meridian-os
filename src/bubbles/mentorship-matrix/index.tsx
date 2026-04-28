@@ -7,6 +7,7 @@
 // done — "due"), gray (not started, not current), very-light (future phase).
 // Tapping a cell transitions the workspace to provider-detail mode.
 
+import { useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
@@ -78,6 +79,38 @@ export function MentorshipMatrix({ workspaceId }: Props): JSX.Element {
     focus.value = { ...f, selectedProviderId: providerId, selectedPhase: phaseId };
   }
 
+  const [exporting, setExporting] = useState(false);
+
+  async function exportXlsx(): Promise<void> {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const { generateMentorshipMatrixXlsx } = await import('../../lib/generateMentorshipMatrixXlsx');
+      const blob = await generateMentorshipMatrixXlsx({
+        data,
+        directorId: f.selectedDirectorId ?? null,
+      });
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const slug = drilledDirector
+        ? drilledDirector.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()
+        : 'region';
+      const filename = `mentorship-matrix-${slug}-${dateStr}.xlsx`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    } catch (err) {
+      alert('XLSX export failed: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div class="cm-bubble" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
@@ -108,8 +141,26 @@ export function MentorshipMatrix({ workspaceId }: Props): JSX.Element {
         <span class="bubble__title" style={{ color: 'var(--type-color)', fontSize: 12 }}>
           {drilledDirector ? `${drilledDirector.name}'s providers` : 'Provider × Phase'}
         </span>
-        <span style={{ marginLeft: 'auto', fontSize: 10, opacity: 0.6 }}>
-          {providers.length} providers · {PHASES.length} phases
+        <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <button
+            type="button"
+            title={exporting ? 'Generating…' : 'Export as Excel spreadsheet'}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); void exportXlsx(); }}
+            disabled={exporting || providers.length === 0}
+            style={{
+              border: '1px solid rgba(0,0,0,0.15)',
+              background: 'rgba(255,255,255,0.55)',
+              cursor: exporting ? 'wait' : 'pointer',
+              font: 'inherit',
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 3,
+            }}
+          >{exporting ? '…' : '.xlsx'}</button>
+          <span style={{ fontSize: 10, opacity: 0.6 }}>
+            {providers.length} providers · {PHASES.length} phases
+          </span>
         </span>
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: 0 }}>
