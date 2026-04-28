@@ -27,14 +27,14 @@ echo "Syncing $SRC_DIST/ → $DEPLOY_REPO/ ..."
 rsync -a --delete --exclude='.git' "$SRC_DIST/" "$DEPLOY_REPO/"
 ok "Sync complete"
 
+SRC_COMMIT="$(git rev-parse --short HEAD)"
 cd "$DEPLOY_REPO"
-if git diff --quiet && git diff --cached --quiet; then
+git add -A
+if git diff --cached --quiet; then
   ok "No changes — deploy repo already up to date"
   exit 0
 fi
 
-SRC_COMMIT="$(cd - >/dev/null && git rev-parse --short HEAD)"
-git add -A
 git commit -q -m "Refresh from meridian-os@$SRC_COMMIT."
 ok "Committed: $(git log -1 --oneline)"
 
