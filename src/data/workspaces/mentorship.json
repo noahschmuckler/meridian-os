@@ -1,0 +1,76 @@
+{
+  "id": "mentorship",
+  "title": "Mentorship",
+  "icon": { "glyph": "👥", "tint": "#5f6b7a" },
+  "cells": [],
+  "standalones": [
+    {
+      "id": "role-selector",
+      "type": "mentorship-role-selector",
+      "title": "View as",
+      "props": {},
+      "resize": { "initial": "m", "states": {} }
+    },
+    {
+      "id": "exec-overview",
+      "type": "mentorship-exec-overview",
+      "title": "Directors",
+      "props": {},
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "matrix",
+      "type": "mentorship-matrix",
+      "title": "Provider × Phase Matrix",
+      "props": {},
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "mentees-list",
+      "type": "mentorship-mentees-list",
+      "title": "My Mentees",
+      "props": {},
+      "resize": { "initial": "m", "states": {} }
+    },
+    {
+      "id": "mentee-overview",
+      "type": "mentorship-mentee-overview",
+      "title": "Mentee Detail",
+      "props": {},
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "phase-tabs",
+      "type": "mentorship-phase-tabs",
+      "title": "Phases",
+      "props": {},
+      "resize": { "initial": "s", "states": {} }
+    },
+    {
+      "id": "phase-checklist",
+      "type": "mentorship-phase-checklist",
+      "title": "Phase Checklist",
+      "props": {},
+      "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "phase-notes",
+      "type": "mentorship-phase-notes",
+      "title": "Phase Notes",
+      "props": {},
+      "resize": { "initial": "m", "states": {} }
+    }
+  ],
+  "layoutHints": {
+    "grid": { "cols": 12, "rows": 8 },
+    "placements": {
+      "role-selector": { "col": 0, "row": 0, "width": 12, "height": 8 }
+    }
+  },
+  "scripted": {
+    "onMount": [],
+    "onSearch": {},
+    "onDrop": {}
+  },
+  "seed": { "sources": [] }
+}

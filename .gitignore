@@ -12,6 +12,7 @@ dist
 dist-saw
 dist-ssr
 *.local
+meridian-os-saw.zip
 
 # Editor directories and files
 .vscode/*

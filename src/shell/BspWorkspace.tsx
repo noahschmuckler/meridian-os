@@ -25,6 +25,7 @@ import {
 } from '../data/filesystem';
 import { buildBrainContext } from '../data/brainContext';
 import { moduleFocusSignal, type WorkspaceMode } from '../data/moduleFocus';
+import { mentorshipFocusSignal, type MentorshipFocus } from '../data/mentorshipFocus';
 import {
   buildBSP,
   renderBSP,
@@ -113,6 +114,60 @@ function clinicalModulesLayout(mode: WorkspaceMode, moduleId: string | null): Re
   if (mode === 'gallery') return GALLERY_LAYOUT;
   const companions = moduleId ? COMPANION_BUBBLE_BY_MODULE[moduleId] ?? [] : [];
   return companions.includes('prevent') ? MODULE_LAYOUT_WITH_PREVENT : MODULE_LAYOUT_BASE;
+}
+
+// === Mentorship workspace: role-driven layouts ==========================
+//
+// The role-selector bubble persists across all role modes; other bubbles
+// mount/unmount based on the active role. Drilldowns (exec → director,
+// mentor → mentee detail, matrix-cell → provider detail) get their own
+// sub-layouts. Mirrors the clinical-modules mode-aware pattern.
+
+const MENTORSHIP_IDLE_LAYOUT: Record<string, GridPlacement> = {
+  'role-selector': { col: 0, row: 0, width: 12, height: 8 },
+};
+
+const MENTORSHIP_EXEC_LAYOUT: Record<string, GridPlacement> = {
+  'role-selector': { col: 0, row: 0, width: 3, height: 8 },
+  'exec-overview': { col: 3, row: 0, width: 9, height: 8 },
+};
+
+const MENTORSHIP_EXEC_DRILLED_LAYOUT: Record<string, GridPlacement> = {
+  'role-selector': { col: 0, row: 0, width: 3, height: 8 },
+  'matrix':        { col: 3, row: 0, width: 9, height: 8 },
+};
+
+const MENTORSHIP_DIRECTOR_LAYOUT: Record<string, GridPlacement> = {
+  'role-selector': { col: 0, row: 0, width: 3, height: 8 },
+  'matrix':        { col: 3, row: 0, width: 9, height: 8 },
+};
+
+const MENTORSHIP_MENTOR_LAYOUT: Record<string, GridPlacement> = {
+  'role-selector':   { col: 0, row: 0, width: 3, height: 8 },
+  'mentees-list':    { col: 3, row: 0, width: 4, height: 8 },
+  'mentee-overview': { col: 7, row: 0, width: 5, height: 8 },
+};
+
+const MENTORSHIP_PROVIDER_LAYOUT: Record<string, GridPlacement> = {
+  'role-selector':   { col: 0, row: 0, width: 3, height: 8 },
+  'phase-tabs':      { col: 3, row: 0, width: 9, height: 1 },
+  'phase-checklist': { col: 3, row: 1, width: 4, height: 7 },
+  'phase-notes':     { col: 7, row: 1, width: 5, height: 7 },
+};
+
+function mentorshipLayout(focus: MentorshipFocus): Record<string, GridPlacement> {
+  // Provider detail trumps role — once a provider is selected we show the
+  // detail layout regardless of role (director, mentor, or exec-drilled).
+  if (focus.selectedProviderId) return MENTORSHIP_PROVIDER_LAYOUT;
+  switch (focus.role) {
+    case 'idle': return MENTORSHIP_IDLE_LAYOUT;
+    case 'director': return MENTORSHIP_DIRECTOR_LAYOUT;
+    case 'mentor': return MENTORSHIP_MENTOR_LAYOUT;
+    case 'exec':
+      return focus.selectedDirectorId
+        ? MENTORSHIP_EXEC_DRILLED_LAYOUT
+        : MENTORSHIP_EXEC_LAYOUT;
+  }
 }
 
 // True when the pointerdown landed on a native scrollbar gutter of any
@@ -231,6 +286,12 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
         entries = entries
           .filter((e) => e.id in layout)
           .map((e) => ({ ...e, placement: layout[e.id] }));
+      } else if (workspace.id === 'mentorship') {
+        const focus = mentorshipFocusSignal(workspace.id).value;
+        const layout = mentorshipLayout(focus);
+        entries = entries
+          .filter((e) => e.id in layout)
+          .map((e) => ({ ...e, placement: layout[e.id] }));
       }
       if (entries.length === 0) return;
       const built = buildBSP(entries, { col: 0, row: 0, w: grid.cols, h: grid.rows });
@@ -277,6 +338,33 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
         lastSyncedRef.current = { mode: current.mode, moduleId: current.moduleId };
       } catch (err) {
         console.warn('mode-aware BSP rebuild failed', err);
+      }
+    });
+  }, [workspace.id]);
+
+  // Mode-aware BSP rebuild for the mentorship workspace. Keyed off role +
+  // selectedDirectorId + selectedProviderId so role flips, exec drill-ins,
+  // and provider drilldowns each trigger a fresh layout.
+  const mentorshipLastSyncedRef = useRef<string | null>(null);
+  useEffect(() => { mentorshipLastSyncedRef.current = null; }, [workspace.id]);
+  useEffect(() => {
+    if (workspace.id !== 'mentorship') return;
+    const focus = mentorshipFocusSignal(workspace.id);
+    return focus.subscribe((current) => {
+      const sig = `${current.role}:${current.selectedDirectorId ?? ''}:${current.selectedProviderId ?? ''}`;
+      if (mentorshipLastSyncedRef.current === sig) return;
+      const layout = mentorshipLayout(current);
+      const reg = registryRef.current;
+      const placements = Object.entries(reg)
+        .filter(([id]) => id in layout)
+        .map(([id, b]) => ({ id, placement: layout[id], minW: b.minW, minH: b.minH }));
+      if (placements.length === 0) return;
+      try {
+        const built = buildBSP(placements, { col: 0, row: 0, w: grid.cols, h: grid.rows });
+        setRoot(built);
+        mentorshipLastSyncedRef.current = sig;
+      } catch (err) {
+        console.warn('mentorship BSP rebuild failed', err);
       }
     });
   }, [workspace.id]);
@@ -1232,6 +1320,10 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
           : inst.type === 'clinical-topic-cv'
             || inst.type === 'clinical-topic-controlled'
             || inst.type === 'clinical-topic-general'
+          ? {
+              workspaceId: workspace.id,
+            }
+          : inst.type === 'mentorship-role-selector'
           ? {
               workspaceId: workspace.id,
             }

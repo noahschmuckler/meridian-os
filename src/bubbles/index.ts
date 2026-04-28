@@ -21,6 +21,7 @@ import { ClinicalTopicBubble } from './clinical-topic-bubble';
 import { ClinicalTools } from './clinical-tools';
 import { OpenEvidenceBuilder } from './openevidence-builder';
 import { PreventCalculator } from './prevent-calculator';
+import { MentorshipRoleSelector } from './mentorship-role-selector';
 
 export interface BubbleProps {
   instance: BubbleInstance;
@@ -45,6 +46,7 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'clinical-tools': ClinicalTools as ComponentType<BubbleProps>,
   'openevidence-builder': OpenEvidenceBuilder as ComponentType<BubbleProps>,
   'prevent-calculator': PreventCalculator as ComponentType<BubbleProps>,
+  'mentorship-role-selector': MentorshipRoleSelector as ComponentType<BubbleProps>,
 };
 
 export function getPrimitiveComponent(type: BubblePrimitiveType): ComponentType<BubbleProps> {

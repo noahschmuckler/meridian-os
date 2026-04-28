@@ -34,6 +34,14 @@ export type BubblePrimitiveType =
   | 'clinical-topic-general'
   | 'clinical-tools'
   | 'prevent-calculator'
+  | 'mentorship-role-selector'
+  | 'mentorship-exec-overview'
+  | 'mentorship-matrix'
+  | 'mentorship-mentees-list'
+  | 'mentorship-mentee-overview'
+  | 'mentorship-phase-tabs'
+  | 'mentorship-phase-checklist'
+  | 'mentorship-phase-notes'
   | 'placeholder';
 
 export type SizeKey = 'xs' | 's' | 'm' | 'l' | 'xl';

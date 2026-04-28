@@ -559,6 +559,18 @@
 .t-clinical-tools         { --type-color: #f4c020; }
 .t-openevidence-builder   { --type-color: #f4c020; }
 
+/* Slate — meta / dev tooling (mentorship role-selector and future demo controls) */
+.t-mentorship-role-selector { --type-color: #5f6b7a; }
+
+/* Mentorship workspace primitives — Phase 1 stubs except role-selector. */
+.t-mentorship-exec-overview   { --type-color: #d92e2e; }
+.t-mentorship-matrix          { --type-color: #1f4cae; }
+.t-mentorship-mentees-list    { --type-color: #1A6F8E; }
+.t-mentorship-mentee-overview { --type-color: #0F6B42; }
+.t-mentorship-phase-tabs      { --type-color: #1f4cae; }
+.t-mentorship-phase-checklist { --type-color: #0F6B42; }
+.t-mentorship-phase-notes     { --type-color: #f4c020; }
+
 /* === Print styles ===
    Hide all bubble UI; show the print-view component (rendered hidden by
    default on screen). Provider hits Cmd+P or the FAB print button to

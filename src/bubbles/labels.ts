@@ -43,5 +43,13 @@ export const PRIMITIVE_LABELS: Record<BubblePrimitiveType, string> = {
   'clinical-topic-general': 'General Internal Med',
   'clinical-tools': 'Clinical tools',
   'prevent-calculator': 'PREVENT calculator',
+  'mentorship-role-selector': 'View as',
+  'mentorship-exec-overview': 'Directors',
+  'mentorship-matrix': 'Matrix',
+  'mentorship-mentees-list': 'Mentees',
+  'mentorship-mentee-overview': 'Mentee detail',
+  'mentorship-phase-tabs': 'Phases',
+  'mentorship-phase-checklist': 'Phase checklist',
+  'mentorship-phase-notes': 'Phase notes',
   'placeholder': 'Empty slot',
 };
