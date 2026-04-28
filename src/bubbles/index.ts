@@ -26,6 +26,8 @@ import { MentorshipMatrix } from './mentorship-matrix';
 import { MentorshipPhaseTabs } from './mentorship-phase-tabs';
 import { MentorshipPhaseChecklist } from './mentorship-phase-checklist';
 import { MentorshipPhaseNotes } from './mentorship-phase-notes';
+import { MentorshipMenteesList } from './mentorship-mentees-list';
+import { MentorshipMenteeOverview } from './mentorship-mentee-overview';
 
 export interface BubbleProps {
   instance: BubbleInstance;
@@ -55,6 +57,8 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'mentorship-phase-tabs': MentorshipPhaseTabs as ComponentType<BubbleProps>,
   'mentorship-phase-checklist': MentorshipPhaseChecklist as ComponentType<BubbleProps>,
   'mentorship-phase-notes': MentorshipPhaseNotes as ComponentType<BubbleProps>,
+  'mentorship-mentees-list': MentorshipMenteesList as ComponentType<BubbleProps>,
+  'mentorship-mentee-overview': MentorshipMenteeOverview as ComponentType<BubbleProps>,
 };
 
 export function getPrimitiveComponent(type: BubblePrimitiveType): ComponentType<BubbleProps> {

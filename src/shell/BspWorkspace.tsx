@@ -1328,6 +1328,8 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
             || inst.type === 'mentorship-phase-tabs'
             || inst.type === 'mentorship-phase-checklist'
             || inst.type === 'mentorship-phase-notes'
+            || inst.type === 'mentorship-mentees-list'
+            || inst.type === 'mentorship-mentee-overview'
           ? {
               workspaceId: workspace.id,
             }
