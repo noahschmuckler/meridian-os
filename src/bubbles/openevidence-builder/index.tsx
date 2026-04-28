@@ -1,12 +1,13 @@
-// OpenEvidence query builder — UI shell for v1.
+// OpenEvidence query builder.
 //
 // Builds a structured clinical query (question type + topic + optional
-// patient context). The "send" action is a no-op for now — this iteration
-// is the bubble surface only. Once the harness adoption mechanic ships, an
-// LLM with this bubble in its brain will be able to populate fields and
-// trigger sends from natural-language conversation.
+// patient context) and copies it to the clipboard so the provider can paste
+// it into openevidence.com. Mirrors vanilla Meridian's "Copy for
+// OpenEvidence" flow. Once the harness adoption mechanic ships, an LLM with
+// this bubble in its brain will be able to populate fields and trigger
+// copies from natural-language conversation.
 
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
@@ -35,15 +36,46 @@ export function OpenEvidenceBuilder({ instance }: Props): JSX.Element {
     ? `[${questionType}] ${topic.trim()}${context.trim() ? ` — ${context.trim()}` : ''}`
     : '';
 
-  function send(): void {
-    // No-op for v1 — wiring to OpenEvidence is future scope.
-    console.info('OE query (not yet wired):', queryPreview);
+  const [copied, setCopied] = useState<'ok' | 'err' | null>(null);
+  const copiedTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (copiedTimeoutRef.current != null) window.clearTimeout(copiedTimeoutRef.current);
+  }, []);
+
+  function flashCopied(state: 'ok' | 'err'): void {
+    setCopied(state);
+    if (copiedTimeoutRef.current != null) window.clearTimeout(copiedTimeoutRef.current);
+    copiedTimeoutRef.current = window.setTimeout(() => setCopied(null), 1800);
+  }
+
+  async function send(): Promise<void> {
+    if (!queryPreview) return;
+    try {
+      await navigator.clipboard.writeText(queryPreview);
+      flashCopied('ok');
+    } catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = queryPreview;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        flashCopied(ok ? 'ok' : 'err');
+      } catch {
+        flashCopied('err');
+      }
+    }
   }
 
   function reset(): void {
     setQuestionType('treatment');
     setTopic('');
     setContext('');
+    setCopied(null);
   }
 
   return (
@@ -133,7 +165,7 @@ export function OpenEvidenceBuilder({ instance }: Props): JSX.Element {
         <button
           type="button"
           onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); send(); }}
+          onClick={(e) => { e.stopPropagation(); void send(); }}
           disabled={!queryPreview}
           style={{
             marginTop: 10,
@@ -144,14 +176,34 @@ export function OpenEvidenceBuilder({ instance }: Props): JSX.Element {
             padding: '8px 10px',
             border: 'none',
             borderRadius: 4,
-            background: queryPreview ? 'var(--type-color)' : 'rgba(0,0,0,0.08)',
-            color: queryPreview ? '#1a1a1a' : 'rgba(0,0,0,0.4)',
+            background: copied === 'ok'
+              ? '#0F6B42'
+              : copied === 'err'
+                ? '#d92e2e'
+                : queryPreview ? 'var(--type-color)' : 'rgba(0,0,0,0.08)',
+            color: copied
+              ? '#fff'
+              : queryPreview ? '#1a1a1a' : 'rgba(0,0,0,0.4)',
             cursor: queryPreview ? 'pointer' : 'default',
+            transition: 'background 200ms, color 200ms',
           }}
-        >Send to OpenEvidence</button>
+        >{
+          copied === 'ok'
+            ? '✓ Copied — paste into OpenEvidence'
+            : copied === 'err'
+              ? 'Copy failed — select preview and copy manually'
+              : 'Copy for OpenEvidence'
+        }</button>
 
         <p style={{ fontSize: 10, lineHeight: 1.4, opacity: 0.55, marginTop: 10, fontStyle: 'italic' }}>
-          Draft UI — send is a no-op. Wiring to OpenEvidence and harness adoption (drag onto chat → "adopt program") is the next iteration.
+          Click to copy the query, then paste into <a
+            href="https://www.openevidence.com"
+            target="_blank"
+            rel="noreferrer"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            style={{ color: 'inherit' }}
+          >openevidence.com</a>.
         </p>
       </div>
     </div>
