@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:saw": "tsc -b && VITE_LLM_DISABLED=1 vite build --outDir dist-saw",
     "preview": "vite preview"
   },
   "dependencies": {

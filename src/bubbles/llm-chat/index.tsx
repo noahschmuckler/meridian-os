@@ -9,8 +9,16 @@
 // Replies come from /api/chat (Cloudflare Pages Function calling Anthropic).
 // Brain context — content extracted per attached mini-bubble's relationship —
 // is assembled by the host (BspWorkspace) and threaded in via brainContext.
+//
+// Build-time flag VITE_LLM_DISABLED disables the network call path: the input
+// form is replaced with a notice, compact/clear chrome is hidden, and the
+// seeded greeting is overridden. Used for the SAW (internal-server) build
+// where the Cloudflare Pages Function is unavailable.
 
 import { useEffect, useRef, useState } from 'preact/hooks';
+
+const LLM_DISABLED = import.meta.env.VITE_LLM_DISABLED === '1';
+const DISABLED_GREETING = 'Chat is disabled in this offline build.';
 import type { JSX } from 'preact';
 import type { AttachRelationship, BrainBubbleConfig, BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
@@ -66,13 +74,15 @@ export function LlmChat({
   const propsMessages = p.messages;
   const messages: Message[] = propsMessages ?? [];
 
+  const effectiveGreeting = LLM_DISABLED ? DISABLED_GREETING : p.greeting;
+
   // Seed the greeting message whenever there are no messages and a greeting
   // is configured. Fires on first mount and again after a reset / fresh load.
   useEffect(() => {
-    if ((!propsMessages || propsMessages.length === 0) && p.greeting) {
-      onMessagesChange?.([{ id: 'sys-greeting', role: 'system', text: p.greeting }]);
+    if ((!propsMessages || propsMessages.length === 0) && effectiveGreeting) {
+      onMessagesChange?.([{ id: 'sys-greeting', role: 'system', text: effectiveGreeting }]);
     }
-  }, [propsMessages, p.greeting]);
+  }, [propsMessages, effectiveGreeting]);
 
   // Latest-messages ref so async assistant replies can append to whatever the
   // current state is, not a stale closure copy.
@@ -186,8 +196,8 @@ export function LlmChat({
   }
 
   function clearConversation(): void {
-    if (p.greeting) {
-      const seed: Message = { id: nextId('sys-greet'), role: 'system', text: p.greeting };
+    if (effectiveGreeting) {
+      const seed: Message = { id: nextId('sys-greet'), role: 'system', text: effectiveGreeting };
       latestRef.current = [seed];
       onMessagesChange?.([seed]);
     } else {
@@ -203,23 +213,25 @@ export function LlmChat({
     <div class="llm-chat" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
         <span class="bubble__title">{instance.title}</span>
-        <div class="llm-chat__chrome-actions">
-          <button
-            class="llm-chat__action"
-            onClick={(e) => { e.stopPropagation(); compactConversation(); }}
-            title="Summarize prior turns and continue"
-            disabled={messages.length <= 1}
-          >
-            compact
-          </button>
-          <button
-            class="llm-chat__action"
-            onClick={(e) => { e.stopPropagation(); clearConversation(); }}
-            title="Clear conversation"
-          >
-            clear
-          </button>
-        </div>
+        {!LLM_DISABLED && (
+          <div class="llm-chat__chrome-actions">
+            <button
+              class="llm-chat__action"
+              onClick={(e) => { e.stopPropagation(); compactConversation(); }}
+              title="Summarize prior turns and continue"
+              disabled={messages.length <= 1}
+            >
+              compact
+            </button>
+            <button
+              class="llm-chat__action"
+              onClick={(e) => { e.stopPropagation(); clearConversation(); }}
+              title="Clear conversation"
+            >
+              clear
+            </button>
+          </div>
+        )}
       </div>
       {p.brain && (
         <BrainBubble
@@ -246,20 +258,45 @@ export function LlmChat({
               <span class="llm-chat__dots"><span /><span /><span /></span>
             </div>
           )}
-          {messages.length <= 1 && !pending && (
+          {messages.length <= 1 && !pending && !LLM_DISABLED && (
             <div class="llm-chat__msg llm-chat__msg--note">drag a bubble onto me to attach · ask me anything</div>
           )}
         </div>
-        <form class="llm-chat__input" onSubmit={submit}>
-          <input
-            type="text"
-            placeholder={pending ? 'thinking…' : 'ask anything…'}
-            value={input}
-            disabled={pending}
-            onInput={(e) => setInput((e.currentTarget as HTMLInputElement).value)}
-          />
-          <button type="submit" disabled={!input.trim() || pending}>send</button>
-        </form>
+        {LLM_DISABLED ? (
+          <div
+            style={{
+              padding: '10px 12px',
+              borderTop: '1px solid rgba(0,0,0,0.08)',
+              fontSize: 11,
+              lineHeight: 1.45,
+              opacity: 0.75,
+            }}
+          >
+            <div style={{ fontWeight: 600, marginBottom: 2 }}>LLM features disabled in this build.</div>
+            <div>
+              The full chat is available at{' '}
+              <a
+                href="https://meridian-os.pages.dev"
+                target="_blank"
+                rel="noreferrer"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                style={{ color: 'inherit' }}
+              >meridian-os.pages.dev</a>.
+            </div>
+          </div>
+        ) : (
+          <form class="llm-chat__input" onSubmit={submit}>
+            <input
+              type="text"
+              placeholder={pending ? 'thinking…' : 'ask anything…'}
+              value={input}
+              disabled={pending}
+              onInput={(e) => setInput((e.currentTarget as HTMLInputElement).value)}
+            />
+            <button type="submit" disabled={!input.trim() || pending}>send</button>
+          </form>
+        )}
       </div>
     </div>
   );
