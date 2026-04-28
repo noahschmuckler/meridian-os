@@ -1324,6 +1324,10 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
               workspaceId: workspace.id,
             }
           : inst.type === 'mentorship-role-selector'
+            || inst.type === 'mentorship-matrix'
+            || inst.type === 'mentorship-phase-tabs'
+            || inst.type === 'mentorship-phase-checklist'
+            || inst.type === 'mentorship-phase-notes'
           ? {
               workspaceId: workspace.id,
             }
