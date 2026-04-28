@@ -26,6 +26,9 @@ import {
 import { buildBrainContext } from '../data/brainContext';
 import { moduleFocusSignal, type WorkspaceMode } from '../data/moduleFocus';
 import { mentorshipFocusSignal, type MentorshipFocus } from '../data/mentorshipFocus';
+import { trainerProviderContextSignal } from '../data/trainerProviderContext';
+import { mentorshipDataSignal, PHASES as MENTORSHIP_PHASES } from '../data/mentorshipData';
+import { navigateToWorkspace } from '../data/workspaceNav';
 import {
   buildBSP,
   renderBSP,
@@ -1234,12 +1237,67 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     return m;
   }, [registry, seeds]);
 
+  // Mentorship → Trainer cross-workspace banner: when Trainer was launched
+  // from a Mentorship mentee-overview "Open Trainer view →" click, render a
+  // thin top banner naming the mentee + phase. The banner is informational
+  // only for v1 (per-mentee seed customization is a v2 follow-up); the
+  // bubbles below still show the default Patel cohort state.
+  const trainerCtx = trainerProviderContextSignal.value;
+  const mentorshipBannerMentee = workspace.id === 'trainer' && trainerCtx.providerId
+    ? mentorshipDataSignal.value.providers.find((p) => p.id === trainerCtx.providerId)
+    : null;
+  const mentorshipBannerPhase = mentorshipBannerMentee
+    ? MENTORSHIP_PHASES.find((p) => p.id === mentorshipBannerMentee.currentPhase)
+    : null;
+
   return (
     <div
       ref={containerRef}
       class={`bsp-workspace${lifted ? ' is-lifting' : ''}`}
       style={{ position: 'fixed', inset: 0, padding: 0, background: 'var(--bg)' }}
     >
+      {mentorshipBannerMentee && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 5,
+          padding: '7px 14px',
+          background: 'rgba(95, 107, 122, 0.92)',
+          color: 'white',
+          fontSize: 11.5,
+          fontWeight: 500,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+        }}>
+          <span style={{ fontSize: 13 }}>👥</span>
+          <span>
+            <strong style={{ fontWeight: 700 }}>Mentorship view:</strong>{' '}
+            {mentorshipBannerMentee.name} · {mentorshipBannerPhase?.label ?? mentorshipBannerMentee.currentPhase}{' '}
+            <span style={{ opacity: 0.7, fontStyle: 'italic' }}>(mocked data)</span>
+          </span>
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); navigateToWorkspace('mentorship'); }}
+            style={{
+              marginLeft: 'auto',
+              border: '1px solid rgba(255,255,255,0.3)',
+              background: 'transparent',
+              color: 'white',
+              cursor: 'pointer',
+              font: 'inherit',
+              fontSize: 11,
+              padding: '3px 10px',
+              borderRadius: 4,
+            }}
+          >← back to Mentorship</button>
+        </div>
+      )}
       {rendered === null && (
         <div style={{ padding: 24, color: 'var(--ink-faint)' }}>
           BSP layout failed to construct.

@@ -1,5 +1,4 @@
 import { render } from 'preact';
-import { signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import type { JSX } from 'preact';
 import './styles/reset.css';
@@ -12,6 +11,8 @@ import { WorkspaceShell } from './shell/WorkspaceShell';
 import { PrintView } from './shell/PrintView';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
+import { activeWorkspaceIdSignal, entryFromSignal } from './data/workspaceNav';
+import { clearTrainerProviderContext } from './data/trainerProviderContext';
 
 import homeConfigJson from './data/home.json';
 import trainerWs from './data/workspaces/trainer.json';
@@ -72,12 +73,9 @@ const clinicalModules = (
   ((clinicalModulesSeed as { clinical?: { modules?: ModuleData[] } }).clinical?.modules) ?? []
 );
 
-const activeWorkspaceId = signal<string | null>(null);
-const entryFrom = signal<DOMRect | null>(null);
-
 function App(): JSX.Element {
   useVisualViewport();
-  const id = activeWorkspaceId.value;
+  const id = activeWorkspaceIdSignal.value;
   // HomeScreen is always rendered. The WorkspaceShell mounts on top of it
   // when a workspace is active. During the fly-back animation, the home
   // behind becomes progressively visible as the workspace shrinks, so by
@@ -92,18 +90,21 @@ function App(): JSX.Element {
         onTapWorkspace={(wid, rect) => {
           // Block while a workspace is already active (mid-transition or
           // settled). User must dismiss before tapping another tile.
-          if (activeWorkspaceId.value) return;
-          entryFrom.value = rect;
-          activeWorkspaceId.value = wid;
+          if (activeWorkspaceIdSignal.value) return;
+          entryFromSignal.value = rect;
+          activeWorkspaceIdSignal.value = wid;
         }}
       />
       {id && workspaces[id] && (
         <WorkspaceShell
           workspace={workspaces[id]}
           seeds={seeds}
-          entryFrom={entryFrom.value}
+          entryFrom={entryFromSignal.value}
           onBackToHome={() => {
-            activeWorkspaceId.value = null;
+            // Leaving Trainer always clears any cross-workspace context so
+            // the next direct entry from home gets the default seed/state.
+            if (id === 'trainer') clearTrainerProviderContext();
+            activeWorkspaceIdSignal.value = null;
           }}
         />
       )}

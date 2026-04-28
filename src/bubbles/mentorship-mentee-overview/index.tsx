@@ -17,6 +17,8 @@ import {
   type NoteEntry,
 } from '../../data/mentorshipData';
 import { mentorshipFocusSignal } from '../../data/mentorshipFocus';
+import { trainerProviderContextSignal } from '../../data/trainerProviderContext';
+import { navigateToWorkspace } from '../../data/workspaceNav';
 
 interface Props {
   instance: BubbleInstance;
@@ -77,10 +79,12 @@ export function MentorshipMenteeOverview({ workspaceId }: Props): JSX.Element {
   }
 
   function openTrainer(): void {
-    // Stub: Phase 5 wires this to the cross-workspace launch with per-mentee
-    // dummy data. For now, log + alert so the affordance is visible in demo.
-    console.info(`[Phase 5 stub] Launch Trainer for ${mentee!.name} at ${mentee!.currentPhase}`);
-    alert(`Phase 5 will launch the Trainer workspace pre-seeded with ${mentee!.name}'s state at ${phase?.label ?? mentee!.currentPhase}.`);
+    if (!mentee) return;
+    // Set the cross-workspace context first so Trainer mounts already aware
+    // of which mentee is being viewed; then trigger the navigation (fly back
+    // to home, fly into Trainer).
+    trainerProviderContextSignal.value = { providerId: mentee.id };
+    navigateToWorkspace('trainer');
   }
 
   const overallColor = overall >= 70 ? '#22c55e' : overall >= 30 ? '#eab308' : '#d92e2e';
