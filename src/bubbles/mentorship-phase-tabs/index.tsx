@@ -10,7 +10,9 @@ import type { SeedDict } from '../../data/seedResolver';
 import {
   mentorshipDataSignal,
   PHASES,
+  OM_PHASES,
   getPhaseProgress,
+  type Phase,
 } from '../../data/mentorshipData';
 import { mentorshipFocusSignal } from '../../data/mentorshipFocus';
 
@@ -24,7 +26,9 @@ const TYPE_COLORS: Record<string, string> = {
   weekly:    '#028090',
   monthly:   '#f97316',
   quarterly: '#8b5cf6',
+  ops:       '#0ea5e9',
 };
+const OPS_COLOR = TYPE_COLORS.ops;
 
 export function MentorshipPhaseTabs({ workspaceId }: Props): JSX.Element {
   const data = mentorshipDataSignal.value;
@@ -57,6 +61,59 @@ export function MentorshipPhaseTabs({ workspaceId }: Props): JSX.Element {
   }
 
   const curIdx = PHASES.findIndex((p) => p.id === provider.currentPhase);
+  // Mentors don't see the ops track at all (director × OM conversations).
+  const showOps = f.role === 'exec' || f.role === 'director';
+
+  function renderTab(ph: Phase, opts: { isCurrent: boolean; isFuture: boolean }): JSX.Element {
+    const { isCurrent, isFuture } = opts;
+    const ps = getPhaseProgress(data, provider!.id, ph.id);
+    const isActive = ph.id === f.selectedPhase;
+    const accent = TYPE_COLORS[ph.type];
+    const trackBorder = ph.track === 'ops' ? OPS_COLOR : '#028090';
+    return (
+      <button
+        key={ph.id}
+        type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); pickPhase(ph.id); }}
+        style={{
+          position: 'relative',
+          padding: '5px 9px',
+          borderRadius: 5,
+          border: `2px solid ${
+            isActive
+              ? '#0f1b2d'
+              : isCurrent
+                ? trackBorder
+                : ps.pct === 100
+                  ? 'rgba(34,197,94,0.5)'
+                  : 'rgba(0,0,0,0.1)'
+          }`,
+          background: isActive ? '#0f1b2d' : isFuture ? '#f0f2f5' : 'white',
+          cursor: 'pointer',
+          font: 'inherit',
+          minWidth: 44,
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ fontSize: 10, fontWeight: 700, color: isActive ? 'white' : accent }}>{ph.short}</div>
+        <div style={{ fontSize: 8, color: isActive ? 'rgba(255,255,255,0.7)' : '#8899a6' }}>
+          {isFuture ? '—' : `${ps.done}/${ps.total}`}
+        </div>
+        {isCurrent && !isActive && (
+          <span style={{
+            position: 'absolute',
+            top: -3,
+            right: -3,
+            width: 7,
+            height: 7,
+            borderRadius: '50%',
+            background: trackBorder,
+          }} />
+        )}
+      </button>
+    );
+  }
 
   return (
     <div class="cm-bubble" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -90,57 +147,26 @@ export function MentorshipPhaseTabs({ workspaceId }: Props): JSX.Element {
           Current: {PHASES.find((p) => p.id === provider.currentPhase)?.label ?? '—'}
         </span>
       </div>
-      <div class="bubble__body" style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden', display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px' }}>
-        {PHASES.map((ph, i) => {
-          const ps = getPhaseProgress(data, provider.id, ph.id);
-          const isActive = ph.id === f.selectedPhase;
-          const isCurrent = ph.id === provider.currentPhase;
-          const isFuture = i > curIdx;
-          const accent = TYPE_COLORS[ph.type];
-          return (
-            <button
-              key={ph.id}
-              type="button"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => { e.stopPropagation(); pickPhase(ph.id); }}
-              style={{
-                position: 'relative',
-                padding: '5px 9px',
-                borderRadius: 5,
-                border: `2px solid ${
-                  isActive
-                    ? '#0f1b2d'
-                    : isCurrent
-                      ? '#028090'
-                      : ps.pct === 100
-                        ? 'rgba(34,197,94,0.5)'
-                        : 'rgba(0,0,0,0.1)'
-                }`,
-                background: isActive ? '#0f1b2d' : isFuture ? '#f0f2f5' : 'white',
-                cursor: 'pointer',
-                font: 'inherit',
-                minWidth: 44,
-                flexShrink: 0,
-              }}
-            >
-              <div style={{ fontSize: 10, fontWeight: 700, color: isActive ? 'white' : accent }}>{ph.short}</div>
-              <div style={{ fontSize: 8, color: isActive ? 'rgba(255,255,255,0.7)' : '#8899a6' }}>
-                {isFuture ? '—' : `${ps.done}/${ps.total}`}
-              </div>
-              {isCurrent && !isActive && (
-                <span style={{
-                  position: 'absolute',
-                  top: -3,
-                  right: -3,
-                  width: 7,
-                  height: 7,
-                  borderRadius: '50%',
-                  background: '#028090',
-                }} />
-              )}
-            </button>
-          );
-        })}
+      <div class="bubble__body" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6, padding: '6px 10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: '#028090', letterSpacing: 0.4 }}>MENTOR TRACK</div>
+          <div style={{ display: 'flex', overflowX: 'auto', gap: 4, paddingBottom: 2 }}>
+            {PHASES.map((ph, i) => renderTab(ph, {
+              isCurrent: ph.id === provider.currentPhase,
+              isFuture: i > curIdx,
+            }))}
+          </div>
+        </div>
+        {showOps && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: OPS_COLOR, letterSpacing: 0.4 }}>
+              OFFICE MANAGER TRACK <span style={{ fontWeight: 400, color: '#8899a6' }}>· MD + OM conversations</span>
+            </div>
+            <div style={{ display: 'flex', overflowX: 'auto', gap: 4, paddingBottom: 2 }}>
+              {OM_PHASES.map((ph) => renderTab(ph, { isCurrent: false, isFuture: false }))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

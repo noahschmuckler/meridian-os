@@ -6,7 +6,7 @@ import { useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
-import { mentorshipDataSignal, PHASES } from '../../data/mentorshipData';
+import { mentorshipDataSignal, ALL_PHASES } from '../../data/mentorshipData';
 import { mentorshipFocusSignal } from '../../data/mentorshipFocus';
 
 interface Props {
@@ -15,8 +15,17 @@ interface Props {
   workspaceId: string;
 }
 
-function authorForRole(role: string, users: { id: string; name: string }[]): { id: string; name: string } | null {
+// Ops-track notes are authored by a director; mentor-track notes can be either
+// mentor or director.
+function authorForRole(
+  role: string,
+  isOpsPhase: boolean,
+  users: { id: string; name: string }[],
+): { id: string; name: string } | null {
   const lookup = (id: string) => users.find((u) => u.id === id) ?? null;
+  if (isOpsPhase) {
+    return role === 'director' ? lookup('md1') : null;
+  }
   switch (role) {
     case 'mentor':   return lookup('mt1');
     case 'director': return lookup('md1');
@@ -34,7 +43,7 @@ export function MentorshipPhaseNotes({ workspaceId }: Props): JSX.Element {
     ? data.providers.find((p) => p.id === f.selectedProviderId)
     : null;
   const phase = f.selectedPhase
-    ? PHASES.find((p) => p.id === f.selectedPhase)
+    ? ALL_PHASES.find((p) => p.id === f.selectedPhase)
     : null;
 
   if (!provider || !phase) {
@@ -50,7 +59,8 @@ export function MentorshipPhaseNotes({ workspaceId }: Props): JSX.Element {
     );
   }
 
-  const author = authorForRole(f.role, data.users);
+  const isOpsPhase = phase.track === 'ops';
+  const author = authorForRole(f.role, isOpsPhase, data.users);
   const canEdit = author !== null;
   const key = `${provider.id}:${phase.id}`;
   const notes = data.notes[key] ?? [];
@@ -153,7 +163,7 @@ export function MentorshipPhaseNotes({ workspaceId }: Props): JSX.Element {
           </div>
         ) : (
           <div style={{ padding: '8px 12px', fontSize: 10, fontStyle: 'italic', color: '#8899a6', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-            Read-only (executive role).
+            {isOpsPhase ? 'Read-only — Office Manager notes are added by the medical director.' : 'Read-only (executive role).'}
           </div>
         )}
       </div>

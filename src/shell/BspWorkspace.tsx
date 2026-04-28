@@ -153,9 +153,9 @@ const MENTORSHIP_MENTOR_LAYOUT: Record<string, GridPlacement> = {
 
 const MENTORSHIP_PROVIDER_LAYOUT: Record<string, GridPlacement> = {
   'role-selector':   { col: 0, row: 0, width: 3, height: 8 },
-  'phase-tabs':      { col: 3, row: 0, width: 9, height: 1 },
-  'phase-checklist': { col: 3, row: 1, width: 4, height: 7 },
-  'phase-notes':     { col: 7, row: 1, width: 5, height: 7 },
+  'phase-tabs':      { col: 3, row: 0, width: 9, height: 2 },
+  'phase-checklist': { col: 3, row: 2, width: 4, height: 6 },
+  'phase-notes':     { col: 7, row: 2, width: 5, height: 6 },
 };
 
 function mentorshipLayout(focus: MentorshipFocus): Record<string, GridPlacement> {

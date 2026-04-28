@@ -15,7 +15,7 @@ import type { BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import {
   mentorshipDataSignal,
-  PHASES,
+  ALL_PHASES,
   getPhaseProgress,
 } from '../../data/mentorshipData';
 import { mentorshipFocusSignal } from '../../data/mentorshipFocus';
@@ -30,10 +30,16 @@ const TYPE_COLOR: Record<string, string> = {
   weekly:    '#028090',
   monthly:   '#f97316',
   quarterly: '#8b5cf6',
+  ops:       '#0ea5e9',
 };
 
 // Demo-time author per role. Real deployment would resolve this from SSO.
-function representativeUserId(role: string): string | null {
+// Ops-track checkoffs are always authored by a director; mentor-track checkoffs
+// can be authored by either mentor or director.
+function authorIdForCheckoff(role: string, isOpsPhase: boolean): string | null {
+  if (isOpsPhase) {
+    return role === 'director' ? 'md1' : null;
+  }
   switch (role) {
     case 'mentor':   return 'mt1';
     case 'director': return 'md1';
@@ -50,7 +56,7 @@ export function MentorshipPhaseChecklist({ workspaceId }: Props): JSX.Element {
     ? data.providers.find((p) => p.id === f.selectedProviderId)
     : null;
   const phase = f.selectedPhase
-    ? PHASES.find((p) => p.id === f.selectedPhase)
+    ? ALL_PHASES.find((p) => p.id === f.selectedPhase)
     : null;
 
   if (!provider || !phase) {
@@ -66,7 +72,8 @@ export function MentorshipPhaseChecklist({ workspaceId }: Props): JSX.Element {
     );
   }
 
-  const editorId = representativeUserId(f.role);
+  const isOpsPhase = phase.track === 'ops';
+  const editorId = authorIdForCheckoff(f.role, isOpsPhase);
   const canEdit = editorId !== null;
   const ps = getPhaseProgress(data, provider.id, phase.id);
   const accent = TYPE_COLOR[phase.type];
@@ -98,8 +105,8 @@ export function MentorshipPhaseChecklist({ workspaceId }: Props): JSX.Element {
           color: accent,
           textTransform: 'uppercase',
           letterSpacing: 0.4,
-        }}>{phase.type}</span>
-        {phase.md && (
+        }}>{isOpsPhase ? 'office mgr' : phase.type}</span>
+        {(phase.md || isOpsPhase) && (
           <span style={{
             marginLeft: 4,
             fontSize: 9,
@@ -108,7 +115,7 @@ export function MentorshipPhaseChecklist({ workspaceId }: Props): JSX.Element {
             borderRadius: 8,
             background: 'rgba(139,92,246,0.16)',
             color: '#8b5cf6',
-          }}>MD</span>
+          }}>{isOpsPhase ? 'MD + OM' : 'MD'}</span>
         )}
         <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, color: ps.pct === 100 ? '#22c55e' : '#0f1b2d' }}>
           {ps.pct}%
@@ -177,7 +184,9 @@ export function MentorshipPhaseChecklist({ workspaceId }: Props): JSX.Element {
         })}
         {!canEdit && (
           <div style={{ padding: '10px 14px', fontSize: 10, fontStyle: 'italic', color: '#8899a6' }}>
-            Read-only view (executive role). Switch to mentor or director to edit.
+            {isOpsPhase
+              ? 'Read-only — Office Manager phases are completed by the medical director.'
+              : 'Read-only view (executive role). Switch to mentor or director to edit.'}
           </div>
         )}
       </div>
