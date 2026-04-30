@@ -50,7 +50,7 @@
       "id": "questionnaire",
       "type": "questionnaire",
       "title": "Week-0 Questionnaire",
-      "props": {},
+      "props": { "questionnaireIds": ["q0"] },
       "resize": { "initial": "s", "states": {} }
     },
     {

@@ -132,6 +132,15 @@ export const QUESTIONNAIRES_BY_PHASE: Record<string, Questionnaire[]> = {
   q4: [Q_GROWTH],
 };
 
+const ALL_QUESTIONNAIRES: Questionnaire[] = [
+  Q0_HIRING, Q1_ORIENTATION, Q2_FIRST_CLINICAL, Q3_WEEK3,
+  Q4_MONTH1, Q6_MONTH2, Q_SAT, Q_GROWTH,
+];
+
+export function questionnaireById(id: string): Questionnaire | undefined {
+  return ALL_QUESTIONNAIRES.find((q) => q.id === id);
+}
+
 // Phase order used by the "all phases" sentinel view, so questionnaires appear
 // in the same order as the phase tabs.
 export const PHASE_ORDER: string[] = ['w1', 'w2', 'w3', 'w4', 'w6', 'w8', 'm3', 'm6', 'q4'];

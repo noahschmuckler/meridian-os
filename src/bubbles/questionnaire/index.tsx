@@ -19,8 +19,16 @@ import { ALL_PHASES, mentorshipDataSignal } from '../../data/mentorshipData';
 import {
   questionnairesForPhase,
   allQuestionnairesInOrder,
+  questionnaireById,
   type Questionnaire,
 } from '../../data/onboardingQuestionnaires';
+
+interface QuestionnaireBubbleProps {
+  /** Pin the bubble to a specific phase's questionnaires (overrides focus). */
+  phaseId?: string;
+  /** Pin the bubble to specific questionnaires by ID (overrides focus + phaseId). */
+  questionnaireIds?: string[];
+}
 
 interface Props {
   instance: BubbleInstance;
@@ -30,7 +38,42 @@ interface Props {
 
 const ACCENT = '#028090'; // mentor-track teal, matches the Phases bubble
 
-export function Questionnaire({ workspaceId }: Props): JSX.Element {
+export function Questionnaire({ instance, workspaceId }: Props): JSX.Element {
+  const props = (instance.props ?? {}) as QuestionnaireBubbleProps;
+
+  // 1. Explicit questionnaireIds prop wins — used by workspaces (e.g. trainer)
+  //    that don't have a mentorship focus to drive selection.
+  if (props.questionnaireIds && props.questionnaireIds.length > 0) {
+    const pinned = props.questionnaireIds
+      .map((id) => questionnaireById(id))
+      .filter((q): q is Questionnaire => !!q);
+    if (pinned.length === 0) {
+      return renderShell(<EmptyBody>No questionnaires found for the configured IDs.</EmptyBody>);
+    }
+    return renderShell(
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {pinned.map((q) => <QuestionnaireBlock key={q.id} questionnaire={q} />)}
+      </div>,
+    );
+  }
+
+  // 2. Pinned phaseId from props — same use case but lookup by phase.
+  if (props.phaseId) {
+    const questionnaires = questionnairesForPhase(props.phaseId);
+    const phLabel = ALL_PHASES.find((p) => p.id === props.phaseId)?.label ?? props.phaseId;
+    if (questionnaires.length === 0) {
+      return renderShell(<EmptyBody>No questionnaire defined for {phLabel}.</EmptyBody>, phLabel);
+    }
+    return renderShell(
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {questionnaires.map((q) => <QuestionnaireBlock key={q.id} questionnaire={q} />)}
+      </div>,
+      phLabel,
+    );
+  }
+
+  // 3. Otherwise read mentorship focus signal — only meaningful in workspaces
+  //    where that signal is actually driven.
   if (!workspaceId) {
     return renderShell(<EmptyBody>Questionnaires bind to a workspace.</EmptyBody>);
   }
