@@ -15,7 +15,7 @@ import {
   ALL_MENTOR_PHASES,
   ALL_OPS_PHASES,
 } from '../../data/mentorshipFocus';
-import { ALL_PHASES } from '../../data/mentorshipData';
+import { ALL_PHASES, mentorshipDataSignal } from '../../data/mentorshipData';
 import {
   questionnairesForPhase,
   allQuestionnairesInOrder,
@@ -37,10 +37,7 @@ export function Questionnaire({ workspaceId }: Props): JSX.Element {
 
   const focus = mentorshipFocusSignal(workspaceId);
   const f = focus.value;
-
-  if (!f.selectedProviderId) {
-    return renderShell(<EmptyBody>Pick a mentee, then a phase tab to see the matching questionnaire.</EmptyBody>);
-  }
+  const data = mentorshipDataSignal.value;
 
   if (f.selectedPhase === ALL_OPS_PHASES) {
     return renderShell(
@@ -79,17 +76,30 @@ export function Questionnaire({ workspaceId }: Props): JSX.Element {
     );
   }
 
-  if (!f.selectedPhase) {
-    return renderShell(<EmptyBody>Pick a phase tab to see the matching questionnaire.</EmptyBody>);
+  // Resolve effective phase: explicit phase-tab click wins, otherwise fall back
+  // to whatever provider/mentee is currently selected and use their currentPhase
+  // so the questionnaire surfaces automatically without requiring a tab click.
+  const activeProviderId = f.selectedProviderId ?? f.selectedMenteeId;
+  const activeProvider = activeProviderId
+    ? data.providers.find((p) => p.id === activeProviderId)
+    : null;
+  const effectivePhase: string | null =
+    f.selectedPhase ?? activeProvider?.currentPhase ?? null;
+
+  if (!effectivePhase) {
+    return renderShell(<EmptyBody>Select a mentee to see the questionnaire for their current phase.</EmptyBody>);
   }
 
-  const questionnaires = questionnairesForPhase(f.selectedPhase);
-  const phLabel = ALL_PHASES.find((p) => p.id === f.selectedPhase)?.label ?? f.selectedPhase;
+  const questionnaires = questionnairesForPhase(effectivePhase);
+  const phLabel = ALL_PHASES.find((p) => p.id === effectivePhase)?.label ?? effectivePhase;
+  const headerSuffix = activeProvider && !f.selectedPhase
+    ? `${activeProvider.name} · ${phLabel}`
+    : phLabel;
 
   if (questionnaires.length === 0) {
     return renderShell(
       <EmptyBody>No questionnaire scheduled for {phLabel}.</EmptyBody>,
-      phLabel,
+      headerSuffix,
     );
   }
 
@@ -97,7 +107,7 @@ export function Questionnaire({ workspaceId }: Props): JSX.Element {
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       {questionnaires.map((q) => <QuestionnaireBlock key={q.id} questionnaire={q} />)}
     </div>,
-    phLabel,
+    headerSuffix,
   );
 }
 
