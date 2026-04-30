@@ -59,6 +59,13 @@
       "title": "Phase Notes",
       "props": {},
       "resize": { "initial": "m", "states": {} }
+    },
+    {
+      "id": "questionnaire",
+      "type": "questionnaire",
+      "title": "Questionnaire",
+      "props": {},
+      "resize": { "initial": "m", "states": {} }
     }
   ],
   "layoutHints": {

@@ -1389,6 +1389,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
             || inst.type === 'mentorship-mentees-list'
             || inst.type === 'mentorship-mentee-overview'
             || inst.type === 'mentorship-exec-overview'
+            || inst.type === 'questionnaire'
           ? {
               workspaceId: workspace.id,
             }
