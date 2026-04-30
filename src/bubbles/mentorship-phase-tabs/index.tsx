@@ -14,7 +14,11 @@ import {
   getPhaseProgress,
   type Phase,
 } from '../../data/mentorshipData';
-import { mentorshipFocusSignal } from '../../data/mentorshipFocus';
+import {
+  mentorshipFocusSignal,
+  ALL_MENTOR_PHASES,
+  ALL_OPS_PHASES,
+} from '../../data/mentorshipFocus';
 
 interface Props {
   instance: BubbleInstance;
@@ -63,6 +67,36 @@ export function MentorshipPhaseTabs({ workspaceId }: Props): JSX.Element {
   const curIdx = PHASES.findIndex((p) => p.id === provider.currentPhase);
   // Mentors don't see the ops track at all (director × OM conversations).
   const showOps = f.role === 'exec' || f.role === 'director';
+
+  function renderAllButton(track: 'mentor' | 'ops'): JSX.Element {
+    const sentinel = track === 'mentor' ? ALL_MENTOR_PHASES : ALL_OPS_PHASES;
+    const accent = track === 'mentor' ? '#028090' : OPS_COLOR;
+    const isActive = f.selectedPhase === sentinel;
+    const phaseCount = track === 'mentor' ? PHASES.length : OM_PHASES.length;
+    return (
+      <button
+        type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); pickPhase(sentinel); }}
+        title={`Show all ${track === 'mentor' ? 'mentor-track' : 'office-manager-track'} phases`}
+        style={{
+          padding: '5px 10px',
+          borderRadius: 5,
+          border: `2px solid ${isActive ? '#0f1b2d' : accent}`,
+          background: isActive ? '#0f1b2d' : `${accent}14`,
+          cursor: 'pointer',
+          font: 'inherit',
+          minWidth: 50,
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ fontSize: 10, fontWeight: 700, color: isActive ? 'white' : accent, letterSpacing: 0.4 }}>ALL</div>
+        <div style={{ fontSize: 8, color: isActive ? 'rgba(255,255,255,0.7)' : '#8899a6' }}>
+          {phaseCount} phases
+        </div>
+      </button>
+    );
+  }
 
   function renderTab(ph: Phase, opts: { isCurrent: boolean; isFuture: boolean }): JSX.Element {
     const { isCurrent, isFuture } = opts;
@@ -151,6 +185,7 @@ export function MentorshipPhaseTabs({ workspaceId }: Props): JSX.Element {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <div style={{ fontSize: 9, fontWeight: 700, color: '#028090', letterSpacing: 0.4 }}>MENTOR TRACK</div>
           <div style={{ display: 'flex', overflowX: 'auto', gap: 4, paddingBottom: 2 }}>
+            {renderAllButton('mentor')}
             {PHASES.map((ph, i) => renderTab(ph, {
               isCurrent: ph.id === provider.currentPhase,
               isFuture: i > curIdx,
@@ -163,6 +198,7 @@ export function MentorshipPhaseTabs({ workspaceId }: Props): JSX.Element {
               OFFICE MANAGER TRACK <span style={{ fontWeight: 400, color: '#8899a6' }}>· MD + OM conversations</span>
             </div>
             <div style={{ display: 'flex', overflowX: 'auto', gap: 4, paddingBottom: 2 }}>
+              {renderAllButton('ops')}
               {OM_PHASES.map((ph) => renderTab(ph, { isCurrent: false, isFuture: false }))}
             </div>
           </div>

@@ -19,6 +19,17 @@ import { signal, type Signal } from '@preact/signals';
 
 export type MentorshipRole = 'idle' | 'exec' | 'director' | 'mentor';
 
+// Sentinel selectedPhase values that put the checklist + notes bubbles into
+// "all phases of this track, vertically stacked" mode for end-to-end demos.
+// Picked as illegal phase IDs (real phase IDs are like 'w1', 'om3') so they
+// can be roundtripped through localStorage without collision.
+export const ALL_MENTOR_PHASES = '__all-mentor';
+export const ALL_OPS_PHASES = '__all-ops';
+
+export function isAllPhasesSentinel(phaseId: string | null): phaseId is typeof ALL_MENTOR_PHASES | typeof ALL_OPS_PHASES {
+  return phaseId === ALL_MENTOR_PHASES || phaseId === ALL_OPS_PHASES;
+}
+
 export interface MentorshipFocus {
   role: MentorshipRole;
   // Set when an exec drills into a director's slice. Cleared on role change
@@ -30,6 +41,7 @@ export interface MentorshipFocus {
   // Set when a matrix cell or mentee detail is opened. Triggers provider
   // detail mode (phase-tabs + checklist + notes).
   selectedProviderId: string | null;
+  /** A phase id, or one of the ALL_*_PHASES sentinels for full-track view. */
   selectedPhase: string | null;
 }
 
