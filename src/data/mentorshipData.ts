@@ -442,3 +442,65 @@ export function getOverallProgress(
   });
   return total > 0 ? Math.round((done / total) * 100) : 0;
 }
+
+// ---- Mutations
+//
+// Helpers for the "blank workspace bootstrap" flow: a mentor opens a fresh
+// workspace, hits "+ Add mentee", and we need to materialize a coherent
+// MentorshipData from nothing. These helpers keep that bootstrap logic in one
+// place so it stays consistent between the mentees-list and matrix bubbles.
+
+/** Default user IDs used when seeding a blank workspace from the "+" form. */
+export const DEFAULT_MENTOR_ID = 'mt1';
+export const DEFAULT_DIRECTOR_ID = 'md1';
+
+function nextProviderId(data: MentorshipData): string {
+  let n = data.providers.length + 1;
+  // Skip past any existing p<n> ids (in case of edits / out-of-order imports).
+  while (data.providers.some((p) => p.id === `p${n}`)) n++;
+  return `p${n}`;
+}
+
+/** Ensure a workspace has the minimum users required for a mentee to attach
+ * to (one mentor, one director). Idempotent. Returns updated `users`. */
+function ensureBootstrapUsers(users: UserRecord[]): UserRecord[] {
+  const out = [...users];
+  if (!out.some((u) => u.id === DEFAULT_DIRECTOR_ID)) {
+    out.push({ id: DEFAULT_DIRECTOR_ID, name: 'Medical Director', role: 'director', title: 'Medical Director' });
+  }
+  if (!out.some((u) => u.id === DEFAULT_MENTOR_ID)) {
+    out.push({ id: DEFAULT_MENTOR_ID, name: 'Mentor', role: 'mentor', title: 'Mentor Physician', directorId: DEFAULT_DIRECTOR_ID });
+  }
+  return out;
+}
+
+export interface ProviderDraft {
+  name: string;
+  role: ProviderRecord['role'];
+  startDate: string;
+  currentPhase: string;
+  mentorId?: string;
+  directorId?: string;
+}
+
+/** Append a new provider, bootstrapping required users if missing. Pure —
+ * caller is responsible for assigning the result back to the signal. */
+export function addProvider(data: MentorshipData, draft: ProviderDraft): MentorshipData {
+  const users = ensureBootstrapUsers(data.users);
+  const mentorId = draft.mentorId ?? DEFAULT_MENTOR_ID;
+  const directorId = draft.directorId
+    ?? users.find((u) => u.id === mentorId)?.directorId
+    ?? DEFAULT_DIRECTOR_ID;
+
+  const provider: ProviderRecord = {
+    id: nextProviderId(data),
+    name: draft.name.trim(),
+    role: draft.role,
+    startDate: draft.startDate,
+    mentorId,
+    directorId,
+    currentPhase: draft.currentPhase,
+  };
+
+  return { ...data, users, providers: [...data.providers, provider] };
+}
