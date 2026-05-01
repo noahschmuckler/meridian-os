@@ -7,7 +7,7 @@
 // done — "due"), gray (not started, not current), very-light (future phase).
 // Tapping a cell transitions the workspace to provider-detail mode.
 
-import { useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
@@ -130,6 +130,66 @@ export function MentorshipMatrix({ workspaceId }: Props): JSX.Element {
     }
   }
 
+  // ---- Import & Reset (the round-trip pair to .xlsx export)
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  function pickFileToImport(): void {
+    fileInputRef.current?.click();
+  }
+
+  async function handleImportFile(ev: Event): Promise<void> {
+    const input = ev.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = ''; // reset so re-picking same file fires change
+    if (!file) return;
+    if (importing) return;
+
+    const replacing = data.providers.length > 0 || Object.keys(data.checkoffs).length > 0;
+    if (replacing) {
+      const ok = confirm(
+        `Importing "${file.name}" will replace the current workspace state ` +
+        `(${data.providers.length} providers, ${Object.keys(data.checkoffs).length} checkoffs). Continue?`,
+      );
+      if (!ok) return;
+    }
+
+    setImporting(true);
+    try {
+      const { parseMentorshipMatrixXlsx, XlsxImportError } = await import('../../lib/parseMentorshipMatrixXlsx');
+      const result = await parseMentorshipMatrixXlsx(file);
+      mentorshipDataSignal.value = result.data;
+      const summary = `Imported ${result.data.providers.length} providers, ` +
+        `${Object.keys(result.data.checkoffs).length} checkoffs.` +
+        (result.warnings.length ? `\n\nWarnings:\n• ${result.warnings.join('\n• ')}` : '');
+      alert(summary);
+      // Clear focus that may reference no-longer-existing IDs.
+      focus.value = { ...f, selectedDirectorId: null, selectedMenteeId: null, selectedProviderId: null, selectedPhase: null };
+      void XlsxImportError;
+    } catch (err) {
+      alert('XLSX import failed: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  function resetToBlank(): void {
+    const ok = confirm(
+      `Reset workspace to a blank state? This clears all providers, mentors, ` +
+      `checkoffs, notes, and flags. (Export first if you want to save them.)`,
+    );
+    if (!ok) return;
+    mentorshipDataSignal.value = {
+      users: [],
+      providers: [],
+      checkoffs: {},
+      notes: {},
+      flags: [],
+    };
+    focus.value = { ...f, selectedDirectorId: null, selectedMenteeId: null, selectedProviderId: null, selectedPhase: null };
+  }
+
   return (
     <div class="cm-bubble" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
@@ -161,9 +221,32 @@ export function MentorshipMatrix({ workspaceId }: Props): JSX.Element {
           {drilledDirector ? `${drilledDirector.name}'s providers` : 'Provider × Phase'}
         </span>
         <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            style={{ display: 'none' }}
+            onChange={(e) => { void handleImportFile(e); }}
+          />
           <button
             type="button"
-            title={exporting ? 'Generating…' : 'Export as Excel spreadsheet'}
+            title={importing ? 'Importing…' : 'Import a .xlsx export to restore workspace state'}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); pickFileToImport(); }}
+            disabled={importing}
+            style={{
+              border: '1px solid rgba(0,0,0,0.15)',
+              background: 'rgba(255,255,255,0.55)',
+              cursor: importing ? 'wait' : 'pointer',
+              font: 'inherit',
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 3,
+            }}
+          >{importing ? '…' : 'import'}</button>
+          <button
+            type="button"
+            title={exporting ? 'Generating…' : 'Export as Excel spreadsheet (round-trips with import)'}
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); void exportXlsx(); }}
             disabled={exporting || providers.length === 0}
@@ -176,7 +259,23 @@ export function MentorshipMatrix({ workspaceId }: Props): JSX.Element {
               padding: '2px 6px',
               borderRadius: 3,
             }}
-          >{exporting ? '…' : '.xlsx'}</button>
+          >{exporting ? '…' : 'export'}</button>
+          <button
+            type="button"
+            title="Reset to a blank workspace (clears all providers, checkoffs, notes, flags)"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); resetToBlank(); }}
+            style={{
+              border: '1px solid rgba(0,0,0,0.15)',
+              background: 'rgba(255,255,255,0.55)',
+              cursor: 'pointer',
+              font: 'inherit',
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 3,
+              color: '#7f1d1d',
+            }}
+          >reset</button>
           <span style={{ fontSize: 10, opacity: 0.6 }}>
             {providers.length} providers · {totalPhaseCols} phases
           </span>

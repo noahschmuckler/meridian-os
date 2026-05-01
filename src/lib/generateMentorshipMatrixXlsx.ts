@@ -1,10 +1,15 @@
-// Generate an XLSX export of the mentorship provider × phase matrix.
+// Generate an XLSX export of the mentorship workspace state.
 //
-// Sheet 1 ("Provider Progress"): one row per provider with mentor, director,
-// overall %, and per-phase completion fraction. Cells color-coded to match
-// the on-screen matrix tiers (green / light-green / amber / red / gray / dim).
-// Sheet 2 ("Phase Definitions"): static reference of the 14 phases with type,
-// MD-attendance flag, and item count.
+// The file doubles as a *portable save state* (round-trippable through the
+// importer) and a *legible matrix view* for stakeholders who can't run the
+// app. Sheets:
+//   1. Provider Progress — color-coded matrix view (export-only, regenerated
+//      from the canonical state sheets on each export).
+//   2. Phase Definitions — static reference of the 14 mentor-track phases.
+//   3. Providers, Users, Checkoffs, Notes, Flags — canonical save state. The
+//      importer reads these back into MentorshipData. Edit these by hand in
+//      Excel to add a new mentee, override a checkoff, etc.
+//   4. _Meta — format header. The importer uses this to validate the file.
 //
 // Imports exceljs lazily — the consuming bubble's button does the dynamic
 // import so the library only chunks in on first export click.
@@ -186,6 +191,110 @@ export async function generateMentorshipMatrixXlsx(opts: GenerateOptions): Promi
       items: ph.items.length,
     });
   });
+
+  // ---- Canonical save-state sheets (round-tripped by the importer).
+  //
+  // Stable column order. Headers are bold, otherwise unstyled — the goal is
+  // a legible/editable spreadsheet, not a styled report. Don't add columns
+  // here without updating parseMentorshipMatrixXlsx.ts in lockstep.
+
+  const providersSheet = wb.addWorksheet('Providers');
+  providersSheet.columns = [
+    { header: 'id',           key: 'id',           width: 8 },
+    { header: 'name',         key: 'name',         width: 22 },
+    { header: 'role',         key: 'role',         width: 7 },
+    { header: 'startDate',    key: 'startDate',    width: 12 },
+    { header: 'mentorId',     key: 'mentorId',     width: 12 },
+    { header: 'directorId',   key: 'directorId',   width: 12 },
+    { header: 'currentPhase', key: 'currentPhase', width: 14 },
+  ];
+  providersSheet.getRow(1).font = { bold: true };
+  data.providers.forEach((p) => providersSheet.addRow(p));
+
+  const usersSheet = wb.addWorksheet('Users');
+  usersSheet.columns = [
+    { header: 'id',         key: 'id',         width: 8 },
+    { header: 'name',       key: 'name',       width: 22 },
+    { header: 'role',       key: 'role',       width: 12 },
+    { header: 'title',      key: 'title',      width: 36 },
+    { header: 'directorId', key: 'directorId', width: 12 },
+  ];
+  usersSheet.getRow(1).font = { bold: true };
+  data.users.forEach((u) => usersSheet.addRow({
+    id: u.id,
+    name: u.name,
+    role: u.role,
+    title: u.title,
+    directorId: u.directorId ?? '',
+  }));
+
+  const checkoffsSheet = wb.addWorksheet('Checkoffs');
+  checkoffsSheet.columns = [
+    { header: 'providerId', key: 'providerId', width: 10 },
+    { header: 'phaseId',    key: 'phaseId',    width: 10 },
+    { header: 'itemId',     key: 'itemId',     width: 10 },
+    { header: 'by',         key: 'by',         width: 14 },
+    { header: 'at',         key: 'at',         width: 22 },
+  ];
+  checkoffsSheet.getRow(1).font = { bold: true };
+  Object.entries(data.checkoffs).forEach(([key, entry]) => {
+    const [providerId, phaseId, itemId] = key.split(':');
+    checkoffsSheet.addRow({ providerId, phaseId, itemId, by: entry.by, at: entry.at });
+  });
+
+  const notesSheet = wb.addWorksheet('Notes');
+  notesSheet.columns = [
+    { header: 'providerId', key: 'providerId', width: 10 },
+    { header: 'phaseId',    key: 'phaseId',    width: 10 },
+    { header: 'by',         key: 'by',         width: 14 },
+    { header: 'at',         key: 'at',         width: 22 },
+    { header: 'text',       key: 'text',       width: 60 },
+  ];
+  notesSheet.getRow(1).font = { bold: true };
+  Object.entries(data.notes).forEach(([key, entries]) => {
+    const [providerId, phaseId] = key.split(':');
+    entries.forEach((n) => notesSheet.addRow({
+      providerId, phaseId, by: n.by, at: n.at, text: n.text,
+    }));
+  });
+  notesSheet.getColumn('text').alignment = { wrapText: true, vertical: 'top' };
+
+  const flagsSheet = wb.addWorksheet('Flags');
+  flagsSheet.columns = [
+    { header: 'providerId', key: 'providerId', width: 10 },
+    { header: 'by',         key: 'by',         width: 18 },
+    { header: 'byId',       key: 'byId',       width: 10 },
+    { header: 'at',         key: 'at',         width: 22 },
+    { header: 'text',       key: 'text',       width: 60 },
+    { header: 'resolved',   key: 'resolved',   width: 10 },
+    { header: 'resolvedBy', key: 'resolvedBy', width: 14 },
+    { header: 'resolvedAt', key: 'resolvedAt', width: 22 },
+  ];
+  flagsSheet.getRow(1).font = { bold: true };
+  data.flags.forEach((fl) => flagsSheet.addRow({
+    providerId: fl.providerId,
+    by: fl.by,
+    byId: fl.byId,
+    at: fl.at,
+    text: fl.text,
+    resolved: fl.resolved ? 'true' : 'false',
+    resolvedBy: fl.resolvedBy ?? '',
+    resolvedAt: fl.resolvedAt ?? '',
+  }));
+  flagsSheet.getColumn('text').alignment = { wrapText: true, vertical: 'top' };
+
+  // ---- _Meta sheet (importer uses to validate)
+  const metaSheet = wb.addWorksheet('_Meta');
+  metaSheet.columns = [
+    { header: 'key',   key: 'key',   width: 22 },
+    { header: 'value', key: 'value', width: 40 },
+  ];
+  metaSheet.getRow(1).font = { bold: true };
+  metaSheet.addRow({ key: 'format',          value: 'meridian-os.mentorship.full-state' });
+  metaSheet.addRow({ key: 'format_version',  value: 1 });
+  metaSheet.addRow({ key: 'exported_at',     value: new Date().toISOString() });
+  metaSheet.addRow({ key: 'provider_count',  value: data.providers.length });
+  metaSheet.addRow({ key: 'checkoff_count',  value: Object.keys(data.checkoffs).length });
 
   const buffer = await wb.xlsx.writeBuffer();
   return new Blob([buffer as ArrayBuffer], {
