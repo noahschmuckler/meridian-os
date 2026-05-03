@@ -1692,3 +1692,190 @@
   transition: opacity var(--duration-1) var(--ease-out);
 }
 .vault__file-rename-btn:hover { opacity: 1; }
+
+
+/* ===========================================================================
+   Launcher — top-level "meridian" screen with two iOS-style app icons.
+   Sits in front of the Mondrian GUI and the Mentorship Tracker.
+   =========================================================================== */
+
+.launcher {
+  width: 100vw;
+  height: var(--vh, 100vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 64px;
+  padding: 48px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(ellipse at center top, rgba(15, 107, 66, 0.08), transparent 60%),
+    radial-gradient(ellipse at 30% 80%, rgba(2, 128, 144, 0.05), transparent 55%),
+    var(--bg);
+}
+
+.launcher__wordmark {
+  font-family: var(--font-sans);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 200;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  text-transform: lowercase;
+  margin: 0;
+}
+
+.launcher__apps {
+  display: flex;
+  flex-direction: row;
+  gap: 56px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.launcher__app {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  font: inherit;
+  color: inherit;
+  transition: transform var(--duration-1) var(--ease-out);
+}
+
+.launcher__app:hover { transform: translateY(-4px); }
+.launcher__app:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; border-radius: 22px; }
+
+.launcher__app-icon {
+  width: 132px;
+  height: 132px;
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* iOS-style stacked drop shadows */
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.16),
+    0 8px 18px rgba(0, 0, 0, 0.18),
+    0 24px 48px rgba(0, 0, 0, 0.18);
+  transition: box-shadow var(--duration-1) var(--ease-out);
+}
+
+.launcher__app:hover .launcher__app-icon {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.20),
+    0 14px 28px rgba(0, 0, 0, 0.22),
+    0 36px 72px rgba(0, 0, 0, 0.22);
+}
+
+.launcher__app-icon--mondrian {
+  background: #ffffff;
+  /* Subtle inner ring to match macOS/iOS app-icon look */
+  outline: 1px solid rgba(0, 0, 0, 0.06);
+  outline-offset: -1px;
+}
+
+.launcher__app-icon--mentorship {
+  background: linear-gradient(160deg, #1c2b3a 0%, #0f1b2d 100%);
+}
+
+.launcher__app-glyph {
+  font-size: 76px;
+  line-height: 1;
+  /* On platforms whose fallback emoji is monochrome, hint blue */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+.launcher__app-caption {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+
+/* Mondrian miniature inside the app icon. Container sized 100% of its
+   rounded-square parent; cells are absolutely positioned with percentages. */
+.launcher__mondrian {
+  position: absolute;
+  inset: 0;
+  background: #0f0f0f;
+}
+
+.launcher__mondrian-cell {
+  position: absolute;
+  border: 2px solid #0f0f0f;
+  box-sizing: border-box;
+}
+
+.launcher__mondrian-cell--white  { background: #f6f3ec; }
+.launcher__mondrian-cell--red    { background: #d92e2e; }
+.launcher__mondrian-cell--blue   { background: #2547a8; }
+.launcher__mondrian-cell--yellow { background: #f3c623; }
+
+
+/* Back-to-launcher chevron. Two variants: on-light (Mondrian home) and
+   on-dark (Mentorship Tracker, whose top bar is #0f1b2d). Fixed top-left,
+   sits above any other home / shell content. */
+.back-to-launcher {
+  position: fixed;
+  top: 18px;
+  left: 22px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  transition: background var(--duration-1) var(--ease-out), transform var(--duration-1) var(--ease-out);
+}
+
+.back-to-launcher:hover { transform: translateX(-2px); }
+.back-to-launcher:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.back-to-launcher__chevron {
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+.back-to-launcher--on-light {
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--ink);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.back-to-launcher--on-light:hover { background: rgba(255, 255, 255, 0.92); }
+
+.back-to-launcher--on-dark {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.back-to-launcher--on-dark:hover { background: rgba(255, 255, 255, 0.18); }
+
+
+/* Mentorship Tracker shell — full-bleed wrapper around the React-style TSX.
+   The TSX itself uses minHeight: 100vh + flex-col, so we just provide a
+   container and let it own the layout. */
+.mentorship-tracker-shell {
+  width: 100vw;
+  min-height: var(--vh, 100vh);
+}
+

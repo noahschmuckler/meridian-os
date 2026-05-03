@@ -9,9 +9,12 @@ import type { HomeConfig, ModuleData, WorkspaceConfig } from './types';
 import { HomeScreen } from './shell/HomeScreen';
 import { WorkspaceShell } from './shell/WorkspaceShell';
 import { PrintView } from './shell/PrintView';
+import { Launcher, BackToLauncherChevron } from './shell/Launcher';
+import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
 import { activeWorkspaceIdSignal, entryFromSignal } from './data/workspaceNav';
+import { launcherAppSignal } from './data/launcherState';
 import { clearTrainerProviderContext } from './data/trainerProviderContext';
 
 import homeConfigJson from './data/home.json';
@@ -75,14 +78,23 @@ const clinicalModules = (
 
 function App(): JSX.Element {
   useVisualViewport();
+  const app = launcherAppSignal.value;
+
+  if (app === 'launcher') {
+    return <Launcher />;
+  }
+
+  if (app === 'mentorship') {
+    return <MentorshipTrackerShell />;
+  }
+
+  // Mondrian GUI — the existing meridian-os shell, with a back-to-launcher
+  // chevron overlaid on the home grid. Inside a workspace the chevron is
+  // hidden so it doesn't fight the FAB; the FAB still handles back-to-home.
   const id = activeWorkspaceIdSignal.value;
-  // HomeScreen is always rendered. The WorkspaceShell mounts on top of it
-  // when a workspace is active. During the fly-back animation, the home
-  // behind becomes progressively visible as the workspace shrinks, so by
-  // the time the workspace unmounts there's nothing to "appear" — the tile
-  // is already in place underneath. No snap on landing.
   return (
     <>
+      {!id && <BackToLauncherChevron variant="on-light" />}
       <HomeScreen
         home={home}
         workspaces={workspaces}
