@@ -185,10 +185,7 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
           </div>
         )}
 
-        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6, opacity: 0.5, margin: '12px 0 6px' }}>
-          Calculators
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 12 }}>
           {TOOLS.map((t) => (
             <button
               key={t.id}

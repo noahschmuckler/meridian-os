@@ -101,6 +101,13 @@
       "title": "PREVENT calculator",
       "props": {},
       "resize": { "initial": "l", "states": {} }
+    },
+    {
+      "id": "notes",
+      "type": "markdown",
+      "title": "Notes",
+      "props": { "body": "", "editable": true },
+      "resize": { "initial": "l", "states": {} }
     }
   ],
   "layoutHints": {
@@ -110,8 +117,7 @@
       "topic-cv":         { "col": 6, "row": 0, "width": 3, "height": 4 },
       "topic-general":    { "col": 9, "row": 0, "width": 3, "height": 4 },
       "tools":            { "col": 0, "row": 4, "width": 4, "height": 4 },
-      "chat":             { "col": 4, "row": 4, "width": 4, "height": 4 },
-      "oe":               { "col": 8, "row": 4, "width": 4, "height": 4 }
+      "notes":            { "col": 4, "row": 4, "width": 8, "height": 4 }
     }
   },
   "scripted": {

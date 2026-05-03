@@ -74,14 +74,12 @@ const LONG_PRESS_MOVE_TOLERANCE_PX = 8;
 
 // === Clinical Modules workspace: mode-aware layouts =====================
 //
-// Gallery mode shows topic bubbles + tools + the persistent llm-chat and
-// openevidence-builder. Module mode shows the per-module checklist /
-// escalations / FAQ + (optionally PREVENT for the lipid module) + the
-// SAME persistent llm-chat and oe bubbles, animated to their new
-// positions via the existing BSP transition CSS. Switching modes
-// rebuilds the BSP using the right placement table; bubbles that exist
-// in both modes (chat, oe) animate; bubbles that only exist in one mode
-// mount/unmount.
+// Gallery mode shows topic bubbles + tools + a notes scratch pad. Module
+// mode shows the per-module checklist / escalations / FAQ (+ optionally
+// PREVENT for the lipid module) plus the persistent llm-chat and oe
+// bubbles. Chat and OE are summoned on demand from the tools bubble in
+// gallery mode. Switching modes rebuilds the BSP using the right
+// placement table; bubbles that only exist in one mode mount/unmount.
 
 const COMPANION_BUBBLE_BY_MODULE: Record<string, string[]> = {
   'lipid-management': ['prevent'],
@@ -92,8 +90,7 @@ const GALLERY_LAYOUT: Record<string, GridPlacement> = {
   'topic-cv':         { col: 6, row: 0, width: 3, height: 4 },
   'topic-general':    { col: 9, row: 0, width: 3, height: 4 },
   'tools':            { col: 0, row: 4, width: 4, height: 4 },
-  'chat':             { col: 4, row: 4, width: 4, height: 4 },
-  'oe':               { col: 8, row: 4, width: 4, height: 4 },
+  'notes':            { col: 4, row: 4, width: 8, height: 4 },
 };
 
 const MODULE_LAYOUT_BASE: Record<string, GridPlacement> = {
