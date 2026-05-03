@@ -8,15 +8,22 @@
 
 import { useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
-import type { BubbleInstance } from '../../types';
+import type { BubbleInstance, BubblePrimitiveType } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { parseDocxHtml } from '../../lib/parseDocxHtml';
 import { addUserModule, removeUserModule, userModulesSignal } from '../../data/userModules';
 import { moduleFocusSignal } from '../../data/moduleFocus';
 
+interface SpawnSpec {
+  type: BubblePrimitiveType;
+  title: string;
+  props?: Record<string, unknown>;
+}
+
 interface Props {
   instance: BubbleInstance;
   seeds: SeedDict;
+  onSpawnBubble?: (spec: SpawnSpec) => void;
 }
 
 interface Tool {
@@ -24,6 +31,7 @@ interface Tool {
   title: string;
   blurb: string;
   glyph: string;
+  spawn: SpawnSpec;
 }
 
 const TOOLS: Tool[] = [
@@ -32,10 +40,11 @@ const TOOLS: Tool[] = [
     title: 'PREVENT calculator',
     blurb: '10-year ASCVD risk · AHA/ACC 2023',
     glyph: '🫀',
+    spawn: { type: 'prevent-calculator', title: 'PREVENT calculator' },
   },
 ];
 
-export function ClinicalTools({ instance }: Props): JSX.Element {
+export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<{ kind: 'idle' | 'parsing' | 'error' | 'ok'; msg?: string }>({ kind: 'idle' });
   const userModules = userModulesSignal.value;
@@ -156,8 +165,12 @@ export function ClinicalTools({ instance }: Props): JSX.Element {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {TOOLS.map((t) => (
-            <div
+            <button
               key={t.id}
+              type="button"
+              title={`Open ${t.title} in a new bubble`}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onSpawnBubble?.(t.spawn); }}
               style={{
                 display: 'grid',
                 gridTemplateColumns: '24px 1fr',
@@ -168,6 +181,11 @@ export function ClinicalTools({ instance }: Props): JSX.Element {
                 borderLeft: '3px solid var(--type-color)',
                 borderRadius: 4,
                 background: 'rgba(255,255,255,0.55)',
+                cursor: onSpawnBubble ? 'pointer' : 'default',
+                font: 'inherit',
+                color: 'inherit',
+                textAlign: 'left',
+                width: '100%',
               }}
             >
               <span style={{ fontSize: 16, lineHeight: 1.1 }}>{t.glyph}</span>
@@ -175,7 +193,7 @@ export function ClinicalTools({ instance }: Props): JSX.Element {
                 <div style={{ fontWeight: 600, fontSize: 12.5, lineHeight: 1.3 }}>{t.title}</div>
                 <div style={{ fontSize: 10.5, opacity: 0.65, marginTop: 2 }}>{t.blurb}</div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
 

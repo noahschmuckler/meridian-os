@@ -210,6 +210,7 @@ interface LiftedState {
 }
 
 let _placeholderSeq = 0;
+let _spawnSeq = 0;
 
 export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1105,6 +1106,47 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     setRoot(splitLeafInsert(root, target.bubbleId, 'right', id, DEFAULT_MIN_W, DEFAULT_MIN_H, 0.5));
   }
 
+  // === Spawn a new bubble adjacent to an existing one ===
+  // Used by tool bubbles (e.g., clinical-tools' PREVENT card) to launch a fresh
+  // primitive instance next to themselves. Falls back to the largest leaf if
+  // nearBubbleId isn't currently in the BSP.
+  function spawnAdjacentBubble(spec: {
+    type: BubblePrimitiveType;
+    title: string;
+    props?: Record<string, unknown>;
+    nearBubbleId?: string;
+  }): void {
+    if (!root) return;
+    const leaves = renderBSP(root).leaves;
+    const nearInTree = spec.nearBubbleId != null
+      && leaves.some((l) => l.bubbleId === spec.nearBubbleId);
+    let targetId: string;
+    if (nearInTree) {
+      targetId = spec.nearBubbleId!;
+    } else {
+      const fallback = findLargestLeaf(root);
+      if (!fallback) return;
+      targetId = fallback.bubbleId;
+    }
+    const id = `${spec.type}-spawned-${++_spawnSeq}`;
+    const newBundle: BubbleBundle = {
+      kind: 'standalone',
+      cellRef: null,
+      instance: {
+        id,
+        type: spec.type,
+        title: spec.title,
+        props: spec.props ?? {},
+        resize: { initial: 'l', states: {} },
+      },
+      placement: { col: 0, row: 0, width: 1, height: 1 },
+      minW: DEFAULT_MIN_W,
+      minH: DEFAULT_MIN_H,
+    };
+    setRegistry((prev) => ({ ...prev, [id]: newBundle }));
+    setRoot(splitLeafInsert(root, targetId, 'right', id, DEFAULT_MIN_W, DEFAULT_MIN_H, 0.5));
+  }
+
   // === Reset workspace LAYOUT (positions only) ===
   // Returns every JSON-template bubble to its original placement and size.
   // PRESERVES chat history, attached brain items, and any other state on
@@ -1380,6 +1422,14 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
             || inst.type === 'clinical-topic-general'
           ? {
               workspaceId: workspace.id,
+            }
+          : inst.type === 'clinical-tools'
+          ? {
+              onSpawnBubble: (spec: {
+                type: BubblePrimitiveType;
+                title: string;
+                props?: Record<string, unknown>;
+              }) => spawnAdjacentBubble({ ...spec, nearBubbleId: leaf.bubbleId }),
             }
           : inst.type === 'mentorship-role-selector'
             || inst.type === 'mentorship-matrix'
