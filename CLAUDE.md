@@ -6,14 +6,24 @@ The user is **Dr. Noah Schmuckler**, MD, primary-care medical director at Optum.
 
 ---
 
-## Status snapshot (last updated 2026-04-27)
+## Status snapshot (last updated 2026-05-03)
 
 - **Live:** https://meridian-os.pages.dev
-- **Repo:** https://github.com/noahschmuckler/meridian-os (private)
+- **Repo:** https://github.com/noahschmuckler/meridian-os (public)
 - **Cloudflare Pages project:** `meridian-os`
-- **Latest commit:** `b8968a3` (per-bubble .docx and .pptx export wired to ported vanilla generators).
+- **Latest commit:** `430098b` (Mentorship Tracker scroll + chevron-overlap fixes).
 
-The OS shell is **production-quality**. The **Trainer** workspace and the **Clinical Modules** workspace are both fully populated. Clinical Modules is the workspace currently being demoed and pushed forward. The other three workspaces (Provider, QI Statin, Provider File, Admin Cockpit) are empty tiles awaiting content.
+The OS shell is **production-quality**. As of 2026-05-03, a **top-level launcher** sits in front of everything — a "meridian" wordmark with two iOS-style app icons, **Mondrian GUI** and **Mentorship Tracker**. The Mondrian GUI icon enters the existing OS unchanged (Trainer / Clinical Modules / Mentorship workspaces all populated). The Mentorship Tracker icon enters a **separate full-bleed React-style SPA** ported from Scott Freiberg's `~/Downloads/remixed-fab2f713.tsx`, no BSP, no chat. Last-opened app is persisted across refreshes.
+
+Three workspaces inside the Mondrian GUI are populated (Trainer, Clinical Modules, Mentorship). Three remain empty tiles awaiting content (Provider, QI Statin, Admin Cockpit).
+
+### Major systems landed 2026-05-03 (Launcher + Mentorship Tracker app)
+
+- **Top-level launcher** (`src/shell/Launcher.tsx`, `src/data/launcherState.ts`) — full-viewport screen with the "meridian" wordmark and two iOS-style app icons. Cold boot lands here. Last-opened app persists in `meridian-os.launcherApp.v1` so demo refreshes don't bounce providers back to the launcher. The Mondrian GUI icon renders a Mondrian Composition miniature out of plain divs (no SVG dep); the Mentorship Tracker icon renders the 👥 emoji on a deep-navy gradient. A `BackToLauncherChevron` (top-left fixed pill, `‹ meridian`) escalates one level above the existing FAB-driven back-to-home — chevron is hidden inside Mondrian workspaces so it doesn't fight the FAB.
+- **Mentorship Tracker app** (`src/apps/mentorship-tracker/MentorshipTrackerApp.tsx`) — Scott Freiberg's `~/Downloads/remixed-fab2f713.tsx` ported **byte-identical** with `// @ts-nocheck` prepended so untyped destructured props don't trip `tsc -b`. It's a self-contained React-style SPA (login screen → director / mentor roster → provider profile cards with Score Trend bars, Journey timeline, 4 metric cards, Mentor / Office Manager / Questionnaire tabs, phase selector, checklist, notes). Lives in parallel with the bubble-based **Mentorship workspace** inside Mondrian GUI — the two share no state today and have different UX intent (bubble for orchestrating attention, SPA for dense roster review).
+- **React-on-Preact integration** — `vite.config.ts` aliases `react` / `react-dom` / `react/jsx-runtime` to `preact/compat`; `tsconfig.app.json` had matching `paths` already. No new dependencies. The TSX runs through Preact compat with no runtime warnings.
+- **Shell wrapper** (`src/shell/MentorshipTrackerShell.tsx` + `.mentorship-tracker-shell` styles in glass.css) — wraps the TSX with the chevron and re-establishes a normal scrollable web-app container (the host page applies `overflow: hidden` + `touch-action: none` to html/body/#app for the BSP gesture world). Key trick: wrapper is a flex column of fixed viewport height; the TSX outer is forced via `flex: 1 !important; min-height: 0 !important; max-height: 100% !important` so the inline `min-height: 100vh` doesn't grow it past the viewport. Without that override, the inner panes' `overflow-y: auto` never engages and content past the viewport is silently clipped.
+- **CSS-only TSX overrides** — Two patterns for keeping Scott's TSX byte-identical while still tuning UX from the host: (a) attribute selectors against the inline `style` string. **Critical gotcha:** Preact serializes inline hex colors as `rgb(…)`, so `[style*="0f1b2d"]` does NOT match the topbar — use `[style*="rgb(15, 27, 45)"]` (with the comma+space). The launcher's "topbar padding past the chevron" rule covers all four serialization variants defensively. (b) `!important` overrides the inline shorthand longhand-by-longhand. Verified end-to-end via headless playwright probe before deploying.
 
 ### Major systems landed since 2026-04-27 (Clinical Modules milestone)
 
@@ -126,13 +136,18 @@ These are vision items beyond v1 that the user has flagged as the long-term dire
 
 ## Architecture
 
-### 5-level hierarchy
+### 6-level hierarchy
 
-1. **Home screen** — iPhone-style grid of workspace tiles (paintings) on a perspective-tilted plane.
+0. **Launcher** — top-level "meridian" screen with iOS-style app icons. Cold boot lands here. Two apps today: **Mondrian GUI** (the rest of this hierarchy) and **Mentorship Tracker** (a parallel React-style SPA, full-bleed, no BSP). Selection persists across refresh. Future Scott-artifact apps that don't fit the bubble metaphor land here as additional icons.
+1. **Home screen** — iPhone-style grid of workspace tiles (paintings) on a perspective-tilted plane. Reachable from the launcher's Mondrian GUI icon.
 2. **Workspace** — full-screen arrangement of bubbles. State persists across switches and refresh.
 3. **Cell** — *deprecated for trainer; legacy code retained for future workspaces.* Originally LLM-chat as nucleus + organelles attached. Trainer dropped this in favor of peer bubbles after the user's feedback that chat should be its own bubble.
 4. **Bubble (primitive)** — typed atomic UI unit. Resize/snap/cluster/attach via BSP. ~13 primitive types implemented.
 5. **Mini-bubble** — content inside the brain bubble inside the chat, representing what the LLM has in context.
+
+### Bubble vs SPA — when an app gets its own launcher icon
+
+The locked rule from 2026-05-03: **bubble interface stays for clinical modules; full-bleed React-style SPAs are the right shape for dense roster / oversight / report tools that don't benefit from BSP tiling**. The Mentorship Tracker is the first SPA. Future Scott Freiberg artifacts that arrive as "this should be its own thing" get launcher icons; artifacts that extend an existing module get ported into bubbles (the two prior mentorship artifacts were ported as the Mentorship workspace bubbles, see `~/Downloads/remixed-d65093b9.tsx` + `remixed-ae62df37.tsx`). Decision goes through the user — don't unilaterally switch a TSX from bubble-port to SPA-port.
 
 ### Tangible bubbles invariant
 
@@ -154,8 +169,13 @@ Bubbles have **persistent identity** — the chat in Trainer is *that exact* cha
 
 ```
 src/
+  apps/
+    mentorship-tracker/
+      MentorshipTrackerApp.tsx   Byte-identical port of ~/Downloads/remixed-fab2f713.tsx with // @ts-nocheck. React-style SPA (login → roster → provider profile). Re-copy on Scott iteration; do NOT edit body.
   shell/
-    HomeScreen.tsx          iPhone-style grid + tile previews
+    Launcher.tsx            Top-level "meridian" screen + BackToLauncherChevron. Renders before any workspace.
+    MentorshipTrackerShell.tsx  Wraps MentorshipTrackerApp + the chevron. Re-establishes scrollable web-app container.
+    HomeScreen.tsx          iPhone-style grid + tile previews (reached via Mondrian GUI launcher icon)
     WorkspaceShell.tsx      Animated wrapper; manages entering/idle/exiting phase
     BspWorkspace.tsx        Workspace renderer; 800+ lines; the orchestrator. Owns mode-aware layout for clinical-modules (GALLERY_LAYOUT, MODULE_LAYOUT_BASE, MODULE_LAYOUT_WITH_PREVENT) and the focus-signal subscription that rebuilds BSP on mode change.
     workspaceState.ts       Module-level persistence Maps + localStorage hydration
@@ -192,6 +212,7 @@ src/
     snap.ts, attach.ts,
     drag.ts, search.ts
   data/
+    launcherState.ts        launcherAppSignal ('launcher' | 'mondrian' | 'mentorship') + setLauncherApp; hydrates from meridian-os.launcherApp.v1
     home.json               Workspace grid config (6 tiles incl clinical-modules at [2,1])
     workspaces/trainer.json Trainer workspace config (Patel context)
     workspaces/clinical-modules.json  Clinical Modules workspace config (all bubbles defined; gallery placements in layoutHints; module-mode placements computed in BspWorkspace from constants)
@@ -241,8 +262,23 @@ Both hydrate from localStorage on module load; helpers (`setWorkspaceState`, `de
 
 ## Demo flow (what works today)
 
+### Launcher
+1. Open https://meridian-os.pages.dev (incognito for cold boot) → "meridian" wordmark above two iOS-style app icons. **Mondrian GUI** (red/blue/yellow Composition miniature) and **Mentorship Tracker** (👥 emoji on deep navy).
+2. Tap an icon → enters the corresponding app full-bleed.
+3. From any workspace inside Mondrian GUI, the existing FAB ← still returns to the home tile grid; the fixed top-left `‹ meridian` chevron returns to the launcher.
+4. Refresh anywhere → returns to the last-used app (not the launcher) so demos survive an accidental reload. Persistence key: `meridian-os.launcherApp.v1`.
+
+### Mentorship Tracker
+1. From the launcher, tap **Mentorship Tracker** → SPA login screen with 👥 emoji, "Mentorship Tracker" title, three role buttons (Dr. Rivera director, Dr. Smith mentor, Dr. Lee mentor).
+2. Log in as **Dr. Rivera** (director) → roster sidebar (4 providers, each with MD / Mentor / Ops / Surveys progress bars + status pills); top tabs Roster / Comparison / Recent Notes; pattern-alert card if any phase has avg score < 6.0.
+3. Tap a provider (e.g., Dr. Johnson) → profile card (day count + latest score + overall %), Journey timeline, 4 metric cards, Score Trend bars, three track tabs (Mentor / Office Manager / Questionnaires), phase selector pills, checklist + notes input, questionnaire scale + text inputs. Mouse wheel + touch scroll work in the right pane and the sidebar.
+4. Log out, log in as **Dr. Smith** (mentor) → only Smith's mentees in the sidebar, only Mentor track tab in the profile, no MD/Ops bars.
+5. Click `‹ meridian` (top left) → back to the launcher.
+
+State (login, checkoffs, notes) is **in-memory only** for MVP; refresh resets to seed state. localStorage / personnel DB / import-export wiring is a future sprint.
+
 ### Trainer workspace
-1. Open https://meridian-os.pages.dev → Mondrian home grid, 6 paintings hung at depth.
+1. From the launcher, tap **Mondrian GUI** → Mondrian home grid, 6 paintings hung at depth.
 2. Tap **Trainer** → flies up, color blocks crossfade to content. 7 populated bubbles arranged 12×8.
 3. **Type in the chat** → real Sonnet 4.6 reply (loading dots while in flight). Brain bar grows with conversation length. Drop the **dossier** onto the chat → relationship menu → Scan + summarize → dossier disappears, summary mini-bubble in brain. Markdown in replies renders as headings/lists/code.
 4. **Tap the wrench** in the brain → task-manager rows (Name / Type / %), sortable by column. Tap a row → contextual menu (Read deeply / Compress / Toggle editable / Dismiss).
@@ -269,6 +305,8 @@ Both hydrate from localStorage on module load; helpers (`setWorkspaceState`, `de
 
 ## Locked design decisions
 
+- **Top-level launcher above the Mondrian GUI.** Cold boot shows iOS-style app icons. Apps that don't fit the bubble metaphor get launcher icons (Mentorship Tracker is the first SPA). Don't unilaterally migrate a TSX between bubble-port and SPA-port — go through the user.
+- **Scott's TSX artifacts ship byte-identical with `// @ts-nocheck`.** When porting an SPA artifact, copy verbatim into `src/apps/<name>/`, prepend `// @ts-nocheck`, and tune UX from the host via the wrapper shell + CSS overrides on inline-style attributes. **Critical:** Preact serializes inline hex colors as `rgb(…)` in the rendered `style` attribute, so `[style*="0f1b2d"]` won't match the topbar — use `[style*="rgb(15, 27, 45)"]` (with the comma+space). When in doubt, run a headless probe to verify CSS is matching before deploying.
 - **Tangible bubbles, no morphing.** Workspace transitions go through home. Bubble identity persists.
 - **Mondrian for tiles, glass-with-stripe for workspace bubbles.** One `--type-color` per primitive type drives both.
 - **BSP layout, not free-floating.** Workspaces are tiled; "moving" a bubble means restructuring the tile.
