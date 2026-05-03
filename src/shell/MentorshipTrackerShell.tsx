@@ -5,7 +5,7 @@ import { BackToLauncherChevron } from './Launcher';
 export function MentorshipTrackerShell(): JSX.Element {
   return (
     <div class="mentorship-tracker-shell">
-      <BackToLauncherChevron variant="on-dark" />
+      <BackToLauncherChevron variant="on-light" />
       <MentorshipTrackerApp />
     </div>
   );

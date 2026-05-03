@@ -1854,13 +1854,23 @@
 }
 
 .back-to-launcher--on-light {
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.92);
   color: var(--ink);
+  border: 1px solid rgba(15, 30, 22, 0.12);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.10),
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 16px 36px rgba(0, 0, 0, 0.10);
 }
-.back-to-launcher--on-light:hover { background: rgba(255, 255, 255, 0.92); }
+.back-to-launcher--on-light:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.14),
+    0 10px 24px rgba(0, 0, 0, 0.16),
+    0 24px 48px rgba(0, 0, 0, 0.12);
+}
 
 .back-to-launcher--on-dark {
   background: rgba(255, 255, 255, 0.10);
@@ -1872,10 +1882,35 @@
 
 
 /* Mentorship Tracker shell — full-bleed wrapper around the React-style TSX.
-   The TSX itself uses minHeight: 100vh + flex-col, so we just provide a
-   container and let it own the layout. */
+   The host page applies overflow:hidden + touch-action:none to html/body/#app
+   for the BSP gesture world; we re-establish a normal scrollable web-app
+   container here so the TSX's inner overflow-y:auto panes actually engage,
+   and so wheel + touch scroll work as expected.
+
+   Fixed height (not min-height) constrains the TSX's outer min-height:100vh
+   to exactly the viewport height, which gives its flex children a real
+   height to compute against — without this, the inner sidebar / right-pane
+   overflow-y:auto are no-ops and content extending past the viewport is
+   simply clipped. */
 .mentorship-tracker-shell {
   width: 100vw;
-  min-height: var(--vh, 100vh);
+  height: var(--vh, 100vh);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.mentorship-tracker-shell,
+.mentorship-tracker-shell * {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+/* Programmatic spacing so nothing inside the Mentorship Tracker can render
+   on top of the fixed back-to-launcher chevron. The TSX's dark navy top bar
+   is uniquely identified by its inline background color #0f1b2d; the !important
+   overrides the inline padding shorthand so the title block ("Mentorship
+   Tracker · Dr. Rivera — …") starts to the right of the chevron. */
+.mentorship-tracker-shell div[style*="0f1b2d"] {
+  padding-left: 168px !important;
 }
 
