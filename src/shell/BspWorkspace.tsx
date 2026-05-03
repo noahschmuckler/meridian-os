@@ -76,10 +76,12 @@ const LONG_PRESS_MOVE_TOLERANCE_PX = 8;
 //
 // Gallery mode shows topic bubbles + tools + a notes scratch pad. Module
 // mode shows the per-module checklist / escalations / FAQ (+ optionally
-// PREVENT for the lipid module) plus the persistent llm-chat and oe
-// bubbles. Chat and OE are summoned on demand from the tools bubble in
-// gallery mode. Switching modes rebuilds the BSP using the right
-// placement table; bubbles that only exist in one mode mount/unmount.
+// PREVENT for the lipid module) plus the same notes scratch pad — `notes`
+// is the one bubble that follows the user across gallery↔module switches.
+// Chat / OE / extra PREVENT instances are summoned on demand from the tools
+// bubble in gallery mode (via spawnAdjacentBubble); they get follow-along
+// treatment in buildClinicalModulesBSP so they survive mode switches as
+// uniquely-instanced consistent bubbles.
 
 const COMPANION_BUBBLE_BY_MODULE: Record<string, string[]> = {
   'lipid-management': ['prevent'],
@@ -97,8 +99,7 @@ const MODULE_LAYOUT_BASE: Record<string, GridPlacement> = {
   'module-checklist':   { col: 0, row: 0, width: 3, height: 5 },
   'module-escalations': { col: 0, row: 5, width: 3, height: 3 },
   'module-faq':         { col: 3, row: 0, width: 4, height: 8 },
-  'chat':               { col: 7, row: 0, width: 5, height: 4 },
-  'oe':                 { col: 7, row: 4, width: 5, height: 4 },
+  'notes':              { col: 7, row: 0, width: 5, height: 8 },
 };
 
 const MODULE_LAYOUT_WITH_PREVENT: Record<string, GridPlacement> = {
@@ -106,14 +107,41 @@ const MODULE_LAYOUT_WITH_PREVENT: Record<string, GridPlacement> = {
   'module-escalations': { col: 0, row: 5, width: 3, height: 3 },
   'module-faq':         { col: 3, row: 0, width: 3, height: 8 },
   'prevent':            { col: 6, row: 0, width: 3, height: 8 },
-  'chat':               { col: 9, row: 0, width: 3, height: 4 },
-  'oe':                 { col: 9, row: 4, width: 3, height: 4 },
+  'notes':              { col: 9, row: 0, width: 3, height: 8 },
 };
 
 function clinicalModulesLayout(mode: WorkspaceMode, moduleId: string | null): Record<string, GridPlacement> {
   if (mode === 'gallery') return GALLERY_LAYOUT;
   const companions = moduleId ? COMPANION_BUBBLE_BY_MODULE[moduleId] ?? [] : [];
   return companions.includes('prevent') ? MODULE_LAYOUT_WITH_PREVENT : MODULE_LAYOUT_BASE;
+}
+
+// Build the BSP for the clinical-modules workspace at a given layout. After
+// placing the static layout ids, append every registry entry whose id contains
+// `-spawned-` (the convention used by spawnAdjacentBubble) by splitting the
+// largest leaf — that's how chat / OE / extra PREVENT bubbles spawned in
+// gallery survive a mode switch as the same instance. The `-spawned-` filter
+// is deliberately precise: it skips legacy `chat` / `oe` registry entries that
+// pre-date this layout, leaving them invisible orphans rather than surprising
+// the user with old chat content reappearing in module mode.
+function buildClinicalModulesBSP(
+  layout: Record<string, GridPlacement>,
+  registry: Record<string, BubbleBundle>,
+  region: Region,
+): BSPRoot | null {
+  const baseEntries = Object.entries(registry)
+    .filter(([id]) => id in layout)
+    .map(([id, b]) => ({ id, placement: layout[id], minW: b.minW, minH: b.minH }));
+  if (baseEntries.length === 0) return null;
+  let built = buildBSP(baseEntries, region);
+  for (const [id, b] of Object.entries(registry)) {
+    if (id in layout) continue;
+    if (!id.includes('-spawned-')) continue;
+    const target = findLargestLeaf(built);
+    if (!target) break;
+    built = splitLeafInsert(built, target.bubbleId, 'right', id, b.minW, b.minH, 0.5);
+  }
+  return built;
 }
 
 // === Mentorship workspace: role-driven layouts ==========================
@@ -275,19 +303,21 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
   useEffect(() => {
     if (root !== null) return;
     try {
+      const region: Region = { col: 0, row: 0, w: grid.cols, h: grid.rows };
+      if (workspace.id === 'clinical-modules') {
+        const focus = moduleFocusSignal(workspace.id).value;
+        const layout = clinicalModulesLayout(focus.mode, focus.moduleId);
+        const built = buildClinicalModulesBSP(layout, registry, region);
+        if (built) setRoot(built);
+        return;
+      }
       let entries = Object.entries(registry).map(([id, b]) => ({
         id,
         placement: b.placement,
         minW: b.minW,
         minH: b.minH,
       }));
-      if (workspace.id === 'clinical-modules') {
-        const focus = moduleFocusSignal(workspace.id).value;
-        const layout = clinicalModulesLayout(focus.mode, focus.moduleId);
-        entries = entries
-          .filter((e) => e.id in layout)
-          .map((e) => ({ ...e, placement: layout[e.id] }));
-      } else if (workspace.id === 'mentorship') {
+      if (workspace.id === 'mentorship') {
         const focus = mentorshipFocusSignal(workspace.id).value;
         const layout = mentorshipLayout(focus);
         entries = entries
@@ -295,7 +325,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
           .map((e) => ({ ...e, placement: layout[e.id] }));
       }
       if (entries.length === 0) return;
-      const built = buildBSP(entries, { col: 0, row: 0, w: grid.cols, h: grid.rows });
+      const built = buildBSP(entries, region);
       setRoot(built);
     } catch (err) {
       console.warn('BSP construction failed', err);
@@ -313,10 +343,11 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
 
   // Mode-aware BSP rebuild for the clinical-modules workspace. On gallery →
   // module (or vice versa, or on companion-changing module switches), tear
-  // down the current BSP and build a fresh one from the new layout. Bubbles
-  // that exist in both modes (chat, oe-builder) animate to their new
-  // positions via the BSP container's existing left/top/width/height CSS
-  // transitions; bubbles unique to one mode mount/unmount.
+  // down the current BSP and build a fresh one from the new layout. The
+  // notes bubble exists in every layout, so it animates to its new placement
+  // via the BSP container's left/top/width/height transitions. Bubbles
+  // unique to one layout mount/unmount; spawned chat / OE / extra PREVENT
+  // ride along via buildClinicalModulesBSP's `-spawned-` follow-along loop.
   const lastSyncedRef = useRef<{ mode: WorkspaceMode; moduleId: string | null } | null>(null);
   const registryRef = useRef(registry);
   useEffect(() => { registryRef.current = registry; });
@@ -328,13 +359,10 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
       const last = lastSyncedRef.current;
       if (last && last.mode === current.mode && last.moduleId === current.moduleId) return;
       const layout = clinicalModulesLayout(current.mode, current.moduleId);
-      const reg = registryRef.current;
-      const placements = Object.entries(reg)
-        .filter(([id]) => id in layout)
-        .map(([id, b]) => ({ id, placement: layout[id], minW: b.minW, minH: b.minH }));
-      if (placements.length === 0) return;
+      const region: Region = { col: 0, row: 0, w: grid.cols, h: grid.rows };
       try {
-        const built = buildBSP(placements, { col: 0, row: 0, w: grid.cols, h: grid.rows });
+        const built = buildClinicalModulesBSP(layout, registryRef.current, region);
+        if (!built) return;
         setRoot(built);
         lastSyncedRef.current = { mode: current.mode, moduleId: current.moduleId };
       } catch (err) {
