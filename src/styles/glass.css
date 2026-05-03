@@ -1884,19 +1884,28 @@
 /* Mentorship Tracker shell — full-bleed wrapper around the React-style TSX.
    The host page applies overflow:hidden + touch-action:none to html/body/#app
    for the BSP gesture world; we re-establish a normal scrollable web-app
-   container here so the TSX's inner overflow-y:auto panes actually engage,
-   and so wheel + touch scroll work as expected.
+   container here so the TSX's inner overflow-y:auto panes actually engage.
 
-   Fixed height (not min-height) constrains the TSX's outer min-height:100vh
-   to exactly the viewport height, which gives its flex children a real
-   height to compute against — without this, the inner sidebar / right-pane
-   overflow-y:auto are no-ops and content extending past the viewport is
-   simply clipped. */
+   The wrapper is a flex column of fixed viewport height; the TSX outer is
+   forced to flex:1 with min-height:0 + max-height:100% so it can't exceed
+   the wrapper. Without these overrides the TSX outer's inline
+   min-height:100vh lets it grow to fit content, the inner row then gets
+   flex:1 of an unbounded parent, the right pane is sized to its own content,
+   and overflow-y:auto never engages — content past the viewport is silently
+   clipped by the wrapper's overflow:hidden. */
 .mentorship-tracker-shell {
   width: 100vw;
   height: var(--vh, 100vh);
+  max-height: var(--vh, 100vh);
   overflow: hidden;
   touch-action: pan-y;
+  display: flex;
+  flex-direction: column;
+}
+.mentorship-tracker-shell > div {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
 }
 .mentorship-tracker-shell,
 .mentorship-tracker-shell * {
@@ -1906,10 +1915,14 @@
 }
 
 /* Programmatic spacing so nothing inside the Mentorship Tracker can render
-   on top of the fixed back-to-launcher chevron. The TSX's dark navy top bar
-   is uniquely identified by its inline background color #0f1b2d; the !important
-   overrides the inline padding shorthand so the title block ("Mentorship
-   Tracker · Dr. Rivera — …") starts to the right of the chevron. */
+   on top of the fixed back-to-launcher chevron. Preact serializes the
+   topbar's inline #0f1b2d as rgb(15, 27, 45); we cover both forms defensively
+   in case the serializer ever changes. The !important overrides the inline
+   padding shorthand so the title block ("Mentorship Tracker · Dr. Rivera —
+   …") starts to the right of the chevron. */
+.mentorship-tracker-shell div[style*="rgb(15, 27, 45)"],
+.mentorship-tracker-shell div[style*="rgb(15,27,45)"],
+.mentorship-tracker-shell div[style*="#0f1b2d"],
 .mentorship-tracker-shell div[style*="0f1b2d"] {
   padding-left: 168px !important;
 }
