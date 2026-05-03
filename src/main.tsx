@@ -9,7 +9,7 @@ import type { HomeConfig, ModuleData, WorkspaceConfig } from './types';
 import { HomeScreen } from './shell/HomeScreen';
 import { WorkspaceShell } from './shell/WorkspaceShell';
 import { PrintView } from './shell/PrintView';
-import { Launcher, BackToLauncherChevron, HomeViewTogglePill } from './shell/Launcher';
+import { Launcher, BackToLauncherChevron, HomeViewTogglePill, ModuleBackChevron, BackToMondrianChevron } from './shell/Launcher';
 import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
@@ -138,6 +138,8 @@ function App(): JSX.Element {
           }}
         />
       )}
+      {id && <BackToMondrianChevron />}
+      {id === 'clinical-modules' && <ModuleBackChevron />}
       <PrintView modules={clinicalModules} />
     </>
   );

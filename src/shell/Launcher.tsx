@@ -1,6 +1,9 @@
 import type { JSX } from 'preact';
 import { setLauncherApp } from '../data/launcherState';
 import { setMondrianHomeView, type MondrianHomeView } from '../data/mondrianHomeView';
+import { moduleFocusSignal } from '../data/moduleFocus';
+import { activeWorkspaceIdSignal } from '../data/workspaceNav';
+import { clearTrainerProviderContext } from '../data/trainerProviderContext';
 
 export function Launcher(): JSX.Element {
   return (
@@ -65,6 +68,61 @@ export function BackToLauncherChevron({ variant = 'on-light' }: BackToLauncherPr
     >
       <span class="back-to-launcher__chevron" aria-hidden="true">‹</span>
       <span class="back-to-launcher__wordmark">meridian</span>
+    </button>
+  );
+}
+
+// Floating top-left back chevron that returns from any Mondrian workspace
+// to the workspace selection grid. Sibling of ModuleBackChevron — when the
+// Clinical Modules workspace is in module mode, both pills stack vertically
+// (Mondrian on top at the iOS-standard 16px, modules below at 60px) so the
+// user can hop one level up at a time. Mirrors the trainer-context cleanup
+// the FAB-driven back-to-home does, so the shortcut and the FAB end up in
+// the same state.
+export function BackToMondrianChevron(): JSX.Element | null {
+  const id = activeWorkspaceIdSignal.value;
+  if (!id) return null;
+  return (
+    <button
+      type="button"
+      class="mondrian-back-chevron"
+      onClick={() => {
+        if (activeWorkspaceIdSignal.value === 'trainer') clearTrainerProviderContext();
+        activeWorkspaceIdSignal.value = null;
+      }}
+      aria-label="Back to Mondrian workspace selector"
+    >
+      <span class="mondrian-back-chevron__chevron" aria-hidden="true">‹</span>
+      <span class="mondrian-back-chevron__label">Mondrian</span>
+    </button>
+  );
+}
+
+// Floating top-left back chevron for the Clinical Modules workspace.
+// Renders only while the workspace is in module mode; tapping it returns to
+// gallery mode (the focus signal change drives the existing BSP rebuild).
+// Lives at the App level so it's decoupled from any single bubble's chrome
+// — the alpha tester reached for browser back from anywhere on the page,
+// so the affordance has to survive the user dismissing or hiding the
+// checklist bubble.
+export function ModuleBackChevron(): JSX.Element | null {
+  const focus = moduleFocusSignal('clinical-modules').value;
+  if (focus.mode !== 'module') return null;
+  return (
+    <button
+      type="button"
+      class="module-back-chevron"
+      onClick={() => {
+        moduleFocusSignal('clinical-modules').value = {
+          mode: 'gallery',
+          moduleId: null,
+          focusedItemId: null,
+        };
+      }}
+      aria-label="Back to module gallery"
+    >
+      <span class="module-back-chevron__chevron" aria-hidden="true">‹</span>
+      <span class="module-back-chevron__label">modules</span>
     </button>
   );
 }

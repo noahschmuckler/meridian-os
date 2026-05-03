@@ -49,10 +49,6 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
     onRequestSiblingFocus?.('module-faq', 0.6);
   }
 
-  function backToModules(): void {
-    focus.value = { mode: 'gallery', moduleId: null, focusedItemId: null };
-  }
-
   const [busy, setBusy] = useState<null | 'docx' | 'pptx'>(null);
 
   function downloadBlob(blob: Blob, filename: string): void {
@@ -98,29 +94,6 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
   return (
     <div class="cm-bubble" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
-        <button
-          type="button"
-          title="Back to modules"
-          aria-label="Back to modules"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); backToModules(); }}
-          style={{
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            font: 'inherit',
-            fontSize: 12,
-            padding: '0 8px 0 0',
-            opacity: 0.75,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            color: 'var(--type-color)',
-          }}
-        >
-          <span style={{ fontSize: 14, lineHeight: 1 }}>‹</span>
-          <span style={{ fontSize: 11 }}>modules</span>
-        </button>
         <span class="bubble__title" style={{ color: 'var(--type-color)', fontSize: 12 }}>
           {selected.default_title}
         </span>
