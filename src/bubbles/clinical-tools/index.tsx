@@ -42,6 +42,31 @@ const TOOLS: Tool[] = [
     glyph: '🫀',
     spawn: { type: 'prevent-calculator', title: 'PREVENT calculator' },
   },
+  {
+    id: 'clinical-chat',
+    title: 'Clinical chat',
+    blurb: 'Sonnet · attach modules, dossier, notes',
+    glyph: '💬',
+    spawn: {
+      type: 'llm-chat',
+      title: 'Clinical chat',
+      props: {
+        greeting: 'Ask about any module — I can pull up checklists, escalations, or FAQs. (LLM module-routing wiring is the next iteration.)',
+        defaultPersona: 'clinical',
+        brain: {
+          miniBubbles: [],
+          hydrationRules: { onAttach: 'auto-add', onDrop: 'auto-add' },
+        },
+      },
+    },
+  },
+  {
+    id: 'openevidence-builder',
+    title: 'OpenEvidence',
+    blurb: 'Build a question · pick context · run query',
+    glyph: '🔬',
+    spawn: { type: 'openevidence-builder', title: 'OpenEvidence' },
+  },
 ];
 
 export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
