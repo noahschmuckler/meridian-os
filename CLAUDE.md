@@ -11,11 +11,18 @@ The user is **Dr. Noah Schmuckler**, MD, primary-care medical director at Optum.
 - **Live:** https://meridian-os.pages.dev
 - **Repo:** https://github.com/noahschmuckler/meridian-os (public)
 - **Cloudflare Pages project:** `meridian-os`
-- **Latest commit:** `430098b` (Mentorship Tracker scroll + chevron-overlap fixes).
+- **Latest commit:** `7ae9350` (Clinical Modules gallery: notes scratch pad replaces live chat + OE; tools bubble cards now spawn chat / OE / PREVENT on demand).
 
 The OS shell is **production-quality**. As of 2026-05-03, a **top-level launcher** sits in front of everything — a "meridian" wordmark with two iOS-style app icons, **Mondrian GUI** and **Mentorship Tracker**. The Mondrian GUI icon enters the existing OS unchanged (Trainer / Clinical Modules / Mentorship workspaces all populated). The Mentorship Tracker icon enters a **separate full-bleed React-style SPA** ported from Scott Freiberg's `~/Downloads/remixed-fab2f713.tsx`, no BSP, no chat. Last-opened app is persisted across refreshes.
 
 Three workspaces inside the Mondrian GUI are populated (Trainer, Clinical Modules, Mentorship). Three remain empty tiles awaiting content (Provider, QI Statin, Admin Cockpit).
+
+### Clinical Tools refit 2026-05-03 (cards spawn bubbles; gallery default swaps chat/OE for notes)
+
+- **Clinical Tools cards now summon bubbles** (`src/bubbles/clinical-tools/index.tsx` + `src/shell/BspWorkspace.tsx`). Each card in the tools list (PREVENT 🫀, Clinical chat 💬, OpenEvidence 🔬) is a button that splits the tools bubble in half and inserts a fresh primitive instance to its right. Each click creates a new instance with id `${type}-spawned-${++_spawnSeq}`, so providers can spawn multiple chats / multiple PREVENT calculators side-by-side. Spawn flow: card → `onSpawnBubble` extraProp → `spawnAdjacentBubble(spec)` in BspWorkspace, which builds a `BubbleBundle` (mirroring `summonPlaceholder`), updates the registry, and calls `splitLeafInsert(root, nearBubbleId, 'right', id, ...)`. Falls back to `findLargestLeaf` if `nearBubbleId` isn't in the BSP. The Clinical chat card carries the same `greeting` / `defaultPersona` / `brain` props the gallery's clinical chat used to use, so the spawned chat behaves identically (same Sonnet endpoint, same brain hydration rules).
+- **Generalizable spawn pattern.** `onSpawnBubble` is wired as a per-primitive extraProp in BspWorkspace's render switch (same shape as `onRequestSiblingFocus` for clinical-module-checklist). Future "this tool launches a fresh instance of that primitive" interactions hang off the same hook — no need for a generic emit dispatcher.
+- **Gallery default screen change.** Live `chat` and `oe` bubbles dropped from `GALLERY_LAYOUT`. Replaced by a single full-width `notes` markdown bubble (`{ col: 4, row: 4, width: 8, height: 4 }`) declared as a JSON standalone in `src/data/workspaces/clinical-modules.json`. `chat` and `oe` are still in the registry and still appear in `MODULE_LAYOUT_BASE` / `MODULE_LAYOUT_WITH_PREVENT` — they're just not in gallery anymore. The Clinical chat / OpenEvidence cards are how a provider summons them in gallery now. **Persistence caveat:** existing localStorage state holds the old gallery layout — workspace ⟲ reset (or any mode-rebuild trigger) brings in the new layout.
+- **Tools bubble chrome cleanup.** Dropped the count badge in the chrome (the trailing "1" / "3" that read like part of the title — bubble is now plainly **Clinical tools**). Lifted the "DOCX must follow the format guide…" caveat from the bottom of the bubble to immediately under the Import button, so providers see the requirements before they pick a file. Dropped the "Calculators" section header — the cards mix calculators with chat/OE so the heading was misleading.
 
 ### Major systems landed 2026-05-03 (Launcher + Mentorship Tracker app)
 
@@ -27,9 +34,9 @@ Three workspaces inside the Mondrian GUI are populated (Trainer, Clinical Module
 
 ### Major systems landed since 2026-04-27 (Clinical Modules milestone)
 
-- **Clinical Modules workspace** — full gallery → module morph. Gallery has three topic bubbles (Cardiometabolic red, Behavioral & Controlled Rx purple, General Internal Med teal) sized roughly by module count, plus a clinical-tools bubble (yellow) that hosts the DOCX importer + calculator list, a real LLM chat (yellow), and an OpenEvidence query builder (yellow, UI shell). Tapping a module in a topic bubble morphs the workspace to module mode (checklist green + escalations red + FAQ blue, with the PREVENT calculator yellow auto-attached for the lipid module). The chat and OE bubbles persist across the morph, animating to their new placements via the existing BSP CSS transitions; their internal state survives because they keep the same bubbleId in both layouts.
+- **Clinical Modules workspace** — full gallery → module morph. Gallery has three topic bubbles (Cardiometabolic red, Behavioral & Controlled Rx purple, General Internal Med teal) sized roughly by module count, a clinical-tools bubble (yellow) that hosts the DOCX importer + a card list (PREVENT / Clinical chat / OpenEvidence — each spawns a fresh bubble adjacent), and a notes scratch pad (markdown bubble) for in-session annotations. Tapping a module in a topic bubble morphs the workspace to module mode (checklist green + escalations red + FAQ blue, with the PREVENT calculator yellow auto-attached for the lipid module + chat + OE). Chat and OE bubbles still live as JSON standalones — they just aren't placed in gallery anymore; module mode brings them in. (Earlier iterations placed chat + OE in both modes and animated them across the morph.)
 - **Workspace mode signal** (`src/data/moduleFocus.ts`) — `{ mode, moduleId, focusedItemId }` tracked per workspace, persisted to localStorage so refreshes restore mode + selection together with the BSP root.
-- **Mode-aware BSP layout** — `BspWorkspace.tsx` watches `moduleFocusSignal` and rebuilds the BSP from one of three layout tables (`GALLERY_LAYOUT`, `MODULE_LAYOUT_BASE`, `MODULE_LAYOUT_WITH_PREVENT`) on every mode/module change. Bubbles in both layouts (chat, oe) animate; bubbles unique to one mode mount/unmount. Replaces the earlier ad-hoc PREVENT companion auto-show logic.
+- **Mode-aware BSP layout** — `BspWorkspace.tsx` watches `moduleFocusSignal` and rebuilds the BSP from one of three layout tables (`GALLERY_LAYOUT`, `MODULE_LAYOUT_BASE`, `MODULE_LAYOUT_WITH_PREVENT`) on every mode/module change. Bubbles present in both adjacent layouts animate to their new placement; bubbles unique to one mode mount/unmount. Replaces the earlier ad-hoc PREVENT companion auto-show logic. (Earlier this tier let chat/oe persist across the gallery↔module morph; the current gallery default doesn't include them so there's no animation between modes today — but the mechanism is intact for future use.)
 - **Click-to-resize FAQ** — clicking a checklist or escalation row in module mode sets workspace focus to that item and asks the host to grow the FAQ bubble to ~60% of its parent split (idempotent — won't fight the user if FAQ is already ≥60%). Implemented via a small `findParentSplit` walker + `setSplitAt`.
 - **PREVENT calculator** (`src/bubbles/prevent-calculator/index.tsx`) — live 10-year ASCVD risk computation with PREVENT-shape coefficients (constants hand-calibrated; verify-link to acc.org/PREVENT in the bubble footer; explicitly draft).
 - **Print mode** (`src/shell/PrintView.tsx` + `@media print` rules in glass.css) — App-mounted hidden PrintView reads the focused module from `moduleFocusSignal('clinical-modules')` and renders a paginated, letter-size, 0.75in-margin layout. The bubble UI is hidden via `display: none !important;` on `.home`, `.workspace-shell`, `.bsp-workspace`, FAB, vault, attach-menu, and the home tile classes (`.home__perspective`, `.home__grid`, `.home__tile`). Triggered via Cmd+P or the new ⎙ button in the workspace FAB menu. Browser print-to-PDF gives provider-shareable handouts for free.
@@ -177,7 +184,7 @@ src/
     MentorshipTrackerShell.tsx  Wraps MentorshipTrackerApp + the chevron. Re-establishes scrollable web-app container.
     HomeScreen.tsx          iPhone-style grid + tile previews (reached via Mondrian GUI launcher icon)
     WorkspaceShell.tsx      Animated wrapper; manages entering/idle/exiting phase
-    BspWorkspace.tsx        Workspace renderer; 800+ lines; the orchestrator. Owns mode-aware layout for clinical-modules (GALLERY_LAYOUT, MODULE_LAYOUT_BASE, MODULE_LAYOUT_WITH_PREVENT) and the focus-signal subscription that rebuilds BSP on mode change.
+    BspWorkspace.tsx        Workspace renderer; ~1900 lines; the orchestrator. Owns mode-aware layout for clinical-modules (GALLERY_LAYOUT, MODULE_LAYOUT_BASE, MODULE_LAYOUT_WITH_PREVENT) and the focus-signal subscription that rebuilds BSP on mode change. Also exposes `spawnAdjacentBubble({ type, title, props?, nearBubbleId? })` for tool bubbles to summon a fresh primitive instance to their right (used by clinical-tools cards). New ids: `${type}-spawned-${++_spawnSeq}`.
     workspaceState.ts       Module-level persistence Maps + localStorage hydration
     PrintView.tsx           App-mounted hidden component; renders the focused module as paginated HTML for browser print.
   cell/                     Legacy; retained but unused by trainer
@@ -196,7 +203,7 @@ src/
     clinical-module-faq/         Real (blue) — back-to-topics chevron; renders topic shortcuts in idle state
     clinical-module-shared/row.tsx  Shared row component (numbered/exclamation marker)
     clinical-topic-bubble/       Real — used by three primitive types (cv red, controlled purple, general teal). Lists modules in its topic; tap a module → focus.mode='module'.
-    clinical-tools/              Real — DOCX import button (lazy-loads mammoth) + calculator list + recently-imported list
+    clinical-tools/              Real — DOCX import button (lazy-loads mammoth) + clickable cards (PREVENT / Clinical chat / OpenEvidence) that spawn adjacent bubbles via the host's `onSpawnBubble` extraProp + recently-imported list. No "Calculators" section header (cards now mix calculators with chat/OE).
     openevidence-builder/        Real (UI shell; question type / topic / context / preview; send is a no-op pending real OE wiring + harness adoption)
     prevent-calculator/          Real — live 10-yr ASCVD risk; PREVENT-shape coefficients (draft, calibrated)
     index.ts                PRIMITIVE_REGISTRY — type → component
@@ -215,7 +222,7 @@ src/
     launcherState.ts        launcherAppSignal ('launcher' | 'mondrian' | 'mentorship') + setLauncherApp; hydrates from meridian-os.launcherApp.v1
     home.json               Workspace grid config (6 tiles incl clinical-modules at [2,1])
     workspaces/trainer.json Trainer workspace config (Patel context)
-    workspaces/clinical-modules.json  Clinical Modules workspace config (all bubbles defined; gallery placements in layoutHints; module-mode placements computed in BspWorkspace from constants)
+    workspaces/clinical-modules.json  Clinical Modules workspace config. All bubbles declared as standalones (topics, tools, notes, chat, oe, prevent, module-checklist/escalations/faq). Gallery placements in layoutHints (current default: topics across the top, tools + notes across the bottom — chat/oe/prevent are NOT in the default gallery). Module-mode placements computed in BspWorkspace from layout constants.
     seed/patel-cohort.json  Dr. Patel's mid-onboarding state
     seed/clinical-modules.json  All 7 bundled modules (lipids, ckd, adhd, anemia, abd-pain, opiates, benzos), byte-identical to vanilla's modules/*.json
     demo-script.json        Stub
@@ -290,16 +297,17 @@ State (login, checkoffs, notes) is **in-memory only** for MVP; refresh resets to
 10. **Dismiss** → painting flies back to its tile, FAB fades out early, no jolt on landing.
 
 ### Clinical Modules workspace
-1. From home, tap **Clinical Modules** (🩹) → flies up to gallery mode. Three topic bubbles at top (Cardiometabolic red / Behavioral & Controlled Rx purple / General Internal Med teal), tools + chat + OE bubbles at bottom.
-2. **Tap a module** in any topic bubble (e.g., "Lipid Management" inside Cardiometabolic) → workspace morphs to module mode. Topic + tools fade out; checklist + escalations + FAQ fade in. PREVENT calculator appears for the lipid module specifically (companion auto-show via the mode-aware layout). Chat and OE animate from their gallery positions to the module-mode positions.
-3. **Tap a checklist row** → that row highlights, FAQ bubble switches to the matching FAQ, FAQ bubble auto-grows to ~60% of its parent split if it was smaller. Click the chevron in the FAQ chrome → returns to the topic-list idle view of FAQs.
-4. **Tap an escalation row** → same behavior, red accent.
-5. **Edit PREVENT inputs** → live recompute; risk tier color updates (Low green / Borderline-Intermediate amber / High red); footer banner links out to acc.org/PREVENT for verification.
-6. **`.docx` button in checklist chrome** → downloads a Word doc structured to match the parser's expected format. Edit in Word, then…
-7. **Back to gallery** via the "‹ modules" button → topic bubbles return; tools bubble shows.
-8. **"Import .docx"** in tools bubble → file picker → select the edited DOCX (or any compliant DOCX from `~/meridian/templates/`). mammoth parses, parseDocxHtml builds a ModuleData, the workspace lands directly in module mode for the imported module. Imports also persist to localStorage and appear in the tools bubble's "Imports" list.
-9. **`.pptx` button** → downloads a PowerPoint deck (title + checklist + escalation + per-FAQ + references slides).
-10. **Cmd+P or FAB ⎙ button** → browser print dialog with a paginated PDF view of the focused module (letter size, 0.75in margins, color-coded green-zone / red escalation / blue FAQ headers). Save as PDF for sharing.
+1. From home, tap **Clinical Modules** (🩹) → flies up to gallery mode. Three topic bubbles at top (Cardiometabolic red / Behavioral & Controlled Rx purple / General Internal Med teal), Clinical tools (yellow) + Notes (markdown scratch pad) at bottom.
+2. **Inside the Clinical Tools bubble**, three cards summon bubbles on demand: 🫀 PREVENT, 💬 Clinical chat (real Sonnet), 🔬 OpenEvidence query builder. Each click splits the tools bubble in half and inserts a fresh instance to its right (each click = a new instance with id `${type}-spawned-${++_spawnSeq}`). Spawned chats use the same greeting / persona / brain config as the JSON-declared clinical chat.
+3. **Tap a module** in any topic bubble (e.g., "Lipid Management" inside Cardiometabolic) → workspace morphs to module mode. Topic + tools + notes fade out; checklist + escalations + FAQ + chat + OE fade in. PREVENT calculator appears for the lipid module specifically (companion auto-show via the mode-aware layout). Spawned bubbles from gallery don't appear in module mode (the layout-rebuild filters the registry to ids in the static layout table) — they re-appear if you return to gallery in the same session via a workspace reset, but otherwise stay registry-only.
+4. **Tap a checklist row** → that row highlights, FAQ bubble switches to the matching FAQ, FAQ bubble auto-grows to ~60% of its parent split if it was smaller. Click the chevron in the FAQ chrome → returns to the topic-list idle view of FAQs.
+5. **Tap an escalation row** → same behavior, red accent.
+6. **Edit PREVENT inputs** → live recompute; risk tier color updates (Low green / Borderline-Intermediate amber / High red); footer banner links out to acc.org/PREVENT for verification.
+7. **`.docx` button in checklist chrome** → downloads a Word doc structured to match the parser's expected format. Edit in Word, then…
+8. **Back to gallery** via the "‹ modules" button → topic bubbles return; tools + notes bubbles show.
+9. **"Import .docx"** in tools bubble → file picker → select the edited DOCX (or any compliant DOCX from `~/meridian/templates/`). mammoth parses, parseDocxHtml builds a ModuleData, the workspace lands directly in module mode for the imported module. Imports also persist to localStorage and appear in the tools bubble's "Imports" list.
+10. **`.pptx` button** → downloads a PowerPoint deck (title + checklist + escalation + per-FAQ + references slides).
+11. **Cmd+P or FAB ⎙ button** → browser print dialog with a paginated PDF view of the focused module (letter size, 0.75in margins, color-coded green-zone / red escalation / blue FAQ headers). Save as PDF for sharing.
 
 ---
 
@@ -313,9 +321,10 @@ State (login, checkoffs, notes) is **in-memory only** for MVP; refresh resets to
 - **Workspace ⟲ is layout-only.** Chat has its own compact/clear; workspace ⟲ does not touch chat content.
 - **Single visual treatment for v1**, themable later. No theme switcher in v1.
 - **No enterprise integrations in this build.** Real LLM is fair game (no PHI), but real Epic / M365 / OpenEvidence stays in the on-prem future.
-- **Mode-aware workspace layouts (clinical-modules).** The clinical-modules workspace toggles between gallery and module modes via a focus signal; layouts are tables in `BspWorkspace.tsx`. Chat + OE persist across mode by keeping the same bubble id in both layouts. Other workspaces use the legacy single-layout-per-workspace path.
+- **Mode-aware workspace layouts (clinical-modules).** The clinical-modules workspace toggles between gallery and module modes via a focus signal; layouts are tables in `BspWorkspace.tsx`. Bubbles are placed only when their id appears in the active layout table; ids absent from the table stay in the registry but aren't rendered (they survive across mode switches). The current gallery default surfaces topic bubbles + tools + notes; chat / OE / PREVENT are spawned on demand from tool cards or appear in module mode as part of `MODULE_LAYOUT_BASE` / `MODULE_LAYOUT_WITH_PREVENT`. Other workspaces use the legacy single-layout-per-workspace path.
 - **Module data is the source of truth, bubbles are pure renderers.** All module content lives in JSON (`src/data/seed/clinical-modules.json` for seeded; `userModulesSignal` for imports). Bubbles read the JSON via seed resolver and `userModulesSignal.value`; they never own state that isn't in JSON. Edit JSON, refresh, bubbles re-render. This invariant is what makes round-trip via DOCX (and any future format) cleanly possible.
 - **DOCX is the round-trip format.** Word is the most familiar editor for clinical leadership. The DOCX export is structured to match the upload parser exactly so a user can export → edit in Word → upload → see in bubbles. PPTX is one-way (presentations don't round-trip). Markdown round-trip and in-app authoring are both possible future paths but deferred.
+- **Tool bubbles spawn primitives via `onSpawnBubble` extraProp, not a generic emit dispatcher.** A "tool" bubble (e.g., clinical-tools) lists actions as cards; clicking a card calls `onSpawnBubble({ type, title, props? })`, which BspWorkspace routes to `spawnAdjacentBubble`. The new bubble splits the tool bubble in half and lands to its right with a unique id (`${type}-spawned-N`). Mirrors the per-primitive callback pattern already used by clinical-module-checklist's `onRequestSiblingFocus` — when a future bubble needs the workspace shell to do something, prefer adding a typed callback to the per-primitive `extraProps` switch in `BspWorkspace.tsx` over inventing a generic event channel. Spawned ids are not in the static layout tables for clinical-modules, so they disappear visually on mode switch but persist in the registry.
 
 ---
 
