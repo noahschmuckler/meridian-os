@@ -126,9 +126,6 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
     <div class="cm-tools" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div class="bubble__chrome">
         <span class="bubble__title" style={{ color: 'var(--type-color)' }}>{instance.title}</span>
-        <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 'auto' }}>
-          {TOOLS.length + (userModules.length ? ` · ${userModules.length} import${userModules.length === 1 ? '' : 's'}` : '')}
-        </span>
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '8px 12px 12px' }}>
         <input
@@ -159,6 +156,9 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
         >
           📄 Import .docx module
         </button>
+        <p style={{ fontSize: 10, lineHeight: 1.4, opacity: 0.55, margin: '0 0 10px', fontStyle: 'italic' }}>
+          DOCX must follow the Meridian format guide (H1 title, H2 sections, H3 [item-id] rows). Templates and the format guide are in <code>~/meridian/</code>.
+        </p>
         {status.kind !== 'idle' && (
           <div
             style={{
@@ -273,10 +273,6 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
             </div>
           </>
         )}
-
-        <p style={{ fontSize: 10, lineHeight: 1.4, opacity: 0.55, marginTop: 12, fontStyle: 'italic' }}>
-          DOCX must follow the Meridian format guide (H1 title, H2 sections, H3 [item-id] rows). Templates and the format guide are in <code>~/meridian/</code>.
-        </p>
       </div>
     </div>
   );
