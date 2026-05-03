@@ -1881,6 +1881,58 @@
 .back-to-launcher--on-dark:hover { background: rgba(255, 255, 255, 0.18); }
 
 
+/* Home-view toggle pill. Sibling of back-to-launcher, anchored bottom-left.
+   In focused mode (single Clinical Modules tile) it reads "archive ›" and
+   opens the full 6-tile grid; in archive mode it reads "‹ focused" and
+   returns to the single-tile landing. Always rendered on light Mondrian
+   home; hidden when a workspace is mounted (gated in main.tsx). */
+.home-view-toggle {
+  position: fixed;
+  bottom: 18px;
+  left: 22px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 14px;
+  border: 1px solid rgba(15, 30, 22, 0.12);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.10),
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 16px 36px rgba(0, 0, 0, 0.10);
+  transition: background var(--duration-1) var(--ease-out), transform var(--duration-1) var(--ease-out), box-shadow var(--duration-1) var(--ease-out);
+}
+
+.home-view-toggle:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.14),
+    0 10px 24px rgba(0, 0, 0, 0.16),
+    0 24px 48px rgba(0, 0, 0, 0.12);
+}
+.home-view-toggle--focused:hover { transform: translateX(2px); }
+.home-view-toggle--archive:hover { transform: translateX(-2px); }
+.home-view-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.home-view-toggle__chevron {
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+
 /* Mentorship Tracker shell — full-bleed wrapper around the React-style TSX.
    The host page applies overflow:hidden + touch-action:none to html/body/#app
    for the BSP gesture world; we re-establish a normal scrollable web-app

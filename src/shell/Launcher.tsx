@@ -1,5 +1,6 @@
 import type { JSX } from 'preact';
 import { setLauncherApp } from '../data/launcherState';
+import { setMondrianHomeView, type MondrianHomeView } from '../data/mondrianHomeView';
 
 export function Launcher(): JSX.Element {
   return (
@@ -64,6 +65,34 @@ export function BackToLauncherChevron({ variant = 'on-light' }: BackToLauncherPr
     >
       <span class="back-to-launcher__chevron" aria-hidden="true">‹</span>
       <span class="back-to-launcher__wordmark">meridian</span>
+    </button>
+  );
+}
+
+interface HomeViewTogglePillProps {
+  mode: MondrianHomeView;
+}
+
+export function HomeViewTogglePill({ mode }: HomeViewTogglePillProps): JSX.Element {
+  const next: MondrianHomeView = mode === 'focused' ? 'archive' : 'focused';
+  return (
+    <button
+      type="button"
+      class={`home-view-toggle home-view-toggle--${mode}`}
+      onClick={() => setMondrianHomeView(next)}
+      aria-label={mode === 'focused' ? 'Show archived workspaces' : 'Return to focused view'}
+    >
+      {mode === 'focused' ? (
+        <>
+          <span class="home-view-toggle__label">archive</span>
+          <span class="home-view-toggle__chevron" aria-hidden="true">›</span>
+        </>
+      ) : (
+        <>
+          <span class="home-view-toggle__chevron" aria-hidden="true">‹</span>
+          <span class="home-view-toggle__label">focused</span>
+        </>
+      )}
     </button>
   );
 }

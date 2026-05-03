@@ -9,12 +9,13 @@ import type { HomeConfig, ModuleData, WorkspaceConfig } from './types';
 import { HomeScreen } from './shell/HomeScreen';
 import { WorkspaceShell } from './shell/WorkspaceShell';
 import { PrintView } from './shell/PrintView';
-import { Launcher, BackToLauncherChevron } from './shell/Launcher';
+import { Launcher, BackToLauncherChevron, HomeViewTogglePill } from './shell/Launcher';
 import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
 import { activeWorkspaceIdSignal, entryFromSignal } from './data/workspaceNav';
 import { launcherAppSignal } from './data/launcherState';
+import { mondrianHomeViewSignal } from './data/mondrianHomeView';
 import { clearTrainerProviderContext } from './data/trainerProviderContext';
 
 import homeConfigJson from './data/home.json';
@@ -25,6 +26,20 @@ import patelSeed from './data/seed/patel-cohort.json';
 import clinicalModulesSeed from './data/seed/clinical-modules.json';
 
 const home = homeConfigJson as HomeConfig;
+
+// Phase 1 production landing: a single Clinical Modules tile in the same
+// physical slot it occupies in the archive grid (top row, middle). The
+// archive view (full 6-tile grid) is reachable via the bottom-left pill.
+const focusedHome: HomeConfig = {
+  active: 0,
+  desktops: [
+    {
+      id: 'focused',
+      grid: { cols: 3, rows: 2 },
+      icons: [{ workspaceId: 'clinical-modules', pos: [1, 0] }],
+    },
+  ],
+};
 
 // Track the visualViewport height so iOS keyboard appearance shrinks the
 // workspace's effective height instead of pushing content under the keys.
@@ -92,11 +107,14 @@ function App(): JSX.Element {
   // chevron overlaid on the home grid. Inside a workspace the chevron is
   // hidden so it doesn't fight the FAB; the FAB still handles back-to-home.
   const id = activeWorkspaceIdSignal.value;
+  const homeView = mondrianHomeViewSignal.value;
+  const homeForRender = homeView === 'archive' ? home : focusedHome;
   return (
     <>
       {!id && <BackToLauncherChevron variant="on-light" />}
+      {!id && <HomeViewTogglePill mode={homeView} />}
       <HomeScreen
-        home={home}
+        home={homeForRender}
         workspaces={workspaces}
         activeWorkspaceId={id}
         onTapWorkspace={(wid, rect) => {

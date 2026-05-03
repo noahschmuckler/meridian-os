@@ -17,12 +17,23 @@ export function HomeScreen({ home, workspaces, activeWorkspaceId, onTapWorkspace
   return (
     <div class="home">
       <div class="home__perspective">
-        <div class="home__grid" style={{ gridTemplateColumns: `repeat(${desktop.grid.cols}, 1fr)` }}>
+        <div
+          class="home__grid"
+          style={{
+            gridTemplateColumns: `repeat(${desktop.grid.cols}, 1fr)`,
+            gridTemplateRows: `repeat(${desktop.grid.rows}, 1fr)`,
+          }}
+        >
           {desktop.icons.map((icon) => {
             const ws = workspaces[icon.workspaceId];
             if (!ws) return null;
             const greyed = ws.id === activeWorkspaceId;
             const preview = getWorkspacePreview(ws);
+            const tileStyle: JSX.CSSProperties = { '--tint': ws.icon.tint } as JSX.CSSProperties;
+            if (icon.pos) {
+              tileStyle.gridColumn = String(icon.pos[0] + 1);
+              tileStyle.gridRow = String(icon.pos[1] + 1);
+            }
             return (
               <button
                 key={ws.id}
@@ -31,7 +42,7 @@ export function HomeScreen({ home, workspaces, activeWorkspaceId, onTapWorkspace
                   else tileRefs.current.delete(ws.id);
                 }}
                 class={`home__tile${greyed ? ' is-greyed' : ''}`}
-                style={{ '--tint': ws.icon.tint } as JSX.CSSProperties}
+                style={tileStyle}
                 onClick={(e) => {
                   // Use the painting's rect (not the whole button). The
                   // painting is the visual surface that will become the
