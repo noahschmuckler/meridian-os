@@ -10,6 +10,7 @@ import type { BubbleInstance, ModuleData, ModuleFaqEntry } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
+import { expandRefMarkers, getModuleRefNumberer, getReferencesUsedIn } from '../../lib/refMarkers';
 
 interface ClinicalModuleFaqProps {
   modules?: ModuleData[];
@@ -97,7 +98,7 @@ export function ClinicalModuleFaq({ instance, workspaceId, onRequestSiblingFocus
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '10px 14px 14px' }}>
         {focusedFaq ? (
-          <FocusedFaq entry={focusedFaq} />
+          <FocusedFaq entry={focusedFaq} module={selected} />
         ) : (
           <IdleIndex faqs={selected.faqs} onPick={pickFaq} />
         )}
@@ -106,7 +107,12 @@ export function ClinicalModuleFaq({ instance, workspaceId, onRequestSiblingFocus
   );
 }
 
-function FocusedFaq({ entry }: { entry: ModuleFaqEntry }): JSX.Element {
+function FocusedFaq({ entry, module }: { entry: ModuleFaqEntry; module: ModuleData }): JSX.Element {
+  // Share a single numberer between the marker-expansion pass and the
+  // citations-used-in lookup so superscripts and the references list agree
+  // on which ref got which number for this module.
+  const numberer = getModuleRefNumberer(module);
+  const cited = getReferencesUsedIn(entry.items.map((qa) => qa.answer_html), module, numberer);
   return (
     <div>
       <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', lineHeight: 1.3 }}>
@@ -121,11 +127,24 @@ function FocusedFaq({ entry }: { entry: ModuleFaqEntry }): JSX.Element {
             <div
               class="markdown-body"
               style={{ fontSize: 12.5, lineHeight: 1.5 }}
-              dangerouslySetInnerHTML={{ __html: qa.answer_html }}
+              dangerouslySetInnerHTML={{ __html: expandRefMarkers(qa.answer_html, module, numberer) }}
             />
           </div>
         ))}
       </div>
+      {cited.length > 0 && (
+        <ol class="faq-references">
+          {cited.map(({ number, ref }) => (
+            <li key={ref.ref_id} id={`ref-${ref.ref_id}`} value={number}>
+              {ref.url ? (
+                <a href={ref.url} target="_blank" rel="noopener noreferrer">{ref.citation}</a>
+              ) : (
+                <span>{ref.citation}</span>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }

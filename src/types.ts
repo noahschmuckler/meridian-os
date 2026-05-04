@@ -212,6 +212,15 @@ export interface ModuleFaqEntry {
   items: ModuleFaqQA[];
 }
 
+// schema_version 1.1.0 introduced structured references with stable ref_ids
+// that match `[ref:X]` markers inline in answer_html / context / footer.
+// 1.0.0 modules carry plain string citations and no inline markers.
+export interface ModuleReference {
+  ref_id: string;
+  citation: string;
+  url?: string;
+}
+
 export interface ModuleData {
   schema_version: string;
   module_id: string;
@@ -225,7 +234,7 @@ export interface ModuleData {
   context_strip?: { label: string; text: string };
   footer_note?: string;
   faqs: ModuleFaqEntry[];
-  references?: string[];
+  references?: Array<string | ModuleReference>;
 }
 
 export interface Bubble<P = unknown> {

@@ -13,6 +13,7 @@ import {
   AlignmentType,
 } from 'docx';
 import type { ModuleData } from '../types';
+import { normalizeReferences, stripRefMarkers } from './refMarkers';
 
 const GREEN = '1A5C3A';
 const DARK = '1C1A16';
@@ -20,17 +21,18 @@ const GRAY = '6B6560';
 const LIGHT_GRAY = '999999';
 
 function htmlToPlain(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .trim();
+  return stripRefMarkers(
+    html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' '),
+  ).trim();
 }
 
 function instruction(text: string): Paragraph {
@@ -115,7 +117,7 @@ export async function generateModuleDocx(mod: ModuleData): Promise<Blob> {
   // Introduction
   children.push(heading('Introduction', 'H2'));
   children.push(instruction('One paragraph of introductory context for the clinician.'));
-  children.push(bodyParagraph(mod.landing_intro || ''));
+  children.push(bodyParagraph(stripRefMarkers(mod.landing_intro || '')));
 
   // Checklist items
   children.push(heading('Checklist Items', 'H2'));
@@ -150,12 +152,12 @@ export async function generateModuleDocx(mod: ModuleData): Promise<Blob> {
     'Optional. Brief contextual note. Delete this section if not needed. Two fields: Label, Text.',
   ));
   children.push(field('Label', mod.context_strip?.label ?? ''));
-  children.push(field('Text', mod.context_strip?.text ?? ''));
+  children.push(field('Text', stripRefMarkers(mod.context_strip?.text ?? '')));
 
   // Footer
   children.push(heading('Footer', 'H2'));
   children.push(instruction('One line of footer text.'));
-  children.push(bodyParagraph(mod.footer_note ?? ''));
+  children.push(bodyParagraph(stripRefMarkers(mod.footer_note ?? '')));
 
   // FAQ Reference
   children.push(heading('FAQ Reference', 'H2'));
@@ -175,11 +177,22 @@ export async function generateModuleDocx(mod: ModuleData): Promise<Blob> {
   }
 
   // References (optional)
-  if (mod.references && mod.references.length > 0) {
+  // v1.1.0 modules carry `{ ref_id, citation, url }` objects; v1.0.0 modules
+  // carry plain strings. We serialize objects as `[ref-id] Citation. URL` so
+  // parseDocxHtml can recover the structured shape on round-trip.
+  const refs = normalizeReferences(mod.references);
+  if (refs.length > 0) {
     children.push(heading('References', 'H2'));
-    children.push(instruction('Optional. One reference per paragraph.'));
-    for (const ref of mod.references) {
-      children.push(bodyParagraph(ref, { size: 20, color: GRAY }));
+    children.push(instruction(
+      'Optional. One reference per paragraph. v1.1.0 format: ' +
+      '[ref-id] Citation. URL — preserved for round-trip.',
+    ));
+    for (const ref of refs) {
+      const looksSynthetic = /^ref-\d+$/.test(ref.ref_id);
+      const line = looksSynthetic
+        ? ref.citation + (ref.url ? ` ${ref.url}` : '')
+        : `[${ref.ref_id}] ${ref.citation}` + (ref.url ? ` ${ref.url}` : '');
+      children.push(bodyParagraph(line, { size: 20, color: GRAY }));
     }
   }
 

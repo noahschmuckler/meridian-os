@@ -578,6 +578,17 @@
 .print-view { display: none; }
 
 @media print {
+  /* Reset the BSP gesture world's height/overflow lock — without this the
+     document is clipped to viewport height and only the first page prints
+     (mobile Safari was returning a single-page PDF for ADHD even though
+     the rendered content was multiple pages tall). */
+  html, body, #app {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    touch-action: auto !important;
+    overscroll-behavior: auto !important;
+  }
   body, html {
     background: white !important;
     color: #000;
@@ -674,7 +685,11 @@
   }
   .print-view .print-faq {
     margin: 12pt 0;
-    page-break-inside: avoid;
+  }
+  .print-view .print-faq h3,
+  .print-view .print-qa h4 {
+    page-break-after: avoid;
+    break-after: avoid-page;
   }
   .print-view .print-qa {
     margin: 8pt 0 8pt 16pt;
@@ -693,6 +708,18 @@
   }
   .print-view .print-references li {
     margin: 3pt 0;
+  }
+  .print-view .print-references a {
+    color: #1a1a1a;
+    text-decoration: none;
+  }
+  .print-view .ref-marker {
+    font-size: 0.7em;
+    color: #1a5c8a;
+  }
+  .print-view .ref-marker a {
+    color: inherit;
+    text-decoration: none;
   }
   .print-view--empty {
     padding: 1in 0;
@@ -1122,6 +1149,52 @@
   text-align: left;
 }
 .markdown-body th { background: rgba(0, 0, 0, 0.04); font-weight: 600; }
+
+/* === Reference markers (clinical-modules v1.1.0) ============================
+   Inline `[ref:X]` markers in answer_html are expanded by expandRefMarkers()
+   into <sup class="ref-marker"><a>[N]</a></sup>. The numbered `.faq-references`
+   list at the end of a focused FAQ (and at the end of the print view) renders
+   the citation list with optional URL links. */
+.ref-marker {
+  font-size: 0.75em;
+  color: var(--type-color, var(--accent));
+  margin: 0 1px;
+  font-weight: 600;
+  vertical-align: super;
+  line-height: 0;
+}
+.ref-marker a {
+  color: inherit;
+  text-decoration: none;
+}
+.ref-marker a:hover {
+  text-decoration: underline;
+}
+.ref-marker--missing {
+  color: var(--ink-faint, #888);
+  font-weight: 400;
+  font-style: italic;
+}
+.faq-references {
+  margin: 16px 0 4px;
+  padding-left: 22px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-faint, #555);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 10px;
+}
+.faq-references li {
+  margin: 4px 0;
+  padding-left: 4px;
+}
+.faq-references a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.faq-references a:hover {
+  text-decoration: underline;
+}
 
 /* Markdown bubble */
 .md-bubble {

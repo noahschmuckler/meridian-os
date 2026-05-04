@@ -176,7 +176,19 @@ export function parseDocxHtml(html: string): ModuleData {
 
       if (currentSection === 'references') {
         if (!mod.references) mod.references = [];
-        mod.references.push(text);
+        // v1.1.0 round-trip: lines exported by generateModuleDocx as
+        // `[ref-id] Citation. URL` become structured ModuleReference objects;
+        // legacy plain-string lines stay as strings (v1.0.0 modules).
+        const structured = text.match(/^\[([a-z0-9-]+)\]\s*(.+?)(?:\s+(https?:\/\/\S+))?$/i);
+        if (structured) {
+          mod.references.push({
+            ref_id: structured[1],
+            citation: structured[2].trim(),
+            url: structured[3],
+          });
+        } else {
+          mod.references.push(text);
+        }
         continue;
       }
 

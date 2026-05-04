@@ -10,6 +10,7 @@ import type { JSX } from 'preact';
 import { moduleFocusSignal } from '../data/moduleFocus';
 import { userModulesSignal } from '../data/userModules';
 import type { ModuleData } from '../types';
+import { expandRefMarkers, getCitedReferences, getModuleRefNumberer } from '../lib/refMarkers';
 
 interface Props {
   modules: ModuleData[];
@@ -28,6 +29,11 @@ export function PrintView({ modules }: Props): JSX.Element {
       </div>
     );
   }
+
+  // One numberer per render so superscripts and the references list agree on
+  // numbering even though they're built in two separate passes.
+  const numberer = getModuleRefNumberer(m);
+  const cited = getCitedReferences(m, numberer);
 
   return (
     <div class="print-view">
@@ -76,7 +82,7 @@ export function PrintView({ modules }: Props): JSX.Element {
             {faq.items.map((qa, i) => (
               <div class="print-qa" key={i}>
                 <h4>{qa.question}</h4>
-                <div dangerouslySetInnerHTML={{ __html: qa.answer_html }} />
+                <div dangerouslySetInnerHTML={{ __html: expandRefMarkers(qa.answer_html, m, numberer) }} />
               </div>
             ))}
           </article>
@@ -87,11 +93,19 @@ export function PrintView({ modules }: Props): JSX.Element {
         <footer class="print-footer-note">{m.footer_note}</footer>
       )}
 
-      {m.references && m.references.length > 0 && (
+      {cited.length > 0 && (
         <section class="print-section print-section--references">
           <h2>References</h2>
           <ol class="print-references">
-            {m.references.map((ref, i) => <li key={i}>{ref}</li>)}
+            {cited.map(({ number, ref }) => (
+              <li key={ref.ref_id} id={`ref-${ref.ref_id}`} value={number}>
+                {ref.url ? (
+                  <a href={ref.url} target="_blank" rel="noopener noreferrer">{ref.citation}</a>
+                ) : (
+                  <span>{ref.citation}</span>
+                )}
+              </li>
+            ))}
           </ol>
         </section>
       )}
