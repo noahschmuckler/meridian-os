@@ -3,11 +3,13 @@
 // in reset.css) with an action menu that's identical on iPhone and
 // desktop. Mounted once at the App level.
 //
-// Items: Copy, Select all, OpenEvidence, Feedback. (Cite ships with
-// Track 3.) The OpenEvidence action spawns the openevidence-builder
-// bubble adjacent to the source via the `meridian:spawn-bubble`
-// CustomEvent that BspWorkspace listens for. Feedback opens the
-// FeedbackModal pre-filled with the active module + selected snippet.
+// Items: Copy, Select all, Cite, OpenEvidence, Feedback. The Cite action
+// extracts supporting citations from the selection's DOM range (via
+// citationGenerator) and opens the CiteBlockPopover. The OpenEvidence
+// action spawns the openevidence-builder bubble adjacent to the source
+// via the `meridian:spawn-bubble` CustomEvent that BspWorkspace listens
+// for. Feedback opens the FeedbackModal pre-filled with the active
+// module + selected snippet.
 //
 // Selection detection uses `selectionchange` with a 250ms debounce so we
 // only render after the user has stopped extending the selection.
@@ -20,6 +22,8 @@ import { moduleFocusSignal } from '../data/moduleFocus';
 import { userModulesSignal } from '../data/userModules';
 import { openFeedback } from '../data/feedbackSignal';
 import { buildOEPrefill } from '../lib/oeQuery';
+import { extractCitations } from '../lib/citationGenerator';
+import { openCitePopover } from '../data/citeSignal';
 
 interface Props {
   modules: ModuleData[];
@@ -43,7 +47,7 @@ const HIDDEN: MenuState = {
   nearBubbleId: null,
 };
 
-const MENU_W = 280;   // approximate; CSS width is the source of truth
+const MENU_W = 320;   // approximate; CSS width is the source of truth
 const MENU_H = 36;
 const GAP = 8;
 
@@ -187,6 +191,21 @@ export function SelectionMenu({ modules }: Props): JSX.Element | null {
     sel.addRange(range);
   }
 
+  function openCite(): void {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    const result = extractCitations(range, activeModule);
+    openCitePopover({
+      decision: result.decision,
+      citations: result.citations,
+      anchor: { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom },
+      nearBubbleId: state.nearBubbleId,
+    });
+    clearSelection();
+  }
+
   function openOpenEvidence(): void {
     const prefill = buildOEPrefill({
       selectedText: state.snippet,
@@ -234,6 +253,15 @@ export function SelectionMenu({ modules }: Props): JSX.Element | null {
       </button>
       <button class="selection-menu__btn" type="button" onClick={selectAll}>
         Select all
+      </button>
+      <button
+        class="selection-menu__btn"
+        type="button"
+        onClick={openCite}
+        disabled={!activeModule}
+        title={activeModule ? 'Generate a citation block from this selection' : 'Open a clinical module first'}
+      >
+        Cite
       </button>
       <button
         class="selection-menu__btn"

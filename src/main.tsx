@@ -14,6 +14,7 @@ import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { FeedbackModal } from './shell/FeedbackModal';
 import { SelectionMenu } from './shell/SelectionMenu';
 import { GlossaryPopover } from './shell/GlossaryPopover';
+import { CiteBlockPopover } from './shell/CiteBlockPopover';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
 import { activeWorkspaceIdSignal, entryFromSignal } from './data/workspaceNav';
@@ -151,6 +152,7 @@ function App(): JSX.Element {
       <FeedbackModal />
       <SelectionMenu modules={clinicalModules} />
       <GlossaryPopover modules={clinicalModules} globalGlossary={globalGlossary} />
+      <CiteBlockPopover />
     </>
   );
 }
