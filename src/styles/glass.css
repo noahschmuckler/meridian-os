@@ -2060,10 +2060,20 @@
     0 1px 2px rgba(0, 0, 0, 0.20),
     0 6px 18px rgba(0, 0, 0, 0.28),
     0 16px 36px rgba(0, 0, 0, 0.22);
+  /* Default to faint so the pill doesn't compete with bubble content
+     beneath it. Proximity-reveal hook (`is-revealed`), hover, and
+     keyboard focus all bring it back to full opacity. */
+  opacity: 0.10;
   transition:
+    opacity 220ms var(--ease-out),
     background var(--duration-1) var(--ease-out),
     transform var(--duration-1) var(--ease-out),
     box-shadow var(--duration-1) var(--ease-out);
+}
+.mondrian-back-chevron.is-revealed,
+.mondrian-back-chevron:hover,
+.mondrian-back-chevron:focus-visible {
+  opacity: 1;
 }
 .mondrian-back-chevron:hover {
   background: rgba(20, 22, 30, 0.72);
@@ -2111,10 +2121,18 @@
     0 1px 2px rgba(0, 0, 0, 0.20),
     0 6px 18px rgba(0, 0, 0, 0.28),
     0 16px 36px rgba(0, 0, 0, 0.22);
+  /* Same proximity-reveal pattern as .mondrian-back-chevron above. */
+  opacity: 0.10;
   transition:
+    opacity 220ms var(--ease-out),
     background var(--duration-1) var(--ease-out),
     transform var(--duration-1) var(--ease-out),
     box-shadow var(--duration-1) var(--ease-out);
+}
+.module-back-chevron.is-revealed,
+.module-back-chevron:hover,
+.module-back-chevron:focus-visible {
+  opacity: 1;
 }
 .module-back-chevron:hover {
   background: rgba(20, 22, 30, 0.72);

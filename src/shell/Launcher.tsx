@@ -1,4 +1,5 @@
-import type { JSX } from 'preact';
+import type { JSX, RefObject } from 'preact';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { setLauncherApp } from '../data/launcherState';
 import { setMondrianHomeView, type MondrianHomeView } from '../data/mondrianHomeView';
 import { moduleFocusSignal } from '../data/moduleFocus';
@@ -72,6 +73,62 @@ export function BackToLauncherChevron({ variant = 'on-light' }: BackToLauncherPr
   );
 }
 
+// The two workspace-back chevrons (Mondrian + modules) sit fixed in the
+// top-left corner and were covering bubble content when fully opaque. They
+// now default to faint and fade in when the cursor (or any tap) approaches.
+// Hover / focus-visible always pin to full opacity via CSS, so a deliberate
+// reach-for-the-pill never feels gated. Touch users get a 2.5 s reveal
+// window on any pointerdown so the affordance is findable without needing
+// proximity tracking.
+const REVEAL_PROXIMITY_PX = 220;
+const TAP_REVEAL_MS = 2500;
+
+function useProximityReveal(ref: RefObject<HTMLElement>): boolean {
+  const [revealed, setRevealed] = useState(false);
+  const tapUntilRef = useRef(0);
+
+  useEffect(() => {
+    function nearPill(clientX: number, clientY: number): boolean {
+      const el = ref.current;
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      const cx = (r.left + r.right) / 2;
+      const cy = (r.top + r.bottom) / 2;
+      return Math.hypot(clientX - cx, clientY - cy) < REVEAL_PROXIMITY_PX;
+    }
+    function onMove(e: PointerEvent): void {
+      const stillTapped = performance.now() < tapUntilRef.current;
+      setRevealed(stillTapped || nearPill(e.clientX, e.clientY));
+    }
+    function onDown(e: PointerEvent): void {
+      // Any tap reveals briefly so touch users can find the pill without
+      // a hover trail. If the tap landed inside the pill itself the click
+      // handler still fires and navigates away — no double-tap required.
+      tapUntilRef.current = performance.now() + TAP_REVEAL_MS;
+      setRevealed(true);
+      window.setTimeout(() => {
+        if (performance.now() >= tapUntilRef.current) {
+          setRevealed(nearPill(e.clientX, e.clientY));
+        }
+      }, TAP_REVEAL_MS + 60);
+    }
+    function onLeave(): void {
+      // Cursor left the document — let the pill fade.
+      if (performance.now() >= tapUntilRef.current) setRevealed(false);
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('pointerleave', onLeave);
+    return () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('pointerleave', onLeave);
+    };
+  }, [ref]);
+
+  return revealed;
+}
+
 // Floating top-left back chevron that returns from any Mondrian workspace
 // to the workspace selection grid. Sibling of ModuleBackChevron — when the
 // Clinical Modules workspace is in module mode, both pills stack vertically
@@ -81,11 +138,14 @@ export function BackToLauncherChevron({ variant = 'on-light' }: BackToLauncherPr
 // the same state.
 export function BackToMondrianChevron(): JSX.Element | null {
   const id = activeWorkspaceIdSignal.value;
+  const ref = useRef<HTMLButtonElement>(null);
+  const revealed = useProximityReveal(ref);
   if (!id) return null;
   return (
     <button
+      ref={ref}
       type="button"
-      class="mondrian-back-chevron"
+      class={`mondrian-back-chevron${revealed ? ' is-revealed' : ''}`}
       onClick={() => {
         if (activeWorkspaceIdSignal.value === 'trainer') clearTrainerProviderContext();
         activeWorkspaceIdSignal.value = null;
@@ -107,11 +167,14 @@ export function BackToMondrianChevron(): JSX.Element | null {
 // checklist bubble.
 export function ModuleBackChevron(): JSX.Element | null {
   const focus = moduleFocusSignal('clinical-modules').value;
+  const ref = useRef<HTMLButtonElement>(null);
+  const revealed = useProximityReveal(ref);
   if (focus.mode !== 'module') return null;
   return (
     <button
+      ref={ref}
       type="button"
-      class="module-back-chevron"
+      class={`module-back-chevron${revealed ? ' is-revealed' : ''}`}
       onClick={() => {
         moduleFocusSignal('clinical-modules').value = {
           mode: 'gallery',
