@@ -1,18 +1,29 @@
-// Clinical tools bubble — calculators + DOCX importer.
+// Clinical tools bubble — DOCX importer + spawn cards.
 //
 // Top: "Import .docx" affordance — picks a Word file, runs mammoth +
 // parseDocxHtml, adds the resulting module to userModulesSignal, and
 // immediately lands the workspace in module mode for the imported module.
-// Mid: list of available calculators (PREVENT for now).
-// Bottom: list of recently imported modules — clickable to re-enter.
+// Mid: "Calculators" section sourced from src/bubbles/_calculators/registry.
+// Cards a focused module declares in `recommended_calculators` float to
+// the top of the list with a small "Recommended" badge.
+// Mid-low: "Tools" section — Clinical chat (real Sonnet) + OpenEvidence
+// builder. Each click spawns a fresh primitive instance to the right of
+// this bubble via the existing onSpawnBubble extraProp pattern.
+// Bottom: list of recently imported modules, clickable to re-enter.
 
 import { useRef, useState } from 'preact/hooks';
-import type { JSX } from 'preact';
-import type { BubbleInstance, BubblePrimitiveType } from '../../types';
+import type { ComponentChildren, JSX } from 'preact';
+import type { BubbleInstance, BubblePrimitiveType, ModuleData } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { parseDocxHtml } from '../../lib/parseDocxHtml';
 import { addUserModule, removeUserModule, userModulesSignal } from '../../data/userModules';
 import { moduleFocusSignal } from '../../data/moduleFocus';
+import { CALCULATORS } from '../_calculators/registry';
+import clinicalModulesSeed from '../../data/seed/clinical-modules.json';
+
+const SEED_MODULES: ModuleData[] = (
+  ((clinicalModulesSeed as { clinical?: { modules?: ModuleData[] } }).clinical?.modules) ?? []
+);
 
 interface SpawnSpec {
   type: BubblePrimitiveType;
@@ -26,22 +37,16 @@ interface Props {
   onSpawnBubble?: (spec: SpawnSpec) => void;
 }
 
-interface Tool {
+interface ToolCard {
   id: string;
   title: string;
   blurb: string;
   glyph: string;
+  recommended?: boolean;
   spawn: SpawnSpec;
 }
 
-const TOOLS: Tool[] = [
-  {
-    id: 'prevent-calculator',
-    title: 'PREVENT calculator',
-    blurb: '10-year ASCVD risk · AHA/ACC 2023',
-    glyph: '🫀',
-    spawn: { type: 'prevent-calculator', title: 'PREVENT calculator' },
-  },
+const NON_CALC_TOOLS: ToolCard[] = [
   {
     id: 'clinical-chat',
     title: 'Clinical chat',
@@ -51,7 +56,8 @@ const TOOLS: Tool[] = [
       type: 'llm-chat',
       title: 'Clinical chat',
       props: {
-        greeting: 'Ask about any module — I can pull up checklists, escalations, or FAQs. (LLM module-routing wiring is the next iteration.)',
+        greeting:
+          'Ask about any module — I can pull up checklists, escalations, or FAQs. (LLM module-routing wiring is the next iteration.)',
         defaultPersona: 'clinical',
         brain: {
           miniBubbles: [],
@@ -69,10 +75,39 @@ const TOOLS: Tool[] = [
   },
 ];
 
+function buildCalculatorCards(activeModule: ModuleData | null): ToolCard[] {
+  const recommendedIds = new Set(activeModule?.recommended_calculators ?? []);
+  const cards: ToolCard[] = CALCULATORS.map((c) => ({
+    id: c.id,
+    title: c.title,
+    blurb: c.blurb,
+    glyph: c.glyph,
+    recommended: recommendedIds.has(c.id),
+    spawn: { type: c.type, title: c.title },
+  }));
+  // Recommended first (in declaration order within registry); then the rest.
+  cards.sort((a, b) => {
+    if (a.recommended && !b.recommended) return -1;
+    if (!a.recommended && b.recommended) return 1;
+    return 0;
+  });
+  return cards;
+}
+
 export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<{ kind: 'idle' | 'parsing' | 'error' | 'ok'; msg?: string }>({ kind: 'idle' });
   const userModules = userModulesSignal.value;
+
+  // Resolve the active module from the clinical-modules workspace's focus
+  // signal so we can sort calculator cards by `recommended_calculators`.
+  const focus = moduleFocusSignal('clinical-modules').value;
+  const allModules: ModuleData[] = [...SEED_MODULES, ...userModules];
+  const activeModule = focus.mode === 'module'
+    ? allModules.find((m) => m.module_id === focus.moduleId) ?? null
+    : null;
+
+  const calcCards = buildCalculatorCards(activeModule);
 
   function pickFile(): void {
     setStatus({ kind: 'idle' });
@@ -185,45 +220,33 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 12 }}>
-          {TOOLS.map((t) => (
-            <button
+        <SectionLabel>Calculators</SectionLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {calcCards.map((t) => (
+            <SpawnCard
               key={t.id}
-              type="button"
-              title={`Open ${t.title} in a new bubble`}
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => { e.stopPropagation(); onSpawnBubble?.(t.spawn); }}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '24px 1fr',
-                gap: 8,
-                alignItems: 'start',
-                padding: '8px 10px',
-                border: '1px solid rgba(0,0,0,0.1)',
-                borderLeft: '3px solid var(--type-color)',
-                borderRadius: 4,
-                background: 'rgba(255,255,255,0.55)',
-                cursor: onSpawnBubble ? 'pointer' : 'default',
-                font: 'inherit',
-                color: 'inherit',
-                textAlign: 'left',
-                width: '100%',
-              }}
-            >
-              <span style={{ fontSize: 16, lineHeight: 1.1 }}>{t.glyph}</span>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 12.5, lineHeight: 1.3 }}>{t.title}</div>
-                <div style={{ fontSize: 10.5, opacity: 0.65, marginTop: 2 }}>{t.blurb}</div>
-              </div>
-            </button>
+              tool={t}
+              onSpawn={() => onSpawnBubble?.(t.spawn)}
+              spawnEnabled={!!onSpawnBubble}
+            />
+          ))}
+        </div>
+
+        <SectionLabel style={{ marginTop: 14 }}>Tools</SectionLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {NON_CALC_TOOLS.map((t) => (
+            <SpawnCard
+              key={t.id}
+              tool={t}
+              onSpawn={() => onSpawnBubble?.(t.spawn)}
+              spawnEnabled={!!onSpawnBubble}
+            />
           ))}
         </div>
 
         {userModules.length > 0 && (
           <>
-            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6, opacity: 0.5, margin: '12px 0 6px' }}>
-              Imports
-            </div>
+            <SectionLabel style={{ marginTop: 14 }}>Imports</SectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {userModules.map((m) => (
                 <div
@@ -272,5 +295,86 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
         )}
       </div>
     </div>
+  );
+}
+
+function SectionLabel({
+  children,
+  style,
+}: {
+  children: ComponentChildren;
+  style?: JSX.CSSProperties;
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        fontSize: 10,
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: 0.6,
+        opacity: 0.5,
+        margin: '6px 0 6px',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface SpawnCardProps {
+  tool: ToolCard;
+  onSpawn: () => void;
+  spawnEnabled: boolean;
+}
+
+function SpawnCard({ tool, onSpawn, spawnEnabled }: SpawnCardProps): JSX.Element {
+  return (
+    <button
+      type="button"
+      title={`Open ${tool.title} in a new bubble`}
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => { e.stopPropagation(); onSpawn(); }}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '24px 1fr auto',
+        gap: 8,
+        alignItems: 'center',
+        padding: '8px 10px',
+        border: '1px solid rgba(0,0,0,0.1)',
+        borderLeft: '3px solid var(--type-color)',
+        borderRadius: 4,
+        background: 'rgba(255,255,255,0.55)',
+        cursor: spawnEnabled ? 'pointer' : 'default',
+        font: 'inherit',
+        color: 'inherit',
+        textAlign: 'left',
+        width: '100%',
+      }}
+    >
+      <span style={{ fontSize: 16, lineHeight: 1.1 }}>{tool.glyph}</span>
+      <div>
+        <div style={{ fontWeight: 600, fontSize: 12.5, lineHeight: 1.3 }}>{tool.title}</div>
+        <div style={{ fontSize: 10.5, opacity: 0.65, marginTop: 2 }}>{tool.blurb}</div>
+      </div>
+      {tool.recommended && (
+        <span
+          style={{
+            fontSize: 9,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            color: 'var(--type-color)',
+            background: 'rgba(244, 192, 32, 0.15)',
+            border: '1px solid rgba(244, 192, 32, 0.55)',
+            borderRadius: 3,
+            padding: '2px 6px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Recommended
+        </span>
+      )}
+    </button>
   );
 }

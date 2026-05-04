@@ -507,6 +507,7 @@
         "schema_version": "1.1.0",
         "module_id": "adhd",
         "default_title": "ADHD Stimulants \u2014 Inherited Patient",
+        "recommended_calculators": ["gad7", "phq9"],
         "landing_intro": "A new or transitioning patient is on stimulant medication. Use this checklist to determine whether to continue, document, or escalate. Tap any item for guidance.",
         "checklist_section_label": "Before you decide \u2014 verify all four",
         "checklist": [
@@ -1405,6 +1406,7 @@
         "schema_version": "1.1.0",
         "module_id": "opiates",
         "default_title": "Chronic Opiates \u2014 Inherited Patient",
+        "recommended_calculators": ["cows", "phq9", "audit-c"],
         "landing_intro": "A patient is transferring to your panel on a chronic opiate regimen. This is one of the highest-anxiety handoffs in primary care \u2014 and one of the most common. Your job at the first visit is not to solve the problem. It is to establish the relationship, complete a structured assessment, and determine whether you can continue, need to modify, or need to escalate. Do not discontinue at the first visit without a safety plan in place. The CDC 2022 guideline (Recommendation 5) is explicit that opioid therapy should not be discontinued abruptly and that clinicians should not rapidly reduce opioid dosages from higher dosages, except when there are life-threatening safety signals; abrupt taper of long-stable patients is associated with overdose, mental-health crisis, and suicide attempt.[ref:cdc-2022][ref:agnoli-jama-2021][ref:aafp-roth-2020]",
         "checklist_section_label": "Before you decide \u2014 verify all four",
         "checklist": [
@@ -1799,6 +1801,7 @@
         "schema_version": "1.1.0",
         "module_id": "benzos",
         "default_title": "Benzodiazepines \u2014 Inherited Patient",
+        "recommended_calculators": ["gad7", "phq9", "audit-c"],
         "landing_intro": "A patient is transferring to your panel on a chronic benzodiazepine regimen. This is among the most clinically and emotionally charged handoffs in primary care. Benzodiazepine-dependent patients have often been on these medications for years, frequently have no memory of why they were started, and are acutely sensitive to any suggestion of change. Your job at the first visit is not to taper \u2014 it is to assess, document, establish trust, and determine the appropriate pathway forward.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025][ref:shuey-jamaim-2026] Abrupt discontinuation of chronic benzodiazepines can precipitate withdrawal seizure and, rarely, death; severity is dose-, duration-, and agent-dependent and is overwhelmingly polysubstance-related when fatal.[ref:fda-ativan-2025][ref:aafp-robertson-2023] Some short-term or low-dose patients can discontinue without a structured taper, but the inherited-patient default is never to stop or sharply reduce at the first visit absent imminent safety risks (overdose, acute somnolence, delirium, signs of diversion, falls, or suicidality).[ref:shuey-jamaim-2026][ref:asam-acmt-2025]",
         "checklist_section_label": "Before you decide \u2014 verify all four",
         "checklist": [

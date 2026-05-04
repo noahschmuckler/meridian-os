@@ -34,6 +34,11 @@ export type BubblePrimitiveType =
   | 'clinical-topic-general'
   | 'clinical-tools'
   | 'prevent-calculator'
+  | 'gad7'
+  | 'phq9'
+  | 'audit-c'
+  | 'ciwa-ar'
+  | 'cows'
   | 'mentorship-role-selector'
   | 'mentorship-exec-overview'
   | 'mentorship-matrix'
@@ -253,6 +258,12 @@ export interface ModuleData {
   // Per-module glossary (schema 1.1.0+). Merged with the global glossary at
   // render time; module entries override global entries with the same term.
   glossary?: GlossaryEntry[];
+  // Calculator ids (from src/bubbles/_calculators/registry.ts CALCULATORS[].id)
+  // that are most relevant to this module — surfaced first in the
+  // clinical-tools bubble's calculator list when the module is in focus.
+  // Recognized today: 'gad7', 'phq9', 'audit-c', 'ciwa-ar', 'cows',
+  // 'prevent-calculator'.
+  recommended_calculators?: string[];
 }
 
 export interface Bubble<P = unknown> {

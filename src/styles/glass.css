@@ -629,6 +629,11 @@
 .t-prevent-calculator     { --type-color: #f4c020; }
 .t-clinical-tools         { --type-color: #f4c020; }
 .t-openevidence-builder   { --type-color: #f4c020; }
+.t-gad7                   { --type-color: #f4c020; }
+.t-phq9                   { --type-color: #f4c020; }
+.t-audit-c                { --type-color: #f4c020; }
+.t-ciwa-ar                { --type-color: #f4c020; }
+.t-cows                   { --type-color: #f4c020; }
 
 /* Slate — meta / dev tooling (mentorship role-selector and future demo controls) */
 .t-mentorship-role-selector { --type-color: #5f6b7a; }

@@ -21,6 +21,11 @@ import { ClinicalTopicBubble } from './clinical-topic-bubble';
 import { ClinicalTools } from './clinical-tools';
 import { OpenEvidenceBuilder } from './openevidence-builder';
 import { PreventCalculator } from './prevent-calculator';
+import { Gad7 } from './_calculators/gad7';
+import { Phq9 } from './_calculators/phq9';
+import { AuditC } from './_calculators/audit-c';
+import { CiwaAr } from './_calculators/ciwa-ar';
+import { Cows } from './_calculators/cows';
 import { MentorshipRoleSelector } from './mentorship-role-selector';
 import { MentorshipMatrix } from './mentorship-matrix';
 import { MentorshipPhaseTabs } from './mentorship-phase-tabs';
@@ -55,6 +60,11 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'clinical-tools': ClinicalTools as ComponentType<BubbleProps>,
   'openevidence-builder': OpenEvidenceBuilder as ComponentType<BubbleProps>,
   'prevent-calculator': PreventCalculator as ComponentType<BubbleProps>,
+  'gad7': Gad7 as ComponentType<BubbleProps>,
+  'phq9': Phq9 as ComponentType<BubbleProps>,
+  'audit-c': AuditC as ComponentType<BubbleProps>,
+  'ciwa-ar': CiwaAr as ComponentType<BubbleProps>,
+  'cows': Cows as ComponentType<BubbleProps>,
   'mentorship-role-selector': MentorshipRoleSelector as ComponentType<BubbleProps>,
   'mentorship-matrix': MentorshipMatrix as ComponentType<BubbleProps>,
   'mentorship-phase-tabs': MentorshipPhaseTabs as ComponentType<BubbleProps>,
