@@ -42,6 +42,7 @@ export type BubblePrimitiveType =
   | 'mentorship-phase-tabs'
   | 'mentorship-phase-checklist'
   | 'mentorship-phase-notes'
+  | 'glossary-browser'
   | 'placeholder';
 
 export type SizeKey = 'xs' | 's' | 'm' | 'l' | 'xl';
@@ -221,6 +222,20 @@ export interface ModuleReference {
   url?: string;
 }
 
+// Glossary entry — auto-decorated at first mention in rendered prose.
+// `term` is the canonical display string (also the matcher unless aliases
+// override). `aliases` adds extra match strings that resolve to the same
+// definition (e.g. "I-STOP" aliasing to "PDMP" since NY's PDMP is named
+// I-STOP). `expansion` is the long-form spell-out shown at the top of the
+// popover (e.g. "Prescription Drug Monitoring Program"). Matches are
+// case-sensitive — write each casing variant as a separate alias if needed.
+export interface GlossaryEntry {
+  term: string;
+  definition: string;
+  aliases?: string[];
+  expansion?: string;
+}
+
 export interface ModuleData {
   schema_version: string;
   module_id: string;
@@ -235,6 +250,9 @@ export interface ModuleData {
   footer_note?: string;
   faqs: ModuleFaqEntry[];
   references?: Array<string | ModuleReference>;
+  // Per-module glossary (schema 1.1.0+). Merged with the global glossary at
+  // render time; module entries override global entries with the same term.
+  glossary?: GlossaryEntry[];
 }
 
 export interface Bubble<P = unknown> {

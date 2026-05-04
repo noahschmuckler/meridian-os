@@ -6,12 +6,18 @@
 // the host to grow this bubble (so the answer is comfortable to read).
 
 import type { JSX } from 'preact';
-import type { BubbleInstance, ModuleData, ModuleFaqEntry } from '../../types';
+import type { BubbleInstance, GlossaryEntry, ModuleData, ModuleFaqEntry } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
 import { expandRefMarkers, getModuleRefNumberer, getReferencesUsedIn } from '../../lib/refMarkers';
+import { decorateGlossaryHtml, getMergedGlossary } from '../../lib/glossary';
+import glossarySeedRaw from '../../data/seed/glossary.json';
 import { FontSizeControls } from '../../shell/FontSizeControls';
+
+const GLOBAL_GLOSSARY: GlossaryEntry[] = (
+  (glossarySeedRaw as { glossary?: { global?: GlossaryEntry[] } }).glossary?.global ?? []
+);
 
 interface ClinicalModuleFaqProps {
   modules?: ModuleData[];
@@ -117,6 +123,7 @@ function FocusedFaq({ entry, module }: { entry: ModuleFaqEntry; module: ModuleDa
   // on which ref got which number for this module.
   const numberer = getModuleRefNumberer(module);
   const cited = getReferencesUsedIn(entry.items.map((qa) => qa.answer_html), module, numberer);
+  const glossary = getMergedGlossary(module, GLOBAL_GLOSSARY);
   return (
     <div>
       <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', lineHeight: 1.3 }}>
@@ -131,7 +138,7 @@ function FocusedFaq({ entry, module }: { entry: ModuleFaqEntry; module: ModuleDa
             <div
               class="markdown-body"
               style={{ fontSize: 12.5, lineHeight: 1.5 }}
-              dangerouslySetInnerHTML={{ __html: expandRefMarkers(qa.answer_html, module, numberer) }}
+              dangerouslySetInnerHTML={{ __html: decorateGlossaryHtml(expandRefMarkers(qa.answer_html, module, numberer), glossary) }}
             />
           </div>
         ))}

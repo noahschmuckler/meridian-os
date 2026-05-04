@@ -9,13 +9,19 @@
 
 import { useState } from 'preact/hooks';
 import type { JSX } from 'preact';
-import type { BubbleInstance, ModuleData } from '../../types';
+import type { BubbleInstance, GlossaryEntry, ModuleData } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
 import { ModuleRow } from '../clinical-module-shared/row';
 import { stripRefMarkers } from '../../lib/refMarkers';
+import { decorateGlossaryText, getMergedGlossary } from '../../lib/glossary';
+import glossarySeedRaw from '../../data/seed/glossary.json';
 import { FontSizeControls } from '../../shell/FontSizeControls';
+
+const GLOBAL_GLOSSARY: GlossaryEntry[] = (
+  (glossarySeedRaw as { glossary?: { global?: GlossaryEntry[] } }).glossary?.global ?? []
+);
 
 interface ClinicalModuleChecklistProps {
   modules?: ModuleData[];
@@ -142,61 +148,75 @@ export function ClinicalModuleChecklist({ instance, workspaceId, selfBubbleId, o
         </span>
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '8px 12px 12px' }}>
-        <p style={{ fontSize: 12, lineHeight: 1.45, opacity: 0.85, margin: '4px 0 12px' }}>
-          {stripRefMarkers(selected.landing_intro)}
-        </p>
-
-        <div style={{ marginBottom: 12 }}>
-          <div
-            style={{
-              fontSize: 10,
-              textTransform: 'uppercase',
-              letterSpacing: 0.6,
-              fontWeight: 700,
-              color: 'var(--type-color)',
-              marginBottom: 6,
-              paddingLeft: 8,
-              borderLeft: '3px solid var(--type-color)',
-            }}
-          >
-            {selected.checklist_section_label}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {selected.checklist.map((item) => (
-              <ModuleRow
-                key={item.item_id}
-                statement={item.statement}
-                marker={String(item.position)}
-                markerShape="square"
-                accent="var(--type-color)"
-                focused={focusedId === item.faq_ref}
-                onClick={() => pickRow(item.faq_ref)}
+        {(() => {
+          const glossary = getMergedGlossary(selected, GLOBAL_GLOSSARY);
+          const intro = decorateGlossaryText(stripRefMarkers(selected.landing_intro), glossary);
+          const contextHtml = selected.context_strip
+            ? decorateGlossaryText(stripRefMarkers(selected.context_strip.text), glossary)
+            : '';
+          const footerHtml = selected.footer_note
+            ? decorateGlossaryText(stripRefMarkers(selected.footer_note), glossary)
+            : '';
+          return (
+            <>
+              <p
+                style={{ fontSize: 12, lineHeight: 1.45, opacity: 0.85, margin: '4px 0 12px' }}
+                dangerouslySetInnerHTML={{ __html: intro }}
               />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--type-color)', marginBottom: 4 }}>
-            ✓ {selected.green_zone.zone_label}
-            {selected.green_zone.smartphrase && (
-              <code style={{ marginLeft: 8, fontSize: 10, padding: '1px 6px', background: 'rgba(0,0,0,0.06)', borderRadius: 4 }}>
-                {selected.green_zone.smartphrase}
-              </code>
-            )}
-          </div>
-          {selected.context_strip && (
-            <div style={{ fontSize: 10.5, lineHeight: 1.4, opacity: 0.75, marginBottom: 6 }}>
-              <strong>{selected.context_strip.label}: </strong>
-              {stripRefMarkers(selected.context_strip.text)}
-            </div>
-          )}
-          {selected.footer_note && (
-            <div style={{ fontSize: 10, lineHeight: 1.35, opacity: 0.55, fontStyle: 'italic' }}>
-              {stripRefMarkers(selected.footer_note)}
-            </div>
-          )}
-        </div>
+              <div style={{ marginBottom: 12 }}>
+                <div
+                  style={{
+                    fontSize: 10,
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.6,
+                    fontWeight: 700,
+                    color: 'var(--type-color)',
+                    marginBottom: 6,
+                    paddingLeft: 8,
+                    borderLeft: '3px solid var(--type-color)',
+                  }}
+                >
+                  {selected.checklist_section_label}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {selected.checklist.map((item) => (
+                    <ModuleRow
+                      key={item.item_id}
+                      statement={item.statement}
+                      marker={String(item.position)}
+                      markerShape="square"
+                      accent="var(--type-color)"
+                      focused={focusedId === item.faq_ref}
+                      onClick={() => pickRow(item.faq_ref)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--type-color)', marginBottom: 4 }}>
+                  ✓ {selected.green_zone.zone_label}
+                  {selected.green_zone.smartphrase && (
+                    <code style={{ marginLeft: 8, fontSize: 10, padding: '1px 6px', background: 'rgba(0,0,0,0.06)', borderRadius: 4 }}>
+                      {selected.green_zone.smartphrase}
+                    </code>
+                  )}
+                </div>
+                {selected.context_strip && (
+                  <div style={{ fontSize: 10.5, lineHeight: 1.4, opacity: 0.75, marginBottom: 6 }}>
+                    <strong>{selected.context_strip.label}: </strong>
+                    <span dangerouslySetInnerHTML={{ __html: contextHtml }} />
+                  </div>
+                )}
+                {selected.footer_note && (
+                  <div
+                    style={{ fontSize: 10, lineHeight: 1.35, opacity: 0.55, fontStyle: 'italic' }}
+                    dangerouslySetInnerHTML={{ __html: footerHtml }}
+                  />
+                )}
+              </div>
+            </>
+          );
+        })()}
       </div>
     </div>
   );

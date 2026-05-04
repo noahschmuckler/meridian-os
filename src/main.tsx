@@ -5,7 +5,7 @@ import './styles/reset.css';
 import './styles/tokens.css';
 import './styles/glass.css';
 
-import type { HomeConfig, ModuleData, WorkspaceConfig } from './types';
+import type { GlossaryEntry, HomeConfig, ModuleData, WorkspaceConfig } from './types';
 import { HomeScreen } from './shell/HomeScreen';
 import { WorkspaceShell } from './shell/WorkspaceShell';
 import { PrintView } from './shell/PrintView';
@@ -13,6 +13,7 @@ import { Launcher, BackToLauncherChevron, HomeViewTogglePill, ModuleBackChevron,
 import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { FeedbackModal } from './shell/FeedbackModal';
 import { SelectionMenu } from './shell/SelectionMenu';
+import { GlossaryPopover } from './shell/GlossaryPopover';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
 import { activeWorkspaceIdSignal, entryFromSignal } from './data/workspaceNav';
@@ -26,6 +27,7 @@ import clinicalModulesWs from './data/workspaces/clinical-modules.json';
 import mentorshipWs from './data/workspaces/mentorship.json';
 import patelSeed from './data/seed/patel-cohort.json';
 import clinicalModulesSeed from './data/seed/clinical-modules.json';
+import glossarySeedRaw from './data/seed/glossary.json';
 
 const home = homeConfigJson as HomeConfig;
 
@@ -92,6 +94,9 @@ const seeds: SeedDict = loadSeeds({ patel: patelSeed, clinical: clinicalModulesS
 const clinicalModules = (
   ((clinicalModulesSeed as { clinical?: { modules?: ModuleData[] } }).clinical?.modules) ?? []
 );
+const globalGlossary: GlossaryEntry[] = (
+  (glossarySeedRaw as { glossary?: { global?: GlossaryEntry[] } }).glossary?.global ?? []
+);
 
 function App(): JSX.Element {
   useVisualViewport();
@@ -145,6 +150,7 @@ function App(): JSX.Element {
       <PrintView modules={clinicalModules} />
       <FeedbackModal />
       <SelectionMenu modules={clinicalModules} />
+      <GlossaryPopover modules={clinicalModules} globalGlossary={globalGlossary} />
     </>
   );
 }
