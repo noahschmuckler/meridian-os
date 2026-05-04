@@ -12,6 +12,12 @@ import type { JSX } from 'preact';
 import type { BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 
+interface OpenEvidenceBuilderProps {
+  prefilledTopic?: string;
+  prefilledContext?: string;
+  prefilledQuestionType?: QuestionType;
+}
+
 interface Props {
   instance: BubbleInstance;
   seeds: SeedDict;
@@ -28,9 +34,10 @@ const QUESTION_TYPES: { key: QuestionType; label: string }[] = [
 ];
 
 export function OpenEvidenceBuilder({ instance }: Props): JSX.Element {
-  const [questionType, setQuestionType] = useState<QuestionType>('treatment');
-  const [topic, setTopic] = useState('');
-  const [context, setContext] = useState('');
+  const p = instance.props as unknown as OpenEvidenceBuilderProps;
+  const [questionType, setQuestionType] = useState<QuestionType>(p.prefilledQuestionType ?? 'treatment');
+  const [topic, setTopic] = useState(p.prefilledTopic ?? '');
+  const [context, setContext] = useState(p.prefilledContext ?? '');
 
   const queryPreview = topic.trim()
     ? `[${questionType}] ${topic.trim()}${context.trim() ? ` — ${context.trim()}` : ''}`

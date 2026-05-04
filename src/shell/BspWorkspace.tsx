@@ -29,6 +29,7 @@ import { mentorshipFocusSignal, type MentorshipFocus } from '../data/mentorshipF
 import { trainerProviderContextSignal } from '../data/trainerProviderContext';
 import { mentorshipDataSignal, PHASES as MENTORSHIP_PHASES } from '../data/mentorshipData';
 import { navigateToWorkspace } from '../data/workspaceNav';
+import { fontScaleVersionSignal, getBubbleFontScale } from '../data/bubbleFontScale';
 import {
   buildBSP,
   renderBSP,
@@ -198,6 +199,18 @@ function mentorshipLayout(focus: MentorshipFocus): Record<string, GridPlacement>
   }
 }
 
+// True when the pointer originated inside a lift-eligible region — the
+// bubble's chrome row (acts as the drag handle) or the whole surface of a
+// placeholder (placeholders have no chrome and the entire surface is tap +
+// lift target). Other regions (e.g., bubble body content) are NOT liftable
+// so users can select text and click buttons inside the body without
+// triggering the long-press lift.
+function isPointerOnLiftRegion(e: PointerEvent): boolean {
+  const target = e.target as Element | null;
+  if (!target) return false;
+  return target.closest('.bubble__chrome, .placeholder') !== null;
+}
+
 // True when the pointerdown landed on a native scrollbar gutter of any
 // scrollable ancestor. Walks from the event target upward; for each scrollable
 // element checks whether the pointer x/y is past its clientWidth / clientHeight
@@ -238,6 +251,10 @@ let _placeholderSeq = 0;
 let _spawnSeq = 0;
 
 export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Element {
+  // Subscribe to per-bubble font-scale changes so the leaf style refreshes
+  // its `--font-scale` CSS variable when the user clicks A−/A+/↺.
+  fontScaleVersionSignal.value;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const grid = workspace.layoutHints.grid;
   const placements = workspace.layoutHints.placements;
@@ -465,6 +482,12 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
 
   function onBubblePointerDown(e: PointerEvent, leaf: RenderedLeaf, leafEl: HTMLElement): void {
     if (lifted || isWallDragging) return;
+    // Lift only triggers from the chrome row (or the whole surface of a
+    // placeholder). Pressing inside the bubble body falls through to the
+    // browser so users can select text and click buttons. Without this
+    // gate, every text-select gesture inside a bubble body would race the
+    // 380ms long-press timer.
+    if (!isPointerOnLiftRegion(e)) return;
     // If the press lands on a native scrollbar gutter inside the bubble, let the
     // browser handle the scrollbar drag — don't capture the pointer or start
     // the lift timer. Otherwise dragging the scrollbar elevator would lift
@@ -1172,6 +1195,25 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
     setRoot(splitLeafInsert(root, targetId, 'right', id, DEFAULT_MIN_W, DEFAULT_MIN_H, 0.5));
   }
 
+  // Cross-cutting bridge: any component (e.g. the SelectionMenu) can ask
+  // the active workspace to spawn a bubble adjacent to a target leaf via
+  // `window.dispatchEvent(new CustomEvent('meridian:spawn-bubble', { detail }))`.
+  // We listen here and forward to spawnAdjacentBubble. Only the workspace
+  // matching detail.workspaceId (or no workspaceId, meaning "active") acts.
+  useEffect(() => {
+    function onSpawn(e: Event): void {
+      const detail = (e as CustomEvent).detail as {
+        workspaceId?: string;
+        spec: { type: BubblePrimitiveType; title: string; props?: Record<string, unknown>; nearBubbleId?: string };
+      } | undefined;
+      if (!detail || !detail.spec) return;
+      if (detail.workspaceId && detail.workspaceId !== workspace.id) return;
+      spawnAdjacentBubble(detail.spec);
+    }
+    window.addEventListener('meridian:spawn-bubble', onSpawn);
+    return () => window.removeEventListener('meridian:spawn-bubble', onSpawn);
+  }, [workspace.id, root]);
+
   // === Reset workspace LAYOUT (positions only) ===
   // Returns every JSON-template bubble to its original placement and size.
   // PRESERVES chat history, attached brain items, and any other state on
@@ -1385,6 +1427,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
         const typeClass = b.instance?.type ? ` t-${b.instance.type}` : '';
         const isHidden = lifted?.bubbleId === leaf.bubbleId;
 
+        const fontScale = getBubbleFontScale(leaf.bubbleId);
         const style: JSX.CSSProperties = {
           position: 'absolute',
           left: `calc(${left}% + 4px)`,
@@ -1397,6 +1440,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
           overflow: 'hidden',
           opacity: isHidden ? 0 : 1,
           touchAction: 'none',
+          ['--font-scale' as string]: String(fontScale),
         };
 
         const handlers = {
@@ -1409,7 +1453,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
 
         if (b.kind === 'cell' && b.cellRef) {
           return (
-            <div key={leaf.bubbleId} class={`${baseClass}${phClass}${typeClass}`} style={style} {...handlers}>
+            <div key={leaf.bubbleId} class={`${baseClass}${phClass}${typeClass}`} data-bubble-id={leaf.bubbleId} style={style} {...handlers}>
               <Cell cell={b.cellRef} workspace={workspace} seeds={seeds} />
             </div>
           );
@@ -1470,7 +1514,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
             }
           : {};
         return (
-          <div key={leaf.bubbleId} class={`${baseClass}${phClass}${typeClass}`} style={style} {...handlers}>
+          <div key={leaf.bubbleId} class={`${baseClass}${phClass}${typeClass}`} data-bubble-id={leaf.bubbleId} style={style} {...handlers}>
             <Comp instance={inst} seeds={seeds} {...extraProps} />
           </div>
         );

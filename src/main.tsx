@@ -11,6 +11,8 @@ import { WorkspaceShell } from './shell/WorkspaceShell';
 import { PrintView } from './shell/PrintView';
 import { Launcher, BackToLauncherChevron, HomeViewTogglePill, ModuleBackChevron, BackToMondrianChevron } from './shell/Launcher';
 import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
+import { FeedbackModal } from './shell/FeedbackModal';
+import { SelectionMenu } from './shell/SelectionMenu';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
 import { activeWorkspaceIdSignal, entryFromSignal } from './data/workspaceNav';
@@ -141,6 +143,8 @@ function App(): JSX.Element {
       {id && <BackToMondrianChevron />}
       {id === 'clinical-modules' && <ModuleBackChevron />}
       <PrintView modules={clinicalModules} />
+      <FeedbackModal />
+      <SelectionMenu modules={clinicalModules} />
     </>
   );
 }

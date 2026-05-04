@@ -15,6 +15,7 @@ import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
 import { ModuleRow } from '../clinical-module-shared/row';
 import { stripRefMarkers } from '../../lib/refMarkers';
+import { FontSizeControls } from '../../shell/FontSizeControls';
 
 interface ClinicalModuleChecklistProps {
   modules?: ModuleData[];
@@ -24,10 +25,11 @@ interface Props {
   instance: BubbleInstance;
   seeds: SeedDict;
   workspaceId: string;
+  selfBubbleId?: string;
   onRequestSiblingFocus?: (targetBubbleId: string, targetShare: number) => void;
 }
 
-export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblingFocus }: Props): JSX.Element {
+export function ClinicalModuleChecklist({ instance, workspaceId, selfBubbleId, onRequestSiblingFocus }: Props): JSX.Element {
   const p = instance.props as unknown as ClinicalModuleChecklistProps;
   const seedModules: ModuleData[] = p.modules ?? [];
   const modules: ModuleData[] = [...seedModules, ...userModulesSignal.value];
@@ -136,6 +138,7 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
           <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 4 }}>
             {selected.checklist.length} checks
           </span>
+          {selfBubbleId && <FontSizeControls bubbleId={selfBubbleId} />}
         </span>
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '8px 12px 12px' }}>

@@ -11,6 +11,7 @@ import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
 import { ModuleRow } from '../clinical-module-shared/row';
+import { FontSizeControls } from '../../shell/FontSizeControls';
 
 interface ClinicalModuleEscalationsProps {
   modules?: ModuleData[];
@@ -20,10 +21,11 @@ interface Props {
   instance: BubbleInstance;
   seeds: SeedDict;
   workspaceId: string;
+  selfBubbleId?: string;
   onRequestSiblingFocus?: (targetBubbleId: string, targetShare: number) => void;
 }
 
-export function ClinicalModuleEscalations({ instance, workspaceId, onRequestSiblingFocus }: Props): JSX.Element {
+export function ClinicalModuleEscalations({ instance, workspaceId, selfBubbleId, onRequestSiblingFocus }: Props): JSX.Element {
   const p = instance.props as unknown as ClinicalModuleEscalationsProps;
   const seedModules: ModuleData[] = p.modules ?? [];
   const modules: ModuleData[] = [...seedModules, ...userModulesSignal.value];
@@ -55,8 +57,11 @@ export function ClinicalModuleEscalations({ instance, workspaceId, onRequestSibl
         <span class="bubble__title" style={{ color: 'var(--type-color)' }}>
           {selected.escalation_section_label}
         </span>
-        <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 'auto' }}>
-          {selected.escalation.length} triggers
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
+          <span style={{ fontSize: 10, opacity: 0.6 }}>
+            {selected.escalation.length} triggers
+          </span>
+          {selfBubbleId && <FontSizeControls bubbleId={selfBubbleId} />}
         </span>
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '8px 12px 12px' }}>

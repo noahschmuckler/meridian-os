@@ -11,6 +11,7 @@ import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
 import { expandRefMarkers, getModuleRefNumberer, getReferencesUsedIn } from '../../lib/refMarkers';
+import { FontSizeControls } from '../../shell/FontSizeControls';
 
 interface ClinicalModuleFaqProps {
   modules?: ModuleData[];
@@ -90,11 +91,14 @@ export function ClinicalModuleFaq({ instance, workspaceId, onRequestSiblingFocus
         <span class="bubble__title">
           {focusedFaq ? focusedFaq.topic : `${selected.default_title.split(' — ')[0]} · detail`}
         </span>
-        {focusedFaq && (
-          <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 'auto' }}>
-            {focusedFaq.items.length} Q
-          </span>
-        )}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
+          {focusedFaq && (
+            <span style={{ fontSize: 10, opacity: 0.6 }}>
+              {focusedFaq.items.length} Q
+            </span>
+          )}
+          <FontSizeControls bubbleId={selfBubbleId} />
+        </span>
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '10px 14px 14px' }}>
         {focusedFaq ? (

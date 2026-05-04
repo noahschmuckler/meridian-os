@@ -135,6 +135,46 @@
   letter-spacing: 0.02em;
   color: var(--ink-soft);
   text-transform: uppercase;
+  /* The chrome row is the lift handle — long-press lift only triggers when
+     the pointer originates inside this row. Pressing on the body falls
+     through to text selection / button clicks. */
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+}
+
+.bubble__chrome::before {
+  /* Faint top-grip indicator (a thin horizontal bar) hinting that this
+     row is draggable. Visible on hover; subtle otherwise. */
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ink-faint);
+  opacity: 0.25;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+
+.bubble:hover .bubble__chrome::before {
+  opacity: 0.55;
+}
+
+.bubble__chrome:active {
+  cursor: grabbing;
+}
+
+/* Chrome buttons should still respond as buttons, not as grab handles. */
+.bubble__chrome button,
+.bubble__chrome a,
+.bubble__chrome input,
+.bubble__chrome select {
+  cursor: pointer;
 }
 
 .bubble__title {
@@ -152,6 +192,37 @@
   /* Allow vertical scroll within bubble bodies (FAQ lists, blueprint trees,
      follow-ups) while the page-level touch-action stays none. */
   touch-action: pan-y;
+  /* Re-enable text selection inside bubble bodies (the global body rule in
+     reset.css disables it). The chrome row stays unselectable so dragging
+     it for lift doesn't accidentally start a selection. The selection-menu
+     component listens to `selectionchange` and renders a floating menu
+     above the selection — that takes the place of the suppressed iOS
+     callout. */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+  /* Per-bubble font-size scaling. The bubble's bsp-leaf div sets
+     `--font-scale` from bubbleFontScale's localStorage; zoom reads the
+     variable and scales every inline px font-size in the body
+     proportionally. Chrome row stays unscaled so the controls stay clickable. */
+  zoom: var(--font-scale, 1);
+}
+
+.bubble__body * {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+/* …but interactive elements inside the body should not appear selectable. */
+.bubble__body button,
+.bubble__body input,
+.bubble__body select,
+.bubble__body textarea,
+.bubble__body [role="button"] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 .bubble__resize {
@@ -2154,3 +2225,225 @@
   padding-left: 168px !important;
 }
 
+
+/* === Feedback modal ============================================== */
+
+.feedback-modal-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: feedback-scrim-in 160ms ease-out;
+}
+
+@keyframes feedback-scrim-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.feedback-modal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow-2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 22px 18px;
+  animation: feedback-modal-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes feedback-modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+.feedback-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.feedback-modal__title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+}
+.feedback-modal__close {
+  font-size: 22px;
+  line-height: 1;
+  padding: 0 4px;
+  color: var(--ink-faint);
+}
+.feedback-modal__close:hover { color: var(--ink); }
+
+.feedback-modal__context {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.feedback-modal__context strong { color: var(--ink); }
+.feedback-modal__item em { font-style: italic; }
+
+.feedback-modal__textarea {
+  width: 100%;
+  min-height: 110px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-family: var(--font-sans);
+  -webkit-user-select: text;
+  user-select: text;
+}
+.feedback-modal__textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.feedback-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.feedback-modal__cancel,
+.feedback-modal__send {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.feedback-modal__cancel {
+  color: var(--ink-soft);
+  border: 1px solid var(--border);
+}
+.feedback-modal__cancel:hover { color: var(--ink); }
+.feedback-modal__send {
+  color: white;
+  background: var(--accent, #0F6B42);
+}
+.feedback-modal__send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.feedback-modal__note {
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  font-style: italic;
+  text-align: right;
+}
+
+@media print {
+  .feedback-modal-scrim { display: none !important; }
+}
+
+/* === Selection menu ============================================== */
+
+.selection-menu {
+  position: fixed;
+  z-index: 999;
+  display: flex;
+  align-items: stretch;
+  gap: 1px;
+  background: rgba(28, 28, 30, 0.92);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  overflow: hidden;
+  animation: selection-menu-in 140ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Menu contents are not selectable themselves. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@keyframes selection-menu-in {
+  from { opacity: 0; transform: translateY(2px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.selection-menu__btn {
+  flex: 1 0 auto;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #f5f5f7;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255, 255, 255, 0.10);
+  transition: background 80ms ease;
+}
+.selection-menu__btn:last-child {
+  border-right: none;
+}
+.selection-menu__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.selection-menu__btn:active {
+  background: rgba(255, 255, 255, 0.16);
+}
+.selection-menu__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.selection-menu__btn:disabled:hover {
+  background: transparent;
+}
+
+@media print {
+  .selection-menu { display: none !important; }
+}
+
+/* === Font size controls (chrome) ================================== */
+
+.font-size-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+}
+.font-size-controls__btn {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--ink-soft);
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.font-size-controls__btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ink);
+}
+.font-size-controls__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.font-size-controls__btn--reset {
+  font-size: 11px;
+  padding: 0 5px;
+}
+
+@media print {
+  .font-size-controls { display: none !important; }
+}
