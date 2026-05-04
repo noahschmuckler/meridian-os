@@ -14,6 +14,7 @@ import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
 import { ModuleRow } from '../clinical-module-shared/row';
+import { stripRefMarkers } from '../../lib/refMarkers';
 
 interface ClinicalModuleChecklistProps {
   modules?: ModuleData[];
@@ -139,7 +140,7 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '8px 12px 12px' }}>
         <p style={{ fontSize: 12, lineHeight: 1.45, opacity: 0.85, margin: '4px 0 12px' }}>
-          {selected.landing_intro}
+          {stripRefMarkers(selected.landing_intro)}
         </p>
 
         <div style={{ marginBottom: 12 }}>
@@ -184,12 +185,12 @@ export function ClinicalModuleChecklist({ instance, workspaceId, onRequestSiblin
           {selected.context_strip && (
             <div style={{ fontSize: 10.5, lineHeight: 1.4, opacity: 0.75, marginBottom: 6 }}>
               <strong>{selected.context_strip.label}: </strong>
-              {selected.context_strip.text}
+              {stripRefMarkers(selected.context_strip.text)}
             </div>
           )}
           {selected.footer_note && (
             <div style={{ fontSize: 10, lineHeight: 1.35, opacity: 0.55, fontStyle: 'italic' }}>
-              {selected.footer_note}
+              {stripRefMarkers(selected.footer_note)}
             </div>
           )}
         </div>

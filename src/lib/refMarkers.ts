@@ -69,36 +69,32 @@ function makeRefNumberer(refs: ModuleReference[]): RefNumberer {
 }
 
 // Pre-computes numbering by walking every cite-bearing field of the module in
-// a stable order (faqs in declaration order, then context_strip, then
-// footer_note). Returned numberer is "primed" so the FAQ bubble — which only
-// renders one FAQ at a time — still gets the same number for ref X that the
-// PrintView would.
+// the order they appear on the print page: landing_intro → green_zone
+// narrative → context_strip → faqs (declaration order) → footer_note. The
+// print view is the canonical numbered surface, so refs there read 1,2,3
+// top-to-bottom. The FAQ bubble — which only renders one FAQ at a time — uses
+// the same module-wide numberer, so a superscript [37] there resolves to the
+// same ref it would on the print page.
 export function getModuleRefNumberer(module: ModuleData): RefNumberer {
   const refs = normalizeReferences(module.references);
   const numberer = makeRefNumberer(refs);
+
+  function walk(text: string | undefined): void {
+    if (!text) return;
+    let m: RegExpExecArray | null;
+    MARKER_RE.lastIndex = 0;
+    while ((m = MARKER_RE.exec(text)) !== null) {
+      numberer.numberFor(m[1]);
+    }
+  }
+
+  walk(module.landing_intro);
+  walk(module.green_zone?.narrative_html);
+  walk(module.context_strip?.text);
   for (const faq of module.faqs) {
-    for (const qa of faq.items) {
-      let m: RegExpExecArray | null;
-      MARKER_RE.lastIndex = 0;
-      while ((m = MARKER_RE.exec(qa.answer_html)) !== null) {
-        numberer.numberFor(m[1]);
-      }
-    }
+    for (const qa of faq.items) walk(qa.answer_html);
   }
-  if (module.context_strip) {
-    let m: RegExpExecArray | null;
-    MARKER_RE.lastIndex = 0;
-    while ((m = MARKER_RE.exec(module.context_strip.text)) !== null) {
-      numberer.numberFor(m[1]);
-    }
-  }
-  if (module.footer_note) {
-    let m: RegExpExecArray | null;
-    MARKER_RE.lastIndex = 0;
-    while ((m = MARKER_RE.exec(module.footer_note)) !== null) {
-      numberer.numberFor(m[1]);
-    }
-  }
+  walk(module.footer_note);
   return numberer;
 }
 

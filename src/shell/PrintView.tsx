@@ -39,7 +39,12 @@ export function PrintView({ modules }: Props): JSX.Element {
     <div class="print-view">
       <header class="print-header">
         <h1>{m.default_title}</h1>
-        {m.landing_intro && <p class="print-intro">{m.landing_intro}</p>}
+        {m.landing_intro && (
+          <p
+            class="print-intro"
+            dangerouslySetInnerHTML={{ __html: expandRefMarkers(m.landing_intro, m, numberer) }}
+          />
+        )}
       </header>
 
       <section class="print-section print-section--checklist">
@@ -53,7 +58,7 @@ export function PrintView({ modules }: Props): JSX.Element {
 
       <section class="print-green-zone">
         <h3>{m.green_zone.zone_label}</h3>
-        <div dangerouslySetInnerHTML={{ __html: m.green_zone.narrative_html }} />
+        <div dangerouslySetInnerHTML={{ __html: expandRefMarkers(m.green_zone.narrative_html, m, numberer) }} />
         {m.green_zone.smartphrase && (
           <p class="print-smartphrase"><code>{m.green_zone.smartphrase}</code></p>
         )}
@@ -70,7 +75,8 @@ export function PrintView({ modules }: Props): JSX.Element {
 
       {m.context_strip && (
         <aside class="print-context">
-          <strong>{m.context_strip.label}:</strong> {m.context_strip.text}
+          <strong>{m.context_strip.label}:</strong>{' '}
+          <span dangerouslySetInnerHTML={{ __html: expandRefMarkers(m.context_strip.text, m, numberer) }} />
         </aside>
       )}
 
@@ -90,7 +96,10 @@ export function PrintView({ modules }: Props): JSX.Element {
       </section>
 
       {m.footer_note && (
-        <footer class="print-footer-note">{m.footer_note}</footer>
+        <footer
+          class="print-footer-note"
+          dangerouslySetInnerHTML={{ __html: expandRefMarkers(m.footer_note, m, numberer) }}
+        />
       )}
 
       {cited.length > 0 && (
