@@ -11,6 +11,7 @@ import { WorkspaceShell } from './shell/WorkspaceShell';
 import { PrintView } from './shell/PrintView';
 import { Launcher, BackToLauncherChevron, HomeViewTogglePill, ModuleBackChevron, BackToMondrianChevron } from './shell/Launcher';
 import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
+import { EpicQuickReferenceShell } from './shell/EpicQuickReferenceShell';
 import { FeedbackModal } from './shell/FeedbackModal';
 import { SelectionMenu } from './shell/SelectionMenu';
 import { GlossaryPopover } from './shell/GlossaryPopover';
@@ -111,6 +112,10 @@ function App(): JSX.Element {
 
   if (app === 'mentorship') {
     return <MentorshipTrackerShell />;
+  }
+
+  if (app === 'epic-reference') {
+    return <EpicQuickReferenceShell />;
   }
 
   // Mondrian GUI — the existing meridian-os shell, with a back-to-launcher

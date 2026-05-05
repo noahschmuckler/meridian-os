@@ -1937,6 +1937,15 @@
   background: linear-gradient(160deg, #1c2b3a 0%, #0f1b2d 100%);
 }
 
+.launcher__app-icon--epic-reference {
+  background: linear-gradient(160deg, #2d4a7c 0%, #0f172a 100%);
+}
+
+.launcher__app-glyph--epic {
+  color: #fde68a;
+  filter: drop-shadow(0 2px 8px rgba(253, 230, 138, 0.45));
+}
+
 .launcher__app-glyph {
   font-size: 76px;
   line-height: 1;
@@ -2245,6 +2254,45 @@
 .mentorship-tracker-shell div[style*="rgb(15,27,45)"],
 .mentorship-tracker-shell div[style*="#0f1b2d"],
 .mentorship-tracker-shell div[style*="0f1b2d"] {
+  padding-left: 168px !important;
+}
+
+/* === Epic Quick Reference shell ================================== */
+
+/* Wrapper for the Scott-authored TSX SPA. Mirrors mentorship-tracker-shell
+   exactly — fixed-height flex column so the inner SPA can scroll instead of
+   blowing out the host's overflow:hidden. The TSX outer's inline
+   minHeight:100vh is force-overridden so it can't escape the wrapper. */
+.epic-reference-shell {
+  width: 100vw;
+  height: var(--vh, 100vh);
+  max-height: var(--vh, 100vh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  display: flex;
+  flex-direction: column;
+}
+.epic-reference-shell > div {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  /* The TSX uses minHeight:100vh on its outer; relax that so the wrapper's
+     overflow-y:auto handles the scroll and the back chevron stays anchored. */
+}
+.epic-reference-shell,
+.epic-reference-shell * {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+/* The Epic QR header is a navy gradient (#0f172a → #1e3a5f). Preact serializes
+   linear-gradient with rgb(...) in place of the hex stops; cover both shapes
+   so the topbar gets enough left-padding for the back-to-launcher chevron. */
+.epic-reference-shell div[style*="rgb(15, 23, 42)"],
+.epic-reference-shell div[style*="rgb(15,23,42)"],
+.epic-reference-shell div[style*="#0f172a"],
+.epic-reference-shell div[style*="0f172a"] {
   padding-left: 168px !important;
 }
 

@@ -1,5 +1,25 @@
 // @ts-nocheck
 import { useState } from "react";
+import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
+import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
+import { setLauncherApp } from "../../data/launcherState";
+
+/* ─── MD Curriculum (62 items from master checklist, see analysis/) ─── */
+const MD_PHASES = masterChecklist.phases;
+const MD_ITEMS = masterChecklist.items;
+const MD_ITEMS_BY_PHASE = MD_ITEMS.reduce((acc, item) => {
+  (acc[item.phase] = acc[item.phase] || []).push(item);
+  return acc;
+}, {});
+const MD_PHASE_INDEX = MD_PHASES.reduce((acc, p, i) => { acc[p.id] = i; return acc; }, {});
+// Index of the first non-pre-start phase ("w1") in MD_PHASES — pre0/pre1 sit
+// before this and are always expected regardless of provider's current week.
+const MD_W1_INDEX = MD_PHASES.findIndex(p => p.id === "w1");
+
+function openEpicRef(entryId) {
+  focusEpicReferenceEntry(entryId, "tracker-md-curriculum");
+  setLauncherApp("epic-reference");
+}
 
 /* ─── Phase Data (same as v3) ─── */
 const MP = [
@@ -104,12 +124,24 @@ function opsPct(checks, pid) {
   return t > 0 ? Math.round(d / t * 100) : 0;
 }
 
-function mdReviewPct(checks, pid) {
+// MD Curriculum coverage: percentage of curriculum items completed up to and
+// including the provider's current phase. Pre-start phases (pre0, pre1) are
+// always counted because they happen before any provider's tracked days.
+function mdCurriculumPct(checks, pid) {
   const prov = PROVS.find(x => x.id === pid);
-  const max = phIdx(prov.phase);
-  const mdIds = ["w4","w8","m3","m6","q3","q4"];
+  const provWeekIdx = phIdx(prov.phase); // index in MP (0 = w1)
   let t = 0, d = 0;
-  mdIds.forEach(id => { if (phIdx(id) > max) return; const ph = MP.find(x => x.id === id); if (ph) ph.items.forEach((_, j) => { t++; if (checks[pid + "." + id + "." + j]) d++; }); });
+  MD_ITEMS.forEach(item => {
+    const phPos = MD_PHASE_INDEX[item.phase];
+    const isPreStart = phPos < MD_W1_INDEX;
+    // For pre0/pre1, always counted. For w1+, count only if provider has
+    // reached or passed that week. (MD_W1_INDEX is "w1" in MD_PHASES; the
+    // corresponding index in MP is 0.)
+    const phWeekIdx = phPos - MD_W1_INDEX;
+    if (!isPreStart && phWeekIdx > provWeekIdx) return;
+    t++;
+    if (checks[pid + ".md." + item.id]) d++;
+  });
   return t > 0 ? Math.round(d / t * 100) : 0;
 }
 
@@ -282,6 +314,138 @@ function Timeline({ currentIdx }) {
   );
 }
 
+/* ─── MD Curriculum row (used by per-phase view + View-All modal) ─── */
+function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
+  const ownerColor = {
+    MD: "#8b5cf6",
+    Mentor: "#028090",
+    OM: "#0ea5e9",
+    CS: "#16a085",
+  }[item.owner] || "#868e96";
+  return (
+    <div onClick={canEdit ? onToggle : undefined}
+      style={{ padding: "12px 20px", cursor: canEdit ? "pointer" : "default", display: "flex", alignItems: "flex-start", gap: 14, borderBottom: "1px solid #dee2e6", background: checked ? "rgba(34,197,94,0.04)" : "transparent" }}>
+      <div style={{ width: 24, height: 24, borderRadius: 5, border: "2px solid " + (checked ? "#22c55e" : "#dee2e6"), background: checked ? "#22c55e" : "white", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>
+        {checked ? "✓" : ""}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 5, alignItems: "center" }}>
+          {showPhase && (
+            <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: "#8b5cf615", color: "#8b5cf6", textTransform: "uppercase" }}>
+              {(MD_PHASES.find(p => p.id === item.phase) || {}).label}
+            </span>
+          )}
+          <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: ownerColor + "15", color: ownerColor, textTransform: "uppercase" }}>
+            #{item.n} · {item.owner}
+          </span>
+          {item.partner && (
+            <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: "#f1f3f5", color: "#868e96" }}>
+              + {item.partner}
+            </span>
+          )}
+          {item.misstep_risk && (
+            <span title="Concrete misstep risk — keep verbatim when implementing" style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: "#fef2f2", color: "#ef4444" }}>
+              ⚠ MISSTEP RISK
+            </span>
+          )}
+          {item.depends_on && (
+            <span title={"Pending: " + item.depends_on} style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: "#fefce8", color: "#92400e" }}>
+              🔁 PENDING
+            </span>
+          )}
+        </div>
+        <div style={{ fontSize: 13, color: checked ? "#868e96" : "#1c2b3a", textDecoration: checked ? "line-through" : "none", lineHeight: 1.4 }}>{item.text}</div>
+        <div style={{ fontSize: 10, color: "#adb5bd", marginTop: 4 }}>{item.section}</div>
+        {item.epic_ref_ids && item.epic_ref_ids.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 7 }}>
+            {item.epic_ref_ids.map(rid => (
+              <button key={rid}
+                onClick={(e) => { e.stopPropagation(); openEpicRef(rid); }}
+                style={{ padding: "3px 9px", borderRadius: 5, border: "1px solid #fde68a", background: "#fffbeb", color: "#92400e", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>
+                📖 {rid}
+              </button>
+            ))}
+          </div>
+        )}
+        {item.depends_on && (
+          <div style={{ fontSize: 10, color: "#92400e", marginTop: 5, fontStyle: "italic" }}>Depends on: {item.depends_on}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── View-All-Curriculum modal (chronological scroll) ─── */
+function MdViewAllModal({ open, onClose, prov, checks, setChecks, canEdit }) {
+  if (!open) return null;
+  const groupedByPhase = MD_PHASES.map(p => ({
+    phase: p,
+    items: MD_ITEMS_BY_PHASE[p.id] || [],
+  })).filter(g => g.items.length > 0);
+  const totalItems = MD_ITEMS.length;
+  const totalDone = prov ? MD_ITEMS.filter(it => checks[prov.id + ".md." + it.id]).length : 0;
+  return (
+    <div onClick={onClose}
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 1200, display: "flex", alignItems: "stretch", justifyContent: "center", padding: 24, fontFamily: "system-ui, sans-serif" }}>
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ background: "white", borderRadius: 12, width: "100%", maxWidth: 920, display: "flex", flexDirection: "column", boxShadow: "0 24px 64px rgba(0,0,0,0.32)", overflow: "hidden" }}>
+        <div style={{ padding: "16px 22px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center", background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", color: "white" }}>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>Master Curriculum — All 62 Items</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
+              Chronological view, pre-start through Month 12.
+              {prov ? ` · ${prov.name}: ${totalDone}/${totalItems} complete` : ""}
+            </div>
+          </div>
+          <button onClick={onClose}
+            style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+            Close
+          </button>
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "10px 0" }}>
+          {!prov && (
+            <div style={{ padding: "12px 22px", margin: "8px 16px", borderRadius: 8, background: "#f8f9fb", border: "1px solid #dee2e6", fontSize: 12, color: "#475569" }}>
+              No provider selected — viewing curriculum as reference. Select a provider from the sidebar to track per-provider check-off state.
+            </div>
+          )}
+          {groupedByPhase.map(g => {
+            const done = prov ? g.items.filter(it => checks[prov.id + ".md." + it.id]).length : 0;
+            return (
+              <div key={g.phase.id}>
+                <div style={{ position: "sticky", top: 0, background: "#f8f9fb", borderBottom: "1px solid #dee2e6", padding: "10px 22px", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d" }}>{g.phase.label}</div>
+                    <div style={{ fontSize: 10, color: "#868e96" }}>{g.items.length} item{g.items.length === 1 ? "" : "s"}</div>
+                  </div>
+                  {prov && <div style={{ fontSize: 13, fontWeight: 700, color: done === g.items.length ? "#22c55e" : "#8b5cf6" }}>{done}/{g.items.length}</div>}
+                </div>
+                {g.items.map(item => (
+                  <MdCurriculumRow
+                    key={item.id}
+                    item={item}
+                    showPhase={false}
+                    checked={prov ? !!checks[prov.id + ".md." + item.id] : false}
+                    canEdit={!!prov && canEdit}
+                    onToggle={() => {
+                      if (!prov) return;
+                      const k = prov.id + ".md." + item.id;
+                      setChecks(prev => { const n = { ...prev }; if (n[k]) delete n[k]; else n[k] = true; return n; });
+                    }}
+                  />
+                ))}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ padding: "12px 22px", borderTop: "1px solid #dee2e6", background: "#f8f9fb", fontSize: 11, color: "#868e96", display: "flex", justifyContent: "space-between" }}>
+          <span>Items flagged ⚠ MISSTEP RISK: 12, 19, 43, 48, 56 — keep verbatim when teaching.</span>
+          <span>Source: Master Checklist (Noah's MD-edited omnibus)</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main App ─── */
 export default function App() {
   const [uid, setUid] = useState(null);
@@ -293,6 +457,7 @@ export default function App() {
   const [noteIn, setNoteIn] = useState("");
   const [notes, setNotes] = useState({});
   const [mainTab, setMainTab] = useState("roster");
+  const [mdViewAll, setMdViewAll] = useState(false);
 
   const user = USERS.find(u => u.id === uid);
   const isDir = user && user.role === "director";
@@ -360,12 +525,19 @@ export default function App() {
   const curIdx = prov ? phIdx(prov.phase) : -1;
   const isOps = tab === "ops";
   const isQ = tab === "quest";
-  const phaseList = isOps ? OP : isQ ? QP : MP;
-  const curChecklist = phase && !isQ ? (isOps ? OP : MP).find(x => x.id === phase) : null;
+  const isMd = tab === "md";
+  const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : MP;
+  const curChecklist = phase && !isQ && !isMd ? (isOps ? OP : MP).find(x => x.id === phase) : null;
   const curQuest = isQ && phase ? QP.find(x => x.id === phase) : null;
+  const curMdItems = isMd && phase ? (MD_ITEMS_BY_PHASE[phase] || []) : null;
   const pc = curChecklist && prov ? countChecks(checks, prov.id, phase) : null;
+  const mdPc = curMdItems && prov ? (() => {
+    const total = curMdItems.length;
+    const done = curMdItems.filter(it => checks[prov.id + ".md." + it.id]).length;
+    return { done, total, pct: total > 0 ? Math.round(done / total * 100) : 0 };
+  })() : null;
   const curNotes = prov && phase ? (notes[prov.id + "." + phase] || []) : [];
-  const canChk = isOps ? isDir : (isDir || isMen);
+  const canChk = isOps ? isDir : isMd ? isDir : (isDir || isMen);
 
   /* ─── MAIN LAYOUT ─── */
   return (
@@ -377,11 +549,17 @@ export default function App() {
           <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Mentorship Tracker</div>
           <div style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {isDir && patterns.length > 0 && (
             <div style={{ padding: "5px 12px", borderRadius: 8, background: "#eab308", color: "#78350f", fontSize: 11, fontWeight: 700 }}>
               {"📊 " + patterns.length + " Pattern Alert" + (patterns.length !== 1 ? "s" : "")}
             </div>
+          )}
+          {isDir && (
+            <button onClick={() => setMdViewAll(true)}
+              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(139,92,246,0.18)", color: "#e9d5ff", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+              📋 View All Curriculum
+            </button>
           )}
           <button onClick={() => { setUid(null); setSelId(null); }}
             style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
@@ -389,6 +567,14 @@ export default function App() {
           </button>
         </div>
       </div>
+      <MdViewAllModal
+        open={mdViewAll}
+        onClose={() => setMdViewAll(false)}
+        prov={prov}
+        checks={checks}
+        setChecks={setChecks}
+        canEdit={isDir}
+      />
 
       {/* MD tabs when no provider selected */}
       {isDir && !selId && (
@@ -413,7 +599,7 @@ export default function App() {
             const m = USERS.find(u => u.id === p.mentor);
             const isSel = selId === p.id;
             const mn = mentorPct(checks, p.id);
-            const md = isDir ? mdReviewPct(checks, p.id) : 0;
+            const md = isDir ? mdCurriculumPct(checks, p.id) : 0;
             const op = isDir ? opsPct(checks, p.id) : 0;
             const qp = isDir ? questPct(qa, p.id) : 0;
             const st = getStatus(p.id);
@@ -437,7 +623,7 @@ export default function App() {
                 </div>
                 {isDir ? (
                   <div>
-                    <Bar label="MD Reviews" pct={md} color="#8b5cf6" />
+                    <Bar label="MD Curriculum" pct={md} color="#8b5cf6" />
                     <Bar label="Mentor" pct={mn} color="#028090" />
                     <Bar label="Ops" pct={op} color="#0ea5e9" />
                     <Bar label="Questionnaires" pct={qp} color="#eab308" />
@@ -489,7 +675,7 @@ export default function App() {
                     </thead>
                     <tbody>
                       {PROVS.map(p => {
-                        const vals = [mdReviewPct(checks, p.id), mentorPct(checks, p.id), opsPct(checks, p.id), questPct(qa, p.id)];
+                        const vals = [mdCurriculumPct(checks, p.id), mentorPct(checks, p.id), opsPct(checks, p.id), questPct(qa, p.id)];
                         const cols = ["#8b5cf6", "#028090", "#0ea5e9", "#eab308"];
                         const st = getStatus(p.id);
                         return (
@@ -604,7 +790,7 @@ export default function App() {
               {isDir && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
                   {[
-                    { label: "MD Reviews", pct: mdReviewPct(checks, prov.id), color: "#8b5cf6" },
+                    { label: "MD Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6" },
                     { label: "Mentor", pct: mentorPct(checks, prov.id), color: "#028090" },
                     { label: "Ops", pct: opsPct(checks, prov.id), color: "#0ea5e9" },
                     { label: "Questionnaires", pct: questPct(qa, prov.id), color: "#eab308" },
@@ -627,12 +813,13 @@ export default function App() {
               {isDir && <ScoreTrend qa={qa} pid={prov.id} />}
 
               {/* TRACK TABS */}
-              <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+              <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
                 {[
                   { key: "mentor", label: "Mentor Check-Ins", color: "#028090", def: prov.phase },
                   ...(isDir ? [
+                    { key: "md", label: "MD Curriculum", color: "#8b5cf6", def: "pre0" },
                     { key: "ops", label: "Office Manager", color: "#0ea5e9", def: "om1" },
-                    { key: "quest", label: "Questionnaires", color: "#8b5cf6", def: "w1" },
+                    { key: "quest", label: "Questionnaires", color: "#eab308", def: "w1" },
                   ] : []),
                 ].map(t => (
                   <button key={t.key} onClick={() => { setTab(t.key); setPhase(t.def); }}
@@ -640,6 +827,12 @@ export default function App() {
                     {t.label}
                   </button>
                 ))}
+                {isDir && tab === "md" && (
+                  <button onClick={() => setMdViewAll(true)}
+                    style={{ marginLeft: "auto", padding: "9px 16px", borderRadius: 8, border: "2px solid #8b5cf6", background: "white", color: "#8b5cf6", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
+                    📋 View All Curriculum
+                  </button>
+                )}
               </div>
 
               {/* PHASE SELECTOR */}
@@ -647,8 +840,15 @@ export default function App() {
                 {phaseList.map(ph => {
                   const isAct = phase === ph.id;
                   const isCur = tab === "mentor" && ph.id === prov.phase;
-                  const accent = isOps ? "#0ea5e9" : isQ ? "#8b5cf6" : "#028090";
-                  const cc = !isQ ? countChecks(checks, prov.id, ph.id) : null;
+                  const accent = isOps ? "#0ea5e9" : isQ ? "#eab308" : isMd ? "#8b5cf6" : "#028090";
+                  let cc = null;
+                  if (isMd) {
+                    const items = MD_ITEMS_BY_PHASE[ph.id] || [];
+                    const done = items.filter(it => checks[prov.id + ".md." + it.id]).length;
+                    cc = items.length > 0 ? { done, total: items.length } : null;
+                  } else if (!isQ) {
+                    cc = countChecks(checks, prov.id, ph.id);
+                  }
                   return (
                     <button key={ph.id} onClick={() => setPhase(ph.id)}
                       style={{ padding: "7px 12px", borderRadius: 6, border: "2px solid " + (isAct ? accent : isCur ? "#028090" : "#dee2e6"), background: isAct ? accent : "white", cursor: "pointer", minWidth: 54 }}>
@@ -659,6 +859,33 @@ export default function App() {
                   );
                 })}
               </div>
+
+              {/* MD CURRICULUM CHECKLIST */}
+              {isMd && curMdItems && (
+                <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", maxWidth: 740, overflow: "hidden" }}>
+                  <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{(MD_PHASES.find(p => p.id === phase) || {}).label}</h3>
+                      <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>Master curriculum — {curMdItems.length} item{curMdItems.length === 1 ? "" : "s"} this phase</div>
+                    </div>
+                    {mdPc && <div style={{ fontSize: 22, fontWeight: 700, color: mdPc.pct === 100 ? "#22c55e" : "#0f1b2d" }}>{mdPc.pct}%</div>}
+                  </div>
+                  {curMdItems.length === 0 ? (
+                    <div style={{ padding: "20px", textAlign: "center", color: "#868e96", fontSize: 13 }}>No curriculum items in this phase.</div>
+                  ) : curMdItems.map((item) => (
+                    <MdCurriculumRow
+                      key={item.id}
+                      item={item}
+                      checked={!!checks[prov.id + ".md." + item.id]}
+                      canEdit={canChk}
+                      onToggle={() => {
+                        const k = prov.id + ".md." + item.id;
+                        setChecks(prev => { const n = { ...prev }; if (n[k]) delete n[k]; else n[k] = true; return n; });
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
 
               {/* CHECKLIST */}
               {curChecklist && (

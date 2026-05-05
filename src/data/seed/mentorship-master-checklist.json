@@ -1,0 +1,604 @@
+{
+  "schema_version": "1.0.0",
+  "source": "~/Downloads/Master checklist.docx (Noah's 62-item MD-edited omnibus)",
+  "epic_ref_source": "~/Downloads/remixed-0de3d5eb.tsx (Scott's Epic Quick Reference SPA)",
+  "phases": [
+    { "id": "pre0", "label": "Pre-Start (3 mo)" },
+    { "id": "pre1", "label": "Pre-Start (~2 wk)" },
+    { "id": "w1", "label": "Week 1" },
+    { "id": "w2", "label": "Week 2" },
+    { "id": "w3", "label": "Week 3" },
+    { "id": "w4", "label": "Week 4" },
+    { "id": "w5", "label": "Week 5" },
+    { "id": "w6", "label": "Week 6" },
+    { "id": "w7", "label": "Week 7" },
+    { "id": "w8", "label": "Week 8" },
+    { "id": "m3", "label": "Month 3" },
+    { "id": "m4", "label": "Month 4" },
+    { "id": "m5", "label": "Month 5" },
+    { "id": "m6", "label": "Month 6" },
+    { "id": "q3", "label": "Month 9" },
+    { "id": "q4", "label": "Month 12" }
+  ],
+  "owners": {
+    "MD": "Medical Director",
+    "Mentor": "Assigned Mentor",
+    "OM": "Office Manager",
+    "CS": "Clinical Staff (MA/RN)"
+  },
+  "items": [
+    {
+      "id": "md-01",
+      "n": 1,
+      "phase": "pre0",
+      "owner": "MD",
+      "partner": "OM",
+      "section": "Pre-Start (3 Months Out)",
+      "text": "Confirmed provider's schedule template (visit lengths, slot types, double-book rules, admin/charting blocks) at 3-month pre-start conversation.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-02",
+      "n": 2,
+      "phase": "pre1",
+      "owner": "MD",
+      "partner": "OM",
+      "section": "Pre-Start (~2 Weeks Out)",
+      "text": "Planned DAX Copilot setup ~2 weeks before start; Day-1 instruction by MD.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-03",
+      "n": 3,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Provider Identity and Access",
+      "text": "Captured provider's Epic ID (5-digit; Epic menu > Session Information Report); gave to provider for keyboard fallback if swipe/print fails.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-04",
+      "n": 4,
+      "phase": "w1",
+      "owner": "MD",
+      "partner": "OM",
+      "section": "First Week Email to New Hire and Office Manager",
+      "text": "Sent first-week site-info email to new hire + OM covering emergency protocols (codes, AED, evac, who calls 911), POC testing workflows (strep/flu/COVID/UA/glucose/Hgb), and procedure inventory (joint inj / skin biopsy / I&D / cryo — supplies, billing, consent).",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-05",
+      "n": 5,
+      "phase": "w1",
+      "owner": "OM",
+      "partner": "MD",
+      "section": "Side-by-Side with Medical Director (Site Orientation)",
+      "text": "Physical site tour (exam rooms, lab, supply, sample closet, vaccine fridge, AED) by office staff or OM.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-06",
+      "n": 6,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Side-by-Side with Medical Director (Site Orientation)",
+      "text": "Established communication channels: OM, MD, and Marc (Senior Regional MD).",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-07",
+      "n": 7,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Side-by-Side with Medical Director (Site Orientation)",
+      "text": "Set up Epic Out-of-Office and in-basket coverage assignments for PTO.",
+      "epic_ref_ids": ["inbasket-organize"]
+    },
+    {
+      "id": "md-08",
+      "n": 8,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Side-by-Side with Medical Director (Site Orientation)",
+      "text": "Reviewed call schedule, after-hours triage line, urgent-issue patient instructions.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-09",
+      "n": 9,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Daily Workflow Foundations (Day 1 or 2 with Medical Director)",
+      "text": "Walked through daily huddle (timing, attendees, content); tied to closing care gaps as the reason it matters.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-10",
+      "n": 10,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Daily Workflow Foundations (Day 1 or 2 with Medical Director)",
+      "text": "Walked through care-gap identification on the daily schedule and how to close them in the visit.",
+      "epic_ref_ids": ["find-care-gaps", "close-care-gap"]
+    },
+    {
+      "id": "md-11",
+      "n": 11,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "In-Basket and Message Pool",
+      "text": "Walked through message-pool management including lab results.",
+      "epic_ref_ids": ["inbasket-organize", "result-notification", "staff-message"]
+    },
+    {
+      "id": "md-12",
+      "n": 12,
+      "phase": "w1",
+      "owner": "MD",
+      "misstep_risk": true,
+      "section": "In-Basket and Message Pool",
+      "text": "Set up ≥5 Quick Action buttons covering most incoming results. Reinforce: these aren't typed individually — that's what makes them fast.",
+      "epic_ref_ids": ["inbasket-quickaction"]
+    },
+    {
+      "id": "md-13",
+      "n": 13,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "In-Basket and Message Pool",
+      "text": "Created additional Quick Actions / SmartPhrases for routine guidance: BG control, BP control, cholesterol, exercise, repeat-lab timing.",
+      "epic_ref_ids": ["inbasket-quickaction", "create-smartphrase"]
+    },
+    {
+      "id": "md-14",
+      "n": 14,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "In-Basket and Message Pool",
+      "text": "Taught response patterns for every in-basket category: staff messages, cosign orders, patient requests, MyChart, HCC dept, internal pharmacist, billing.",
+      "epic_ref_ids": ["inbasket-organize", "staff-message", "mychart-respond"]
+    },
+    {
+      "id": "md-15",
+      "n": 15,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "E/M, Billing, and HCC",
+      "text": "Rearranged LOS and E/M buttons for the new provider (very beginning — first session).",
+      "epic_ref_ids": ["customize-tabs"]
+    },
+    {
+      "id": "md-16",
+      "n": 16,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "E/M, Billing, and HCC",
+      "text": "Walked through level 3/4/5 billing; stressed accurate level selection.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-17",
+      "n": 17,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "E/M, Billing, and HCC",
+      "text": "Reviewed E/M Pro use.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-18",
+      "n": 18,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "E/M, Billing, and HCC",
+      "text": "Showed where HCC codes appear in Epic and on the daily schedule.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-19",
+      "n": 19,
+      "phase": "w1",
+      "owner": "MD",
+      "misstep_risk": true,
+      "section": "E/M, Billing, and HCC",
+      "text": "Moved the HCC column all the way to the left of the schedule view.",
+      "epic_ref_ids": ["customize-schedule"]
+    },
+    {
+      "id": "md-20",
+      "n": 20,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "E/M, Billing, and HCC",
+      "text": "Reviewed This Visit tab HCC management: agree / stable / disagree / managed-by-other-provider. Majority should be 'agree' — curated by team research.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-21",
+      "n": 21,
+      "phase": "w2",
+      "owner": "MD",
+      "depends_on": "CAHPS/HOS one-pager from Chris Langerhans",
+      "section": "E/M, Billing, and HCC",
+      "text": "Covered CAHPS and HOS basics; tied to performance.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-22",
+      "n": 22,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Showed vitals entry; confirmed repeated when clinically indicated.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-23",
+      "n": 23,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Showed CC entry; stressed CC required for telemed billable.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-24",
+      "n": 24,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Showed allergy entry.",
+      "epic_ref_ids": ["customize-sidebar"]
+    },
+    {
+      "id": "md-25",
+      "n": 25,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Showed PMH/PSH/SH/FH entry; reinforced SH alongside the rest.",
+      "epic_ref_ids": ["update-social-hx"]
+    },
+    {
+      "id": "md-26",
+      "n": 26,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Walked through cleaning/reconciling med list + dx list thoroughly; doing it makes future visits easier.",
+      "epic_ref_ids": ["med-reconciliation", "update-problem-list"]
+    },
+    {
+      "id": "md-27",
+      "n": 27,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Walked through writing/closing progress notes using SmartPhrases built into top-of-note buttons.",
+      "epic_ref_ids": ["create-smartphrase", "note-from-template"]
+    },
+    {
+      "id": "md-28",
+      "n": 28,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Discussed creating new SmartPhrases from already-written/transcribed statements.",
+      "epic_ref_ids": ["create-smartphrase"]
+    },
+    {
+      "id": "md-29",
+      "n": 29,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Established + provided a standard progress note that pulls vitals from last 3 visits (not just most recent).",
+      "epic_ref_ids": ["pull-results-note"]
+    },
+    {
+      "id": "md-30",
+      "n": 30,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "Showed how to run a telehealth visit end-to-end.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-31",
+      "n": 31,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Visit Charting Workflow",
+      "text": "EKG ordering, performance, interpretation workflow.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-32",
+      "n": 32,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Annual Wellness Visit",
+      "text": "Showed AWV SmartSet location, selection, AWV progress note.",
+      "epic_ref_ids": ["create-smartset"]
+    },
+    {
+      "id": "md-33",
+      "n": 33,
+      "phase": "w3",
+      "owner": "CS",
+      "partner": "MD",
+      "section": "Annual Wellness Visit",
+      "text": "Clinical staff member walked new provider through AWV questionnaire so provider can complete one solo if needed.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-34",
+      "n": 34,
+      "phase": "w3",
+      "owner": "MD",
+      "section": "Annual Wellness Visit",
+      "text": "Reinforced running AWV themselves is not required, just useful.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-35",
+      "n": 35,
+      "phase": "w3",
+      "owner": "MD",
+      "section": "Annual Wellness Visit",
+      "text": "Below AWV note heading, all current specialists must be listed.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-36",
+      "n": 36,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Annual Wellness Visit",
+      "text": "Labs ordered in AWV (or otherwise) must attach to a diagnosis, not a screening code, so Medicare covers and patient isn't billed.",
+      "epic_ref_ids": ["link-dx-order", "link-dx-billing"]
+    },
+    {
+      "id": "md-37",
+      "n": 37,
+      "phase": "w3",
+      "owner": "MD",
+      "section": "Annual Wellness Visit",
+      "text": "Covered SDOH screening within reason as it ties into AWV SmartSet/questionnaire.",
+      "epic_ref_ids": ["update-social-hx"]
+    },
+    {
+      "id": "md-38",
+      "n": 38,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Behavioral Health",
+      "text": "BH screening: PHQ-9, GAD-7, AUDIT — how they trigger, how to act on positive screens. Email LSW workflow.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-39",
+      "n": 39,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Orders: Medications",
+      "text": "Showed how to place medication orders.",
+      "epic_ref_ids": ["eprescribe", "star-order"]
+    },
+    {
+      "id": "md-40",
+      "n": 40,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Orders: Medications",
+      "text": "Showed how to check pharmacy on Visit tab before signing.",
+      "epic_ref_ids": ["eprescribe"]
+    },
+    {
+      "id": "md-41",
+      "n": 41,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Orders: Medications",
+      "text": "Showed how to send meds to multiple pharmacies simultaneously.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-42",
+      "n": 42,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Orders: Medications",
+      "text": "Showed how to confirm med was actually transmitted.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-43",
+      "n": 43,
+      "phase": "w1",
+      "owner": "MD",
+      "misstep_risk": true,
+      "section": "Orders: Medications",
+      "text": "Covered 100-day vs 90-day refill protocol. Medicare meds at 100 days to prevent care gaps.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-44",
+      "n": 44,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Orders: Medications",
+      "text": "Saved medication orders with appropriate refill counts and dx attachments.",
+      "epic_ref_ids": ["star-order", "link-dx-order"]
+    },
+    {
+      "id": "md-45",
+      "n": 45,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Orders: Labs and Diagnostics",
+      "text": "Placed lab orders as Now vs Future.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-46",
+      "n": 46,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Orders: Labs and Diagnostics",
+      "text": "LabCorp vs Quest selection (NJ-relevant).",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-47",
+      "n": 47,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Orders: Labs and Diagnostics",
+      "text": "Spotted/resolved red errors before signing.",
+      "epic_ref_ids": ["close-encounter"]
+    },
+    {
+      "id": "md-48",
+      "n": 48,
+      "phase": "w2",
+      "owner": "MD",
+      "misstep_risk": true,
+      "section": "Orders: Labs and Diagnostics",
+      "text": "Medicare hard-stop bypass: Medicare-approved dx list (secure window) OR patient signed waiver (specific pull-down — checking 'patient will sign' alone does NOT work).",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-49",
+      "n": 49,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Orders: Labs and Diagnostics",
+      "text": "Used CAC (calcium-score CT heart) as teaching example since never covered + bypass must be done correctly.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-50",
+      "n": 50,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Orders Outside of a Visit",
+      "text": "Covered the two pathways: ambulatory order vs telephone encounter.",
+      "epic_ref_ids": ["telephone-encounter"]
+    },
+    {
+      "id": "md-51",
+      "n": 51,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Orders Outside of a Visit",
+      "text": "Ambulatory orders don't show in standard progress-notes view by default. Uncheck 'Hide Additional Visits' to make them visible.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-52",
+      "n": 52,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Orders Outside of a Visit",
+      "text": "Recommended telephone encounters when documentation matters; brief note explaining patient/staff request.",
+      "epic_ref_ids": ["telephone-encounter"]
+    },
+    {
+      "id": "md-53",
+      "n": 53,
+      "phase": "w2",
+      "owner": "MD",
+      "section": "Critical and Abnormal Results",
+      "text": "Critical/abnormal result management: abnormal pap, abnormal mammogram, critical labs. Closed-loop expectations. Reference the patient contract re: results-turnaround time.",
+      "epic_ref_ids": ["result-notification"]
+    },
+    {
+      "id": "md-54",
+      "n": 54,
+      "phase": "w1",
+      "owner": "MD",
+      "partner": "OM",
+      "section": "Referrals",
+      "text": "Used electronic referrals only. Front office addresses to schedule + track completion.",
+      "epic_ref_ids": ["place-referral"]
+    },
+    {
+      "id": "md-55",
+      "n": 55,
+      "phase": "w1",
+      "owner": "MD",
+      "partner": "OM",
+      "section": "Referrals",
+      "text": "Confirmed an established referral list is built into provider's Epic orders. If not, alert OM.",
+      "epic_ref_ids": ["place-referral"]
+    },
+    {
+      "id": "md-56",
+      "n": 56,
+      "phase": "w1",
+      "owner": "MD",
+      "misstep_risk": true,
+      "section": "Referrals",
+      "text": "Chose the correct SPECIFIC referral (individual provider or office location) — never generic. Generic referrals fall into an unattached basket and never get worked.",
+      "epic_ref_ids": ["place-referral"]
+    },
+    {
+      "id": "md-57",
+      "n": 57,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Referrals",
+      "text": "Defaulted to Internal referral. Outgoing referral occasionally, only for non-group specialists.",
+      "epic_ref_ids": ["place-referral"]
+    },
+    {
+      "id": "md-58",
+      "n": 58,
+      "phase": "w4",
+      "owner": "MD",
+      "section": "Order Sets and Templates",
+      "text": "Set up tailored order sets by disease type, age group, visit type (e.g., physical), and other categories. Time investment up front, big payoff.",
+      "epic_ref_ids": ["create-smartset"]
+    },
+    {
+      "id": "md-59",
+      "n": 59,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Documentation and Performance Expectations",
+      "text": "Note closure timeliness expectations (24–72 hr); consequences of open encounters.",
+      "epic_ref_ids": ["close-encounter"]
+    },
+    {
+      "id": "md-60",
+      "n": 60,
+      "phase": "w4",
+      "owner": "MD",
+      "section": "Epic Power-User Items",
+      "text": "F2 navigation between SmartPhrase fields and asterisk placeholders.",
+      "epic_ref_ids": ["keyboard-shortcuts"]
+    },
+    {
+      "id": "md-61",
+      "n": 61,
+      "phase": "w2",
+      "owner": "MD",
+      "depends_on": "RLdatix how-to from operations",
+      "section": "Quality and Safety",
+      "text": "Incident reporting via RLdatix.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-62",
+      "n": 62,
+      "phase": "w1",
+      "owner": "Mentor",
+      "partner": "MD",
+      "section": "Mentorship and Ongoing Check-Ins",
+      "text": "Established protected, recurring mentor↔new-hire time on calendar at 30 / 60 / 90 / 180 / 270 days post-start. Email mentor + new hire + pertinent OM(s) to establish.",
+      "epic_ref_ids": []
+    }
+  ]
+}

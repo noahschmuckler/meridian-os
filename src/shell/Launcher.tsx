@@ -34,6 +34,18 @@ export function Launcher(): JSX.Element {
           </div>
           <div class="launcher__app-caption">Mentorship Tracker</div>
         </button>
+
+        <button
+          type="button"
+          class="launcher__app"
+          onClick={() => setLauncherApp('epic-reference')}
+          aria-label="Open Epic Quick Reference"
+        >
+          <div class="launcher__app-icon launcher__app-icon--epic-reference">
+            <span class="launcher__app-glyph launcher__app-glyph--epic" aria-hidden="true">⚡</span>
+          </div>
+          <div class="launcher__app-caption">Epic Quick Reference</div>
+        </button>
       </div>
     </div>
   );
