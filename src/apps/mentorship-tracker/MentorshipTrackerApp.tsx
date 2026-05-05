@@ -375,26 +375,118 @@ function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
   );
 }
 
-/* ─── View-All-Curriculum modal (chronological scroll) ─── */
-function MdViewAllModal({ open, onClose, prov, checks, setChecks, canEdit }) {
+/* ─── View-All-Curriculum modal (chronological scroll, all three tracks) ─── */
+// Renders MD Curriculum (62 items pre0..q4), Mentor Check-Ins (MP w1..q4),
+// and Office Manager (OP om1..om12) as three stacked sections in one
+// scrollable modal. Per-track sticky header + per-phase sub-header. Only
+// the MD Curriculum carries the structured owner / partner / misstep /
+// epic_ref_ids metadata — Mentor and OM rows are simple checkbox + text.
+function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen }) {
   if (!open) return null;
-  const groupedByPhase = MD_PHASES.map(p => ({
-    phase: p,
-    items: MD_ITEMS_BY_PHASE[p.id] || [],
-  })).filter(g => g.items.length > 0);
-  const totalItems = MD_ITEMS.length;
-  const totalDone = prov ? MD_ITEMS.filter(it => checks[prov.id + ".md." + it.id]).length : 0;
+
+  // Per-track totals + completion counts (only counted when a provider is
+  // selected; otherwise the modal is a curriculum reference).
+  const mdItems = MD_ITEMS;
+  const mdDone = prov ? mdItems.filter(it => checks[prov.id + ".md." + it.id]).length : 0;
+  let mpTotal = 0, mpDone = 0;
+  MP.forEach(ph => ph.items.forEach((_, i) => {
+    mpTotal++;
+    if (prov && checks[prov.id + "." + ph.id + "." + i]) mpDone++;
+  }));
+  let opTotal = 0, opDone = 0;
+  OP.forEach(ph => ph.items.forEach((_, i) => {
+    opTotal++;
+    if (prov && checks[prov.id + "." + ph.id + "." + i]) opDone++;
+  }));
+
+  // Edit perms by track. Mirrors the App-level canChk semantics:
+  // MD items → director only; MP items → director or mentor; OP → director.
+  const canEditMd = !!prov && isDir;
+  const canEditMp = !!prov && (isDir || isMen);
+  const canEditOp = !!prov && isDir;
+
+  function toggle(key) {
+    setChecks(prev => { const n = { ...prev }; if (n[key]) delete n[key]; else n[key] = true; return n; });
+  }
+
+  const tracks = [
+    {
+      key: "md",
+      title: "MD Curriculum",
+      subtitle: `${mdItems.length} items, pre-start → Month 12`,
+      gradient: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
+      accent: "#8b5cf6",
+      done: mdDone,
+      total: mdItems.length,
+      groups: MD_PHASES.map(p => ({
+        phase: p,
+        items: MD_ITEMS_BY_PHASE[p.id] || [],
+      })).filter(g => g.items.length > 0),
+      renderRow: (item) => (
+        <MdCurriculumRow
+          key={item.id}
+          item={item}
+          showPhase={false}
+          checked={prov ? !!checks[prov.id + ".md." + item.id] : false}
+          canEdit={canEditMd}
+          onToggle={() => { if (prov) toggle(prov.id + ".md." + item.id); }}
+        />
+      ),
+      countDone: (group) => prov ? group.items.filter(it => checks[prov.id + ".md." + it.id]).length : 0,
+    },
+    {
+      key: "mp",
+      title: "Mentor Check-Ins",
+      subtitle: `${mpTotal} prompts, Week 1 → Month 12`,
+      gradient: "linear-gradient(135deg, #028090, #014a52)",
+      accent: "#028090",
+      done: mpDone,
+      total: mpTotal,
+      groups: MP.map(ph => ({ phase: ph, items: ph.items })),
+      renderRow: (text, group, i) => (
+        <CheckItem
+          key={group.phase.id + ":" + i}
+          text={text}
+          checked={prov ? !!checks[prov.id + "." + group.phase.id + "." + i] : false}
+          canEdit={canEditMp}
+          onToggle={() => { if (prov) toggle(prov.id + "." + group.phase.id + "." + i); }}
+        />
+      ),
+      countDone: (group) => prov ? group.items.filter((_, i) => checks[prov.id + "." + group.phase.id + "." + i]).length : 0,
+    },
+    {
+      key: "op",
+      title: "Office Manager",
+      subtitle: `${opTotal} prompts, Month 1 Ops → Month 12 Ops`,
+      gradient: "linear-gradient(135deg, #0ea5e9, #0369a1)",
+      accent: "#0ea5e9",
+      done: opDone,
+      total: opTotal,
+      groups: OP.map(ph => ({ phase: ph, items: ph.items })),
+      renderRow: (text, group, i) => (
+        <CheckItem
+          key={group.phase.id + ":" + i}
+          text={text}
+          checked={prov ? !!checks[prov.id + "." + group.phase.id + "." + i] : false}
+          canEdit={canEditOp}
+          onToggle={() => { if (prov) toggle(prov.id + "." + group.phase.id + "." + i); }}
+        />
+      ),
+      countDone: (group) => prov ? group.items.filter((_, i) => checks[prov.id + "." + group.phase.id + "." + i]).length : 0,
+    },
+  ];
+
   return (
     <div onClick={onClose}
       style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 1200, display: "flex", alignItems: "stretch", justifyContent: "center", padding: 24, fontFamily: "system-ui, sans-serif" }}>
       <div onClick={(e) => e.stopPropagation()}
         style={{ background: "white", borderRadius: 12, width: "100%", maxWidth: 920, display: "flex", flexDirection: "column", boxShadow: "0 24px 64px rgba(0,0,0,0.32)", overflow: "hidden" }}>
-        <div style={{ padding: "16px 22px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center", background: "linear-gradient(135deg, #8b5cf6, #6d28d9)", color: "white" }}>
+        <div style={{ padding: "16px 22px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center", background: "linear-gradient(135deg, #0f1b2d, #1e3a5f)", color: "white" }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>Master Curriculum — All 62 Items</div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>All Onboarding Tracks — Chronological</div>
             <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
-              Chronological view, pre-start through Month 12.
-              {prov ? ` · ${prov.name}: ${totalDone}/${totalItems} complete` : ""}
+              MD Curriculum + Mentor Check-Ins + Office Manager.
+              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} MD · ${mpDone}/${mpTotal} mentor · ${opDone}/${opTotal} ops` : ""}
             </div>
           </div>
           <button onClick={onClose}
@@ -402,44 +494,48 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, canEdit }) {
             Close
           </button>
         </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "10px 0" }}>
+        <div style={{ flex: 1, overflowY: "auto" }}>
           {!prov && (
-            <div style={{ padding: "12px 22px", margin: "8px 16px", borderRadius: 8, background: "#f8f9fb", border: "1px solid #dee2e6", fontSize: 12, color: "#475569" }}>
-              No provider selected — viewing curriculum as reference. Select a provider from the sidebar to track per-provider check-off state.
+            <div style={{ padding: "12px 22px", margin: "12px 16px 0", borderRadius: 8, background: "#f8f9fb", border: "1px solid #dee2e6", fontSize: 12, color: "#475569" }}>
+              No provider selected — viewing all three tracks as reference. Select a provider from the sidebar to track per-provider check-off state.
             </div>
           )}
-          {groupedByPhase.map(g => {
-            const done = prov ? g.items.filter(it => checks[prov.id + ".md." + it.id]).length : 0;
-            return (
-              <div key={g.phase.id}>
-                <div style={{ position: "sticky", top: 0, background: "#f8f9fb", borderBottom: "1px solid #dee2e6", padding: "10px 22px", zIndex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d" }}>{g.phase.label}</div>
-                    <div style={{ fontSize: 10, color: "#868e96" }}>{g.items.length} item{g.items.length === 1 ? "" : "s"}</div>
-                  </div>
-                  {prov && <div style={{ fontSize: 13, fontWeight: 700, color: done === g.items.length ? "#22c55e" : "#8b5cf6" }}>{done}/{g.items.length}</div>}
+          {tracks.map((tr) => (
+            <div key={tr.key}>
+              <div style={{ position: "sticky", top: 0, padding: "12px 22px", background: tr.gradient, color: "white", zIndex: 3, display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "2px solid white" }}>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700 }}>{tr.title}</div>
+                  <div style={{ fontSize: 11, opacity: 0.85, marginTop: 1 }}>{tr.subtitle}</div>
                 </div>
-                {g.items.map(item => (
-                  <MdCurriculumRow
-                    key={item.id}
-                    item={item}
-                    showPhase={false}
-                    checked={prov ? !!checks[prov.id + ".md." + item.id] : false}
-                    canEdit={!!prov && canEdit}
-                    onToggle={() => {
-                      if (!prov) return;
-                      const k = prov.id + ".md." + item.id;
-                      setChecks(prev => { const n = { ...prev }; if (n[k]) delete n[k]; else n[k] = true; return n; });
-                    }}
-                  />
-                ))}
+                {prov && (
+                  <div style={{ fontSize: 14, fontWeight: 700, padding: "4px 12px", borderRadius: 8, background: "rgba(255,255,255,0.18)" }}>
+                    {tr.done}/{tr.total}
+                  </div>
+                )}
               </div>
-            );
-          })}
+              {tr.groups.map(g => {
+                const done = tr.countDone(g);
+                return (
+                  <div key={g.phase.id}>
+                    <div style={{ position: "sticky", top: 56, background: "#f8f9fb", borderBottom: "1px solid #dee2e6", padding: "8px 22px", zIndex: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{g.phase.label}</div>
+                        <div style={{ fontSize: 10, color: "#868e96" }}>{g.items.length} item{g.items.length === 1 ? "" : "s"}</div>
+                      </div>
+                      {prov && <div style={{ fontSize: 12, fontWeight: 700, color: done === g.items.length ? "#22c55e" : tr.accent }}>{done}/{g.items.length}</div>}
+                    </div>
+                    {tr.key === "md"
+                      ? g.items.map(item => tr.renderRow(item))
+                      : g.items.map((text, i) => tr.renderRow(text, g, i))}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
-        <div style={{ padding: "12px 22px", borderTop: "1px solid #dee2e6", background: "#f8f9fb", fontSize: 11, color: "#868e96", display: "flex", justifyContent: "space-between" }}>
-          <span>Items flagged ⚠ MISSTEP RISK: 12, 19, 43, 48, 56 — keep verbatim when teaching.</span>
-          <span>Source: Master Checklist (Noah's MD-edited omnibus)</span>
+        <div style={{ padding: "12px 22px", borderTop: "1px solid #dee2e6", background: "#f8f9fb", fontSize: 11, color: "#868e96", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
+          <span>MD ⚠ misstep-risk items: 12 / 19 / 43 / 48 / 56 — keep verbatim when teaching.</span>
+          <span>MD source: Master Checklist · Mentor + Ops: Mentorship Tracker phases</span>
         </div>
       </div>
     </div>
@@ -573,7 +669,8 @@ export default function App() {
         prov={prov}
         checks={checks}
         setChecks={setChecks}
-        canEdit={isDir}
+        isDir={isDir}
+        isMen={isMen}
       />
 
       {/* MD tabs when no provider selected */}
