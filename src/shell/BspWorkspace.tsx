@@ -1513,6 +1513,11 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
           ? {
               workspaceId: workspace.id,
             }
+          : inst.type === 'consult-builder'
+          ? {
+              workspaceId: workspace.id,
+              selfBubbleId: leaf.bubbleId,
+            }
           : {};
         return (
           <div key={leaf.bubbleId} class={`${baseClass}${phClass}${typeClass}`} data-bubble-id={leaf.bubbleId} style={style} {...handlers}>

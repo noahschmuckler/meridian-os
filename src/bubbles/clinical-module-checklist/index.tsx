@@ -16,6 +16,7 @@ import { userModulesSignal } from '../../data/userModules';
 import { ModuleRow } from '../clinical-module-shared/row';
 import { stripRefMarkers } from '../../lib/refMarkers';
 import { decorateGlossaryText, getMergedGlossary } from '../../lib/glossary';
+import { decorateConsultMentionsHtml } from '../../lib/consultDecorator';
 import glossarySeedRaw from '../../data/seed/glossary.json';
 import { FontSizeControls } from '../../shell/FontSizeControls';
 
@@ -150,12 +151,13 @@ export function ClinicalModuleChecklist({ instance, workspaceId, selfBubbleId, o
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '8px 12px 12px' }}>
         {(() => {
           const glossary = getMergedGlossary(selected, GLOBAL_GLOSSARY);
-          const intro = decorateGlossaryText(stripRefMarkers(selected.landing_intro), glossary);
+          const consults = selected.consults ?? [];
+          const intro = decorateConsultMentionsHtml(decorateGlossaryText(stripRefMarkers(selected.landing_intro), glossary), consults);
           const contextHtml = selected.context_strip
-            ? decorateGlossaryText(stripRefMarkers(selected.context_strip.text), glossary)
+            ? decorateConsultMentionsHtml(decorateGlossaryText(stripRefMarkers(selected.context_strip.text), glossary), consults)
             : '';
           const footerHtml = selected.footer_note
-            ? decorateGlossaryText(stripRefMarkers(selected.footer_note), glossary)
+            ? decorateConsultMentionsHtml(decorateGlossaryText(stripRefMarkers(selected.footer_note), glossary), consults)
             : '';
           return (
             <>

@@ -12,6 +12,7 @@ import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
 import { expandRefMarkers, getModuleRefNumberer, getReferencesUsedIn } from '../../lib/refMarkers';
 import { decorateGlossaryHtml, getMergedGlossary } from '../../lib/glossary';
+import { decorateConsultMentionsHtml } from '../../lib/consultDecorator';
 import glossarySeedRaw from '../../data/seed/glossary.json';
 import { FontSizeControls } from '../../shell/FontSizeControls';
 
@@ -138,7 +139,7 @@ function FocusedFaq({ entry, module }: { entry: ModuleFaqEntry; module: ModuleDa
             <div
               class="markdown-body"
               style={{ fontSize: 12.5, lineHeight: 1.5 }}
-              dangerouslySetInnerHTML={{ __html: decorateGlossaryHtml(expandRefMarkers(qa.answer_html, module, numberer), glossary) }}
+              dangerouslySetInnerHTML={{ __html: decorateConsultMentionsHtml(decorateGlossaryHtml(expandRefMarkers(qa.answer_html, module, numberer), glossary), module.consults ?? []) }}
             />
           </div>
         ))}

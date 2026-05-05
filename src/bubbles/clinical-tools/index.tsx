@@ -109,6 +109,22 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
 
   const calcCards = buildCalculatorCards(activeModule);
 
+  // Consult builder card is shown only when the active module has at
+  // least one consult path declared. Sits in its own "Consults" section
+  // above Calculators so the catalog pattern reads as: module-scoped
+  // catalogs (consults / smartphrases / contracts) up top, generic tools
+  // (calculators / chat / OE) underneath.
+  const consultCount = activeModule?.consults?.length ?? 0;
+  const consultCards: ToolCard[] = consultCount > 0
+    ? [{
+        id: 'consult-builder',
+        title: 'Consult builder',
+        blurb: `${consultCount} path${consultCount === 1 ? '' : 's'} · yes/no triage → pre-filled message`,
+        glyph: '📨',
+        spawn: { type: 'consult-builder', title: 'Consult builder' },
+      }]
+    : [];
+
   function pickFile(): void {
     setStatus({ kind: 'idle' });
     fileInputRef.current?.click();
@@ -220,7 +236,23 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
           </div>
         )}
 
-        <SectionLabel>Calculators</SectionLabel>
+        {consultCards.length > 0 && (
+          <>
+            <SectionLabel>Consults</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {consultCards.map((t) => (
+                <SpawnCard
+                  key={t.id}
+                  tool={t}
+                  onSpawn={() => onSpawnBubble?.(t.spawn)}
+                  spawnEnabled={!!onSpawnBubble}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        <SectionLabel style={{ marginTop: consultCards.length > 0 ? 14 : 6 }}>Calculators</SectionLabel>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {calcCards.map((t) => (
             <SpawnCard

@@ -48,6 +48,7 @@ export type BubblePrimitiveType =
   | 'mentorship-phase-checklist'
   | 'mentorship-phase-notes'
   | 'glossary-browser'
+  | 'consult-builder'
   | 'placeholder';
 
 export type SizeKey = 'xs' | 's' | 'm' | 'l' | 'xl';
@@ -241,6 +242,52 @@ export interface GlossaryEntry {
   expansion?: string;
 }
 
+// Consult builder (Track 4b). Per-module list of specialty-consult paths
+// with a yes/no triage tree and a pre-filled output template. The
+// consult-builder bubble walks the tree and lands on a "recommend"
+// (consult is appropriate) / "block" (consult not indicated yet) /
+// "continue" (advance to the next node) leaf.
+//
+// `if_yes` / `if_no` hold one of:
+//   - 'continue'         — advance to the next ordered node
+//   - 'recommend'        — terminal: consult IS indicated; show output_template
+//   - 'block'            — terminal: consult NOT indicated; show recommend_text
+//   - <node_id>          — jump to that node id (random-access edges)
+// The walker terminates on the first 'recommend' or 'block'; ordered
+// 'continue' edges fall through to the next array entry until the list ends
+// (final entry's 'continue' is treated as 'recommend').
+export type ConsultEdge = 'continue' | 'recommend' | 'block' | string;
+
+export interface ConsultNode {
+  node_id?: string;
+  question: string;
+  if_yes: ConsultEdge;
+  if_no: ConsultEdge;
+  // Surfaced when the walker terminates on a 'block' edge — explains why
+  // the consult isn't indicated yet and what to do instead.
+  block_text?: string;
+  // Optional explainer rendered under the question to help the user answer.
+  hint?: string;
+}
+
+export interface ConsultPath {
+  consult_id: string;
+  // Specialty match string used by the consult-mention decorator. e.g.
+  // 'psychiatry' wraps "psychiatry consult" / "consult to psychiatry".
+  // Defaults to label.toLowerCase().split(' ')[0] if omitted.
+  specialty?: string;
+  label: string;                     // e.g. "Addiction medicine consult"
+  blurb?: string;                    // one-line summary for the catalog list
+  modality?: 'in-person' | 'virtual' | 'either';
+  decision_tree: ConsultNode[];
+  // Pre-filled consult prose shown on a 'recommend' leaf. May contain
+  // ${field} tokens that the bubble surfaces as editable inputs.
+  output_template: string;
+  // Optional fields/tokens the provider fills in before copying.
+  fields?: Array<{ key: string; label: string; default?: string }>;
+  refs?: string[];
+}
+
 export interface ModuleData {
   schema_version: string;
   module_id: string;
@@ -264,6 +311,10 @@ export interface ModuleData {
   // Recognized today: 'gad7', 'phq9', 'audit-c', 'ciwa-ar', 'cows',
   // 'prevent-calculator'.
   recommended_calculators?: string[];
+  // Consult paths (schema 1.2.0+). Drives the consult-builder bubble's
+  // catalog and the decorateConsultMentions auto-link decorator. Modules
+  // that omit `consults` get no auto-spawn and no consult anchors.
+  consults?: ConsultPath[];
 }
 
 export interface Bubble<P = unknown> {

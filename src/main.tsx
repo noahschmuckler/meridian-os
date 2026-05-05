@@ -15,6 +15,8 @@ import { FeedbackModal } from './shell/FeedbackModal';
 import { SelectionMenu } from './shell/SelectionMenu';
 import { GlossaryPopover } from './shell/GlossaryPopover';
 import { CiteBlockPopover } from './shell/CiteBlockPopover';
+import { ConsultLinkHandler } from './shell/ConsultLinkHandler';
+import { ConsultAutoSpawn } from './shell/ConsultAutoSpawn';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
 import { activeWorkspaceIdSignal, entryFromSignal } from './data/workspaceNav';
@@ -153,6 +155,8 @@ function App(): JSX.Element {
       <SelectionMenu modules={clinicalModules} />
       <GlossaryPopover modules={clinicalModules} globalGlossary={globalGlossary} />
       <CiteBlockPopover />
+      <ConsultLinkHandler />
+      <ConsultAutoSpawn modules={clinicalModules} />
     </>
   );
 }

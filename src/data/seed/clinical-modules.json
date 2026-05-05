@@ -2,7 +2,7 @@
   "clinical": {
     "modules": [
       {
-        "schema_version": "1.0.0",
+        "schema_version": "1.0.1",
         "module_id": "lipid-management",
         "default_title": "Lipid Management \u2014 CV Risk & Statin Prescribing",
         "landing_intro": "Clinical decision support for lipid management and cardiovascular risk reduction in primary care. Use this module when evaluating a new patient on lipid therapy, initiating statins, or reviewing a patient not at LDL goal. Content is based on the AHA/ACC PREVENT Calculator (2023) and the 2018 AHA/ACC Cholesterol Guidelines.",
@@ -251,7 +251,7 @@
         ]
       },
       {
-        "schema_version": "1.0.0",
+        "schema_version": "1.0.1",
         "module_id": "ckd",
         "default_title": "CKD & Cystatin C \u2014 Initial Workup",
         "landing_intro": "A patient has an abnormal creatinine, or you've ordered cystatin C and the eGFR came back lower than expected. Use this checklist to complete a reasonable initial workup before escalating. Nephrology should receive a patient you've already started working \u2014 not one you're handing off cold.",
@@ -287,7 +287,7 @@
           "narrative_html": "Initial workup complete. Document staging and baseline using SmartPhrase below. Safe to manage stage G1\u2013G3a with standard interventions while awaiting nephrology input if needed. <strong>You are institutionally supported.</strong>",
           "smartphrase": ".CKDINIT"
         },
-        "escalation_section_label": "Escalate to nephrology e-consult if any apply",
+        "escalation_section_label": "Escalate to nephrology consult if any apply",
         "escalation": [
           {
             "item_id": "ckd-rapid",
@@ -341,7 +341,7 @@
               },
               {
                 "question": "Should I adjust doses myself or wait for nephrology?",
-                "answer_html": "<p>For common medications with well-established renal dosing (metformin, gabapentin, many antibiotics), adjust now using the eGFR-based thresholds above. Do not wait for nephrology to make changes that are your responsibility as the PCP.</p>\n<p>The e-consult is for guidance on management strategy \u2014 not for permission to stop nephrotoxins.</p>"
+                "answer_html": "<p>For common medications with well-established renal dosing (metformin, gabapentin, many antibiotics), adjust now using the eGFR-based thresholds above. Do not wait for nephrology to make changes that are your responsibility as the PCP.</p>\n<p>The consult is for guidance on management strategy \u2014 not for permission to stop nephrotoxins.</p>"
               }
             ]
           },
@@ -381,7 +381,7 @@
             "items": [
               {
                 "question": "What are the GFR stages and what do they mean clinically?",
-                "answer_html": "<p><strong>Using CKD-EPI 2021 cystatin C-based eGFR:</strong></p>\n<p><span class=\"pill green\">G1: \u2265 90</span> \u2014 Normal or high. CKD diagnosis requires other markers (albuminuria, structural abnormality). Monitor.</p>\n<p><span class=\"pill green\">G2: 60\u201389</span> \u2014 Mildly decreased. Monitor annually if stable.</p>\n<p><span class=\"pill neutral\">G3a: 45\u201359</span> \u2014 Mildly to moderately decreased. Begin medication review, BP optimization, RAAS therapy if proteinuric.</p>\n<p><span class=\"pill warn\">G3b: 30\u201344</span> \u2014 Moderately to severely decreased. Nephrology e-consult appropriate. Begin anemia workup, mineral/bone disease labs.</p>\n<p><span class=\"pill warn\">G4: 15\u201329</span> \u2014 Severely decreased. Nephrology referral (not just e-consult). RRT planning discussion begins.</p>\n<p><span class=\"pill warn\">G5: &lt; 15</span> \u2014 Kidney failure. Active nephrology co-management required.</p>"
+                "answer_html": "<p><strong>Using CKD-EPI 2021 cystatin C-based eGFR:</strong></p>\n<p><span class=\"pill green\">G1: \u2265 90</span> \u2014 Normal or high. CKD diagnosis requires other markers (albuminuria, structural abnormality). Monitor.</p>\n<p><span class=\"pill green\">G2: 60\u201389</span> \u2014 Mildly decreased. Monitor annually if stable.</p>\n<p><span class=\"pill neutral\">G3a: 45\u201359</span> \u2014 Mildly to moderately decreased. Begin medication review, BP optimization, RAAS therapy if proteinuric.</p>\n<p><span class=\"pill warn\">G3b: 30\u201344</span> \u2014 Moderately to severely decreased. Nephrology consult appropriate. Begin anemia workup, mineral/bone disease labs.</p>\n<p><span class=\"pill warn\">G4: 15\u201329</span> \u2014 Severely decreased. Nephrology referral (not just consult). RRT planning discussion begins.</p>\n<p><span class=\"pill warn\">G5: &lt; 15</span> \u2014 Kidney failure. Active nephrology co-management required.</p>"
               },
               {
                 "question": "My patient is G3a. What do I actually do at this visit?",
@@ -425,7 +425,7 @@
             "items": [
               {
                 "question": "How do I know if the decline is rapid?",
-                "answer_html": "<p>Pull prior creatinine values from the chart \u2014 at minimum 12 months back, ideally 24. Calculate the trajectory. A decline of more than 5 mL/min/1.73m\u00b2 per year is considered rapid and warrants e-consult regardless of current stage.</p>\n<p>A single low value without prior data is not the same as demonstrated progression \u2014 establish the trend first.</p>"
+                "answer_html": "<p>Pull prior creatinine values from the chart \u2014 at minimum 12 months back, ideally 24. Calculate the trajectory. A decline of more than 5 mL/min/1.73m\u00b2 per year is considered rapid and warrants consult regardless of current stage.</p>\n<p>A single low value without prior data is not the same as demonstrated progression \u2014 establish the trend first.</p>"
               },
               {
                 "question": "Could something acute be driving this?",
@@ -443,11 +443,11 @@
             "items": [
               {
                 "question": "What changes at G4?",
-                "answer_html": "<p>Several things happen simultaneously at G4 that go beyond standard PCP management:</p>\n<p>(1) Nephrology referral (not just e-consult) is indicated. (2) Mineral and bone disease workup: PTH, phosphorus, 25-OH vitamin D, calcium. (3) Anemia of CKD evaluation. (4) RRT planning conversation \u2014 not to alarm, but to inform. Patients who arrive at dialysis having never discussed it are poorly prepared.</p>"
+                "answer_html": "<p>Several things happen simultaneously at G4 that go beyond standard PCP management:</p>\n<p>(1) Nephrology referral (not just consult) is indicated. (2) Mineral and bone disease workup: PTH, phosphorus, 25-OH vitamin D, calcium. (3) Anemia of CKD evaluation. (4) RRT planning conversation \u2014 not to alarm, but to inform. Patients who arrive at dialysis having never discussed it are poorly prepared.</p>"
               },
               {
                 "question": "Should I be starting erythropoiesis-stimulating agents?",
-                "answer_html": "<p>ESA initiation in CKD is a nephrology decision. Your role at G4 is to identify anemia, complete the workup (iron studies, B12, folate, retic count), correct iron deficiency if present, and document.</p>\n<p>The e-consult to nephrology should include this workup so they can advise on ESA candidacy with full information in hand.</p>"
+                "answer_html": "<p>ESA initiation in CKD is a nephrology decision. Your role at G4 is to identify anemia, complete the workup (iron studies, B12, folate, retic count), correct iron deficiency if present, and document.</p>\n<p>The consult to nephrology should include this workup so they can advise on ESA candidacy with full information in hand.</p>"
               }
             ]
           },
@@ -461,7 +461,7 @@
             "items": [
               {
                 "question": "Is this nephrotic range?",
-                "answer_html": "<p>Not necessarily \u2014 nephrotic range proteinuria is traditionally defined as &gt; 3.5 g/day on 24-hour urine, or roughly uACR &gt; 2000\u20133500 mg/g. A uACR of 300\u20132000 is severely increased but not nephrotic.</p>\n<p>However, any uACR &gt; 300 warrants e-consult regardless of eGFR, as it indicates significant glomerular pathology and accelerated progression risk.</p>"
+                "answer_html": "<p>Not necessarily \u2014 nephrotic range proteinuria is traditionally defined as &gt; 3.5 g/day on 24-hour urine, or roughly uACR &gt; 2000\u20133500 mg/g. A uACR of 300\u20132000 is severely increased but not nephrotic.</p>\n<p>However, any uACR &gt; 300 warrants consult regardless of eGFR, as it indicates significant glomerular pathology and accelerated progression risk.</p>"
               },
               {
                 "question": "Should I repeat it before acting?",
@@ -479,7 +479,7 @@
             "items": [
               {
                 "question": "My patient has CKD but no diabetes, no hypertension, no obstructive history. What now?",
-                "answer_html": "<p>This is the e-consult indication \u2014 unexplained CKD requires nephrology input to consider glomerulonephritis, genetic nephropathy, or other primary renal disease.</p>\n<p>Before the consult, complete: urinalysis with microscopy (looking for casts), uACR, renal ultrasound, serum protein electrophoresis in patients &gt; 40 (to screen for myeloma), ANA and complement if clinical picture suggests autoimmune.</p>\n<p>Document what you've ruled out \u2014 the nephrologist can then focus on what remains.</p>"
+                "answer_html": "<p>This is the consult indication \u2014 unexplained CKD requires nephrology input to consider glomerulonephritis, genetic nephropathy, or other primary renal disease.</p>\n<p>Before the consult, complete: urinalysis with microscopy (looking for casts), uACR, renal ultrasound, serum protein electrophoresis in patients &gt; 40 (to screen for myeloma), ANA and complement if clinical picture suggests autoimmune.</p>\n<p>Document what you've ruled out \u2014 the nephrologist can then focus on what remains.</p>"
               }
             ]
           },
@@ -493,7 +493,7 @@
             "items": [
               {
                 "question": "What do dysmorphic RBCs mean?",
-                "answer_html": "<p>Dysmorphic RBCs \u2014 particularly acanthocytes \u2014 on urine microscopy indicate glomerular origin of bleeding, as opposed to urothelial sources (stone, tumor, infection). This is a nephrology finding, not a urology finding.</p>\n<p>If the microscopy report specifically mentions dysmorphic RBCs or acanthocytes, the e-consult goes to nephrology, not to urology for cystoscopy.</p>"
+                "answer_html": "<p>Dysmorphic RBCs \u2014 particularly acanthocytes \u2014 on urine microscopy indicate glomerular origin of bleeding, as opposed to urothelial sources (stone, tumor, infection). This is a nephrology finding, not a urology finding.</p>\n<p>If the microscopy report specifically mentions dysmorphic RBCs or acanthocytes, the consult goes to nephrology, not to urology for cystoscopy.</p>"
               },
               {
                 "question": "What if the report just says \"RBCs present\" without commenting on morphology?",
@@ -504,10 +504,110 @@
         ]
       },
       {
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "module_id": "adhd",
         "default_title": "ADHD Stimulants \u2014 Inherited Patient",
         "recommended_calculators": ["gad7", "phq9"],
+        "consults": [
+          {
+            "consult_id": "adhd-psychiatry",
+            "specialty": "psychiatry",
+            "label": "Psychiatry consult",
+            "blurb": "General psychiatry \u2014 diagnostic uncertainty, ceiling-dose escalation, mood/anxiety comorbidity.",
+            "modality": "either",
+            "decision_tree": [
+              {
+                "node_id": "sud",
+                "question": "Does the patient have a documented co-occurring substance use disorder (SUD) or active substance misuse?",
+                "hint": "Per ASAM/AAAP 2024, stimulant prescribing in patients with SUD is supported but ideally co-managed with addiction-medicine expertise. If yes, addiction psychiatry is the better-matched consult.",
+                "if_yes": "addiction-psychiatry",
+                "if_no": "continue"
+              },
+              {
+                "node_id": "ceiling",
+                "question": "Has the patient required dose escalation past the FDA ceiling without a documented rationale, or are escalation requests recent and rapid?",
+                "hint": "Continuing a maximum-dose prescription is within PCP scope when justified and documented. Without documented rationale, an external review supports the prescribing decision.",
+                "if_yes": "recommend",
+                "if_no": "continue"
+              },
+              {
+                "node_id": "redflags",
+                "question": "Are there other red flags \u2014 diagnostic uncertainty, comorbid mood/anxiety not responding, behavioral inconsistency on PDMP, or safety concerns?",
+                "hint": "Comorbid PTSD, treatment-resistant anxiety/mood, or unexplained PDMP patterns benefit from psychiatric input \u2014 both for clinical management and for documentation.",
+                "if_yes": "recommend",
+                "if_no": "block",
+                "block_text": "No clear consult indication today. Continue PCP management with documented rationale; reassess at the next visit. Pull this builder back up if a red flag emerges."
+              }
+            ],
+            "fields": [
+              {
+                "key": "patient_summary",
+                "label": "One-line patient summary",
+                "default": "Adult on stimulant therapy, inherited at transition"
+              },
+              {
+                "key": "specific_question",
+                "label": "Specific question for psychiatry",
+                "default": ""
+              }
+            ],
+            "output_template": "Psychiatry consult \u2014 ADHD stimulant management\n\nPatient: ${patient_summary}\nModule context: ADHD Stimulants \u2014 Inherited Patient (Meridian)\n\nWorkup completed:\n- PDMP reviewed (NY I-STOP / NJ PMP as applicable)\n- Stimulant therapy regimen confirmed in chart and via PDMP dispensing record\n- Comorbidities screened (mood, anxiety, SUD, sleep)\n- Cardiovascular vitals and psychiatric status reassessed\n\nQuestion: ${specific_question}\n\nReferences in module FAQ: AAFP 2024 ADHD Adult Update; ASAM/AAAP 2024 SUD/ADHD; AACAP/AAP guidance.",
+            "refs": [
+              "aafp-2024",
+              "asam-aaap-2024"
+            ]
+          },
+          {
+            "consult_id": "addiction-psychiatry",
+            "specialty": "addiction psychiatry",
+            "label": "Addiction psychiatry consult",
+            "blurb": "Co-occurring SUD + ADHD \u2014 risk-stratified monitoring, formulation choice.",
+            "modality": "either",
+            "decision_tree": [
+              {
+                "question": "Does the patient have an active or recent (within 12 months) substance use disorder?",
+                "hint": "Active or recent SUD is the usual ASAM/AAAP trigger for specialist co-management when stimulants are continued or considered.",
+                "if_yes": "continue",
+                "if_no": "block",
+                "block_text": "Without an active or recent SUD, addiction psychiatry isn't the right consult. Consider general psychiatry instead if there are diagnostic or safety concerns."
+              },
+              {
+                "question": "Is the patient currently on stimulant therapy or being considered for one?",
+                "if_yes": "continue",
+                "if_no": "block",
+                "block_text": "If the patient is not on (and not being considered for) stimulant therapy, the SUD itself is the primary issue \u2014 refer to addiction medicine, not addiction psychiatry-for-ADHD."
+              },
+              {
+                "question": "Has the patient declined or failed addiction-medicine support, or is the comorbidity complex enough that combined stimulant + SUD management is needed?",
+                "if_yes": "recommend",
+                "if_no": "recommend"
+              }
+            ],
+            "fields": [
+              {
+                "key": "sud_substance",
+                "label": "Substance(s) involved",
+                "default": ""
+              },
+              {
+                "key": "sud_status",
+                "label": "SUD status (active / in remission / OAT)",
+                "default": ""
+              },
+              {
+                "key": "specific_question",
+                "label": "Specific question",
+                "default": ""
+              }
+            ],
+            "output_template": "Addiction psychiatry consult \u2014 co-occurring SUD + ADHD\n\nSubstance(s): ${sud_substance}\nSUD status: ${sud_status}\n\nADHD therapy: stimulant (regimen detailed in chart)\nPDMP: reviewed\nComorbidities: screened\n\nQuestion: ${specific_question}\n\nFraming per ASAM/AAAP 2024: SUD is a risk factor requiring enhanced monitoring, not a contraindication. Specialist input requested for monitoring intensity, formulation choice, and risk stratification.",
+            "refs": [
+              "asam-aaap-2024",
+              "aaap-batki2023",
+              "young-bc-addiction-2025"
+            ]
+          }
+        ],
         "landing_intro": "A new or transitioning patient is on stimulant medication. Use this checklist to determine whether to continue, document, or escalate. Tap any item for guidance.",
         "checklist_section_label": "Before you decide \u2014 verify all four",
         "checklist": [
@@ -541,7 +641,7 @@
           "narrative_html": "Continue current regimen. Document using SmartPhrase below. <strong>You are institutionally supported.</strong>",
           "smartphrase": ".CSADHD-CONT"
         },
-        "escalation_section_label": "Escalate to psychiatry e-consult if any apply",
+        "escalation_section_label": "Escalate to psychiatry consult if any apply",
         "escalation": [
           {
             "item_id": "dx-vibes",
@@ -592,7 +692,7 @@
               },
               {
                 "question": "I see something concerning. What do I do?",
-                "answer_html": "<p>Do not prescribe at this visit. Have a direct, non-accusatory conversation with the patient: <em>\"I'm seeing some things in the prescription history I want to understand before we go further.\"</em></p>\n<p>Document exactly what you found and what the patient told you. This is protective for you and the institution regardless of what you decide next.</p>\n<p>If the concern is significant, this is an appropriate trigger for an e-consult to psychiatry with the specific question of <strong>safe prescribing plan</strong> rather than routine review.</p>"
+                "answer_html": "<p>Do not prescribe at this visit. Have a direct, non-accusatory conversation with the patient: <em>\"I'm seeing some things in the prescription history I want to understand before we go further.\"</em></p>\n<p>Document exactly what you found and what the patient told you. This is protective for you and the institution regardless of what you decide next.</p>\n<p>If the concern is significant, this is an appropriate trigger for an consult to psychiatry with the specific question of <strong>safe prescribing plan</strong> rather than routine review.</p>"
               },
               {
                 "question": "The prior provider didn't document any PDMP checks. Does that mean I'm starting over?",
@@ -610,7 +710,7 @@
             "items": [
               {
                 "question": "The patient has a past SUD. Is that a dealbreaker?",
-                "answer_html": "<p>Not automatically \u2014 and the evidence has shifted further than the older framing suggests. A past or even active substance-use disorder is a risk factor that warrants enhanced monitoring, not an automatic disqualifier. ASAM/AAAP (2024) explicitly support stimulant therapy in patients with co-occurring ADHD and substance-use disorder when benefits outweigh risks, with monitoring commensurate with risk.[ref:asam-aaap-2024][ref:aaap-batki2023] A large retrospective analysis (Baweja 2025) of adolescents and young adults with co-occurring ADHD and SUD found stimulant treatment associated with fewer hospitalizations, lower suicidal-ideation/attempt rates (RR 0.63\u20130.79), and a 30% reduction in mortality (aHR 0.70) versus non-stimulant management; the same analysis flagged a clinician under-prescribing pattern (RR 0.63 of receiving stimulants in this population).[ref:baweja-jaacap-2025][ref:zelabowski-jcm-2025][ref:chamakalayil-fpsych-2020]</p>\n<p><span class=\"pill warn\">Tension worth knowing</span> The AAFP 2024 review lists \"drug addiction, alcohol misuse\" among contraindications to stimulants, while ASAM/AAAP 2024 treats SUD as a risk factor requiring enhanced monitoring rather than a contraindication.[ref:aafp-2024][ref:asam-aaap-2024] The two are in real tension. Document which framework you're working from and why; ASAM/AAAP language is more clinically actionable in light of current outcome data, but AAFP language may dominate medicolegal expectations.</p>\n<p><span class=\"pill neutral\">Specialist collaboration</span> ASAM/AAAP recommend that stimulant prescribing in the context of co-occurring SUD ideally involve specialist-level addiction-medicine expertise or close specialist collaboration \u2014 not primary care acting alone.[ref:asam-aaap-2024][ref:aaap-batki2023] Treat the e-consult here as clinical guidance, not just documentation: the question is monitoring intensity, formulation choice, and risk-stratification, not just whether to continue.</p>\n<p>Note also: in patients on opioid agonist therapy, prescribed stimulants combined with buprenorphine were associated with <strong>reduced</strong> overdose risk (aHR 0.47) in a recent Canadian cohort \u2014 relevant to inherited patients carrying both an OUD treatment regimen and an ADHD stimulant prescription.[ref:young-bc-addiction-2025]</p>"
+                "answer_html": "<p>Not automatically \u2014 and the evidence has shifted further than the older framing suggests. A past or even active substance-use disorder is a risk factor that warrants enhanced monitoring, not an automatic disqualifier. ASAM/AAAP (2024) explicitly support stimulant therapy in patients with co-occurring ADHD and substance-use disorder when benefits outweigh risks, with monitoring commensurate with risk.[ref:asam-aaap-2024][ref:aaap-batki2023] A large retrospective analysis (Baweja 2025) of adolescents and young adults with co-occurring ADHD and SUD found stimulant treatment associated with fewer hospitalizations, lower suicidal-ideation/attempt rates (RR 0.63\u20130.79), and a 30% reduction in mortality (aHR 0.70) versus non-stimulant management; the same analysis flagged a clinician under-prescribing pattern (RR 0.63 of receiving stimulants in this population).[ref:baweja-jaacap-2025][ref:zelabowski-jcm-2025][ref:chamakalayil-fpsych-2020]</p>\n<p><span class=\"pill warn\">Tension worth knowing</span> The AAFP 2024 review lists \"drug addiction, alcohol misuse\" among contraindications to stimulants, while ASAM/AAAP 2024 treats SUD as a risk factor requiring enhanced monitoring rather than a contraindication.[ref:aafp-2024][ref:asam-aaap-2024] The two are in real tension. Document which framework you're working from and why; ASAM/AAAP language is more clinically actionable in light of current outcome data, but AAFP language may dominate medicolegal expectations.</p>\n<p><span class=\"pill neutral\">Specialist collaboration</span> ASAM/AAAP recommend that stimulant prescribing in the context of co-occurring SUD ideally involve specialist-level addiction-medicine expertise or close specialist collaboration \u2014 not primary care acting alone.[ref:asam-aaap-2024][ref:aaap-batki2023] Treat the consult here as clinical guidance, not just documentation: the question is monitoring intensity, formulation choice, and risk-stratification, not just whether to continue.</p>\n<p>Note also: in patients on opioid agonist therapy, prescribed stimulants combined with buprenorphine were associated with <strong>reduced</strong> overdose risk (aHR 0.47) in a recent Canadian cohort \u2014 relevant to inherited patients carrying both an OUD treatment regimen and an ADHD stimulant prescription.[ref:young-bc-addiction-2025]</p>"
               },
               {
                 "question": "What does \"documented awareness and plan\" look like?",
@@ -636,7 +736,7 @@
               },
               {
                 "question": "The patient says it's working but I'm not sure I believe them.",
-                "answer_html": "<p>This is a clinical judgment call that doesn't have a bright-line answer. A few considerations:</p>\n<p>Is there corroboration? Prior notes from a previous provider, a therapist, a partner or employer? Even a prior rating scale in the chart?</p>\n<p>Are there behavioral inconsistencies? Does the patient's presentation, history, or PDMP pattern suggest misuse or diversion rather than treatment?</p>\n<p>If your clinical instinct is firing and you can't articulate why you're comfortable, that's the moment to pause, document, and consider an e-consult. That consult is not punitive \u2014 it's you doing exactly what the framework asks.</p>"
+                "answer_html": "<p>This is a clinical judgment call that doesn't have a bright-line answer. A few considerations:</p>\n<p>Is there corroboration? Prior notes from a previous provider, a therapist, a partner or employer? Even a prior rating scale in the chart?</p>\n<p>Are there behavioral inconsistencies? Does the patient's presentation, history, or PDMP pattern suggest misuse or diversion rather than treatment?</p>\n<p>If your clinical instinct is firing and you can't articulate why you're comfortable, that's the moment to pause, document, and consider an consult. That consult is not punitive \u2014 it's you doing exactly what the framework asks.</p>"
               },
               {
                 "question": "Should I be using a rating scale at follow-up visits?",
@@ -676,15 +776,15 @@
             "items": [
               {
                 "question": "The chart has an ADHD diagnosis but no workup. Am I on the hook for that?",
-                "answer_html": "<p>You are not responsible for the prior diagnostic process, but you are responsible for decisions made from this point forward. Continuing a prescription is a clinical decision \u2014 meaning it's yours, and it should be defensible.</p>\n<p>The question isn't \"was this diagnosis legitimate?\" It's \"do I have enough information to comfortably continue this medication?\" If the answer is no, the e-consult pathway exists precisely for this situation.</p>"
+                "answer_html": "<p>You are not responsible for the prior diagnostic process, but you are responsible for decisions made from this point forward. Continuing a prescription is a clinical decision \u2014 meaning it's yours, and it should be defensible.</p>\n<p>The question isn't \"was this diagnosis legitimate?\" It's \"do I have enough information to comfortably continue this medication?\" If the answer is no, the consult pathway exists precisely for this situation.</p>"
               },
               {
                 "question": "What does a \"formal workup\" actually mean? Is neuropsychological testing required?",
-                "answer_html": "<p>Neuropsychological testing is not required for ADHD diagnosis in most cases \u2014 ADHD is a clinical diagnosis based on history, symptoms, and functional impairment, and cognitive batteries alone have inadequate sensitivity and specificity for the diagnosis.[ref:posner-lancet-2020][ref:nikolas-psychassess-2019] AAFP nonetheless lists neuropsychological testing as something that <strong>should be considered</strong> when (a) collateral information is lacking, (b) malingering is suspected, or (c) confounding psychiatric comorbidity is present.[ref:aafp-2024] Combined with a validated rating scale, cognitive testing improves specificity even though it is not a stand-alone diagnostic tool.[ref:marshall-clinneuropsych-2021][ref:nikolas-psychassess-2019]</p>\n<p>A reasonable adult workup should include all of:</p>\n<p><span class=\"pill neutral\">Validated rating scale</span> ASRS or comparable, completed by the patient.[ref:asrs-ustun2017][ref:asrs-anbarasan2020]</p>\n<p><span class=\"pill neutral\">Structured clinical interview</span> Symptom onset (DSM-5-TR requires several inattentive/hyperactive-impulsive symptoms <strong>before age 12</strong>), duration, cross-setting impairment.[ref:dsm-5-tr-2022][ref:aafp-2024]</p>\n<p><span class=\"pill neutral\">Collateral information</span> Strongly recommended, not optional. Childhood medical or school records, school transcripts, prior work evaluations, and observer reports (parent, partner, employer) all carry diagnostic weight; self-report alone has poor specificity for adult ADHD diagnosis, and roughly 20% of prescription-stimulant misusers exaggerate symptoms in self-report.[ref:aafp-2024][ref:nejm-volkow2013][ref:marshall-clinneuropsych-2021] Even one or two of these data points materially change the picture.</p>\n<p><span class=\"pill neutral\">Differential AND comorbidity</span> Reframe the differential from \"rule out alternatives\" to \"rule out AND identify co-occurring conditions.\" Anxiety, mood disorders, substance use disorders, sleep disorders, and thyroid disease can all mimic ADHD. They also <strong>commonly co-occur</strong>: in adult ADHD cohorts, the odds of comorbid anxiety, mood, and substance use disorders run 4.5\u20138.7 (Hartman 2023).[ref:hartman-nbr-2023] An adult ADHD diagnosis without a SUD screen is incomplete.</p>\n<p>If none of this is in the chart, that's thin \u2014 but it's a very common chart. The e-consult purpose here is to get a psychiatrist's eyes on the case so you have expert documentation in the record. It changes the risk profile for both of you.</p>"
+                "answer_html": "<p>Neuropsychological testing is not required for ADHD diagnosis in most cases \u2014 ADHD is a clinical diagnosis based on history, symptoms, and functional impairment, and cognitive batteries alone have inadequate sensitivity and specificity for the diagnosis.[ref:posner-lancet-2020][ref:nikolas-psychassess-2019] AAFP nonetheless lists neuropsychological testing as something that <strong>should be considered</strong> when (a) collateral information is lacking, (b) malingering is suspected, or (c) confounding psychiatric comorbidity is present.[ref:aafp-2024] Combined with a validated rating scale, cognitive testing improves specificity even though it is not a stand-alone diagnostic tool.[ref:marshall-clinneuropsych-2021][ref:nikolas-psychassess-2019]</p>\n<p>A reasonable adult workup should include all of:</p>\n<p><span class=\"pill neutral\">Validated rating scale</span> ASRS or comparable, completed by the patient.[ref:asrs-ustun2017][ref:asrs-anbarasan2020]</p>\n<p><span class=\"pill neutral\">Structured clinical interview</span> Symptom onset (DSM-5-TR requires several inattentive/hyperactive-impulsive symptoms <strong>before age 12</strong>), duration, cross-setting impairment.[ref:dsm-5-tr-2022][ref:aafp-2024]</p>\n<p><span class=\"pill neutral\">Collateral information</span> Strongly recommended, not optional. Childhood medical or school records, school transcripts, prior work evaluations, and observer reports (parent, partner, employer) all carry diagnostic weight; self-report alone has poor specificity for adult ADHD diagnosis, and roughly 20% of prescription-stimulant misusers exaggerate symptoms in self-report.[ref:aafp-2024][ref:nejm-volkow2013][ref:marshall-clinneuropsych-2021] Even one or two of these data points materially change the picture.</p>\n<p><span class=\"pill neutral\">Differential AND comorbidity</span> Reframe the differential from \"rule out alternatives\" to \"rule out AND identify co-occurring conditions.\" Anxiety, mood disorders, substance use disorders, sleep disorders, and thyroid disease can all mimic ADHD. They also <strong>commonly co-occur</strong>: in adult ADHD cohorts, the odds of comorbid anxiety, mood, and substance use disorders run 4.5\u20138.7 (Hartman 2023).[ref:hartman-nbr-2023] An adult ADHD diagnosis without a SUD screen is incomplete.</p>\n<p>If none of this is in the chart, that's thin \u2014 but it's a very common chart. The consult purpose here is to get a psychiatrist's eyes on the case so you have expert documentation in the record. It changes the risk profile for both of you.</p>"
               },
               {
                 "question": "The patient is stable, functional, and has been on the medication for 5 years. Does the shaky diagnosis still matter?",
-                "answer_html": "<p>A long stable course with demonstrated functional benefit is one important data point supporting continuation, but it does not independently validate the original diagnosis. Stimulants produce subjective focus and executive-function benefits in many conditions and in some people without a formal ADHD diagnosis; ~20% of prescription-stimulant misusers exaggerate symptoms.[ref:aafp-2024][ref:nejm-volkow2013] Treat the stable course as supportive evidence for ongoing benefit, not as proof the original work-up was correct.</p>\n<p>That said, the question for a primary-care provider is usually \"should continuation continue?\", not \"was the original diagnosis valid?\" \u2014 and on that question, the long-term evidence supports continuing if the patient is stable and functional. A randomized placebo-controlled discontinuation study after 2+ years of methylphenidate found significant worsening on discontinuation (ADHD-RS \u22124.6, 95% CI \u22128.7 to \u22120.56), confirming that long-term efficacy holds for adults who respond.[ref:matthijssen-ajp-2019][ref:rosenau-ecap-2025] Real-world retention data show 30\u201340% of adult patients still on stimulants at 5 years (with reinitiation), and major guidelines frame the appropriate periodic check-in as \"continue versus stop,\" not \"re-diagnose.\"[ref:brikell-lancet-2024][ref:aacap-greenhill2002]</p>\n<p>Practical triage: a long-stable patient with no red flags and a thin chart is a lower priority for formal re-evaluation than a recent diagnosis, a request to escalate dose, or emerging behavioral concerns. Document your clinical reasoning. If at any point continuation feels uncomfortable, an e-consult is the right path.</p>"
+                "answer_html": "<p>A long stable course with demonstrated functional benefit is one important data point supporting continuation, but it does not independently validate the original diagnosis. Stimulants produce subjective focus and executive-function benefits in many conditions and in some people without a formal ADHD diagnosis; ~20% of prescription-stimulant misusers exaggerate symptoms.[ref:aafp-2024][ref:nejm-volkow2013] Treat the stable course as supportive evidence for ongoing benefit, not as proof the original work-up was correct.</p>\n<p>That said, the question for a primary-care provider is usually \"should continuation continue?\", not \"was the original diagnosis valid?\" \u2014 and on that question, the long-term evidence supports continuing if the patient is stable and functional. A randomized placebo-controlled discontinuation study after 2+ years of methylphenidate found significant worsening on discontinuation (ADHD-RS \u22124.6, 95% CI \u22128.7 to \u22120.56), confirming that long-term efficacy holds for adults who respond.[ref:matthijssen-ajp-2019][ref:rosenau-ecap-2025] Real-world retention data show 30\u201340% of adult patients still on stimulants at 5 years (with reinitiation), and major guidelines frame the appropriate periodic check-in as \"continue versus stop,\" not \"re-diagnose.\"[ref:brikell-lancet-2024][ref:aacap-greenhill2002]</p>\n<p>Practical triage: a long-stable patient with no red flags and a thin chart is a lower priority for formal re-evaluation than a recent diagnosis, a request to escalate dose, or emerging behavioral concerns. Document your clinical reasoning. If at any point continuation feels uncomfortable, an consult is the right path.</p>"
               }
             ]
           },
@@ -702,7 +802,7 @@
               },
               {
                 "question": "The patient was escalated to max dose by the prior provider. Do I continue?",
-                "answer_html": "<p>Continuing a maximum-dose prescription is within primary care scope if it's clinically justified and documented. The burden of documentation is higher at the ceiling than at moderate doses.</p>\n<p>At first visit: review the chart for the rationale behind escalation. If it's documented and coherent \u2014 continue with your own documented review.</p>\n<p>If there's no documented rationale for the ceiling dose \u2014 or if the escalation happened recently and rapidly \u2014 this is an e-consult trigger. The question for psychiatry: <em>\"Patient is at maximum dose of [medication] without clear documented rationale. Please review current plan and advise whether to maintain, taper, or restructure.\"</em></p>"
+                "answer_html": "<p>Continuing a maximum-dose prescription is within primary care scope if it's clinically justified and documented. The burden of documentation is higher at the ceiling than at moderate doses.</p>\n<p>At first visit: review the chart for the rationale behind escalation. If it's documented and coherent \u2014 continue with your own documented review.</p>\n<p>If there's no documented rationale for the ceiling dose \u2014 or if the escalation happened recently and rapidly \u2014 this is an consult trigger. The question for psychiatry: <em>\"Patient is at maximum dose of [medication] without clear documented rationale. Please review current plan and advise whether to maintain, taper, or restructure.\"</em></p>"
               }
             ]
           },
@@ -720,7 +820,7 @@
               },
               {
                 "question": "Could this be something other than ADHD at this point?",
-                "answer_html": "<p>Comorbidity in adult ADHD is the rule, not the exception. Adults with ADHD carry markedly elevated odds of mood, anxiety, and substance-use disorders (ORs in the 4.5\u20138.7 range across the major categories), and ADHD/PTSD comorbidity is reported at 28\u201336% in adult cohorts.[ref:hartman-nbr-2023][ref:magdi-sysrev-2025] So the right question is rarely \"ADHD or something else?\" and is usually \"ADHD plus what?\"</p>\n<p>The DSM-5-TR differential rests on temporal pattern: ADHD is persistent with developmental onset (symptoms before age 12) versus the episodic course of bipolar disorder, the worry-driven cognition of anxiety disorders, and the trauma-linked hypervigilance of PTSD.[ref:dsm-5-tr-2022][ref:aafp-2024]</p>\n<p>The older clinical convention that stimulants reliably worsen anxiety, mania, or hyperarousal is not well supported by current evidence:</p>\n<p><span class=\"pill neutral\">Anxiety</span> \u2014 Population-level data run the opposite direction. A pediatric meta-analysis (23 RCTs, n\u22483,000) found stimulants <strong>reduced</strong> treatment-emergent anxiety (RR 0.86, 95% CI 0.77\u20130.95).[ref:coughlin-jcap-2015][ref:golubchik-icp-2021] Adult safety meta-analyses are consistent \u2014 net effect on anxiety is neutral to favorable, not harmful.[ref:jamaopen-oliva2025] A minority of patients do worsen, but stimulants remain first-line even with comorbid anxiety.</p>\n<p><span class=\"pill warn\">Bipolar disorder</span> \u2014 The clinically actionable distinction is <strong>monotherapy versus stimulant + mood stabilizer</strong>, not bipolar I versus II. In a Swedish registry of adults with bipolar disorder (n=2,307), methylphenidate <em>monotherapy</em> was associated with HR 6.7 for treatment-emergent mania, whereas methylphenidate <em>with</em> a mood stabilizer was associated with HR 0.6 \u2014 a reduction.[ref:viktorin-ajp-2017][ref:jefsen-jcp-2023][ref:chiorean-bd-2024] FDA labels carry a class warning for bipolar disorder; causality remains very-low-GRADE evidence.[ref:salazar-jamapsych-2025] If you suspect undiagnosed or undertreated bipolar disorder, stabilize the mood disorder first; don't simply stop the stimulant.</p>\n<p><span class=\"pill neutral\">PTSD</span> \u2014 The \"stimulants worsen hyperarousal\" framing is clinical convention without controlled-trial support. Emerging real-world youth data (n>714,000 ADHD, ~30,000 with comorbid PTSD) found stimulant treatment associated with the <strong>most favorable</strong> outcomes across hospitalizations, ED visits, and antipsychotic/mood-stabilizer use (adjusted HRs 0.52\u20130.74); clinicians appear to under-prescribe stimulants in this population despite superior outcomes.[ref:baweja-jad-2026][ref:magdi-sysrev-2025] Adult-population data are thinner, so monitor for hyperarousal \u2014 but do not reflexively discontinue.</p>\n<p>If a patient is deteriorating on stimulants, the right move is psychiatric input framed around comorbidity management \u2014 what to add, taper, or sequence \u2014 rather than a unilateral discontinuation. The e-consult question should name the specific comorbidity concern.</p>"
+                "answer_html": "<p>Comorbidity in adult ADHD is the rule, not the exception. Adults with ADHD carry markedly elevated odds of mood, anxiety, and substance-use disorders (ORs in the 4.5\u20138.7 range across the major categories), and ADHD/PTSD comorbidity is reported at 28\u201336% in adult cohorts.[ref:hartman-nbr-2023][ref:magdi-sysrev-2025] So the right question is rarely \"ADHD or something else?\" and is usually \"ADHD plus what?\"</p>\n<p>The DSM-5-TR differential rests on temporal pattern: ADHD is persistent with developmental onset (symptoms before age 12) versus the episodic course of bipolar disorder, the worry-driven cognition of anxiety disorders, and the trauma-linked hypervigilance of PTSD.[ref:dsm-5-tr-2022][ref:aafp-2024]</p>\n<p>The older clinical convention that stimulants reliably worsen anxiety, mania, or hyperarousal is not well supported by current evidence:</p>\n<p><span class=\"pill neutral\">Anxiety</span> \u2014 Population-level data run the opposite direction. A pediatric meta-analysis (23 RCTs, n\u22483,000) found stimulants <strong>reduced</strong> treatment-emergent anxiety (RR 0.86, 95% CI 0.77\u20130.95).[ref:coughlin-jcap-2015][ref:golubchik-icp-2021] Adult safety meta-analyses are consistent \u2014 net effect on anxiety is neutral to favorable, not harmful.[ref:jamaopen-oliva2025] A minority of patients do worsen, but stimulants remain first-line even with comorbid anxiety.</p>\n<p><span class=\"pill warn\">Bipolar disorder</span> \u2014 The clinically actionable distinction is <strong>monotherapy versus stimulant + mood stabilizer</strong>, not bipolar I versus II. In a Swedish registry of adults with bipolar disorder (n=2,307), methylphenidate <em>monotherapy</em> was associated with HR 6.7 for treatment-emergent mania, whereas methylphenidate <em>with</em> a mood stabilizer was associated with HR 0.6 \u2014 a reduction.[ref:viktorin-ajp-2017][ref:jefsen-jcp-2023][ref:chiorean-bd-2024] FDA labels carry a class warning for bipolar disorder; causality remains very-low-GRADE evidence.[ref:salazar-jamapsych-2025] If you suspect undiagnosed or undertreated bipolar disorder, stabilize the mood disorder first; don't simply stop the stimulant.</p>\n<p><span class=\"pill neutral\">PTSD</span> \u2014 The \"stimulants worsen hyperarousal\" framing is clinical convention without controlled-trial support. Emerging real-world youth data (n>714,000 ADHD, ~30,000 with comorbid PTSD) found stimulant treatment associated with the <strong>most favorable</strong> outcomes across hospitalizations, ED visits, and antipsychotic/mood-stabilizer use (adjusted HRs 0.52\u20130.74); clinicians appear to under-prescribe stimulants in this population despite superior outcomes.[ref:baweja-jad-2026][ref:magdi-sysrev-2025] Adult-population data are thinner, so monitor for hyperarousal \u2014 but do not reflexively discontinue.</p>\n<p>If a patient is deteriorating on stimulants, the right move is psychiatric input framed around comorbidity management \u2014 what to add, taper, or sequence \u2014 rather than a unilateral discontinuation. The consult question should name the specific comorbidity concern.</p>"
               }
             ]
           },
@@ -742,7 +842,7 @@
               },
               {
                 "question": "The patient had a booster dose prescribed before and wants to restart it.",
-                "answer_html": "<p>Restarting a previously prescribed regimen is generally lower-risk than initiating something new, but treat that as clinical convention rather than a guideline-graded distinction; no US ADHD guideline formally addresses the restart-versus-initiate question.[ref:aacap-greenhill2002]</p>\n<p>The supportive factors: prior documentation in the chart, PDMP confirmation that the regimen was previously dispensed and tolerated, and a non-clinical reason for the original discontinuation (provider change, insurance disruption). Caveats that matter: prior tolerability does not guarantee current safety; gap duration matters (cardiovascular and psychiatric status can shift); and documentation quality matters (PDMP and pharmacy records weigh more than patient self-report alone). Reassess current blood pressure, heart rate, and psychiatric status before restarting.[ref:lancet-psych-farhat2025][ref:aafp-2024]</p>\n<p>If the prior prescribing record shows the combination was used, was safe, and was discontinued for a non-clinical reason, continuation with fresh documentation is defensible. If gaps in the record or in the clinical picture are open, an e-consult is always available \u2014 that is the framework doing its job, not a failure.</p>"
+                "answer_html": "<p>Restarting a previously prescribed regimen is generally lower-risk than initiating something new, but treat that as clinical convention rather than a guideline-graded distinction; no US ADHD guideline formally addresses the restart-versus-initiate question.[ref:aacap-greenhill2002]</p>\n<p>The supportive factors: prior documentation in the chart, PDMP confirmation that the regimen was previously dispensed and tolerated, and a non-clinical reason for the original discontinuation (provider change, insurance disruption). Caveats that matter: prior tolerability does not guarantee current safety; gap duration matters (cardiovascular and psychiatric status can shift); and documentation quality matters (PDMP and pharmacy records weigh more than patient self-report alone). Reassess current blood pressure, heart rate, and psychiatric status before restarting.[ref:lancet-psych-farhat2025][ref:aafp-2024]</p>\n<p>If the prior prescribing record shows the combination was used, was safe, and was discontinued for a non-clinical reason, continuation with fresh documentation is defensible. If gaps in the record or in the clinical picture are open, an consult is always available \u2014 that is the framework doing its job, not a failure.</p>"
               }
             ]
           }
@@ -846,7 +946,7 @@
         ]
       },
       {
-        "schema_version": "1.0.0",
+        "schema_version": "1.0.1",
         "module_id": "anemia",
         "default_title": "Anemia \u2014 Initial Workup Before Hematology",
         "landing_intro": "A patient has a low hemoglobin. The reflex to immediately consult hematology is understandable \u2014 but a hematologist receiving a referral with only a CBC and no workup cannot do much from a distance. Your job is to complete a structured initial evaluation that answers the first-order question: what kind of anemia is this? Most anemia seen in primary care has a diagnosable and treatable cause that does not require hematology at all. For those that do, arriving with a completed workup transforms the consult from a hand-off into a collaboration.",
@@ -879,10 +979,10 @@
         ],
         "green_zone": {
           "zone_label": "All boxes checked \u2014 You have a working diagnosis",
-          "narrative_html": "Initial workup complete. You can now categorize and begin treating the most common causes \u2014 iron deficiency, B12 deficiency, folate deficiency, or anemia of chronic disease \u2014 without hematology involvement. Document findings and plan using SmartPhrase below. Hematology e-consult is indicated only for unexplained, refractory, or complex findings. <strong>You are institutionally supported.</strong>",
+          "narrative_html": "Initial workup complete. You can now categorize and begin treating the most common causes \u2014 iron deficiency, B12 deficiency, folate deficiency, or anemia of chronic disease \u2014 without hematology involvement. Document findings and plan using SmartPhrase below. Hematology consult is indicated only for unexplained, refractory, or complex findings. <strong>You are institutionally supported.</strong>",
           "smartphrase": ".ANEMIA-INIT"
         },
-        "escalation_section_label": "Escalate to hematology e-consult if any apply",
+        "escalation_section_label": "Escalate to hematology consult if any apply",
         "escalation": [
           {
             "item_id": "anemia-severe",
@@ -922,7 +1022,7 @@
           }
         ],
         "context_strip": null,
-        "footer_note": "For internal use only. This is a viable first pathway, not the only pathway. Experienced providers retain clinical discretion. Urgent findings \u2014 schistocytes, blasts, severe symptomatic anemia \u2014 require same-day escalation outside this e-consult framework.",
+        "footer_note": "For internal use only. This is a viable first pathway, not the only pathway. Experienced providers retain clinical discretion. Urgent findings \u2014 schistocytes, blasts, severe symptomatic anemia \u2014 require same-day escalation outside this consult framework.",
         "faqs": [
           {
             "faq_id": "anemia-cbc",
@@ -1064,10 +1164,10 @@
             "items": [
               {
                 "question": "I've done the full initial workup and I can't explain the anemia. What have I potentially missed?",
-                "answer_html": "<p><strong>Review this list before the e-consult:</strong></p>\n<p><span class=\"pill neutral\">Hypothyroidism</span> \u2014 TSH should be part of any unexplained normocytic or macrocytic anemia workup.</p>\n<p><span class=\"pill neutral\">Renal insufficiency</span> \u2014 check creatinine and eGFR; anemia of CKD is common and underrecognized.</p>\n<p><span class=\"pill neutral\">Chronic liver disease</span> \u2014 LFTs, consider hepatitis screening.</p>\n<p><span class=\"pill neutral\">Lead toxicity</span> \u2014 in patients with occupational exposure, recent immigration from high-exposure regions, or pica; order blood lead level.</p>\n<p><span class=\"pill neutral\">Medication review</span> \u2014 many drugs cause anemia through various mechanisms; review the full medication list.</p>\n<p><span class=\"pill neutral\">Alcohol use</span> \u2014 often underreported; ask directly.</p>\n<p><span class=\"pill neutral\">Inflammatory markers</span> \u2014 ESR, CRP, ferritin as acute phase reactant; anemia of chronic inflammation may not have an obvious clinical source.</p>"
+                "answer_html": "<p><strong>Review this list before the consult:</strong></p>\n<p><span class=\"pill neutral\">Hypothyroidism</span> \u2014 TSH should be part of any unexplained normocytic or macrocytic anemia workup.</p>\n<p><span class=\"pill neutral\">Renal insufficiency</span> \u2014 check creatinine and eGFR; anemia of CKD is common and underrecognized.</p>\n<p><span class=\"pill neutral\">Chronic liver disease</span> \u2014 LFTs, consider hepatitis screening.</p>\n<p><span class=\"pill neutral\">Lead toxicity</span> \u2014 in patients with occupational exposure, recent immigration from high-exposure regions, or pica; order blood lead level.</p>\n<p><span class=\"pill neutral\">Medication review</span> \u2014 many drugs cause anemia through various mechanisms; review the full medication list.</p>\n<p><span class=\"pill neutral\">Alcohol use</span> \u2014 often underreported; ask directly.</p>\n<p><span class=\"pill neutral\">Inflammatory markers</span> \u2014 ESR, CRP, ferritin as acute phase reactant; anemia of chronic inflammation may not have an obvious clinical source.</p>"
               },
               {
-                "question": "What does the hematology e-consult ask look like for unexplained anemia?",
+                "question": "What does the hematology consult ask look like for unexplained anemia?",
                 "answer_html": "<p>Be specific and include your workup: <em>\"Patient with [degree] [MCV category] anemia, hemoglobin [X]. Workup completed: iron studies [results], B12 [result], folate [result], reticulocyte count/RPI [result], TSH [result], CMP [result]. No clear etiology identified. No evidence of hemolysis. CBC differential without abnormal forms. Requesting evaluation for underlying cause and management recommendation.\"</em></p>\n<p>A hematologist receiving this consult can move directly to the next tier of evaluation rather than repeating your workup.</p>"
               }
             ]
@@ -1090,7 +1190,7 @@
               },
               {
                 "question": "I see schistocytes on the peripheral smear. What do I do?",
-                "answer_html": "<p>Treat as urgent. Schistocytes indicate microangiopathic hemolytic anemia \u2014 RBCs being sheared by damaged small vessels. TTP (thrombotic thrombocytopenic purpura) is life-threatening and time-sensitive \u2014 check platelet count immediately.</p>\n<p><span class=\"pill warn\">Thrombocytopenia plus microangiopathic hemolytic anemia is TTP until proven otherwise</span> and requires same-day hematology contact, not an e-consult. Send the patient to the ER with a direct communication.</p>"
+                "answer_html": "<p>Treat as urgent. Schistocytes indicate microangiopathic hemolytic anemia \u2014 RBCs being sheared by damaged small vessels. TTP (thrombotic thrombocytopenic purpura) is life-threatening and time-sensitive \u2014 check platelet count immediately.</p>\n<p><span class=\"pill warn\">Thrombocytopenia plus microangiopathic hemolytic anemia is TTP until proven otherwise</span> and requires same-day hematology contact, not an consult. Send the patient to the ER with a direct communication.</p>"
               }
             ]
           },
@@ -1104,15 +1204,15 @@
             "items": [
               {
                 "question": "The CBC shows anemia plus thrombocytopenia. What does that mean?",
-                "answer_html": "<p>Bicytopenia (two cell lines low) is a more concerning finding than isolated anemia. The differential includes: bone marrow failure (aplastic anemia), infiltrative bone marrow process (hematologic malignancy, metastatic solid tumor), hypersplenism, autoimmune destruction of multiple cell lines, B12/folate deficiency (can cause pancytopenia), or medications (chemotherapy, immunosuppressants, some antibiotics).</p>\n<p>This requires hematology e-consult \u2014 not after a prolonged workup, but promptly.</p>"
+                "answer_html": "<p>Bicytopenia (two cell lines low) is a more concerning finding than isolated anemia. The differential includes: bone marrow failure (aplastic anemia), infiltrative bone marrow process (hematologic malignancy, metastatic solid tumor), hypersplenism, autoimmune destruction of multiple cell lines, B12/folate deficiency (can cause pancytopenia), or medications (chemotherapy, immunosuppressants, some antibiotics).</p>\n<p>This requires hematology consult \u2014 not after a prolonged workup, but promptly.</p>"
               },
               {
                 "question": "The differential mentions \"atypical lymphocytes.\" How concerned should I be?",
-                "answer_html": "<p>Context matters. Atypical lymphocytes are common in viral infections \u2014 EBV (infectious mononucleosis), CMV, and other viral syndromes produce reactive atypical lymphocytes that are benign and self-limited. In a young patient with fever, pharyngitis, and lymphadenopathy, check monospot and EBV titers.</p>\n<p>In an older patient without a viral prodrome, persistent atypical lymphocytes or a lymphocytosis that doesn't resolve warrants hematology e-consult to evaluate for lymphoproliferative disease.</p>"
+                "answer_html": "<p>Context matters. Atypical lymphocytes are common in viral infections \u2014 EBV (infectious mononucleosis), CMV, and other viral syndromes produce reactive atypical lymphocytes that are benign and self-limited. In a young patient with fever, pharyngitis, and lymphadenopathy, check monospot and EBV titers.</p>\n<p>In an older patient without a viral prodrome, persistent atypical lymphocytes or a lymphocytosis that doesn't resolve warrants hematology consult to evaluate for lymphoproliferative disease.</p>"
               },
               {
                 "question": "The report says \"blasts seen.\" What do I do?",
-                "answer_html": "<p><span class=\"pill warn\">Contact hematology today</span> \u2014 do not wait for an e-consult response. Blasts on a peripheral smear suggest acute leukemia until proven otherwise. This is a same-day phone call to hematology, not a portal message.</p>\n<p>While arranging urgent evaluation, do not start any new medications that could affect the marrow picture. Be direct with the patient that you have found something that requires urgent specialist evaluation.</p>"
+                "answer_html": "<p><span class=\"pill warn\">Contact hematology today</span> \u2014 do not wait for an consult response. Blasts on a peripheral smear suggest acute leukemia until proven otherwise. This is a same-day phone call to hematology, not a portal message.</p>\n<p>While arranging urgent evaluation, do not start any new medications that could affect the marrow picture. Be direct with the patient that you have found something that requires urgent specialist evaluation.</p>"
               }
             ]
           },
@@ -1134,7 +1234,7 @@
               },
               {
                 "question": "When is IV iron the right answer for refractory cases?",
-                "answer_html": "<p>IV iron is appropriate when oral iron has genuinely failed after an adequate trial, when malabsorption is confirmed or strongly suspected, when the patient cannot tolerate oral iron, or when rapid repletion is needed (preoperative optimization, severe symptomatic anemia).</p>\n<p>IV iron does not require hematology referral \u2014 it can be ordered by primary care and administered in an infusion center. Refractory iron deficiency that fails IV iron, or iron deficiency without an identified source in a patient who has had appropriate GI evaluation, is the threshold for hematology e-consult.</p>"
+                "answer_html": "<p>IV iron is appropriate when oral iron has genuinely failed after an adequate trial, when malabsorption is confirmed or strongly suspected, when the patient cannot tolerate oral iron, or when rapid repletion is needed (preoperative optimization, severe symptomatic anemia).</p>\n<p>IV iron does not require hematology referral \u2014 it can be ordered by primary care and administered in an infusion center. Refractory iron deficiency that fails IV iron, or iron deficiency without an identified source in a patient who has had appropriate GI evaluation, is the threshold for hematology consult.</p>"
               }
             ]
           },
@@ -1152,7 +1252,7 @@
               },
               {
                 "question": "My CKD patient has anemia. What workup do I do?",
-                "answer_html": "<p>Complete the standard Meridian anemia workup first \u2014 CBC with differential, reticulocyte count, iron studies, B12, folate. Additionally order PTH, phosphorus, and 25-OH vitamin D if not recently done as part of CKD mineral metabolism assessment.</p>\n<p>Then cross-reference with the Meridian CKD module for integrated management. The CKD e-consult to nephrology should include the anemia workup so the nephrologist can advise on ESA candidacy with complete information.</p>"
+                "answer_html": "<p>Complete the standard Meridian anemia workup first \u2014 CBC with differential, reticulocyte count, iron studies, B12, folate. Additionally order PTH, phosphorus, and 25-OH vitamin D if not recently done as part of CKD mineral metabolism assessment.</p>\n<p>Then cross-reference with the Meridian CKD module for integrated management. The CKD consult to nephrology should include the anemia workup so the nephrologist can advise on ESA candidacy with complete information.</p>"
               },
               {
                 "question": "Should I start an ESA (erythropoiesis-stimulating agent)?",
@@ -1163,7 +1263,7 @@
         ]
       },
       {
-        "schema_version": "1.0.0",
+        "schema_version": "1.0.1",
         "module_id": "abd-pain",
         "default_title": "Abdominal Pain \u2014 Can I discharge this patient?",
         "landing_intro": "A patient presents to urgent care with abdominal pain. Our job \u2014 in 15\u201320 minutes \u2014 is to decide between safe discharge, close-interval re-evaluation, or ER transfer. This checklist supports that decision after a focused H&P and any reasonable rapid testing. ER referral with a reasonable workup is always appropriate and is never penalized. The only penalty is no workup at all.",
@@ -1403,10 +1503,102 @@
         ]
       },
       {
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "module_id": "opiates",
         "default_title": "Chronic Opiates \u2014 Inherited Patient",
         "recommended_calculators": ["cows", "phq9", "audit-c"],
+        "consults": [
+          {
+            "consult_id": "pain-medicine",
+            "specialty": "pain medicine",
+            "label": "Pain medicine consult",
+            "blurb": "Chronic high-MME inherited patient, refractory pain, taper sequencing.",
+            "modality": "either",
+            "decision_tree": [
+              {
+                "question": "Is the patient on chronic opioid therapy (\u2265 90 days) or at \u2265 50 MME/day?",
+                "hint": "CDC 2022 flags chronic high-MME regimens for review and consideration of specialist input. Below this threshold, pain-medicine consult is rarely the right next step.",
+                "if_yes": "continue",
+                "if_no": "block",
+                "block_text": "Pain medicine consult is generally reserved for chronic and/or higher-dose regimens. For acute pain or short-course prescribing, the answer is usually within PCP scope."
+              },
+              {
+                "question": "Is the patient stable on the current regimen with adequate function and no concerning PDMP/UDS findings?",
+                "hint": "Stable, functional patients with inherited high-MME regimens are appropriate for PCP continuation with documented rationale \u2014 pain-medicine input is for sequencing or de-escalation guidance, not authorization to continue.",
+                "if_yes": "recommend",
+                "if_no": "continue"
+              },
+              {
+                "question": "Are there active concerns \u2014 uncontrolled pain, functional decline, PDMP/UDS red flags, or concurrent benzodiazepines?",
+                "if_yes": "recommend",
+                "if_no": "block",
+                "block_text": "If the regimen is stable AND there are no concerns, continue PCP management. Pain medicine is not a routine annual touch-point in current guidelines."
+              }
+            ],
+            "fields": [
+              {
+                "key": "regimen",
+                "label": "Current regimen + total MME/day",
+                "default": ""
+              },
+              {
+                "key": "duration",
+                "label": "Duration on current regimen",
+                "default": ""
+              },
+              {
+                "key": "concerns",
+                "label": "Active concerns (or 'stable')",
+                "default": "stable"
+              }
+            ],
+            "output_template": "Pain medicine consult \u2014 inherited chronic opioid patient\n\nRegimen: ${regimen}\nDuration: ${duration}\nFunctional status / concerns: ${concerns}\n\nWorkup completed:\n- PDMP reviewed (NY I-STOP / NJ PMP as applicable)\n- UDS reviewed\n- CDC 2022 framing: opioid therapy not discontinued abruptly; tapering individualized\n- Concurrent benzodiazepine use evaluated\n\nQuestion: Please review current regimen and advise on appropriateness, whether a structured gradual taper is indicated, and whether ongoing co-management is appropriate.",
+            "refs": [
+              "cdc-2022",
+              "agnoli-jama-2021",
+              "fda-oxycodone"
+            ]
+          },
+          {
+            "consult_id": "addiction-medicine-opiate",
+            "specialty": "addiction medicine",
+            "label": "Addiction medicine consult",
+            "blurb": "Suspected OUD, MOUD/OAT initiation, aberrant behavior workup.",
+            "modality": "either",
+            "decision_tree": [
+              {
+                "question": "Are there signs concerning for opioid use disorder (DSM-5 criteria, aberrant behavior, escalation despite no nociceptive driver, or PDMP pattern suggesting misuse)?",
+                "hint": "OUD signs do not bar continued prescribing \u2014 they signal the need for specialist co-management, not abrupt discontinuation.",
+                "if_yes": "continue",
+                "if_no": "block",
+                "block_text": "Without OUD concerns, addiction medicine isn't the right consult. If chronic high-MME with stability concerns, pain medicine is the better path."
+              },
+              {
+                "question": "Is the patient already on MOUD (buprenorphine, methadone, naltrexone)?",
+                "hint": "If yes, the consult question is around co-management of pain and OUD; if no, it's about initiation.",
+                "if_yes": "recommend",
+                "if_no": "recommend"
+              }
+            ],
+            "fields": [
+              {
+                "key": "oud_signs",
+                "label": "OUD signs / aberrant behaviors observed",
+                "default": ""
+              },
+              {
+                "key": "current_moud",
+                "label": "Current MOUD (or 'none')",
+                "default": "none"
+              }
+            ],
+            "output_template": "Addiction medicine consult \u2014 suspected/established OUD\n\nOUD signs: ${oud_signs}\nCurrent MOUD: ${current_moud}\n\nWorkup completed:\n- PDMP reviewed; UDS obtained\n- DSM-5 OUD criteria reviewed against documented behaviors\n- Module framing per CDC 2022 + ASAM 2020 OUD guideline\n\nQuestion: Please advise on MOUD candidacy / dose optimization (or co-management if already on MOUD), and on safe co-prescription of any analgesic regimen with current OUD treatment.",
+            "refs": [
+              "cdc-2022",
+              "asam-2020-oud"
+            ]
+          }
+        ],
         "landing_intro": "A patient is transferring to your panel on a chronic opiate regimen. This is one of the highest-anxiety handoffs in primary care \u2014 and one of the most common. Your job at the first visit is not to solve the problem. It is to establish the relationship, complete a structured assessment, and determine whether you can continue, need to modify, or need to escalate. Do not discontinue at the first visit without a safety plan in place. The CDC 2022 guideline (Recommendation 5) is explicit that opioid therapy should not be discontinued abruptly and that clinicians should not rapidly reduce opioid dosages from higher dosages, except when there are life-threatening safety signals; abrupt taper of long-stable patients is associated with overdose, mental-health crisis, and suicide attempt.[ref:cdc-2022][ref:agnoli-jama-2021][ref:aafp-roth-2020]",
         "checklist_section_label": "Before you decide \u2014 verify all four",
         "checklist": [
@@ -1569,7 +1761,7 @@
               },
               {
                 "question": "The patient is on 120 MME/day and has been stable for years. Do I taper them?",
-                "answer_html": "<p>Stability on a long-standing dose is meaningful clinical data, not a license for indefinite passive prescribing. <strong>Do not taper at the first visit.</strong>[ref:cdc-2022]</p>\n<p>The harms of abrupt taper are well-quantified. Agnoli (JAMA 2021, n=113,618) found that opioid dose tapering of patients on stable, long-term, higher-dose therapy was associated with adjusted IRR <strong>1.68 for overdose</strong>, <strong>2.28 for mental-health crisis</strong>, and <strong>3.30 for suicide attempt</strong>; absolute risk increases were largest at the highest baseline doses (\u2265300 MME/day).[ref:agnoli-jama-2021] CDC 2022 Recommendation 5: \"opioid therapy should not be discontinued abruptly\"; FDA has issued a prescriber warning about hazards of rapid dose reduction including withdrawal, psychological distress, and suicidality.[ref:cdc-2022][ref:fda-oxycodone]</p>\n<p><span class=\"pill warn\">Counterpoint nuance</span> The evidence is strongest for <em>rapid</em> taper and discontinuation. CDC 2022 notes that when patients agree to taper and it is done <strong>gradually (\u2264 10% per month) with behavioral support</strong>, outcomes including pain, function, and quality of life can actually improve.[ref:cdc-2022][ref:agnoli-jama-2021][ref:lin-nejm-2025] For patients on opioids \u2265 1 year, tapers can take months to years.[ref:arnold-aafp-2023] Avoid the equal-and-opposite error of locking in indefinite continuation.</p>\n<p>At the first visit: complete the intake assessment, establish the relationship, prescribe with full documentation of your awareness of the dose and your clinical rationale for continuation, and use the e-consult to get pain management eyes on the chart. A reasonable consult ask: <em>\"Patient stable on X MME/day for Y years. PDMP and UDS reviewed; functional status [description]; concurrent benzodiazepines [yes/no]. Please review current regimen and advise on appropriateness, whether a structured gradual taper is indicated, and whether ongoing co-management is appropriate.\"</em>[ref:cdc-2022][ref:coffin-am-2022]</p>"
+                "answer_html": "<p>Stability on a long-standing dose is meaningful clinical data, not a license for indefinite passive prescribing. <strong>Do not taper at the first visit.</strong>[ref:cdc-2022]</p>\n<p>The harms of abrupt taper are well-quantified. Agnoli (JAMA 2021, n=113,618) found that opioid dose tapering of patients on stable, long-term, higher-dose therapy was associated with adjusted IRR <strong>1.68 for overdose</strong>, <strong>2.28 for mental-health crisis</strong>, and <strong>3.30 for suicide attempt</strong>; absolute risk increases were largest at the highest baseline doses (\u2265300 MME/day).[ref:agnoli-jama-2021] CDC 2022 Recommendation 5: \"opioid therapy should not be discontinued abruptly\"; FDA has issued a prescriber warning about hazards of rapid dose reduction including withdrawal, psychological distress, and suicidality.[ref:cdc-2022][ref:fda-oxycodone]</p>\n<p><span class=\"pill warn\">Counterpoint nuance</span> The evidence is strongest for <em>rapid</em> taper and discontinuation. CDC 2022 notes that when patients agree to taper and it is done <strong>gradually (\u2264 10% per month) with behavioral support</strong>, outcomes including pain, function, and quality of life can actually improve.[ref:cdc-2022][ref:agnoli-jama-2021][ref:lin-nejm-2025] For patients on opioids \u2265 1 year, tapers can take months to years.[ref:arnold-aafp-2023] Avoid the equal-and-opposite error of locking in indefinite continuation.</p>\n<p>At the first visit: complete the intake assessment, establish the relationship, prescribe with full documentation of your awareness of the dose and your clinical rationale for continuation, and use the consult to get pain management eyes on the chart. A reasonable consult ask: <em>\"Patient stable on X MME/day for Y years. PDMP and UDS reviewed; functional status [description]; concurrent benzodiazepines [yes/no]. Please review current regimen and advise on appropriateness, whether a structured gradual taper is indicated, and whether ongoing co-management is appropriate.\"</em>[ref:cdc-2022][ref:coffin-am-2022]</p>"
               },
               {
                 "question": "Should I offer naloxone?",
@@ -1580,18 +1772,18 @@
           {
             "faq_id": "opiates-highdose",
             "topic": "High Dose Threshold",
-            "title": "Inheriting a high-dose patient \u2014 continuity, documentation, and the e-consult",
+            "title": "Inheriting a high-dose patient \u2014 continuity, documentation, and the consult",
             "referenced_by": [
               "opiates-highdose"
             ],
             "items": [
               {
-                "question": "Can I continue prescribing at this dose while I arrange the e-consult?",
+                "question": "Can I continue prescribing at this dose while I arrange the consult?",
                 "answer_html": "<p>Yes \u2014 do not abruptly discontinue or reduce at the first visit while awaiting specialist input. Continuity of an established regimen while arranging appropriate oversight is clinically and ethically defensible, and is the position of CDC 2022 Recommendation 5.[ref:cdc-2022] The CDC further warns payers and health systems should not \"penalize clinicians for accepting new patients who are receiving opioids for chronic pain,\" and the FDA has issued a prescriber warning about the hazards of rapid taper or sudden discontinuation in physically dependent patients (acute withdrawal, pain exacerbation, serious psychological distress, and suicidal ideation).[ref:cdc-2022][ref:fda-oxycodone]</p>\n<p><span class=\"pill warn\">Conditional on absence of life-threatening signals</span> Continuity is defensible only when there are no acute safety signals at the visit \u2014 sedation, respiratory depression, slurred speech, evidence of active diversion. If those are present, dose reduction or discontinuation may be warranted even at the first encounter.[ref:cdc-2022]</p>\n<p><span class=\"pill warn\">Continuity is a bridge, not an endpoint</span> The CDC expects the new clinician to establish treatment goals (including functional goals) and reassess within 1\u20133 months. Continuity gets you safely past the first visit; the structured benefit-risk reassessment is still the work.[ref:cdc-2022][ref:coffin-am-2022]</p>\n<p>Document the full first-visit framework \u2014 not just the four-item intake checklist. The CDC 2022 + Coffin 2022 + VA/DoD 2022 synthesis expects:[ref:cdc-2022][ref:coffin-am-2022][ref:sandbrink-aim-2023][ref:sonoda-aafp-2025] (1) continued regimen absent life-threatening signals; (2) MME calculation and documentation; (3) PDMP review (mandatory under NY I-STOP, initial-plus-quarterly under NJ PMP);[ref:ny-pbh-3343a][ref:nj-njsa-45-1-46-1] (4) baseline UDS (non-punitive); (5) offer naloxone; (6) screen for OUD (TAPS, DAST) and mental-health comorbidities;[ref:cdc-2022] (7) functional-status assessment (PEG scale) and treatment goals;[ref:cdc-2022] (8) concurrent-benzodiazepine check; (9) document rationale for continuation and the plan for reassessment;[ref:coffin-am-2022] (10) arrange pain-management consultation if function is not improving, documentation is limited, or dosage is well above 50 MME without clear justification;[ref:cdc-2016][ref:cdc-2022] (11) follow-up within 1\u20133 months.[ref:cdc-2022]</p>"
               },
               {
-                "question": "What is the e-consult ask at high dose?",
-                "answer_html": "<p>The structured ask below is institutional best practice consistent with the CDC 2022 assessment domains; no specific guideline (CDC, AAFP, ASAM, VA/DoD) prescribes a fixed e-consult template. Treat it as a workflow scaffold, not a guideline-mandated form.[ref:cdc-2022][ref:cdc-2016][ref:coffin-am-2022]</p>\n<p>Be specific: <em>\"Patient inherited on [X] MME/day of [agent] for [indication]. Prior pain management documentation: [present / limited / absent]. PDMP: [findings]. UDS: [confirms prescribed agent / unexpected finding]. Functional status: [PEG scores; brief description of work, ADLs, pain interference]. Concurrent benzodiazepine: [yes / no, plus dose / indication if yes]. Treatment goals discussed and documented. Please review current regimen and advise: (1) whether the dose is appropriate for the indication, (2) whether a structured gradual taper is indicated and at what rate, and (3) whether ongoing co-management is appropriate.\"</em>[ref:cdc-2022][ref:coffin-am-2022]</p>\n<p>Where the picture suggests OUD rather than (or alongside) chronic pain, reframe the consult: <em>\"Patient with chronic pain and possible OUD \u2014 please advise on MOUD candidacy and transition plan,\"</em> and route to addiction medicine rather than pain management.[ref:cdc-2022][ref:harris-jama-2026]</p>"
+                "question": "What is the consult ask at high dose?",
+                "answer_html": "<p>The structured ask below is institutional best practice consistent with the CDC 2022 assessment domains; no specific guideline (CDC, AAFP, ASAM, VA/DoD) prescribes a fixed consult template. Treat it as a workflow scaffold, not a guideline-mandated form.[ref:cdc-2022][ref:cdc-2016][ref:coffin-am-2022]</p>\n<p>Be specific: <em>\"Patient inherited on [X] MME/day of [agent] for [indication]. Prior pain management documentation: [present / limited / absent]. PDMP: [findings]. UDS: [confirms prescribed agent / unexpected finding]. Functional status: [PEG scores; brief description of work, ADLs, pain interference]. Concurrent benzodiazepine: [yes / no, plus dose / indication if yes]. Treatment goals discussed and documented. Please review current regimen and advise: (1) whether the dose is appropriate for the indication, (2) whether a structured gradual taper is indicated and at what rate, and (3) whether ongoing co-management is appropriate.\"</em>[ref:cdc-2022][ref:coffin-am-2022]</p>\n<p>Where the picture suggests OUD rather than (or alongside) chronic pain, reframe the consult: <em>\"Patient with chronic pain and possible OUD \u2014 please advise on MOUD candidacy and transition plan,\"</em> and route to addiction medicine rather than pain management.[ref:cdc-2022][ref:harris-jama-2026]</p>"
               },
               {
                 "question": "The patient tells me their prior doctor \"always\" prescribed this and they'll go elsewhere if I change anything.",
@@ -1649,7 +1841,7 @@
             "items": [
               {
                 "question": "I see fills from three different pharmacies. Is that diversion?",
-                "answer_html": "<p>It is a pattern that warrants clarification, not a confirmed finding. CDC 2022 flags multiple pharmacies as part of concerning patterns but does <strong>not</strong> define a specific numeric threshold; research has used \u2265 4 pharmacies in 90 days as a risk-behavior threshold.[ref:cdc-2022][ref:greene-ajadd-2017] Three is a reasonable clinical heuristic but should not be presented as a validated threshold.</p>\n<p>Common legitimate explanations include pharmacy closures, mail-order vs retail splits, travel, formulary or network changes, and specialty pharmacy requirements.[ref:cdc-2022] Ask directly and document the answer. A pattern of cash-pay fills at multiple locations without a coherent explanation is more concerning, but cash-pay alone is not the same as diversion (PDMPs capture cash-pay fills regardless of insurance status).[ref:cdc-2022][ref:manasco-pds-2016]</p>\n<p>Where the pattern is unexplained, confirm with send-out UDS to establish whether the patient is actually taking the prescribed medication. If the pattern remains unexplained and confirmed by UDS, this is a case for e-consult before continuing \u2014 but the pathway is investigation and care coordination, not dismissal.[ref:cdc-2022]</p>"
+                "answer_html": "<p>It is a pattern that warrants clarification, not a confirmed finding. CDC 2022 flags multiple pharmacies as part of concerning patterns but does <strong>not</strong> define a specific numeric threshold; research has used \u2265 4 pharmacies in 90 days as a risk-behavior threshold.[ref:cdc-2022][ref:greene-ajadd-2017] Three is a reasonable clinical heuristic but should not be presented as a validated threshold.</p>\n<p>Common legitimate explanations include pharmacy closures, mail-order vs retail splits, travel, formulary or network changes, and specialty pharmacy requirements.[ref:cdc-2022] Ask directly and document the answer. A pattern of cash-pay fills at multiple locations without a coherent explanation is more concerning, but cash-pay alone is not the same as diversion (PDMPs capture cash-pay fills regardless of insurance status).[ref:cdc-2022][ref:manasco-pds-2016]</p>\n<p>Where the pattern is unexplained, confirm with send-out UDS to establish whether the patient is actually taking the prescribed medication. If the pattern remains unexplained and confirmed by UDS, this is a case for consult before continuing \u2014 but the pathway is investigation and care coordination, not dismissal.[ref:cdc-2022]</p>"
               },
               {
                 "question": "What do I document when I find a PDMP concern?",
@@ -1667,7 +1859,7 @@
             "items": [
               {
                 "question": "How many early refill requests trigger a formal response?",
-                "answer_html": "<p><span class=\"pill neutral\">Provenance note</span> The escalation framework below is a <strong>practice-level convention</strong>; no published guideline (CDC 2022, VA/DoD 2022, APS/AAPM, ASAM) specifies numeric early-refill thresholds. The closest published data point is APS/AAPM 2009: \"one or two episodes of unauthorized opioid escalations\" in low-risk patients can often be managed with education and enhanced monitoring, while \"4+ previous aberrant drug-related behaviors\" (any type, not just early refills) is the inflection point for substance-use-disorder concern.[ref:aps-aapm-chou-2009][ref:cdc-2022][ref:vadod-2022][ref:arnold-aafp-2023] CDC 2022 deliberately avoids rigid thresholds and emphasizes individualized clinical judgment.[ref:cdc-2022][ref:arnold-aafp-2023]</p>\n<p><span class=\"pill neutral\">1 request</span> \u2014 warrants a conversation and documentation. Kern PM 2020: ~10% of opioid patients have an early refill (\u2265 15% early relative to days' supply); 75% of those patients have only one. A single early refill is common and often benign \u2014 vacation prep, dose adjustments, 14-day refills written as 30-day supply.[ref:kern-pm-2020][ref:liebschutz-jamaim-2017]</p>\n<p><span class=\"pill warn\">2+ in 12 months</span> \u2014 practice-level convention triggering a formal documented conversation within the CS agreement framework, a UDS, and a PDMP review. Note: PDMP review is mandatory under NY I-STOP <strong>before every prescription</strong> (not just at this threshold), and required in NJ at initial-plus-quarterly cadence under NJSA 45:1-46.1; the 2+ trigger does not lower the regulatory baseline.[ref:ny-pbh-3343a][ref:nj-njsa-45-1-46-1] UDS should also be part of <strong>baseline monitoring for all chronic-opiate patients</strong>, not triggered only by behavioral flags.[ref:cdc-2016][ref:cdc-2022][ref:jannetto-jalm-2018]</p>\n<p><span class=\"pill warn\">3+ in 12 months</span> \u2014 practice-level convention warranting e-consult before continuation. Apply the differential below before assuming misuse.</p>\n<p><span class=\"pill warn\">Differential before interpretation</span> Aberrant behaviors have a <strong>differential diagnosis</strong> \u2014 they may reflect undertreated pain, psychiatric comorbidity, social stressors, or opioid use disorder, not exclusively misuse.[ref:cdc-2022][ref:aps-aapm-chou-2009] Document the pattern; interpret only after clinical assessment. CDC 2022 specifically warns against using monitoring findings in a punitive manner.[ref:cdc-2022][ref:arnold-aafp-2023]</p>\n<p>Document each instance at the time it occurs \u2014 date of request, reason given, clinical response, monitoring actions taken. Patterns are only visible in retrospect if the individual events are in the chart.[ref:aps-aapm-chou-2009][ref:webster-pmr-2015][ref:acoem-2017-otc]</p>"
+                "answer_html": "<p><span class=\"pill neutral\">Provenance note</span> The escalation framework below is a <strong>practice-level convention</strong>; no published guideline (CDC 2022, VA/DoD 2022, APS/AAPM, ASAM) specifies numeric early-refill thresholds. The closest published data point is APS/AAPM 2009: \"one or two episodes of unauthorized opioid escalations\" in low-risk patients can often be managed with education and enhanced monitoring, while \"4+ previous aberrant drug-related behaviors\" (any type, not just early refills) is the inflection point for substance-use-disorder concern.[ref:aps-aapm-chou-2009][ref:cdc-2022][ref:vadod-2022][ref:arnold-aafp-2023] CDC 2022 deliberately avoids rigid thresholds and emphasizes individualized clinical judgment.[ref:cdc-2022][ref:arnold-aafp-2023]</p>\n<p><span class=\"pill neutral\">1 request</span> \u2014 warrants a conversation and documentation. Kern PM 2020: ~10% of opioid patients have an early refill (\u2265 15% early relative to days' supply); 75% of those patients have only one. A single early refill is common and often benign \u2014 vacation prep, dose adjustments, 14-day refills written as 30-day supply.[ref:kern-pm-2020][ref:liebschutz-jamaim-2017]</p>\n<p><span class=\"pill warn\">2+ in 12 months</span> \u2014 practice-level convention triggering a formal documented conversation within the CS agreement framework, a UDS, and a PDMP review. Note: PDMP review is mandatory under NY I-STOP <strong>before every prescription</strong> (not just at this threshold), and required in NJ at initial-plus-quarterly cadence under NJSA 45:1-46.1; the 2+ trigger does not lower the regulatory baseline.[ref:ny-pbh-3343a][ref:nj-njsa-45-1-46-1] UDS should also be part of <strong>baseline monitoring for all chronic-opiate patients</strong>, not triggered only by behavioral flags.[ref:cdc-2016][ref:cdc-2022][ref:jannetto-jalm-2018]</p>\n<p><span class=\"pill warn\">3+ in 12 months</span> \u2014 practice-level convention warranting consult before continuation. Apply the differential below before assuming misuse.</p>\n<p><span class=\"pill warn\">Differential before interpretation</span> Aberrant behaviors have a <strong>differential diagnosis</strong> \u2014 they may reflect undertreated pain, psychiatric comorbidity, social stressors, or opioid use disorder, not exclusively misuse.[ref:cdc-2022][ref:aps-aapm-chou-2009] Document the pattern; interpret only after clinical assessment. CDC 2022 specifically warns against using monitoring findings in a punitive manner.[ref:cdc-2022][ref:arnold-aafp-2023]</p>\n<p>Document each instance at the time it occurs \u2014 date of request, reason given, clinical response, monitoring actions taken. Patterns are only visible in retrospect if the individual events are in the chart.[ref:aps-aapm-chou-2009][ref:webster-pmr-2015][ref:acoem-2017-otc]</p>"
               },
               {
                 "question": "The patient calls repeatedly between visits asking for early refills, dose increases, or exceptions. How do I manage this?",
@@ -1693,7 +1885,7 @@
               },
               {
                 "question": "If I think this is OUD, what is the pathway?",
-                "answer_html": "<p>MOUD \u2014 medication for opioid use disorder \u2014 significantly outperforms taper or discontinuation for outcomes including overdose survival. The three MOUDs are <strong>not equivalent</strong>:[ref:harris-jama-2026][ref:wakeman-jamaopen-2020][ref:wakeman-nejmevid-2022][ref:lim-plosone-2022][ref:blanco-lancet-2019]</p>\n<p><span class=\"pill green\">Buprenorphine</span> all-cause mortality reduction RR <strong>0.34 (95% CI 0.26\u20130.45, ~60% reduction)</strong>; first-line for primary care because office-based induction is feasible.[ref:harris-jama-2026][ref:buresh-bmj-2021]</p>\n<p><span class=\"pill green\">Methadone</span> all-cause mortality reduction RR <strong>0.47 (95% CI 0.41\u20130.54, ~50% reduction)</strong>; highest retention in network meta-analysis.[ref:harris-jama-2026][ref:lim-plosone-2022] Federally restricted to SAMHSA-certified Opioid Treatment Programs for outpatient OUD treatment.[ref:calcaterra-jamaopen-2025]</p>\n<p><span class=\"pill warn\">Naltrexone</span> Oral naltrexone is <strong>no more effective than placebo</strong>; extended-release injectable naltrexone shows benefit over no medication but is inferior to buprenorphine in intention-to-treat analyses due to the 7\u201310-day opioid-free induction barrier. Wakeman 2020 comparative effectiveness: only buprenorphine and methadone were associated with reduced overdose and opioid-related acute care vs no treatment; naltrexone, inpatient detox, and behavioral interventions showed no significant benefit at 3-month follow-up.[ref:harris-jama-2026][ref:wakeman-jamaopen-2020][ref:wakeman-nejmevid-2022]</p>\n<p><span class=\"pill neutral\">Buprenorphine \u2014 primary care scope</span> The X-waiver was eliminated in December 2022 by the Mainstreaming Addiction Treatment (MAT) Act; any practitioner with a standard DEA registration and Schedule III prescribing authority can now prescribe buprenorphine for OUD with no patient caps.[ref:lefevre-jabfm-2023][ref:acog-mate-2025][ref:varisco-japha-2023] The MATE Act requires 8 hours of training on substance use disorders for new or renewed DEA registrations (self-attestation).[ref:acog-mate-2025] State-level regulations may still impose additional requirements not aligned with the federal change \u2014 verify NY-specific and NJ-specific buprenorphine-prescribing requirements with your compliance office at the time of use.[ref:arnold-aafp-2023][ref:lefevre-jabfm-2023] Removing the X-waiver has increased the prescriber pool but has not yet translated into commensurate increases in patients receiving buprenorphine; interest, comfort, and systems-level barriers remain primary obstacles.[ref:christine-jamaopen-2024][ref:chua-nejm-2024][ref:ostrach-japha-2023]</p>\n<p><span class=\"pill neutral\">Methadone \u2014 what PCPs can and cannot do</span> A DEA-registered PCP <strong>cannot</strong> prescribe methadone for OUD to be filled at an outpatient pharmacy \u2014 outpatient methadone for OUD is restricted to SAMHSA-certified OTPs.[ref:calcaterra-jamaopen-2025][ref:harris-jama-2026][ref:cdc-2022] Important exceptions: (a) <strong>72-hour rule</strong> \u2014 any clinician may <em>administer</em> (not prescribe) methadone for up to 72 hours to treat acute opioid withdrawal while arranging OTP referral; updated regulations allow a 3-day supply dispensed at one time;[ref:calcaterra-jamaopen-2025][ref:harris-jama-2026] (b) <strong>hospital exception</strong> \u2014 hospitalized patients can be initiated on or continued on methadone during inpatient stays;[ref:harris-jama-2026][ref:cdc-2022] (c) <strong>methadone for pain \u2260 methadone for OUD</strong> \u2014 methadone CAN be prescribed by any DEA-registered clinician for a pain indication and filled at retail pharmacy, but not for OUD.[ref:calcaterra-jamaopen-2025] Active policy advocacy is exploring pharmacy-based methadone dispensing for OUD; not yet law.[ref:tschampl-jamaopen-2026]</p>\n<p>The e-consult framing shifts: instead of \"please review pain management plan,\" it becomes <em>\"patient with chronic pain and possible OUD \u2014 please advise on MOUD candidacy and transition plan,\"</em> and routes to addiction medicine rather than pain management.[ref:cdc-2022][ref:harris-jama-2026]</p>\n<p><span class=\"pill warn\">Person-first language and NIDA terminology</span> CDC 2022: \"opioid use disorder is a chronic, treatable disease from which persons can recover\"; ASAM and AAFP both emphasize compassionate, non-judgmental, person-first communication. Use \"patient with opioid use disorder,\" not \"opioid abuser\" or \"addict\"; avoid volitional-failure language (\"refuses to comply,\" \"non-compliant\"); reference NIDA's terminology guide for documentation standards.[ref:cdc-2022][ref:gibson-asam-2024][ref:kowalchuk-aafp-2024][ref:blanco-lancet-2019][ref:volkow-jamapsych-2019]</p>"
+                "answer_html": "<p>MOUD \u2014 medication for opioid use disorder \u2014 significantly outperforms taper or discontinuation for outcomes including overdose survival. The three MOUDs are <strong>not equivalent</strong>:[ref:harris-jama-2026][ref:wakeman-jamaopen-2020][ref:wakeman-nejmevid-2022][ref:lim-plosone-2022][ref:blanco-lancet-2019]</p>\n<p><span class=\"pill green\">Buprenorphine</span> all-cause mortality reduction RR <strong>0.34 (95% CI 0.26\u20130.45, ~60% reduction)</strong>; first-line for primary care because office-based induction is feasible.[ref:harris-jama-2026][ref:buresh-bmj-2021]</p>\n<p><span class=\"pill green\">Methadone</span> all-cause mortality reduction RR <strong>0.47 (95% CI 0.41\u20130.54, ~50% reduction)</strong>; highest retention in network meta-analysis.[ref:harris-jama-2026][ref:lim-plosone-2022] Federally restricted to SAMHSA-certified Opioid Treatment Programs for outpatient OUD treatment.[ref:calcaterra-jamaopen-2025]</p>\n<p><span class=\"pill warn\">Naltrexone</span> Oral naltrexone is <strong>no more effective than placebo</strong>; extended-release injectable naltrexone shows benefit over no medication but is inferior to buprenorphine in intention-to-treat analyses due to the 7\u201310-day opioid-free induction barrier. Wakeman 2020 comparative effectiveness: only buprenorphine and methadone were associated with reduced overdose and opioid-related acute care vs no treatment; naltrexone, inpatient detox, and behavioral interventions showed no significant benefit at 3-month follow-up.[ref:harris-jama-2026][ref:wakeman-jamaopen-2020][ref:wakeman-nejmevid-2022]</p>\n<p><span class=\"pill neutral\">Buprenorphine \u2014 primary care scope</span> The X-waiver was eliminated in December 2022 by the Mainstreaming Addiction Treatment (MAT) Act; any practitioner with a standard DEA registration and Schedule III prescribing authority can now prescribe buprenorphine for OUD with no patient caps.[ref:lefevre-jabfm-2023][ref:acog-mate-2025][ref:varisco-japha-2023] The MATE Act requires 8 hours of training on substance use disorders for new or renewed DEA registrations (self-attestation).[ref:acog-mate-2025] State-level regulations may still impose additional requirements not aligned with the federal change \u2014 verify NY-specific and NJ-specific buprenorphine-prescribing requirements with your compliance office at the time of use.[ref:arnold-aafp-2023][ref:lefevre-jabfm-2023] Removing the X-waiver has increased the prescriber pool but has not yet translated into commensurate increases in patients receiving buprenorphine; interest, comfort, and systems-level barriers remain primary obstacles.[ref:christine-jamaopen-2024][ref:chua-nejm-2024][ref:ostrach-japha-2023]</p>\n<p><span class=\"pill neutral\">Methadone \u2014 what PCPs can and cannot do</span> A DEA-registered PCP <strong>cannot</strong> prescribe methadone for OUD to be filled at an outpatient pharmacy \u2014 outpatient methadone for OUD is restricted to SAMHSA-certified OTPs.[ref:calcaterra-jamaopen-2025][ref:harris-jama-2026][ref:cdc-2022] Important exceptions: (a) <strong>72-hour rule</strong> \u2014 any clinician may <em>administer</em> (not prescribe) methadone for up to 72 hours to treat acute opioid withdrawal while arranging OTP referral; updated regulations allow a 3-day supply dispensed at one time;[ref:calcaterra-jamaopen-2025][ref:harris-jama-2026] (b) <strong>hospital exception</strong> \u2014 hospitalized patients can be initiated on or continued on methadone during inpatient stays;[ref:harris-jama-2026][ref:cdc-2022] (c) <strong>methadone for pain \u2260 methadone for OUD</strong> \u2014 methadone CAN be prescribed by any DEA-registered clinician for a pain indication and filled at retail pharmacy, but not for OUD.[ref:calcaterra-jamaopen-2025] Active policy advocacy is exploring pharmacy-based methadone dispensing for OUD; not yet law.[ref:tschampl-jamaopen-2026]</p>\n<p>The consult framing shifts: instead of \"please review pain management plan,\" it becomes <em>\"patient with chronic pain and possible OUD \u2014 please advise on MOUD candidacy and transition plan,\"</em> and routes to addiction medicine rather than pain management.[ref:cdc-2022][ref:harris-jama-2026]</p>\n<p><span class=\"pill warn\">Person-first language and NIDA terminology</span> CDC 2022: \"opioid use disorder is a chronic, treatable disease from which persons can recover\"; ASAM and AAFP both emphasize compassionate, non-judgmental, person-first communication. Use \"patient with opioid use disorder,\" not \"opioid abuser\" or \"addict\"; avoid volitional-failure language (\"refuses to comply,\" \"non-compliant\"); reference NIDA's terminology guide for documentation standards.[ref:cdc-2022][ref:gibson-asam-2024][ref:kowalchuk-aafp-2024][ref:blanco-lancet-2019][ref:volkow-jamapsych-2019]</p>"
               },
               {
                 "question": "Can I continue the opiate while initiating an OUD evaluation?",
@@ -1798,10 +1990,107 @@
         ]
       },
       {
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "module_id": "benzos",
         "default_title": "Benzodiazepines \u2014 Inherited Patient",
         "recommended_calculators": ["gad7", "phq9", "audit-c"],
+        "consults": [
+          {
+            "consult_id": "addiction-medicine-benzo",
+            "specialty": "addiction medicine",
+            "label": "Addiction medicine consult",
+            "blurb": "Benzodiazepine use disorder, complex taper, polysubstance.",
+            "modality": "either",
+            "decision_tree": [
+              {
+                "question": "Are there signs of benzodiazepine use disorder (DSM-5 sedative-hypnotic-anxiolytic UD criteria, escalation, loss of control, or aberrant PDMP pattern)?",
+                "hint": "ASAM 2025 guidance: dependence (physiologic) is expected on chronic therapy and is NOT itself a UD diagnosis; UD requires DSM-5 criteria beyond tolerance/withdrawal.",
+                "if_yes": "continue",
+                "if_no": "polysubstance"
+              },
+              {
+                "node_id": "polysubstance",
+                "question": "Is there concurrent OUD, AUD, or other SUD on the same patient?",
+                "if_yes": "continue",
+                "if_no": "block",
+                "block_text": "Without UD or polysubstance concerns, the consult is more naturally psychiatry (for the underlying anxiety / insomnia driver) or geriatrics (for older adults on chronic benzos). Try those paths."
+              },
+              {
+                "question": "Does the patient have a complex taper need \u2014 high diazepam-equivalent dose (>15 mg/day), multi-month course, prior failed taper, or co-occurring opioid taper?",
+                "if_yes": "recommend",
+                "if_no": "recommend"
+              }
+            ],
+            "fields": [
+              {
+                "key": "regimen",
+                "label": "Current regimen + diazepam-equivalent total",
+                "default": ""
+              },
+              {
+                "key": "duration",
+                "label": "Duration on current regimen",
+                "default": ""
+              },
+              {
+                "key": "ud_signs",
+                "label": "UD signs / polysubstance context",
+                "default": ""
+              }
+            ],
+            "output_template": "Addiction medicine consult \u2014 benzodiazepine UD or complex taper\n\nRegimen: ${regimen}\nDuration: ${duration}\nUD signs / polysubstance: ${ud_signs}\n\nWorkup completed:\n- PDMP reviewed (NY I-STOP / NJ PMP)\n- ASAM/ACMT 2025 tier framework applied (low / mod / high diazepam-equivalent)\n- DSM-5 sedative-hypnotic-anxiolytic UD criteria assessed; tolerance/withdrawal alone NOT counted as UD\n- OUD / OAT status confirmed (buprenorphine/methadone NOT withheld for benzo use)\n\nQuestion: Please advise on co-management, taper sequencing (recognizing the 26-guideline scoping review by Wang JCM 2023 found 4 conflicting taper-order recommendations), and whether MOUD/MAT adjustments are needed.",
+            "refs": [
+              "asam-acmt-2025",
+              "asam-acmt-jgim-2025",
+              "wang-jcm-2023"
+            ]
+          },
+          {
+            "consult_id": "geriatric-psychiatry",
+            "specialty": "geriatric psychiatry",
+            "label": "Geriatric psychiatry consult",
+            "blurb": "Older adults on chronic benzos \u2014 Beers, falls, MCI, taper-with-cognitive-disclosure.",
+            "modality": "either",
+            "decision_tree": [
+              {
+                "question": "Is the patient \u2265 65 years old?",
+                "hint": "Geriatric psychiatry's added value (Beers, falls, MCI framing, cognitive-reversibility counseling) is strongest in this population.",
+                "if_yes": "continue",
+                "if_no": "block",
+                "block_text": "Outside of older adults, the patient may be better served by general psychiatry (anxiety/insomnia driver) or addiction medicine (UD/polysubstance)."
+              },
+              {
+                "question": "Does the patient have any of: falls history, MCI/dementia, on chronic benzos despite Beers, or active taper with cognitive concerns?",
+                "hint": "Per Bundle 8 DD1 (benzo verification): cognitive reversibility after discontinuation in older adults is partial / domain-specific. Geriatric psychiatry is well-positioned to set patient/family expectations honestly.",
+                "if_yes": "recommend",
+                "if_no": "block",
+                "block_text": "Without one of these triggers, the older-adult patient may still benefit from PCP-level Beers framing without specialist input. Document rationale and reassess at next visit."
+              }
+            ],
+            "fields": [
+              {
+                "key": "age",
+                "label": "Age",
+                "default": ""
+              },
+              {
+                "key": "regimen",
+                "label": "Current regimen + diazepam-equivalent",
+                "default": ""
+              },
+              {
+                "key": "trigger",
+                "label": "Trigger (falls / MCI / Beers / taper)",
+                "default": ""
+              }
+            ],
+            "output_template": "Geriatric psychiatry consult \u2014 older adult on chronic benzodiazepine\n\nAge: ${age}\nRegimen: ${regimen}\nTrigger: ${trigger}\n\nFramework: AGS Beers 2023 (general rule with named exceptions: seizure, RBD, catatonia, treatment-resistant GAD, palliative). Module framing explicitly does NOT promise cognitive improvement to MCI patients/families \u2014 taper benefit is decline-prevention + fall/accident risk reduction + acute-side-effect reversibility.\n\nQuestion: Please advise on taper schedule, cognitive-reversibility counseling for the patient/family, and whether the current regimen falls within a Beers-named exception.",
+            "refs": [
+              "ags-beers-2023-jgs",
+              "asam-acmt-2025"
+            ]
+          }
+        ],
         "landing_intro": "A patient is transferring to your panel on a chronic benzodiazepine regimen. This is among the most clinically and emotionally charged handoffs in primary care. Benzodiazepine-dependent patients have often been on these medications for years, frequently have no memory of why they were started, and are acutely sensitive to any suggestion of change. Your job at the first visit is not to taper \u2014 it is to assess, document, establish trust, and determine the appropriate pathway forward.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025][ref:shuey-jamaim-2026] Abrupt discontinuation of chronic benzodiazepines can precipitate withdrawal seizure and, rarely, death; severity is dose-, duration-, and agent-dependent and is overwhelmingly polysubstance-related when fatal.[ref:fda-ativan-2025][ref:aafp-robertson-2023] Some short-term or low-dose patients can discontinue without a structured taper, but the inherited-patient default is never to stop or sharply reduce at the first visit absent imminent safety risks (overdose, acute somnolence, delirium, signs of diversion, falls, or suicidality).[ref:shuey-jamaim-2026][ref:asam-acmt-2025]",
         "checklist_section_label": "Before you decide \u2014 verify all four",
         "checklist": [
@@ -1894,7 +2183,7 @@
               },
               {
                 "question": "The patient is getting benzos from a psychiatrist and wants me to continue prescribing as well. Is that appropriate?",
-                "answer_html": "<p>No \u2014 benzodiazepines should have a single prescriber. If a psychiatrist is managing the underlying indication, the psychiatrist should own the prescription. If the patient is transitioning care and the psychiatrist is no longer involved, document the gap and initiate a warm handoff or e-consult before you assume the prescription. NY's I-STOP framework permits prescribers to contact other prescribers identified in the PMP <strong>without explicit patient permission</strong>, which makes the warm-handoff workflow operationally tractable in NY.[ref:istop-virani2018]</p>\n<p>Two providers co-prescribing the same controlled substance class without explicit coordination is a malpractice / standard-of-care convention concern grounded in 21 CFR \u00a71306.04 (\"legitimate medical purpose\u2026in the usual course of his professional practice\"); there is no specific federal statute prohibiting dual prescribers, but the clinical action \u2014 single prescriber \u2014 is sound and the documentation convention is well-established.[ref:cfr-1306-04]</p>"
+                "answer_html": "<p>No \u2014 benzodiazepines should have a single prescriber. If a psychiatrist is managing the underlying indication, the psychiatrist should own the prescription. If the patient is transitioning care and the psychiatrist is no longer involved, document the gap and initiate a warm handoff or consult before you assume the prescription. NY's I-STOP framework permits prescribers to contact other prescribers identified in the PMP <strong>without explicit patient permission</strong>, which makes the warm-handoff workflow operationally tractable in NY.[ref:istop-virani2018]</p>\n<p>Two providers co-prescribing the same controlled substance class without explicit coordination is a malpractice / standard-of-care convention concern grounded in 21 CFR \u00a71306.04 (\"legitimate medical purpose\u2026in the usual course of his professional practice\"); there is no specific federal statute prohibiting dual prescribers, but the clinical action \u2014 single prescriber \u2014 is sound and the documentation convention is well-established.[ref:cfr-1306-04]</p>"
               },
               {
                 "question": "How often is PDMP review required for benzo patients?",
@@ -1912,11 +2201,11 @@
             "items": [
               {
                 "question": "The chart has no documented indication. The patient just says they've been on it \"forever.\" What do I do?",
-                "answer_html": "<p>This is extremely common and does not by itself require you to stop prescribing.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025][ref:aafp-robertson-2023] Your task is to establish an indication going forward \u2014 even if the original rationale is lost to history.</p>\n<p>Conduct a brief structured assessment at this visit: What symptoms does the medication treat? What happens when doses are missed? Is there an underlying anxiety disorder, panic disorder, or other condition that a proper diagnosis would capture? Document your clinical impression as the current indication. If no legitimate indication can be established, this is an e-consult trigger \u2014 not a reason to stop today. ASAM/ACMT 2024\u20132025 names <strong>addiction medicine, addiction psychiatry, or medical toxicology</strong> as the specialists with requisite expertise (geriatric psychiatry/medicine for older adults); general psychiatry is not the singled-out default.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025]</p>"
+                "answer_html": "<p>This is extremely common and does not by itself require you to stop prescribing.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025][ref:aafp-robertson-2023] Your task is to establish an indication going forward \u2014 even if the original rationale is lost to history.</p>\n<p>Conduct a brief structured assessment at this visit: What symptoms does the medication treat? What happens when doses are missed? Is there an underlying anxiety disorder, panic disorder, or other condition that a proper diagnosis would capture? Document your clinical impression as the current indication. If no legitimate indication can be established, this is an consult trigger \u2014 not a reason to stop today. ASAM/ACMT 2024\u20132025 names <strong>addiction medicine, addiction psychiatry, or medical toxicology</strong> as the specialists with requisite expertise (geriatric psychiatry/medicine for older adults); general psychiatry is not the singled-out default.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025]</p>"
               },
               {
                 "question": "The original indication was insomnia. Is that a supportable long-term indication?",
-                "answer_html": "<p>Five benzodiazepines <strong>are</strong> FDA-approved for insomnia (temazepam, triazolam, quazepam, flurazepam, estazolam), but the labeling is for short-term use only (\"generally 7 to 10 days\").[ref:aafp-matheson-2024][ref:temazepam-fda] Guidelines uniformly recommend against long-term benzodiazepine use for chronic insomnia: VA/DoD 2019 specifically advises against benzos for chronic insomnia disorder; ACP 2016 recommends CBT-I as first-line; the 2022 Lancet network meta-analysis found no long-term trial data supporting benzodiazepines for insomnia.[ref:vadod-insomnia-2019][ref:acp-qaseem-2016][ref:lancet-decrescenzo-2022]</p>\n<p>If insomnia is the only documented indication, the patient likely has physical dependence without an ongoing therapeutic justification. This does not mean immediate taper \u2014 it means the e-consult framing is <em>\"patient on chronic benzodiazepine for insomnia indication, no psychiatric diagnosis on file, please advise on taper planning and alternative management.\"</em></p>\n<p>CBT-I (cognitive behavioral therapy for insomnia) is the evidence-based first-line treatment and can be initiated in parallel.[ref:morin-nejm-2024] When in-person CBT-I is unavailable, digital CBT-I (VA Insomnia Coach app, SleepEZ, etc.) is an evidence-supported alternative.[ref:morin-nejm-2024][ref:steinman-jgs-2025] For pharmacologic alternatives with longer-term efficacy data, eszopiclone and the dual orexin receptor antagonists (suvorexant, lemborexant, daridorexant) are guideline-supported and do not carry the same 4\u20135 week limitation as benzodiazepines.[ref:aafp-matheson-2024][ref:morin-nejm-2024]</p>"
+                "answer_html": "<p>Five benzodiazepines <strong>are</strong> FDA-approved for insomnia (temazepam, triazolam, quazepam, flurazepam, estazolam), but the labeling is for short-term use only (\"generally 7 to 10 days\").[ref:aafp-matheson-2024][ref:temazepam-fda] Guidelines uniformly recommend against long-term benzodiazepine use for chronic insomnia: VA/DoD 2019 specifically advises against benzos for chronic insomnia disorder; ACP 2016 recommends CBT-I as first-line; the 2022 Lancet network meta-analysis found no long-term trial data supporting benzodiazepines for insomnia.[ref:vadod-insomnia-2019][ref:acp-qaseem-2016][ref:lancet-decrescenzo-2022]</p>\n<p>If insomnia is the only documented indication, the patient likely has physical dependence without an ongoing therapeutic justification. This does not mean immediate taper \u2014 it means the consult framing is <em>\"patient on chronic benzodiazepine for insomnia indication, no psychiatric diagnosis on file, please advise on taper planning and alternative management.\"</em></p>\n<p>CBT-I (cognitive behavioral therapy for insomnia) is the evidence-based first-line treatment and can be initiated in parallel.[ref:morin-nejm-2024] When in-person CBT-I is unavailable, digital CBT-I (VA Insomnia Coach app, SleepEZ, etc.) is an evidence-supported alternative.[ref:morin-nejm-2024][ref:steinman-jgs-2025] For pharmacologic alternatives with longer-term efficacy data, eszopiclone and the dual orexin receptor antagonists (suvorexant, lemborexant, daridorexant) are guideline-supported and do not carry the same 4\u20135 week limitation as benzodiazepines.[ref:aafp-matheson-2024][ref:morin-nejm-2024]</p>"
               },
               {
                 "question": "What about anxiety that has never been formally diagnosed?",
@@ -1978,7 +2267,7 @@
             "items": [
               {
                 "question": "I've inherited a patient on both. What is my first move?",
-                "answer_html": "<p>Do not prescribe both at this visit without a safety plan in place. The FDA <strong>boxed warning</strong> (the correct term \u2014 not \"black box\") on benzodiazepines + opioids calls for using lowest doses and minimum durations rather than prohibiting all co-prescribing; CDC 2022 downgraded the concurrent-prescribing recommendation to Category B (discretionary, individualized).[ref:fda-ativan-2025][ref:cdc-opioid-2022][ref:asam-acmt-2025]</p>\n<p><strong>Critical OUD-OAT carve-out:</strong> the FDA explicitly clarified that buprenorphine and methadone for opioid use disorder treatment should NOT be withheld due to benzodiazepine use. Reflexive \"benzo + opioid = stop everything\" can be more dangerous than the combination itself when the opioid is OAT.[ref:asam-acmt-2025]</p>\n<p>At this visit: assess which medication is primary (which indication is more severe, which has been in place longer), prescribe whichever is more immediately necessary with a one-time bridge supply if needed, and <strong>prescribe naloxone</strong> with household education on administration. Naloxone co-prescribing + household education reduced ED visits by <strong>63%</strong> in long-term opioid users (Babu NEJM 2019); ASAM/ACMT makes a strong consensus recommendation to offer naloxone for all patients co-prescribed BZDs and opioids.[ref:babu-nejm-2019][ref:asam-acmt-2025]</p>\n<p>Initiate urgent e-consults to specialists with the requisite expertise: ASAM/ACMT 2024\u20132025 specifically names <strong>addiction medicine, addiction psychiatry, medical toxicology</strong> for the benzo side (geriatric psychiatry/medicine for older adults); pain medicine/management for the opioid side. General psychiatry is not the singled-out default.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025]</p>"
+                "answer_html": "<p>Do not prescribe both at this visit without a safety plan in place. The FDA <strong>boxed warning</strong> (the correct term \u2014 not \"black box\") on benzodiazepines + opioids calls for using lowest doses and minimum durations rather than prohibiting all co-prescribing; CDC 2022 downgraded the concurrent-prescribing recommendation to Category B (discretionary, individualized).[ref:fda-ativan-2025][ref:cdc-opioid-2022][ref:asam-acmt-2025]</p>\n<p><strong>Critical OUD-OAT carve-out:</strong> the FDA explicitly clarified that buprenorphine and methadone for opioid use disorder treatment should NOT be withheld due to benzodiazepine use. Reflexive \"benzo + opioid = stop everything\" can be more dangerous than the combination itself when the opioid is OAT.[ref:asam-acmt-2025]</p>\n<p>At this visit: assess which medication is primary (which indication is more severe, which has been in place longer), prescribe whichever is more immediately necessary with a one-time bridge supply if needed, and <strong>prescribe naloxone</strong> with household education on administration. Naloxone co-prescribing + household education reduced ED visits by <strong>63%</strong> in long-term opioid users (Babu NEJM 2019); ASAM/ACMT makes a strong consensus recommendation to offer naloxone for all patients co-prescribed BZDs and opioids.[ref:babu-nejm-2019][ref:asam-acmt-2025]</p>\n<p>Initiate urgent consults to specialists with the requisite expertise: ASAM/ACMT 2024\u20132025 specifically names <strong>addiction medicine, addiction psychiatry, medical toxicology</strong> for the benzo side (geriatric psychiatry/medicine for older adults); pain medicine/management for the opioid side. General psychiatry is not the singled-out default.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025]</p>"
               },
               {
                 "question": "The patient has been on both for years with no adverse events. Doesn't that suggest it's safe for them specifically?",
@@ -1986,7 +2275,7 @@
               },
               {
                 "question": "Who owns the taper \u2014 me, psychiatry, or pain management?",
-                "answer_html": "<p>The taper of a patient on both opioids and benzodiazepines requires coordination between providers. As the PCP you own care coordination and shared decision-making about which medication to taper; you do not necessarily own execution of both tapers.[ref:cdc-opioid-2022][ref:asam-acmt-2025]</p>\n<p>The \"always taper the benzo first because of seizure risk\" rule is <strong>wrong</strong>. CDC 2016 explicitly suggests opioids may be safer to taper first (\"safer and more practical to taper opioids first\"); CDC 2022 deliberately moved to individualization; ASAM/ACMT 2024\u20132025 recommends shared decision-making with no universal sequence. A 2023 scoping review of <strong>26 guidelines</strong> on benzo+opioid co-prescribing/deprescribing found <strong>4 give explicitly conflicting recommendations on taper sequence</strong>.[ref:cdc-opioid-2016][ref:cdc-opioid-2022][ref:asam-acmt-2025][ref:wang-jcm-2023]</p>\n<p>The e-consult is not a hand-off \u2014 you remain the primary care provider. It is a request for a specific plan that accounts for this patient's risk profile (recency of co-prescribing, dose of each agent, OAT vs analgesic opioid, comorbidities, prior taper attempts).</p>"
+                "answer_html": "<p>The taper of a patient on both opioids and benzodiazepines requires coordination between providers. As the PCP you own care coordination and shared decision-making about which medication to taper; you do not necessarily own execution of both tapers.[ref:cdc-opioid-2022][ref:asam-acmt-2025]</p>\n<p>The \"always taper the benzo first because of seizure risk\" rule is <strong>wrong</strong>. CDC 2016 explicitly suggests opioids may be safer to taper first (\"safer and more practical to taper opioids first\"); CDC 2022 deliberately moved to individualization; ASAM/ACMT 2024\u20132025 recommends shared decision-making with no universal sequence. A 2023 scoping review of <strong>26 guidelines</strong> on benzo+opioid co-prescribing/deprescribing found <strong>4 give explicitly conflicting recommendations on taper sequence</strong>.[ref:cdc-opioid-2016][ref:cdc-opioid-2022][ref:asam-acmt-2025][ref:wang-jcm-2023]</p>\n<p>The consult is not a hand-off \u2014 you remain the primary care provider. It is a request for a specific plan that accounts for this patient's risk profile (recency of co-prescribing, dose of each agent, OAT vs analgesic opioid, comorbidities, prior taper attempts).</p>"
               }
             ]
           },
@@ -2004,10 +2293,10 @@
               },
               {
                 "question": "My patient is on alprazolam 2 mg TID. Is that high dose?",
-                "answer_html": "<p>Yes. Alprazolam 2 mg TID = 6 mg/day alprazolam \u2248 diazepam 60 mg equivalent \u2014 <strong>well above the 15 mg ASAM/ACMT high-dose threshold</strong> and into the secondary \u226540 mg DSM-5-TR severe-withdrawal-risk tier.[ref:asam-acmt-2025][ref:dsm5tr]</p>\n<p>Alprazolam is additionally concerning because of its short half-life and rapid dependence onset: ASAM notes alprazolam \"tends to be associated with a more rapid onset of physical dependence\" and is \"difficult to taper given that it is short-acting and has no active metabolites\" \u2014 taper appropriate after as little as 2\u20134 weeks of daily use (vs \u22653 months \u22654 days/week for other benzos).[ref:asam-acmt-2025][ref:alprazolam-fda] FDA labeling recommends taper by no more than <strong>0.5 mg every 3 days</strong>.[ref:alprazolam-fda]</p>\n<p>This patient needs specialist e-consult (addiction medicine / addiction psychiatry / medical toxicology) before you continue prescribing at this dose. Document the equivalent calculation in the chart.</p>"
+                "answer_html": "<p>Yes. Alprazolam 2 mg TID = 6 mg/day alprazolam \u2248 diazepam 60 mg equivalent \u2014 <strong>well above the 15 mg ASAM/ACMT high-dose threshold</strong> and into the secondary \u226540 mg DSM-5-TR severe-withdrawal-risk tier.[ref:asam-acmt-2025][ref:dsm5tr]</p>\n<p>Alprazolam is additionally concerning because of its short half-life and rapid dependence onset: ASAM notes alprazolam \"tends to be associated with a more rapid onset of physical dependence\" and is \"difficult to taper given that it is short-acting and has no active metabolites\" \u2014 taper appropriate after as little as 2\u20134 weeks of daily use (vs \u22653 months \u22654 days/week for other benzos).[ref:asam-acmt-2025][ref:alprazolam-fda] FDA labeling recommends taper by no more than <strong>0.5 mg every 3 days</strong>.[ref:alprazolam-fda]</p>\n<p>This patient needs specialist consult (addiction medicine / addiction psychiatry / medical toxicology) before you continue prescribing at this dose. Document the equivalent calculation in the chart.</p>"
               },
               {
-                "question": "Can I continue at high dose while awaiting the e-consult?",
+                "question": "Can I continue at high dose while awaiting the consult?",
                 "answer_html": "<p>Yes \u2014 do not reduce or discontinue while the consult is pending. Prescribe one month at the current dose, document your awareness of the dose threshold, document that specialist input is pending, and schedule a follow-up for shortly after the expected consult response.[ref:asam-acmt-2025][ref:shuey-jamaim-2026]</p>\n<p>Two caveats: (a) the risk-benefit assessment must <strong>still be documented at the initial visit</strong> \u2014 the bridge prescription is not \"do nothing\"; (b) ASAM recommends benzo+opioid risk-benefit reassessment every 3 months or every encounter, whichever sooner, so a one-month bridge sits well within window.[ref:asam-acmt-2025]</p>\n<p>Institutional support applies when you are actively working the framework. ASAM is emphatic that patients \"are not abandoned\"; bridging prescriptions should be provided when referral is pending.[ref:asam-acmt-2025]</p>"
               }
             ]
@@ -2066,7 +2355,7 @@
               },
               {
                 "question": "My 72-year-old patient has been on lorazepam for 15 years and says it's the only thing that helps her sleep. Do I taper her?",
-                "answer_html": "<p>This is one of the most delicate scenarios in primary care. A 15-year history of daily use in a 72-year-old represents profound physical dependence, and taper carries real risks including withdrawal seizure and severe rebound anxiety. The Maust JAMA Network Open 2023 VA target-trial-emulation study (N&gt;350,000) found benzo discontinuation associated with a small absolute mortality increase of <strong>2.1\u20132.4 percentage points over 1 year</strong>, plus increases in nonfatal overdose, suicidal ideation, and ED use \u2014 though confounded by inclusion of nonvoluntary tapering. The data support that discontinuation is not zero-risk in this population.[ref:maust-jamaopen-2023]</p>\n<p>The answer is not to continue unchanged and not to taper abruptly \u2014 it is to have an honest, unhurried conversation, document the risks of both continuation and taper, involve the patient in the decision, and obtain specialist e-consult for a guided taper plan if the patient is willing.[ref:asam-acmt-2025][ref:shuey-jamaim-2026]</p>\n<p>For patients who are clearly not candidates for taper given age, functional status, and risk-benefit calculation, documenting that reasoning explicitly is a defensible position. Required documentation: (1) AGS Beers Criteria acknowledgment, (2) specific patient-level taper risks, (3) specific continuation risks, (4) shared decision-making conversation, (5) annual reassessment plan. The defensible-not-to-taper position is a <strong>current-state assessment, not a permanent exemption</strong> \u2014 functional decline, fall events, new cognitive concerns, or patient readiness shifts all warrant re-evaluation.[ref:asam-acmt-2025][ref:ags-beers-2023-jgs][ref:shuey-jamaim-2026]</p>"
+                "answer_html": "<p>This is one of the most delicate scenarios in primary care. A 15-year history of daily use in a 72-year-old represents profound physical dependence, and taper carries real risks including withdrawal seizure and severe rebound anxiety. The Maust JAMA Network Open 2023 VA target-trial-emulation study (N&gt;350,000) found benzo discontinuation associated with a small absolute mortality increase of <strong>2.1\u20132.4 percentage points over 1 year</strong>, plus increases in nonfatal overdose, suicidal ideation, and ED use \u2014 though confounded by inclusion of nonvoluntary tapering. The data support that discontinuation is not zero-risk in this population.[ref:maust-jamaopen-2023]</p>\n<p>The answer is not to continue unchanged and not to taper abruptly \u2014 it is to have an honest, unhurried conversation, document the risks of both continuation and taper, involve the patient in the decision, and obtain specialist consult for a guided taper plan if the patient is willing.[ref:asam-acmt-2025][ref:shuey-jamaim-2026]</p>\n<p>For patients who are clearly not candidates for taper given age, functional status, and risk-benefit calculation, documenting that reasoning explicitly is a defensible position. Required documentation: (1) AGS Beers Criteria acknowledgment, (2) specific patient-level taper risks, (3) specific continuation risks, (4) shared decision-making conversation, (5) annual reassessment plan. The defensible-not-to-taper position is a <strong>current-state assessment, not a permanent exemption</strong> \u2014 functional decline, fall events, new cognitive concerns, or patient readiness shifts all warrant re-evaluation.[ref:asam-acmt-2025][ref:ags-beers-2023-jgs][ref:shuey-jamaim-2026]</p>"
               },
               {
                 "question": "A patient with mild cognitive impairment is on a benzodiazepine. Should I be worried about causality?",
@@ -2084,7 +2373,7 @@
             "items": [
               {
                 "question": "The patient says their current dose no longer controls their anxiety. They're asking for more. What do I do?",
-                "answer_html": "<p>Do not simply escalate the dose. But the framing \"tolerance to the anxiolytic effect is expected, this is pharmacology not failure\" is itself oversimplified \u2014 sedative/hypnotic tolerance is well-established, but <strong>anxiolytic tolerance is debated</strong> and may be incomplete. Shader &amp; Greenblatt NEJM 1993 noted \"tolerance develops to nonspecific sedative effects\u2026 whereas tolerance to anxiolytic effects is far less common\"; current systematic research (Silberman 2025) finds prescribed benzodiazepines \"are not prone to tolerance, dose-escalation, abuse, or addiction\" in non-SUD populations; animal data show different receptor mechanisms for sedative vs anxiolytic tolerance.[ref:shader-nejm-1993][ref:silberman-drugs-2025][ref:ferreri-neuro-2015][ref:vinkers-plosone-2012]</p>\n<p><strong>Diagnostic reassessment first.</strong> \"The medication stopped working\" may reflect: (a) <em>pharmacological tolerance</em>; (b) <em>worsening of the underlying disorder</em> (anxiety severity is not constant); (c) <em>new comorbidity</em> \u2014 depression, SUD, medical illness; (d) <em>medication nonadherence</em>; (e) <em>benzodiazepine use disorder</em>. Each requires a different response; the differential must be worked before a treatment pivot.[ref:asam-acmt-2025][ref:szuhany-jama-2022][ref:shader-nejm-1993]</p>\n<p>Once the differential is established, the appropriate response in most cases is to introduce SSRIs, SNRIs, buspirone, or therapy as alternatives \u2014 not as same-day replacements, but as a direction of travel.[ref:slee-lancet-2019][ref:stein-nejm-2015][ref:degeorge-aafp-2022][ref:szuhany-jama-2022] Two caveats: (a) present as shared decision-making, not a single linear algorithm \u2014 some treatment-resistant GAD patients may appropriately continue benzos under specialist guidance;[ref:asam-acmt-2025] (b) specialist e-consult goes to addiction medicine, addiction psychiatry, or medical toxicology (geriatric psychiatry/medicine for older adults), not general psychiatry by default.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025]</p>"
+                "answer_html": "<p>Do not simply escalate the dose. But the framing \"tolerance to the anxiolytic effect is expected, this is pharmacology not failure\" is itself oversimplified \u2014 sedative/hypnotic tolerance is well-established, but <strong>anxiolytic tolerance is debated</strong> and may be incomplete. Shader &amp; Greenblatt NEJM 1993 noted \"tolerance develops to nonspecific sedative effects\u2026 whereas tolerance to anxiolytic effects is far less common\"; current systematic research (Silberman 2025) finds prescribed benzodiazepines \"are not prone to tolerance, dose-escalation, abuse, or addiction\" in non-SUD populations; animal data show different receptor mechanisms for sedative vs anxiolytic tolerance.[ref:shader-nejm-1993][ref:silberman-drugs-2025][ref:ferreri-neuro-2015][ref:vinkers-plosone-2012]</p>\n<p><strong>Diagnostic reassessment first.</strong> \"The medication stopped working\" may reflect: (a) <em>pharmacological tolerance</em>; (b) <em>worsening of the underlying disorder</em> (anxiety severity is not constant); (c) <em>new comorbidity</em> \u2014 depression, SUD, medical illness; (d) <em>medication nonadherence</em>; (e) <em>benzodiazepine use disorder</em>. Each requires a different response; the differential must be worked before a treatment pivot.[ref:asam-acmt-2025][ref:szuhany-jama-2022][ref:shader-nejm-1993]</p>\n<p>Once the differential is established, the appropriate response in most cases is to introduce SSRIs, SNRIs, buspirone, or therapy as alternatives \u2014 not as same-day replacements, but as a direction of travel.[ref:slee-lancet-2019][ref:stein-nejm-2015][ref:degeorge-aafp-2022][ref:szuhany-jama-2022] Two caveats: (a) present as shared decision-making, not a single linear algorithm \u2014 some treatment-resistant GAD patients may appropriately continue benzos under specialist guidance;[ref:asam-acmt-2025] (b) specialist consult goes to addiction medicine, addiction psychiatry, or medical toxicology (geriatric psychiatry/medicine for older adults), not general psychiatry by default.[ref:asam-acmt-2025][ref:asam-acmt-jgim-2025]</p>"
               },
               {
                 "question": "Is dose escalation ever appropriate?",
