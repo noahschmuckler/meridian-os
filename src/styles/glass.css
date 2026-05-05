@@ -2040,6 +2040,48 @@
 }
 .back-to-launcher--on-dark:hover { background: rgba(255, 255, 255, 0.18); }
 
+/* Cross-app return chevron — shown above ‹ meridian when the user arrived
+   in Epic Quick Reference via deep-link from another app (Mentorship
+   Tracker today). Stacks at top: 64px so it sits below the ‹ meridian
+   pill at top: 18px. Coloured to read against light surfaces inside the
+   QR. */
+.back-to-source {
+  position: fixed;
+  top: 64px;
+  left: 22px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 10px;
+  border: 1px solid rgba(15, 23, 42, 0.18);
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.12);
+  color: #6d28d9;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 6px 14px rgba(0, 0, 0, 0.10);
+  transition: background var(--duration-1) var(--ease-out), transform var(--duration-1) var(--ease-out);
+}
+.back-to-source:hover {
+  background: rgba(139, 92, 246, 0.20);
+  transform: translateX(-2px);
+}
+.back-to-source:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.back-to-source__chevron {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -1px;
+}
+
 
 /* Floating Mondrian-back chevron — returns from any Mondrian workspace to
    the workspace selection grid. Sits at the iOS-standard top: 16px in the

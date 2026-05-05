@@ -2,7 +2,12 @@ import type { JSX } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import EpicQuickReferenceApp from '../apps/epic-quick-reference/EpicQuickReferenceApp';
 import { BackToLauncherChevron } from './Launcher';
-import { epicReferenceFocusSignal, clearEpicReferenceFocus } from '../data/epicReferenceFocus';
+import {
+  epicReferenceFocusSignal,
+  clearEpicReferenceEntry,
+  clearEpicReferenceFocus,
+} from '../data/epicReferenceFocus';
+import { setLauncherApp } from '../data/launcherState';
 
 export function EpicQuickReferenceShell(): JSX.Element {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -37,7 +42,11 @@ export function EpicQuickReferenceShell(): JSX.Element {
         m.scrollIntoView({ behavior: 'smooth', block: 'start' });
         m.click();
       }
-      clearEpicReferenceFocus();
+      // Clear only the entryId so a future re-mount of this shell doesn't
+      // re-trigger the auto-expand. Keep returnTo + source alive so the
+      // back chevron above ‹ meridian stays visible until the user
+      // explicitly leaves this app.
+      clearEpicReferenceEntry();
     }, 80);
     return () => {
       cancelled = true;
@@ -76,9 +85,34 @@ export function EpicQuickReferenceShell(): JSX.Element {
     return () => obs.disconnect();
   }, []);
 
+  // Back-to-source chevron shown above the ‹ meridian pill when the user
+  // arrived via a cross-app deep-link. Click → return to the originating
+  // app and wipe the focus so the next entry into Epic QR is clean.
+  function backToSource(): void {
+    const target = focus.returnTo;
+    clearEpicReferenceFocus();
+    if (target) setLauncherApp(target);
+  }
+  const sourceLabel = focus.returnTo === 'mentorship'
+    ? 'Mentorship Tracker'
+    : focus.returnTo === 'mondrian'
+    ? 'Mondrian'
+    : null;
+
   return (
     <div class="epic-reference-shell" ref={rootRef}>
       <BackToLauncherChevron variant="on-light" />
+      {sourceLabel && (
+        <button
+          type="button"
+          class="back-to-source"
+          onClick={backToSource}
+          aria-label={`Back to ${sourceLabel}`}
+        >
+          <span class="back-to-source__chevron" aria-hidden="true">‹</span>
+          <span class="back-to-source__label">{sourceLabel}</span>
+        </button>
+      )}
       <EpicQuickReferenceApp />
     </div>
   );

@@ -110,12 +110,25 @@ function App(): JSX.Element {
     return <Launcher />;
   }
 
-  if (app === 'mentorship') {
-    return <MentorshipTrackerShell />;
-  }
-
-  if (app === 'epic-reference') {
-    return <EpicQuickReferenceShell />;
+  // Mentorship Tracker and Epic Quick Reference share a "deep-link round-
+  // trip" relationship: a user clicking a 📖 reference pill in the tracker
+  // hops to Epic QR, then expects to land back on the same provider /
+  // phase / scroll position when they return. Both shells are rendered
+  // whenever either is active and toggled via display so the inactive
+  // shell's React state survives the round-trip. display:none on the
+  // wrapper hides the inner subtree (including its position:fixed
+  // chevrons), so the visible shell owns the screen alone.
+  if (app === 'mentorship' || app === 'epic-reference') {
+    return (
+      <>
+        <div style={{ display: app === 'mentorship' ? 'block' : 'none' }}>
+          <MentorshipTrackerShell />
+        </div>
+        <div style={{ display: app === 'epic-reference' ? 'block' : 'none' }}>
+          <EpicQuickReferenceShell />
+        </div>
+      </>
+    );
   }
 
   // Mondrian GUI — the existing meridian-os shell, with a back-to-launcher
