@@ -110,7 +110,14 @@ export function ClinicalModuleFaq({ instance, workspaceId, onRequestSiblingFocus
       </div>
       <div class="bubble__body" style={{ flex: 1, overflow: 'auto', padding: '10px 14px 14px' }}>
         {focusedFaq ? (
-          <FocusedFaq entry={focusedFaq} module={selected} />
+          // Key on faq_id so switching directly from one FAQ to another
+          // (e.g. tapping a different checklist / escalation row without
+          // going back to the topic index) remounts the subtree and resets
+          // the local useState in sub-question expanders + the consult
+          // decision-point pill. Without this, an open expander in topic A
+          // carries its open=true state to the same-index expander in
+          // topic B since Preact reuses the component instance.
+          <FocusedFaq key={focusedFaq.faq_id} entry={focusedFaq} module={selected} />
         ) : (
           <IdleIndex faqs={selected.faqs} onPick={pickFaq} />
         )}
