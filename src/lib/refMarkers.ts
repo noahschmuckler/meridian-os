@@ -92,7 +92,9 @@ export function getModuleRefNumberer(module: ModuleData): RefNumberer {
   walk(module.green_zone?.narrative_html);
   walk(module.context_strip?.text);
   for (const faq of module.faqs) {
-    for (const qa of faq.items) walk(qa.answer_html);
+    walk(faq.first_layer_html);
+    for (const qa of faq.sub_questions ?? []) walk(qa.answer_html);
+    for (const qa of faq.items ?? []) walk(qa.answer_html);
   }
   walk(module.footer_note);
   return numberer;
