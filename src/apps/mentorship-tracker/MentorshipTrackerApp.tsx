@@ -40,12 +40,60 @@ const MP = [
 ];
 
 const OP = [
-  {id:"om1",label:"Month 1 Ops",items:["On time and on schedule?","Front desk handling flow?","Patient complaints or compliments?","Operational bottlenecks?","Staff adapting to workflow?"]},
-  {id:"om2",label:"Month 2 Ops",items:["Volume ramping as expected?","Orders routing correctly?","Encounter closure impacting billing?","Staff concerns?","No-show rates normal?"]},
-  {id:"om3",label:"Month 3 Ops",items:["Functioning independently?","Patient satisfaction trends?","Billing cycle and denials?","Staff satisfaction?","Changes needed?"]},
-  {id:"om6",label:"Month 6 Ops",items:["At target volume?","Revenue and coding accuracy?","Patients rebooking?","Friction points?","Overall assessment"]},
-  {id:"om9",label:"Month 9 Ops",items:["Performance review","Access challenges?","Team morale impact?","Upcoming needs?"]},
-  {id:"om12",label:"Month 12 Ops",items:["Year assessment","Benchmark comparison?","Year 2 recommendations?","Formal evaluation"]},
+  {id:"om1",label:"Month 1 — First Impressions",qs:[
+    {qid:"a",label:"Staff dynamics",text:"Rate how well the existing staff has adjusted to working with this new provider — including willingness to be paired with them, attitude on their clinic days, and any tension or resistance you have observed.",anchor_low:"significant tension or resistance from staff",anchor_high:"staff has fully embraced the new provider",ty:"s"},
+    {qid:"b",label:"Patient signals",text:"Rate the feedback you and the front desk have heard directly from patients about this provider — including comments made during check-in, checkout, or phone calls.",anchor_low:"mostly negative or concerning feedback",anchor_high:"consistently positive feedback",ty:"s"},
+    {qid:"c",label:"Operational burden",text:"Rate whether this provider is creating extra work for the office — for example, orders that need to be corrected, prescriptions that were not transmitted, referrals that went to the wrong place, or encounters left open that delay billing.",anchor_low:"frequently causing rework and extra steps for staff",anchor_high:"no additional operational burden",ty:"s"},
+    {qid:"d",label:"Communication",text:"Rate how clearly this provider communicates their needs and expectations to non-clinical staff — including requests for the front desk, medical assistants, and office manager.",anchor_low:"staff is constantly guessing or confused about what the provider needs",anchor_high:"provider communicates clearly every time",ty:"s"},
+    {qid:"e",label:"Integration",text:"Rate how well this provider is fitting into the team socially and professionally — including whether they are building relationships with staff, participating in conversations, and making an effort to be part of the office culture.",anchor_low:"isolated, disconnected, or not making an effort",anchor_high:"naturally fitting in and building relationships",ty:"s"},
+    {qid:"f",label:"Performance metrics",text:"Rate your overall assessment of this provider's early performance across the following areas: patient volume relative to what was scheduled, patient wait times in the office, productivity for the visits they are completing, and whether patients are showing up for their appointments. Consider all four areas together in your rating.",anchor_low:"significant concerns across multiple areas",anchor_high:"all areas are where they should be for a first-month provider",ty:"s"},
+    {qid:"g",label:"Provider check-in",text:"Please have a brief conversation with the new provider and ask how things are going so far. Record their response word for word in the space provided below.",ty:"t"},
+  ]},
+  {id:"om2",label:"Month 2 — Settling In",qs:[
+    {qid:"a",label:"Staff dynamics",text:"Rate the staff's overall comfort level working with this provider now that they have had a full month together — have initial concerns improved, stayed the same, or gotten worse?",anchor_low:"comfort level has decreased or concerns have grown",anchor_high:"staff is fully comfortable and working well together",ty:"s"},
+    {qid:"b",label:"Patient signals",text:"Rate whether patients who have seen this provider are rebooking with the same provider, or whether the front desk is hearing requests to see someone else.",anchor_low:"patients are frequently asking for other providers",anchor_high:"patients are consistently rebooking with this provider",ty:"s"},
+    {qid:"c",label:"Operational burden",text:"Rate this provider's documentation habits from an operational perspective — specifically whether patient encounters are being closed on the same day, or whether open encounters are creating billing delays or additional follow-up work.",anchor_low:"encounters are routinely left open causing billing and operational delays",anchor_high:"encounters are closed same day with no issues",ty:"s"},
+    {qid:"d",label:"Communication",text:"Rate whether this provider is advising patients to schedule their next appointment at the front desk before leaving the office, rather than relying on MyChart or other methods that result in patients not following up.",anchor_low:"never advises patients to book at checkout",anchor_high:"consistently ensures patients schedule before leaving",ty:"s"},
+    {qid:"e",label:"Integration",text:"Rate whether this provider appears engaged and invested in the practice — showing up prepared, participating in huddles, and demonstrating that they want to be part of this team rather than just filling a position.",anchor_low:"appears disengaged or just going through the motions",anchor_high:"clearly invested and wants to be here",ty:"s"},
+    {qid:"f",label:"Performance metrics",text:"Rate this provider's progress across the following areas compared to last month: is their daily patient volume increasing as expected, are patient wait times reasonable, is their productivity per visit appropriate, and are their no-show rates similar to other providers at the site?",anchor_low:"no improvement or declining in multiple areas",anchor_high:"improving across all areas as expected",ty:"s"},
+    {qid:"g",label:"Provider check-in",text:"Please have a brief conversation with the provider and ask how things are going. Record their response word for word in the space provided below.",ty:"t"},
+  ]},
+  {id:"om3",label:"Month 3 — Independence Check",qs:[
+    {qid:"a",label:"Staff dynamics",text:"Rate the staff's overall satisfaction with this provider — if any staff members have raised concerns, complaints, or frustrations about this provider at any point in the last three months, factor that into your rating.",anchor_low:"multiple staff members have raised concerns",anchor_high:"no concerns raised and staff is fully satisfied",ty:"s"},
+    {qid:"b",label:"Patient signals",text:"Rate the patient retention signal for this provider — based on what you see at the front desk, are patients returning for follow-ups with this specific provider, or are they asking to see other providers or not returning at all?",anchor_low:"poor patient retention, patients are not coming back",anchor_high:"strong patient retention, patients consistently return",ty:"s"},
+    {qid:"c",label:"Operational burden",text:"Rate this provider's ability to get through their day without creating additional operational work for the office — meaning orders, referrals, prescriptions, and documentation are handled correctly without the office needing to follow up, correct, or redo anything.",anchor_low:"still creating significant extra work for the staff",anchor_high:"completely self-sufficient with no rework needed",ty:"s"},
+    {qid:"d",label:"Communication",text:"Rate how effectively this provider works with the front desk and medical assistants as a team — not just giving instructions, but listening, adapting, and collaborating with the people who support them.",anchor_low:"one-directional communication, does not collaborate",anchor_high:"true team player who listens and adapts",ty:"s"},
+    {qid:"e",label:"Integration",text:"Rate whether any issues or concerns raised in Month 1 or Month 2 have been resolved, and whether this provider is trending in the right direction overall.",anchor_low:"previous issues remain unresolved or have worsened",anchor_high:"all prior concerns addressed and clear positive trend",ty:"s"},
+    {qid:"f",label:"Performance metrics",text:"Rate this provider's current standing across the following areas: daily patient volume compared to the office average, patient wait times compared to other providers, productivity per visit, and no-show rates. At three months, these numbers should be trending toward the office average.",anchor_low:"significantly behind the office average in multiple areas",anchor_high:"at or near the office average across all areas",ty:"s"},
+    {qid:"g",label:"Provider check-in",text:"Please have a brief conversation with the provider and ask how things are going, what is working well, and whether there is anything they would change. Record their response word for word in the space provided below.",ty:"t"},
+  ]},
+  {id:"om6",label:"Month 6 — Full Speed Check",qs:[
+    {qid:"a",label:"Staff dynamics",text:"Rate the overall working relationship between this provider and the staff — at six months, any lingering tension or friction should be resolved. If it is not, rate accordingly.",anchor_low:"unresolved friction that is affecting the team",anchor_high:"strong working relationship with no issues",ty:"s"},
+    {qid:"b",label:"Patient signals",text:"Rate whether patients are specifically requesting this provider by name when they call to schedule — this is the strongest indicator that the provider has earned patient trust and loyalty.",anchor_low:"patients never request this provider",anchor_high:"patients frequently request this provider by name",ty:"s"},
+    {qid:"c",label:"Operational burden",text:"Rate whether this provider's presence has made the overall office operations easier or harder compared to before they started — considering schedule flow, staff workload, patient throughput, and any additional operational demands.",anchor_low:"office operations are harder because of this provider",anchor_high:"office operations have improved with this provider",ty:"s"},
+    {qid:"d",label:"Communication",text:"Rate this provider's ability to handle same-day or urgent patient needs — specifically whether they are flexible enough to accommodate walk-ins, urgent calls, or schedule disruptions without creating problems for the office.",anchor_low:"rigid and unable to accommodate urgent needs",anchor_high:"flexible and readily accommodates urgent situations",ty:"s"},
+    {qid:"e",label:"Integration",text:"Rate how fully this provider has become part of the daily fabric of the site — not just doing their job, but being present, engaged, and invested in the success of the office as a whole.",anchor_low:"still feels like an outsider filling a role",anchor_high:"feels like they have been here for years",ty:"s"},
+    {qid:"f",label:"Performance metrics",text:"Rate this provider's performance across the following areas at the six-month mark: daily patient volume relative to their target, patient wait times, productivity per visit compared to other providers, and no-show rates. At six months, these should be at or near the level of an established provider.",anchor_low:"still well below expectations in multiple areas",anchor_high:"performing at the level of an established provider across all areas",ty:"s"},
+    {qid:"g",label:"Provider check-in",text:"Please have a brief conversation with the provider and ask how they feel things are going at this stage. Record their response word for word in the space provided below.",ty:"t"},
+  ]},
+  {id:"om9",label:"Month 9 — Maturity Assessment",qs:[
+    {qid:"a",label:"Staff dynamics",text:"Rate this provider's impact on the overall morale and energy of the team — are they someone who lifts up the people around them, or someone who drains energy and creates stress?",anchor_low:"negatively impacts team morale",anchor_high:"consistently positive influence on the team",ty:"s"},
+    {qid:"b",label:"Patient signals",text:"Rate the overall patient loyalty this provider has built — considering rebooking rates, patient requests, patient feedback to the front desk, and whether patients seem genuinely connected to this provider.",anchor_low:"minimal patient loyalty or connection",anchor_high:"strong patient loyalty with clear personal connection",ty:"s"},
+    {qid:"c",label:"Operational burden",text:"Rate whether this provider is contributing to the practice beyond just seeing patients — for example, suggesting workflow improvements, helping train staff, covering for colleagues, mentoring newer team members, or participating in practice initiatives.",anchor_low:"does not contribute beyond their own patient schedule",anchor_high:"actively contributes to the practice in multiple ways",ty:"s"},
+    {qid:"d",label:"Communication",text:"Rate this provider's consistency and reliability — whether you can count on them to show up, perform, communicate, and follow through without surprises or concerns.",anchor_low:"inconsistent or unpredictable",anchor_high:"completely reliable and consistent every day",ty:"s"},
+    {qid:"e",label:"Integration",text:"Rate your confidence that there are no emerging issues — staffing, scheduling, interpersonal, or operational — that could negatively affect this provider's performance or satisfaction in the coming months.",anchor_low:"there are emerging issues the Medical Director needs to know about",anchor_high:"no concerns whatsoever",ty:"s"},
+    {qid:"f",label:"Performance metrics",text:"Rate this provider's sustained performance across the following areas: daily patient volume, patient wait times, productivity per visit, and no-show rates. At nine months, these should be stable and consistent with no concerning trends.",anchor_low:"declining or inconsistent in multiple areas",anchor_high:"stable and consistent across all areas",ty:"s"},
+    {qid:"g",label:"Provider check-in",text:"Please have a brief conversation with the provider and ask how they are feeling about their role and whether they need any additional support. Record their response word for word in the space provided below.",ty:"t"},
+  ]},
+  {id:"om12",label:"Month 12 — Year-End Verdict",qs:[
+    {qid:"a",label:"Staff dynamics",text:"Rate this provider's overall impact on the team over the full year — considering every interaction, every day, and every situation you have observed.",anchor_low:"net negative impact on the team",anchor_high:"one of the strongest team members at the site",ty:"s"},
+    {qid:"b",label:"Patient signals",text:"Rate the overall patient response to this provider over the full year — considering feedback, retention, complaints, compliments, and whether patients have come to trust and rely on this provider.",anchor_low:"patients have not connected with this provider",anchor_high:"patients are loyal and satisfied",ty:"s"},
+    {qid:"c",label:"Operational burden",text:"Rate this provider's net impact on the daily operations of the site over the full year — has their presence made your job and the staff's jobs easier or harder?",anchor_low:"created more operational burden than benefit",anchor_high:"significantly improved operations",ty:"s"},
+    {qid:"d",label:"Communication",text:"Rate how this provider compares to other providers at the site in terms of overall operational effectiveness — productivity, reliability, communication, teamwork, and professionalism.",anchor_low:"well below other providers",anchor_high:"among the best providers at the site",ty:"s"},
+    {qid:"e",label:"Integration",text:"Rate how strongly you would want this provider to remain at your site if you had the choice — this is your honest overall assessment of whether this hire worked.",anchor_low:"would prefer a different provider",anchor_high:"absolutely want them to stay and would be upset to lose them",ty:"s"},
+    {qid:"f",label:"Performance metrics",text:"Rate this provider's year-end performance across the following areas: daily patient volume, patient wait times, productivity per visit, and no-show rates. Compare these to where they started in Month 1 and to where other established providers at the site currently stand.",anchor_low:"still below expectations after a full year",anchor_high:"fully performing at or above the level of established providers",ty:"s"},
+    {qid:"g",label:"Provider check-in",text:"Please have a brief conversation with the provider and ask them to reflect on their first year — what went well, what they would change, and what they need going into year two. Record their response word for word in the space provided below.",ty:"t"},
+  ]},
 ];
 
 const QP = [
@@ -76,13 +124,13 @@ function makeSeedChecks() {
   const c = {};
   const fill = (pid, ids) => {
     ids.forEach(phid => {
-      const ph = MP.find(x => x.id === phid) || OP.find(x => x.id === phid);
+      const ph = MP.find(x => x.id === phid);
       if (ph) ph.items.forEach((_, i) => { c[pid + "." + phid + "." + i] = true; });
     });
   };
-  fill("p1", ["w1","w2","w3","w4","w5","w6","w7","w8","m3","om1","om2","om3"]);
-  fill("p2", ["w1","w2","w3","w4","w5","w6","w7","w8","om1","om2"]);
-  fill("p3", ["w1","w2","w3","w4","w5","w6","om1"]);
+  fill("p1", ["w1","w2","w3","w4","w5","w6","w7","w8","m3"]);
+  fill("p2", ["w1","w2","w3","w4","w5","w6","w7","w8"]);
+  fill("p3", ["w1","w2","w3","w4","w5","w6"]);
   fill("p4", ["w1","w2","w3","w4"]);
   return c;
 }
@@ -96,6 +144,15 @@ function makeSeedQA() {
       if (qp) qp.qs.forEach(q => { qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Demo response"; });
     });
   });
+  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5}};
+  Object.entries(omScores).forEach(([pid, phases]) => {
+    Object.entries(phases).forEach(([phid, avg]) => {
+      const op = OP.find(x => x.id === phid);
+      if (op) op.qs.forEach(q => {
+        qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Seems to be adjusting well. Mentioned Epic is taking some getting used to but overall positive.";
+      });
+    });
+  });
   return qa;
 }
 
@@ -103,7 +160,7 @@ function makeSeedQA() {
 function phIdx(id) { return MP.findIndex(x => x.id === id); }
 
 function countChecks(checks, pid, phid) {
-  const ph = MP.find(x => x.id === phid) || OP.find(x => x.id === phid);
+  const ph = MP.find(x => x.id === phid);
   if (!ph) return { done: 0, total: 0, pct: 0 };
   let done = 0;
   ph.items.forEach((_, i) => { if (checks[pid + "." + phid + "." + i]) done++; });
@@ -118,10 +175,16 @@ function mentorPct(checks, pid) {
   return t > 0 ? Math.round(d / t * 100) : 0;
 }
 
-function opsPct(checks, pid) {
-  let t = 0, d = 0;
-  OP.forEach(ph => { ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; }); });
-  return t > 0 ? Math.round(d / t * 100) : 0;
+function opsPct(qa, pid) {
+  let t = 0, a = 0;
+  OP.forEach(ph => {
+    ph.qs.forEach(q => {
+      t++;
+      const v = qa[pid + "." + ph.id + "." + q.qid];
+      if (v !== undefined && v !== "") a++;
+    });
+  });
+  return t > 0 ? Math.round(a / t * 100) : 0;
 }
 
 // MD Curriculum coverage: percentage of curriculum items completed up to and
@@ -232,7 +295,7 @@ function CheckItem({ text, checked, canEdit, onToggle }) {
   );
 }
 
-function ScaleInput({ value, onChange }) {
+function ScaleInput({ value, onChange, anchorLow, anchorHigh }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 6 }}>
@@ -248,10 +311,17 @@ function ScaleInput({ value, onChange }) {
           );
         })}
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#868e96", marginTop: 4 }}>
-        <span>Not at all</span>
-        <span>Completely</span>
-      </div>
+      {anchorLow || anchorHigh ? (
+        <div style={{ marginTop: 6, fontSize: 11, color: "#868e96" }}>
+          <div><strong style={{ color: "#ef4444" }}>0</strong> — {anchorLow}</div>
+          <div><strong style={{ color: "#22c55e" }}>10</strong> — {anchorHigh}</div>
+        </div>
+      ) : (
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#868e96", marginTop: 4 }}>
+          <span>Not at all</span>
+          <span>Completely</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -381,7 +451,7 @@ function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
 // scrollable modal. Per-track sticky header + per-phase sub-header. Only
 // the MD Curriculum carries the structured owner / partner / misstep /
 // epic_ref_ids metadata — Mentor and OM rows are simple checkbox + text.
-function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen }) {
+function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, qa }) {
   if (!open) return null;
 
   // Per-track totals + completion counts (only counted when a provider is
@@ -394,9 +464,12 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen }
     if (prov && checks[prov.id + "." + ph.id + "." + i]) mpDone++;
   }));
   let opTotal = 0, opDone = 0;
-  OP.forEach(ph => ph.items.forEach((_, i) => {
+  OP.forEach(ph => ph.qs.forEach(q => {
     opTotal++;
-    if (prov && checks[prov.id + "." + ph.id + "." + i]) opDone++;
+    if (prov) {
+      const v = qa[prov.id + "." + ph.id + "." + q.qid];
+      if (v !== undefined && v !== "") opDone++;
+    }
   }));
 
   // Edit perms by track. Mirrors the App-level canChk semantics:
@@ -457,22 +530,37 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen }
     {
       key: "op",
       title: "Office Manager",
-      subtitle: `${opTotal} prompts, Month 1 Ops → Month 12 Ops`,
+      subtitle: `${opTotal} questions, Month 1 → Month 12`,
       gradient: "linear-gradient(135deg, #0ea5e9, #0369a1)",
       accent: "#0ea5e9",
       done: opDone,
       total: opTotal,
-      groups: OP.map(ph => ({ phase: ph, items: ph.items })),
-      renderRow: (text, group, i) => (
-        <CheckItem
-          key={group.phase.id + ":" + i}
-          text={text}
-          checked={prov ? !!checks[prov.id + "." + group.phase.id + "." + i] : false}
-          canEdit={canEditOp}
-          onToggle={() => { if (prov) toggle(prov.id + "." + group.phase.id + "." + i); }}
-        />
-      ),
-      countDone: (group) => prov ? group.items.filter((_, i) => checks[prov.id + "." + group.phase.id + "." + i]).length : 0,
+      groups: OP.map(ph => ({ phase: ph, items: ph.qs })),
+      renderRow: (q, g) => {
+        const val = prov ? (qa[prov.id + "." + g.phase.id + "." + q.qid] || "") : "";
+        const answered = val !== "";
+        return (
+          <div key={q.qid} style={{ padding: "12px 20px", borderBottom: "1px solid #dee2e6", display: "flex", alignItems: "flex-start", gap: 14, background: answered ? "rgba(34,197,94,0.04)" : "transparent" }}>
+            <div style={{ width: 24, height: 24, borderRadius: 5, border: "2px solid " + (answered ? "#22c55e" : "#dee2e6"), background: answered ? "#22c55e" : "white", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, fontWeight: 700, flexShrink: 0, marginTop: 2 }}>
+              {answered ? "✓" : ""}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#0ea5e9", marginBottom: 2, textTransform: "uppercase" }}>{q.label}</div>
+              {q.ty === "s" && answered && (
+                <span style={{ fontSize: 14, fontWeight: 700, color: Number(val) >= 8 ? "#22c55e" : Number(val) >= 5 ? "#eab308" : "#ef4444" }}>{val}/10</span>
+              )}
+              {q.ty === "t" && answered && (
+                <div style={{ fontSize: 12, color: "#475569", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{val}</div>
+              )}
+              {!answered && <span style={{ fontSize: 11, color: "#adb5bd" }}>Not yet answered</span>}
+            </div>
+          </div>
+        );
+      },
+      countDone: (group) => prov ? group.items.filter(q => {
+        const v = qa[prov.id + "." + group.phase.id + "." + q.qid];
+        return v !== undefined && v !== "";
+      }).length : 0,
     },
   ];
 
@@ -526,6 +614,8 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen }
                     </div>
                     {tr.key === "md"
                       ? g.items.map(item => tr.renderRow(item))
+                      : tr.key === "op"
+                      ? g.items.map(q => tr.renderRow(q, g))
                       : g.items.map((text, i) => tr.renderRow(text, g, i))}
                   </div>
                 );
@@ -623,7 +713,8 @@ export default function App() {
   const isQ = tab === "quest";
   const isMd = tab === "md";
   const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : MP;
-  const curChecklist = phase && !isQ && !isMd ? (isOps ? OP : MP).find(x => x.id === phase) : null;
+  const curOpQuest = isOps && phase ? OP.find(x => x.id === phase) : null;
+  const curChecklist = phase && !isQ && !isMd && !isOps ? MP.find(x => x.id === phase) : null;
   const curQuest = isQ && phase ? QP.find(x => x.id === phase) : null;
   const curMdItems = isMd && phase ? (MD_ITEMS_BY_PHASE[phase] || []) : null;
   const pc = curChecklist && prov ? countChecks(checks, prov.id, phase) : null;
@@ -671,6 +762,7 @@ export default function App() {
         setChecks={setChecks}
         isDir={isDir}
         isMen={isMen}
+        qa={qa}
       />
 
       {/* MD tabs when no provider selected */}
@@ -697,7 +789,7 @@ export default function App() {
             const isSel = selId === p.id;
             const mn = mentorPct(checks, p.id);
             const md = isDir ? mdCurriculumPct(checks, p.id) : 0;
-            const op = isDir ? opsPct(checks, p.id) : 0;
+            const op = isDir ? opsPct(qa, p.id) : 0;
             const qp = isDir ? questPct(qa, p.id) : 0;
             const st = getStatus(p.id);
             const sc = st === "overdue" ? "#ef4444" : st === "due" ? "#eab308" : mn >= 70 ? "#22c55e" : "#eab308";
@@ -772,7 +864,7 @@ export default function App() {
                     </thead>
                     <tbody>
                       {PROVS.map(p => {
-                        const vals = [mdCurriculumPct(checks, p.id), mentorPct(checks, p.id), opsPct(checks, p.id), questPct(qa, p.id)];
+                        const vals = [mdCurriculumPct(checks, p.id), mentorPct(checks, p.id), opsPct(qa, p.id), questPct(qa, p.id)];
                         const cols = ["#8b5cf6", "#028090", "#0ea5e9", "#eab308"];
                         const st = getStatus(p.id);
                         return (
@@ -889,7 +981,7 @@ export default function App() {
                   {[
                     { label: "MD Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6" },
                     { label: "Mentor", pct: mentorPct(checks, prov.id), color: "#028090" },
-                    { label: "Ops", pct: opsPct(checks, prov.id), color: "#0ea5e9" },
+                    { label: "Ops", pct: opsPct(qa, prov.id), color: "#0ea5e9" },
                     { label: "Questionnaires", pct: questPct(qa, prov.id), color: "#eab308" },
                   ].map((m, i) => {
                     const dc = m.pct >= 70 ? "#22c55e" : m.pct >= 30 ? m.color : m.pct > 0 ? "#ef4444" : "#adb5bd";
@@ -943,6 +1035,16 @@ export default function App() {
                     const items = MD_ITEMS_BY_PHASE[ph.id] || [];
                     const done = items.filter(it => checks[prov.id + ".md." + it.id]).length;
                     cc = items.length > 0 ? { done, total: items.length } : null;
+                  } else if (isOps) {
+                    const op = OP.find(p => p.id === ph.id);
+                    if (op) {
+                      const total = op.qs.length;
+                      const done = op.qs.filter(q => {
+                        const v = qa[prov.id + "." + ph.id + "." + q.qid];
+                        return v !== undefined && v !== "";
+                      }).length;
+                      cc = { done, total };
+                    }
                   } else if (!isQ) {
                     cc = countChecks(checks, prov.id, ph.id);
                   }
@@ -1013,6 +1115,35 @@ export default function App() {
                           style={{ padding: "8px 16px", borderRadius: 6, border: "none", background: "#0f1b2d", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Add</button>
                       </div>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* OM QUESTIONNAIRE */}
+              {curOpQuest && (
+                <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", maxWidth: 740, overflow: "hidden" }}>
+                  <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6" }}>
+                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{curOpQuest.label}</h3>
+                    <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>Office Manager assessment — Director view only</div>
+                  </div>
+                  {curOpQuest.qs.map((q) => {
+                    const val = qa[prov.id + "." + phase + "." + q.qid] || "";
+                    return (
+                      <div key={q.qid} style={{ padding: "16px 20px", borderBottom: "1px solid #dee2e6" }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: "#0ea5e9", textTransform: "uppercase", marginBottom: 4 }}>{q.label}</div>
+                        <div style={{ fontSize: 14, color: "#1c2b3a", lineHeight: 1.5, marginBottom: 12 }}>{q.text}</div>
+                        {q.ty === "s" ? (
+                          <ScaleInput value={val} onChange={v => setAnswer(prov.id, phase, q.qid, v)} anchorLow={q.anchor_low} anchorHigh={q.anchor_high} />
+                        ) : (
+                          <textarea value={val} onChange={e => setAnswer(prov.id, phase, q.qid, e.target.value)}
+                            placeholder="Record provider's response word for word..." style={{ padding: "10px 12px", borderRadius: 6, border: "1px solid #dee2e6", fontSize: 14, width: "100%", height: 100, boxSizing: "border-box", resize: "vertical", outline: "none", fontFamily: "inherit" }} />
+                        )}
+                      </div>
+                    );
+                  })}
+                  <div style={{ padding: "14px 20px", background: "#f0f9ff", borderTop: "2px solid #bae6fd" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#0369a1", marginBottom: 4 }}>📋 Microsoft Forms Integration</div>
+                    <div style={{ fontSize: 11, color: "#0369a1" }}>These questions are designed to be distributed to the Office Manager via Microsoft Forms. Responses entered here serve as the director's record of the OM's assessment.</div>
                   </div>
                 </div>
               )}

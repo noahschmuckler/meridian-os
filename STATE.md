@@ -32,6 +32,10 @@ Detailed in-flight work, historical record of shipped phases/tracks, and pending
 
 ## Shipped milestones (chronological, newest first)
 
+### OM track — structured questionnaire (2026-05-13, Scott, PR #2)
+
+`OP` constant in `src/apps/mentorship-tracker/MentorshipTrackerApp.tsx` converted from 5-item boolean checklist to a structured questionnaire — 6 assessment periods (Month 1/2/3/6/9/12), each with 6 labeled 0–10 scale questions (custom `anchor_low`/`anchor_high` per question) + 1 free-text provider check-in. Director-only view; no role logic changed. Downstream wiring rewritten throughout: `makeSeedChecks` (om* phases stripped), `makeSeedQA` (seeded OM demo responses p1/p2/p3), `countChecks` (MP only), `opsPct` (signature `(qa, pid)` iterating `ph.qs`; all three call sites updated — sidebar, comparison table, metric cards), `ScaleInput` (optional anchor props with stacked labeled 0/10 display, fallback "Not at all"/"Completely"), `MdViewAllModal` (takes `qa` prop; OP rows render score badges/text excerpts instead of checkboxes), `curChecklist`/`curOpQuest` (derived state split so OP never hits CheckItem). New `{/* OM QUESTIONNAIRE */}` render block with MS Forms integration note footer. One file changed: `MentorshipTrackerApp.tsx` (+170 / −39). Merged via admin override (PR opened 22:27 UTC, no reviews; see workflow caveat in CLAUDE.md "Cloudflare preview-URL gotcha"). Head: `a6dee8a`.
+
 ### Cloudflare Pages Git-connected (2026-05-12)
 Migrated from direct-upload to Git-connected. Old project deleted; new project created with same name in dashboard; build = `npm run build`, output = `dist`, env vars (Production + Preview) = `NODE_VERSION=20.20.2` + `ANTHROPIC_API_KEY`. Branch pushes now auto-publish to preview URLs. `deploy.sh` retained as manual fallback. Branch protection on `main` set the same day: PRs required, 1 approval, squash-only, auto-delete branches, force-push + branch-deletion disabled, conversation resolution required, admins not enforced (Noah can self-merge in emergencies).
 
