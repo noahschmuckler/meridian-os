@@ -25,6 +25,17 @@ const SEED_MODULES: ModuleData[] = (
   ((clinicalModulesSeed as { clinical?: { modules?: ModuleData[] } }).clinical?.modules) ?? []
 );
 
+// Peek at the DOCX-derived HTML to find the Heading-1 title without doing
+// full parsing. Used to look up an existing module so parseDocxHtml can
+// merge references on re-import (schema 1.3.0+ references-merge policy).
+function sniffModuleId(html: string): string | null {
+  const m = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+  if (!m) return null;
+  const title = m[1].trim();
+  const titlePart = title.split(' — ')[0].split(' - ')[0];
+  return titlePart.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || null;
+}
+
 interface SpawnSpec {
   type: BubblePrimitiveType;
   title: string;
@@ -149,7 +160,15 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
           ],
         },
       );
-      const mod = parseDocxHtml(result.value);
+      // Look up an existing module with the same module_id so the parser
+      // can merge references (95-superset preservation policy) and carry
+      // forward DOCX-orthogonal fields (consults walker, calculators,
+      // glossary).
+      const previewModuleId = sniffModuleId(result.value);
+      const existing: ModuleData | undefined = previewModuleId
+        ? [...SEED_MODULES, ...userModulesSignal.value].find((m) => m.module_id === previewModuleId)
+        : undefined;
+      const mod = parseDocxHtml(result.value, existing);
       const { mod: stored, renamed } = addUserModule(mod);
       setStatus({
         kind: 'ok',

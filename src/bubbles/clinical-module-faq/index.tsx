@@ -6,6 +6,7 @@
 // the host to grow this bubble (so the answer is comfortable to read).
 
 import type { JSX } from 'preact';
+import { useState } from 'preact/hooks';
 import type { BubbleInstance, GlossaryEntry, ModuleData, ModuleFaqEntry } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
@@ -101,7 +102,7 @@ export function ClinicalModuleFaq({ instance, workspaceId, onRequestSiblingFocus
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
           {focusedFaq && (
             <span style={{ fontSize: 10, opacity: 0.6 }}>
-              {focusedFaq.items.length} Q
+              {(focusedFaq.sub_questions?.length ?? focusedFaq.items?.length ?? 0)} Q
             </span>
           )}
           <FontSizeControls bubbleId={selfBubbleId} />
@@ -123,27 +124,52 @@ function FocusedFaq({ entry, module }: { entry: ModuleFaqEntry; module: ModuleDa
   // citations-used-in lookup so superscripts and the references list agree
   // on which ref got which number for this module.
   const numberer = getModuleRefNumberer(module);
-  const cited = getReferencesUsedIn(entry.items.map((qa) => qa.answer_html), module, numberer);
   const glossary = getMergedGlossary(module, GLOBAL_GLOSSARY);
+  const decorate = (html: string): string => decorateConsultMentionsHtml(
+    decorateGlossaryHtml(expandRefMarkers(html, module, numberer), glossary),
+    module.consults ?? [],
+  );
+
+  // 1.3.0 two-tier path: first_layer_html present means the entry has been
+  // through the Simplified/Stratified Pass. Render first-layer answer at top,
+  // then optional SmartPhrase / Consult pills, then sub_questions as
+  // default-closed expanders. Fall through to legacy items[] path otherwise.
+  const isTwoTier = typeof entry.first_layer_html === 'string' && entry.first_layer_html.length > 0;
+
+  // Citation list aggregates refs cited across whichever content is rendered.
+  const renderedHtmls: string[] = isTwoTier
+    ? [
+        entry.first_layer_html ?? '',
+        ...(entry.sub_questions?.map((qa) => qa.answer_html) ?? []),
+      ]
+    : (entry.items?.map((qa) => qa.answer_html) ?? []);
+  const cited = getReferencesUsedIn(renderedHtmls, module, numberer);
+
+  // Badge derivation from referenced_by[]: intersect with checklist/escalation
+  // item_ids so the topic pill matches the surface item that links here.
+  const checklistIds = new Set(module.checklist.map((c) => c.item_id));
+  const escalationIds = new Set(module.escalation.map((e) => e.item_id));
+  const refs = entry.referenced_by ?? [];
+  const isChecklist = refs.some((r) => checklistIds.has(r));
+  const isEscalation = refs.some((r) => escalationIds.has(r));
+
   return (
     <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '0 0 10px', flexWrap: 'wrap' }}>
+        {isChecklist && <span class="cm-faq__badge cm-faq__badge--checklist">Checklist</span>}
+        {isEscalation && <span class="cm-faq__badge cm-faq__badge--escalation">Escalation</span>}
+        {!isChecklist && !isEscalation && refs.length === 0 && (
+          <span class="cm-faq__badge cm-faq__badge--neutral">Reference</span>
+        )}
+      </div>
       <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 12px', lineHeight: 1.3 }}>
         {entry.title}
       </h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {entry.items.map((qa, i) => (
-          <div key={i}>
-            <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4, color: 'var(--type-color, var(--accent))' }}>
-              {qa.question}
-            </div>
-            <div
-              class="markdown-body"
-              style={{ fontSize: 12.5, lineHeight: 1.5 }}
-              dangerouslySetInnerHTML={{ __html: decorateConsultMentionsHtml(decorateGlossaryHtml(expandRefMarkers(qa.answer_html, module, numberer), glossary), module.consults ?? []) }}
-            />
-          </div>
-        ))}
-      </div>
+      {isTwoTier ? (
+        <TwoTierBody entry={entry} decorate={decorate} />
+      ) : (
+        <LegacyItemsBody items={entry.items ?? []} decorate={decorate} />
+      )}
       {cited.length > 0 && (
         <ol class="faq-references">
           {cited.map(({ number, ref }) => (
@@ -156,6 +182,141 @@ function FocusedFaq({ entry, module }: { entry: ModuleFaqEntry; module: ModuleDa
             </li>
           ))}
         </ol>
+      )}
+    </div>
+  );
+}
+
+function TwoTierBody({ entry, decorate }: { entry: ModuleFaqEntry; decorate: (html: string) => string }): JSX.Element {
+  const subQuestions = entry.sub_questions ?? [];
+  return (
+    <div>
+      {/* First layer — scannable bottom-line answer */}
+      <div
+        class="markdown-body cm-faq__first-layer"
+        style={{ fontSize: 12.5, lineHeight: 1.5 }}
+        dangerouslySetInnerHTML={{ __html: decorate(entry.first_layer_html ?? '') }}
+      />
+      {/* SmartPhrase note pill */}
+      {entry.smartphrase_note && (
+        <div class="cm-faq__sp-note" style={{ margin: '10px 0 0' }}>
+          <span class="cm-faq__sp-pill">SmartPhrase</span>
+          <span style={{ fontSize: 12, opacity: 0.85 }}>{entry.smartphrase_note}</span>
+        </div>
+      )}
+      {/* Consult decision point pill */}
+      {entry.consult_decision_point && (
+        <ConsultDecisionPointPill point={entry.consult_decision_point} />
+      )}
+      {/* Sub-questions — default-closed expanders */}
+      {subQuestions.length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4, opacity: 0.6, margin: '0 0 6px' }}>
+            More detail
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {subQuestions.map((qa, i) => (
+              <SubQuestionRow key={i} qa={qa} decorate={decorate} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LegacyItemsBody({ items, decorate }: { items: { question: string; answer_html: string }[]; decorate: (html: string) => string }): JSX.Element {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {items.map((qa, i) => (
+        <div key={i}>
+          <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4, color: 'var(--type-color, var(--accent))' }}>
+            {qa.question}
+          </div>
+          <div
+            class="markdown-body"
+            style={{ fontSize: 12.5, lineHeight: 1.5 }}
+            dangerouslySetInnerHTML={{ __html: decorate(qa.answer_html) }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SubQuestionRow({ qa, decorate }: { qa: { question: string; answer_html: string }; decorate: (html: string) => string }): JSX.Element {
+  const [open, setOpen] = useState(false);
+  return (
+    <div class="cm-faq__subq" style={{ border: '1px solid rgba(0,0,0,0.1)', borderRadius: 6, overflow: 'hidden' }}>
+      <button
+        type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        aria-expanded={open}
+        style={{
+          width: '100%',
+          textAlign: 'left',
+          padding: '8px 10px',
+          border: 'none',
+          background: 'transparent',
+          cursor: 'pointer',
+          font: 'inherit',
+          fontSize: 12,
+          lineHeight: 1.35,
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 8,
+          fontWeight: 600,
+        }}
+      >
+        <span style={{ flex: 1 }}>{qa.question}</span>
+        <span style={{ flexShrink: 0, opacity: 0.45, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>▾</span>
+      </button>
+      {open && (
+        <div
+          class="markdown-body"
+          style={{ padding: '0 10px 10px', fontSize: 12.5, lineHeight: 1.5 }}
+          dangerouslySetInnerHTML={{ __html: decorate(qa.answer_html) }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ConsultDecisionPointPill({ point }: { point: NonNullable<ModuleFaqEntry['consult_decision_point']> }): JSX.Element {
+  const [open, setOpen] = useState(false);
+  return (
+    <div class="cm-faq__consult-dp" style={{ margin: '10px 0 0' }}>
+      <button
+        type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        aria-expanded={open}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '4px 10px',
+          border: '1px solid rgba(124, 58, 237, 0.35)',
+          background: 'rgba(124, 58, 237, 0.08)',
+          color: '#5b21b6',
+          borderRadius: 999,
+          cursor: 'pointer',
+          font: 'inherit',
+          fontSize: 11,
+          fontWeight: 600,
+        }}
+      >
+        <span>Consult decision point</span>
+        {point.trigger_label && (
+          <span style={{ fontSize: 10, opacity: 0.7 }}>· {point.trigger_label}</span>
+        )}
+        <span style={{ fontSize: 9, opacity: 0.55, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>▾</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(124, 58, 237, 0.05)', borderRadius: 6, fontSize: 12, lineHeight: 1.5, fontStyle: 'italic' }}>
+          {point.prefill_text}
+        </div>
       )}
     </div>
   );

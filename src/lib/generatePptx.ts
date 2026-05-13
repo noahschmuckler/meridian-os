@@ -173,7 +173,18 @@ export async function generateModulePptx(mod: ModuleData): Promise<Blob> {
   for (const faq of mod.faqs) {
     let { slide, qy } = newFaqSlide(faq, false);
 
-    for (const qa of faq.items) {
+    // Schema 1.3.0: first_layer_html + sub_questions[] is the canonical shape.
+    // Fall back to legacy items[] for 1.2.0 and earlier. PPTX is a one-way
+    // export so we render the first layer as a synthetic "Overview" pseudo-Q/A
+    // and the sub-questions inline below.
+    const qaList: Array<{ question: string; answer_html: string }> = faq.first_layer_html
+      ? [
+          { question: 'Overview', answer_html: faq.first_layer_html },
+          ...(faq.sub_questions ?? []),
+        ]
+      : (faq.items ?? []);
+
+    for (const qa of qaList) {
       let questionWritten = false;
       let remaining = htmlToPlain(qa.answer_html);
 

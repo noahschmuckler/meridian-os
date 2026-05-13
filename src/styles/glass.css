@@ -1272,6 +1272,73 @@
   text-decoration: underline;
 }
 
+/* === FAQ two-tier render (schema 1.3.0+) =================================
+   Topic badge pills (derived from referenced_by[] vs checklist/escalation),
+   inline callout box for first-layer "guideline tension" / "important
+   caveat" content, and the SmartPhrase note pill. Sub-question expanders
+   and the consult-decision-point pill style themselves inline in the JSX. */
+.cm-faq__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.cm-faq__badge--checklist {
+  background: rgba(26, 92, 58, 0.08);
+  color: #1a5c3a;
+  border-color: rgba(26, 92, 58, 0.25);
+}
+.cm-faq__badge--escalation {
+  background: rgba(190, 30, 45, 0.07);
+  color: #a01a26;
+  border-color: rgba(190, 30, 45, 0.25);
+}
+.cm-faq__badge--neutral {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--ink-faint, #555);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.cm-faq__first-layer .cm-callout {
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  color: #78350f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.cm-faq__first-layer .cm-callout::before {
+  content: 'Note: ';
+  font-weight: 700;
+}
+.cm-faq__sp-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cm-faq__sp-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  background: rgba(20, 130, 130, 0.1);
+  color: #0e6868;
+  border: 1px solid rgba(20, 130, 130, 0.3);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  text-transform: uppercase;
+}
+.cm-faq__subq summary, .cm-faq__subq button { font-family: inherit; }
+
 /* Markdown bubble */
 .md-bubble {
   font-size: 13px;

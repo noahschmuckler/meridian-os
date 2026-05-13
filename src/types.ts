@@ -211,12 +211,48 @@ export interface ModuleFaqQA {
   answer_html: string;
 }
 
+// Per-FAQ-entry consult-builder pre-fill (schema 1.3.0+). The
+// clinical-module-faq bubble surfaces this as a non-clickable pill in the
+// detail layer today; the optional `consult_id` reserves a future path
+// where clicking spawns the consult-builder with `prefill_text` pre-loaded.
+export interface ModuleConsultDecisionPoint {
+  prefill_text: string;
+  trigger_label?: string;
+  consult_id?: string;
+}
+
+// Module-level SmartPhrase registry (schema 1.3.0+). Tracks both phrases
+// that ship in this revision (`status: 'confirmed'` with `text`) and ones
+// flagged for future development (`status: 'future'` with `description`).
+// Without this registry, the "future" phrases referenced in per-entry
+// `smartphrase_note` fields would have no addressable home.
+export interface ModuleSmartPhrase {
+  id: string;
+  status: 'confirmed' | 'future';
+  text?: string;
+  description?: string;
+}
+
+// schema 1.3.0 added the two-tier "Simplified/Stratified Pass" FAQ shape:
+//   - `first_layer_html` — the scannable bottom-line answer rendered above
+//     the fold (mixed prose / <ul> / <table> / <div class="cm-callout">).
+//   - `sub_questions[]` — first-person provider questions shown as
+//     default-closed "More detail" expanders below the first layer.
+//   - `smartphrase_note`, `consult_decision_point` — optional surface
+//     affordances tied to clinical decision points within this topic.
+// Entries authored at 1.2.0 or earlier carry `items[]` (now optional) and
+// render via the legacy flat-Q&A path. 1.3.0 entries omit `items` and
+// populate `first_layer_html` + `sub_questions`.
 export interface ModuleFaqEntry {
   faq_id: string;
   topic: string;
   title: string;
   referenced_by?: string[];
-  items: ModuleFaqQA[];
+  items?: ModuleFaqQA[];
+  first_layer_html?: string;
+  sub_questions?: ModuleFaqQA[];
+  smartphrase_note?: string;
+  consult_decision_point?: ModuleConsultDecisionPoint;
 }
 
 // schema_version 1.1.0 introduced structured references with stable ref_ids
@@ -315,6 +351,11 @@ export interface ModuleData {
   // catalog and the decorateConsultMentions auto-link decorator. Modules
   // that omit `consults` get no auto-spawn and no consult anchors.
   consults?: ConsultPath[];
+  // Module-level SmartPhrase registry (schema 1.3.0+). One entry per
+  // SmartPhrase referenced anywhere in the module (green_zone, FAQ
+  // entries, or future hooks). Future phrases live here even before they
+  // have homes so they aren't lost on the next pass.
+  smartphrases?: ModuleSmartPhrase[];
 }
 
 export interface Bubble<P = unknown> {
