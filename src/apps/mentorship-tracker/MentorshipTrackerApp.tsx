@@ -993,7 +993,6 @@ export default function App() {
                               );
                             })}
                           </svg>
-                          )}
                         </div>
                       );
                     })}
