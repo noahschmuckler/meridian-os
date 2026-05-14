@@ -847,9 +847,11 @@ export default function App() {
                     </div>
                   )}
                   <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
-                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6" }}>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Score Trends — Office Manager Touchpoints</div>
-                      <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Average score per assessment period · <span style={{ color: "#22c55e", fontWeight: 700 }}>≥7</span> · <span style={{ color: "#eab308", fontWeight: 700 }}>5–6</span> · <span style={{ color: "#ef4444", fontWeight: 700 }}>&lt;5</span></div>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Score Trends — Office Manager Touchpoints</div>
+                        <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Avg score per assessment period &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 on track</span> &nbsp;<span style={{ color: "#eab308", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 concern</span></div>
+                      </div>
                     </div>
                     {PROVS.map(p => {
                       const provScores = OP.map(ph => {
@@ -860,31 +862,67 @@ export default function App() {
                         const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
                         return { ph, avg };
                       }).filter(x => x.avg !== null);
+
+                      const W = 520, H = 150;
+                      const PL = 32, PR = 16, PT = 26, PB = 28;
+                      const cw = W - PL - PR;
+                      const ch = H - PT - PB;
+                      const xOf = (i) => PL + (provScores.length > 1 ? (i / (provScores.length - 1)) : 0.5) * cw;
+                      const yOf = (s) => PT + (1 - s / 10) * ch;
+                      const y7 = yOf(7), y5 = yOf(5);
+
+                      const delta = provScores.length >= 2
+                        ? provScores[provScores.length - 1].avg - provScores[0].avg : 0;
+                      const trendColor = delta > 0.4 ? "#22c55e" : delta < -0.4 ? "#ef4444" : "#868e96";
+                      const trendLabel = delta > 0.4 ? ("↑ +" + delta.toFixed(1)) : delta < -0.4 ? ("↓ " + delta.toFixed(1)) : "→ stable";
+
+                      const polyPts = provScores.map(({ avg }, i) => xOf(i) + "," + yOf(avg)).join(" ");
+
                       return (
-                        <div key={p.id} style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6" }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d", marginBottom: 8 }}>
-                            {p.name}
-                            <span style={{ fontSize: 10, fontWeight: 400, color: "#868e96", marginLeft: 8 }}>{(MP.find(x => x.id === p.phase) || {}).label}</span>
+                        <div key={p.id} style={{ padding: "14px 20px 10px", borderBottom: "1px solid #dee2e6" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <div>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</span>
+                              <span style={{ fontSize: 10, fontWeight: 400, color: "#868e96", marginLeft: 8 }}>{(MP.find(x => x.id === p.phase) || {}).label}</span>
+                            </div>
+                            {provScores.length >= 2 && (
+                              <span style={{ fontSize: 12, fontWeight: 700, color: trendColor }}>{trendLabel} over period</span>
+                            )}
                           </div>
                           {provScores.length === 0 ? (
-                            <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No assessments recorded</div>
+                            <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic", paddingBottom: 8 }}>No assessments recorded</div>
                           ) : (
-                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                              {provScores.map(({ ph, avg }) => {
-                                const scoreColor = avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444";
-                                const bgColor = avg < 6 ? "#fef2f2" : avg < 7 ? "#fefce8" : "#f0fdf4";
-                                const borderColor = avg < 6 ? "#fecaca" : avg < 7 ? "#fef08a" : "#bbf7d0";
+                            <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", maxWidth: 600, height: "auto", display: "block" }}>
+                              {/* chart background */}
+                              <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
+                              {/* reference line y=7 */}
+                              <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                              <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
+                              {/* reference line y=5 */}
+                              <line x1={PL} y1={y5} x2={PL + cw} y2={y5} stroke="#eab308" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                              <text x={PL - 4} y={y5 + 3.5} textAnchor="end" fontSize={9} fill="#eab308" fontWeight={700}>5</text>
+                              {/* top + bottom axis lines */}
+                              <line x1={PL} y1={PT} x2={PL + cw} y2={PT} stroke="#dee2e6" strokeWidth={0.75} />
+                              <text x={PL - 4} y={PT + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">10</text>
+                              <line x1={PL} y1={PT + ch} x2={PL + cw} y2={PT + ch} stroke="#dee2e6" strokeWidth={0.75} />
+                              <text x={PL - 4} y={PT + ch + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">0</text>
+                              {/* connecting line */}
+                              {provScores.length > 1 && (
+                                <polyline points={polyPts} fill="none" stroke="#0ea5e9" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+                              )}
+                              {/* data points */}
+                              {provScores.map(({ ph, avg }, i) => {
+                                const cx = xOf(i), cy = yOf(avg);
+                                const dc = avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444";
                                 return (
-                                  <div key={ph.id} style={{ background: bgColor, border: "1px solid " + borderColor, borderRadius: 8, padding: "8px 12px", minWidth: 80, textAlign: "center" }}>
-                                    <div style={{ fontSize: 10, color: "#868e96", fontWeight: 600, marginBottom: 4 }}>{ph.label}</div>
-                                    <div style={{ fontSize: 20, fontWeight: 700, color: scoreColor }}>{avg.toFixed(1)}</div>
-                                    <div style={{ height: 4, background: "#e9ecef", borderRadius: 2, overflow: "hidden", marginTop: 6 }}>
-                                      <div style={{ height: "100%", width: (avg / 10 * 100) + "%", background: scoreColor, borderRadius: 2 }} />
-                                    </div>
-                                  </div>
+                                  <g key={ph.id}>
+                                    <circle cx={cx} cy={cy} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                    <text x={cx} y={cy - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
+                                    <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill="#868e96">{ph.label}</text>
+                                  </g>
                                 );
                               })}
-                            </div>
+                            </svg>
                           )}
                         </div>
                       );
