@@ -975,19 +975,21 @@ export default function App() {
               {/* JOURNEY TIMELINE */}
               <Timeline currentIdx={curIdx} />
 
-              {/* 4 METRIC CARDS */}
+              {/* 4 METRIC CARDS — clickable tab selectors (director only) */}
               {isDir && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
                   {[
-                    { label: "MD Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6" },
-                    { label: "Mentor", pct: mentorPct(checks, prov.id), color: "#028090" },
-                    { label: "Ops", pct: opsPct(qa, prov.id), color: "#0ea5e9" },
-                    { label: "Questionnaires", pct: questPct(qa, prov.id), color: "#eab308" },
-                  ].map((m, i) => {
+                    { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
+                    { label: "Mentor Curriculum", pct: mentorPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase },
+                    { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
+                    { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
+                  ].map((m) => {
+                    const isActive = tab === m.key;
                     const dc = m.pct >= 70 ? "#22c55e" : m.pct >= 30 ? m.color : m.pct > 0 ? "#ef4444" : "#adb5bd";
                     return (
-                      <div key={i} style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "12px 14px" }}>
-                        <div style={{ fontSize: 11, color: "#868e96", marginBottom: 4 }}>{m.label}</div>
+                      <div key={m.key} onClick={() => { setTab(m.key); setPhase(m.def); }}
+                        style={{ background: isActive ? m.color + "12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? m.color : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                        <div style={{ fontSize: 11, color: isActive ? m.color : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>{m.label}</div>
                         <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{m.pct}%</div>
                         <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 6 }}>
                           <div style={{ height: "100%", width: m.pct + "%", background: m.color, borderRadius: 3 }} />
@@ -1000,29 +1002,6 @@ export default function App() {
 
               {/* SCORE TREND */}
               {isDir && <ScoreTrend qa={qa} pid={prov.id} />}
-
-              {/* TRACK TABS */}
-              <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-                {[
-                  { key: "mentor", label: "Mentor Check-Ins", color: "#028090", def: prov.phase },
-                  ...(isDir ? [
-                    { key: "md", label: "MD Curriculum", color: "#8b5cf6", def: "pre0" },
-                    { key: "ops", label: "Office Manager", color: "#0ea5e9", def: "om1" },
-                    { key: "quest", label: "Questionnaires", color: "#eab308", def: "w1" },
-                  ] : []),
-                ].map(t => (
-                  <button key={t.key} onClick={() => { setTab(t.key); setPhase(t.def); }}
-                    style={{ padding: "9px 20px", borderRadius: 8, border: "2px solid " + (tab === t.key ? t.color : "#dee2e6"), background: tab === t.key ? t.color : "white", color: tab === t.key ? "white" : "#868e96", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-                    {t.label}
-                  </button>
-                ))}
-                {isDir && tab === "md" && (
-                  <button onClick={() => setMdViewAll(true)}
-                    style={{ marginLeft: "auto", padding: "9px 16px", borderRadius: 8, border: "2px solid #8b5cf6", background: "white", color: "#8b5cf6", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
-                    📋 View All Curriculum
-                  </button>
-                )}
-              </div>
 
               {/* PHASE SELECTOR */}
               <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
