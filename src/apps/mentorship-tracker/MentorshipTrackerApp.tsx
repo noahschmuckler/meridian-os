@@ -929,6 +929,78 @@ export default function App() {
                       );
                     })}
                   </div>
+
+                  {/* MD Touchpoints chart */}
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Score Trends — Medical Director Touchpoints</div>
+                      <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Avg score per check-in period &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 on track</span> &nbsp;<span style={{ color: "#eab308", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 concern</span></div>
+                    </div>
+                    {PROVS.map(p => {
+                      const provScores = QP.map(ph => {
+                        const avg = avgScore(qa, p.id, ph.id);
+                        return { ph, avg };
+                      }).filter(x => x.avg !== null);
+
+                      const W = 520, H = 150;
+                      const PL = 32, PR = 16, PT = 26, PB = 28;
+                      const cw = W - PL - PR;
+                      const ch = H - PT - PB;
+                      const xOf = (i) => PL + (provScores.length > 1 ? (i / (provScores.length - 1)) : 0.5) * cw;
+                      const yOf = (s) => PT + (1 - s / 10) * ch;
+                      const y7 = yOf(7), y5 = yOf(5);
+
+                      const delta = provScores.length >= 2
+                        ? provScores[provScores.length - 1].avg - provScores[0].avg : 0;
+                      const trendColor = delta > 0.4 ? "#22c55e" : delta < -0.4 ? "#ef4444" : "#868e96";
+                      const trendLabel = delta > 0.4 ? ("↑ +" + delta.toFixed(1)) : delta < -0.4 ? ("↓ " + delta.toFixed(1)) : "→ stable";
+
+                      const polyPts = provScores.map(({ avg }, i) => xOf(i) + "," + yOf(avg)).join(" ");
+
+                      return (
+                        <div key={p.id} style={{ padding: "14px 20px 10px", borderBottom: "1px solid #dee2e6" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <div>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</span>
+                              <span style={{ fontSize: 10, fontWeight: 400, color: "#868e96", marginLeft: 8 }}>{(MP.find(x => x.id === p.phase) || {}).label}</span>
+                            </div>
+                            {provScores.length >= 2 && (
+                              <span style={{ fontSize: 12, fontWeight: 700, color: trendColor }}>{trendLabel} over period</span>
+                            )}
+                          </div>
+                          {provScores.length === 0 ? (
+                            <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic", paddingBottom: 8 }}>No check-ins recorded</div>
+                          ) : (
+                            <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", maxWidth: 600, height: "auto", display: "block" }}>
+                              <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
+                              <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                              <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
+                              <line x1={PL} y1={y5} x2={PL + cw} y2={y5} stroke="#eab308" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                              <text x={PL - 4} y={y5 + 3.5} textAnchor="end" fontSize={9} fill="#eab308" fontWeight={700}>5</text>
+                              <line x1={PL} y1={PT} x2={PL + cw} y2={PT} stroke="#dee2e6" strokeWidth={0.75} />
+                              <text x={PL - 4} y={PT + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">10</text>
+                              <line x1={PL} y1={PT + ch} x2={PL + cw} y2={PT + ch} stroke="#dee2e6" strokeWidth={0.75} />
+                              <text x={PL - 4} y={PT + ch + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">0</text>
+                              {provScores.length > 1 && (
+                                <polyline points={polyPts} fill="none" stroke="#eab308" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+                              )}
+                              {provScores.map(({ ph, avg }, i) => {
+                                const cx = xOf(i), cy = yOf(avg);
+                                const dc = avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444";
+                                return (
+                                  <g key={ph.id}>
+                                    <circle cx={cx} cy={cy} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                    <text x={cx} y={cy - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
+                                    <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill="#868e96">{ph.label}</text>
+                                  </g>
+                                );
+                              })}
+                            </svg>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
