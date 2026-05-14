@@ -644,6 +644,7 @@ export default function App() {
   const [notes, setNotes] = useState({});
   const [mainTab, setMainTab] = useState("roster");
   const [mdViewAll, setMdViewAll] = useState(false);
+  const [dueMenu, setDueMenu] = useState(null);
 
   const user = USERS.find(u => u.id === uid);
   const isDir = user && user.role === "director";
@@ -953,6 +954,22 @@ export default function App() {
                         const vals = [mdCurriculumPct(checks, p.id), mentorPct(checks, p.id), opsPct(qa, p.id), questPct(qa, p.id)];
                         const cols = ["#8b5cf6", "#028090", "#0ea5e9", "#eab308"];
                         const st = getStatus(p.id);
+                        const getDueItems = () => {
+                          const ci = phIdx(p.phase);
+                          const d = p.days;
+                          let expected = 0;
+                          if (d >= 270) expected = 13; else if (d >= 180) expected = 11;
+                          else if (d >= 150) expected = 10; else if (d >= 120) expected = 9;
+                          else if (d >= 90) expected = 8; else if (d >= 56) expected = 7;
+                          else expected = Math.floor(d / 7);
+                          const items = [];
+                          for (let i = ci; i < Math.min(expected, MP.length); i++) {
+                            const ph = MP[i];
+                            const cc = countChecks(checks, p.id, ph.id);
+                            if (cc.total > 0 && cc.pct < 100) items.push({ phase: ph, done: cc.done, total: cc.total });
+                          }
+                          return items;
+                        };
                         return (
                           <tr key={p.id} style={{ borderBottom: "1px solid #dee2e6" }}>
                             <td style={{ padding: "12px 16px", fontWeight: 600 }}>
@@ -970,9 +987,25 @@ export default function App() {
                               </td>
                             ))}
                             <td style={{ padding: "12px 8px", textAlign: "center" }}>
-                              <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, background: st === "overdue" ? "#fef2f2" : st === "due" ? "#fefce8" : "#dcfce7", color: st === "overdue" ? "#ef4444" : st === "due" ? "#92400e" : "#166534" }}>
-                                {st === "overdue" ? "OVERDUE" : st === "due" ? "DUE" : "ON TRACK"}
-                              </span>
+                              {(st === "due" || st === "overdue") ? (
+                                <button
+                                  onClick={(e) => {
+                                    const items = getDueItems();
+                                    if (items.length === 1) {
+                                      setSelId(p.id); setTab("mentor"); setPhase(items[0].phase.id);
+                                    } else if (items.length > 1) {
+                                      const rect = e.currentTarget.getBoundingClientRect();
+                                      setDueMenu({ pid: p.id, items, x: rect.left, y: rect.bottom + 6 });
+                                    } else {
+                                      setSelId(p.id); setTab("mentor"); setPhase(p.phase);
+                                    }
+                                  }}
+                                  style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 8, border: "none", cursor: "pointer", background: st === "overdue" ? "#fef2f2" : "#fefce8", color: st === "overdue" ? "#ef4444" : "#92400e" }}>
+                                  {st === "overdue" ? "OVERDUE ↗" : "DUE ↗"}
+                                </button>
+                              ) : (
+                                <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, background: "#dcfce7", color: "#166534" }}>ON TRACK</span>
+                              )}
                             </td>
                           </tr>
                         );
@@ -1261,6 +1294,29 @@ export default function App() {
           )}
         </div>
       </div>
+
+      {/* Due-items popover */}
+      {dueMenu && (
+        <div onClick={() => setDueMenu(null)}
+          style={{ position: "fixed", inset: 0, zIndex: 1000 }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ position: "fixed", left: dueMenu.x, top: dueMenu.y, background: "white", borderRadius: 10, border: "1px solid #dee2e6", boxShadow: "0 8px 24px rgba(0,0,0,0.14)", minWidth: 240, maxWidth: 320, zIndex: 1001 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderBottom: "1px solid #dee2e6" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>Due checklist phases</div>
+              <button onClick={() => setDueMenu(null)}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "#868e96", lineHeight: 1, padding: "0 2px" }}>✕</button>
+            </div>
+            {dueMenu.items.map(it => (
+              <button key={it.phase.id}
+                onClick={() => { setSelId(dueMenu.pid); setTab("mentor"); setPhase(it.phase.id); setDueMenu(null); }}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px 14px", background: "none", border: "none", borderBottom: "1px solid #f1f3f5", cursor: "pointer", textAlign: "left" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#0f1b2d" }}>{it.phase.label}</span>
+                <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>{it.done}/{it.total} done</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
