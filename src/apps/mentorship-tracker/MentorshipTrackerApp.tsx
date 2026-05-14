@@ -4,7 +4,7 @@ import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
 
-/* ─── MD Curriculum (62 items from master checklist, see analysis/) ─── */
+/* ─── Medical Director Curriculum (62 items from master checklist, see analysis/) ─── */
 const MD_PHASES = masterChecklist.phases;
 const MD_ITEMS = masterChecklist.items;
 const MD_ITEMS_BY_PHASE = MD_ITEMS.reduce((acc, item) => {
@@ -188,7 +188,7 @@ function opsPct(qa, pid) {
   return t > 0 ? Math.round(a / t * 100) : 0;
 }
 
-// MD Curriculum coverage: percentage of curriculum items completed up to and
+// Medical Director Curriculum coverage: percentage of curriculum items completed up to and
 // including the provider's current phase. Pre-start phases (pre0, pre1) are
 // always counted because they happen before any provider's tracked days.
 function mdCurriculumPct(checks, pid) {
@@ -421,7 +421,8 @@ function Timeline({ currentIdx }) {
   );
 }
 
-/* ─── MD Curriculum row (used by per-phase view + View-All modal) ─── */
+/* ─── Medical Director Curriculum row (used by per-phase view + View-All modal) ─── */
+const OWNER_LABEL = { MD: "Medical Director", Mentor: "Mentor", OM: "Office Manager", CS: "Care Specialist" };
 function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
   const ownerColor = {
     MD: "#8b5cf6",
@@ -443,7 +444,7 @@ function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
             </span>
           )}
           <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: ownerColor + "15", color: ownerColor, textTransform: "uppercase" }}>
-            #{item.n} · {item.owner}
+            #{item.n} · {OWNER_LABEL[item.owner] || item.owner}
           </span>
           {item.partner && (
             <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: "#f1f3f5", color: "#868e96" }}>
@@ -483,10 +484,10 @@ function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
 }
 
 /* ─── View-All-Curriculum modal (chronological scroll, all three tracks) ─── */
-// Renders MD Curriculum (62 items pre0..q4), Mentor Check-Ins (MP w1..q4),
+// Renders Medical Director Curriculum (62 items pre0..q4), Mentor Check-Ins (MP w1..q4),
 // and Office Manager (OP om1..om12) as three stacked sections in one
 // scrollable modal. Per-track sticky header + per-phase sub-header. Only
-// the MD Curriculum carries the structured owner / partner / misstep /
+// the Medical Director Curriculum carries the structured owner / partner / misstep /
 // epic_ref_ids metadata — Mentor and OM rows are simple checkbox + text.
 function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, qa }) {
   if (!open) return null;
@@ -510,7 +511,7 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
   }));
 
   // Edit perms by track. Mirrors the App-level canChk semantics:
-  // MD items → director only; MP items → director or mentor; OP → director.
+  // Medical Director items → director only; MP items → director or mentor; OP → director.
   const canEditMd = !!prov && isDir;
   const canEditMp = !!prov && (isDir || isMen);
   const canEditOp = !!prov && isDir;
@@ -522,7 +523,7 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
   const tracks = [
     {
       key: "md",
-      title: "MD Curriculum",
+      title: "Medical Director Curriculum",
       subtitle: `${mdItems.length} items, pre-start → Month 12`,
       gradient: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
       accent: "#8b5cf6",
@@ -610,8 +611,8 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
           <div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>All Onboarding Tracks — Chronological</div>
             <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
-              MD Curriculum + Mentor Check-Ins + Office Manager.
-              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} MD · ${mpDone}/${mpTotal} mentor · ${opDone}/${opTotal} ops` : ""}
+              Medical Director Curriculum + Mentor Check-Ins + Office Manager.
+              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} Medical Director · ${mpDone}/${mpTotal} mentor · ${opDone}/${opTotal} ops` : ""}
             </div>
           </div>
           <button onClick={onClose}
@@ -661,8 +662,8 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
           ))}
         </div>
         <div style={{ padding: "12px 22px", borderTop: "1px solid #dee2e6", background: "#f8f9fb", fontSize: 11, color: "#868e96", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
-          <span>MD ⚠ misstep-risk items: 12 / 19 / 43 / 48 / 56 — keep verbatim when teaching.</span>
-          <span>MD source: Master Checklist · Mentor + Ops: Mentorship Tracker phases</span>
+          <span>Medical Director ⚠ misstep-risk items: 12 / 19 / 43 / 48 / 56 — keep verbatim when teaching.</span>
+          <span>Medical Director source: Master Checklist · Mentor + Ops: Mentorship Tracker phases</span>
         </div>
       </div>
     </div>
@@ -804,7 +805,7 @@ export default function App() {
         qa={qa}
       />
 
-      {/* MD tabs when no provider selected */}
+      {/* Director dashboard tabs when no provider selected */}
       {isDir && !selId && (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
           {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison Grid" }, { k: "trends", l: "Score Trends" }, { k: "notes", l: "Recent Notes" }].map(t => (
@@ -851,7 +852,7 @@ export default function App() {
                 </div>
                 {isDir ? (
                   <div>
-                    <Bar label="MD Curriculum" pct={md} color="#8b5cf6" />
+                    <Bar label="Medical Director Curriculum" pct={md} color="#8b5cf6" />
                     <Bar label="Mentor" pct={mn} color="#028090" />
                     <Bar label="Ops" pct={op} color="#0ea5e9" />
                     <Bar label="Questionnaires" pct={qp} color="#eab308" />
@@ -1052,7 +1053,7 @@ export default function App() {
                     })}
                   </div>
 
-                  {/* MD Touchpoints chart */}
+                  {/* Medical Director Touchpoints chart */}
                   <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
                     <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6" }}>
                       <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Score Trends — Medical Director Touchpoints</div>
@@ -1137,10 +1138,10 @@ export default function App() {
                     <thead>
                       <tr style={{ background: "#f8f9fb" }}>
                         <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Provider</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#8b5cf6", borderBottom: "2px solid #dee2e6" }}>MD Curriculum</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#8b5cf6", borderBottom: "2px solid #dee2e6" }}>Medical Director Curriculum</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor Curriculum</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>OM Touchpoints</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>MD Touchpoints</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Medical Director Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Status</th>
                       </tr>
                     </thead>
@@ -1352,7 +1353,7 @@ export default function App() {
                 })}
               </div>
 
-              {/* MD CURRICULUM CHECKLIST */}
+              {/* MEDICAL DIRECTOR CURRICULUM CHECKLIST */}
               {isMd && curMdItems && (
                 <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", maxWidth: 740, overflow: "hidden" }}>
                   <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1385,7 +1386,7 @@ export default function App() {
                   <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{curChecklist.label}</h3>
-                      <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>{isOps ? "MD + Office Manager" : "Mentor check-in"}</div>
+                      <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>{isOps ? "Medical Director + Office Manager" : "Mentor check-in"}</div>
                     </div>
                     {pc && <div style={{ fontSize: 22, fontWeight: 700, color: pc.pct === 100 ? "#22c55e" : "#0f1b2d" }}>{pc.pct}%</div>}
                   </div>
