@@ -111,6 +111,7 @@ const QP = [
   {id:"q4",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"}]},
 ];
 
+const QP_TO_OM = {w1:"om1",w2:"om1",w3:"om1",w4:"om1",w5:"om2",w6:"om2",w7:"om2",w8:"om2",m3:"om3",m6:"om6",q3:"om9",q4:"om12"};
 const USERS = [{id:"md1",name:"Dr. Rivera",role:"director"},{id:"mt1",name:"Dr. Smith",role:"mentor"},{id:"mt2",name:"Dr. Lee",role:"mentor"}];
 const PROVS = [
   {id:"p1",name:"Dr. Johnson",role:"MD",mentor:"mt1",phase:"m4",days:110},
@@ -245,25 +246,61 @@ function getStatus(pid) {
   return "ok";
 }
 
-/* NEW: Cross-provider pattern detection */
+/* Enhanced cross-provider pattern detection */
 function detectPatterns(qa) {
   const alerts = [];
-  MP.forEach(ph => {
-    const qp = QP.find(x => x.id === ph.id);
-    if (!qp) return;
-    const scores = [];
-    PROVS.forEach(prov => {
-      const a = avgScore(qa, prov.id, ph.id);
-      if (a !== null) scores.push({ name: prov.name, avg: a });
-    });
-    if (scores.length >= 2) {
-      const below = scores.filter(s => s.avg < 6);
-      if (below.length >= 2 && below.length / scores.length >= 0.5) {
-        const overall = scores.reduce((s, x) => s + x.avg, 0) / scores.length;
-        alerts.push({ phaseId: ph.id, label: ph.label, affected: below.length, total: scores.length, avg: overall.toFixed(1) });
-      }
-    }
+  const phaseComparison = QP.map(function(ph) {
+    const vals = PROVS.map(function(prov) { return avgScore(qa, prov.id, ph.id); }).filter(function(v) { return v !== null; });
+    const avg = vals.length > 0 ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+    return {label: ph.label, id: ph.id, avg: avg};
   });
+  QP.forEach(function(qp, qpIdx) {
+    const providerScores = [];
+    PROVS.forEach(function(prov) {
+      const a = avgScore(qa, prov.id, qp.id);
+      if (a !== null) providerScores.push({name: prov.name, pid: prov.id, avg: a});
+    });
+    if (providerScores.length < 2) return;
+    const below = providerScores.filter(function(s) { return s.avg < 6; });
+    if (below.length < 2 || below.length / providerScores.length < 0.5) return;
+    const overall = providerScores.reduce(function(s, x) { return s + x.avg; }, 0) / providerScores.length;
+    const questionBreakdown = qp.qs.filter(function(q) { return q.ty === "s"; }).map(function(q) {
+      const vals = providerScores.map(function(ps) {
+        const v = qa[ps.pid + "." + qp.id + "." + q.qid];
+        return (v !== undefined && v !== "") ? parseFloat(v) : null;
+      }).filter(function(v) { return v !== null; });
+      const avg = vals.length > 0 ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+      return {text: q.text, avg: avg};
+    }).filter(function(x) { return x.avg !== null; }).sort(function(a, b) { return a.avg - b.avg; });
+    const omPhaseId = QP_TO_OM[qp.id];
+    const omPhase = OP.find(function(x) { return x.id === omPhaseId; });
+    let omCategoryAvgs = null;
+    if (omPhase) {
+      const catAvgs = omPhase.qs.filter(function(q) { return q.ty === "s"; }).map(function(q) {
+        const vals = PROVS.map(function(prov) {
+          const v = qa[prov.id + "." + omPhaseId + "." + q.qid];
+          return (v !== undefined && v !== "") ? parseFloat(v) : null;
+        }).filter(function(v) { return v !== null; });
+        const avg = vals.length > 0 ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+        return {label: q.label, avg: avg};
+      }).filter(function(x) { return x.avg !== null; });
+      if (catAvgs.length > 0) omCategoryAvgs = catAvgs;
+    }
+    const prevQP = qpIdx > 0 ? QP[qpIdx - 1] : null;
+    let sharpestDecline = null;
+    if (prevQP) {
+      let maxDrop = -Infinity;
+      providerScores.forEach(function(ps) {
+        const prevAvg = avgScore(qa, ps.pid, prevQP.id);
+        if (prevAvg !== null) {
+          const drop = prevAvg - ps.avg;
+          if (drop > maxDrop) { maxDrop = drop; sharpestDecline = {name: ps.name, prevPhase: prevQP.label, prevAvg: prevAvg, curAvg: ps.avg, drop: drop}; }
+        }
+      });
+    }
+    alerts.push({phaseId: qp.id, label: qp.label, affected: below.length, total: providerScores.length, avg: overall.toFixed(1), providerScores: providerScores, questionBreakdown: questionBreakdown, omPhaseId: omPhaseId, omCategoryAvgs: omCategoryAvgs, sharpestDecline: sharpestDecline, phaseComparison: phaseComparison});
+  });
+  alerts.sort(function(a, b) { return parseFloat(a.avg) - parseFloat(b.avg); });
   return alerts;
 }
 
@@ -645,6 +682,7 @@ export default function App() {
   const [mainTab, setMainTab] = useState("roster");
   const [mdViewAll, setMdViewAll] = useState(false);
   const [dueMenu, setDueMenu] = useState(null);
+  const [expandedAlerts, setExpandedAlerts] = useState({});
 
   const user = USERS.find(u => u.id === uid);
   const isDir = user && user.role === "director";
@@ -831,22 +869,111 @@ export default function App() {
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 28px" }}>
           {!prov ? (
             <div>
+              {/* ── CROSS-PROVIDER PATTERN ALERTS (always at top, all tabs) ── */}
+              {isDir && patterns.length > 0 && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span>⚠️ Cross-Provider Pattern Alerts</span>
+                    <span style={{ fontSize: 11, fontWeight: 400, color: "#b91c1c" }}>{"(" + patterns.length + " phase" + (patterns.length !== 1 ? "s" : "") + " — sorted by severity)"}</span>
+                  </div>
+                  {patterns.map(function(a) {
+                    const isExp = !!expandedAlerts[a.phaseId];
+                    const toggleAlert = function() { setExpandedAlerts(function(prev) { const n = Object.assign({}, prev); n[a.phaseId] = !prev[a.phaseId]; return n; }); };
+                    const omPhaseLabel = (OP.find(function(x) { return x.id === a.omPhaseId; }) || {label: "—"}).label;
+                    return (
+                      <div key={a.phaseId} style={{ background: "white", borderRadius: 10, border: "2px solid #fecaca", marginBottom: 10, overflow: "hidden" }}>
+                        {/* Component 1 — Header */}
+                        <button onClick={toggleAlert} style={{ width: "100%", padding: "13px 18px", background: "#fef2f2", border: "none", cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: isExp ? "1px solid #fecaca" : "none" }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "#b91c1c" }}>{a.label + ": " + a.affected + " of " + a.total + " providers scored below 6.0 (overall avg: " + a.avg + ")"}</div>
+                            <div style={{ fontSize: 11, color: "#ef4444", marginTop: 2 }}>{isExp ? "Click to collapse" : "Click to view details"}</div>
+                          </div>
+                          <span style={{ fontSize: 14, color: "#ef4444", marginLeft: 12, flexShrink: 0 }}>{isExp ? "▲" : "▼"}</span>
+                        </button>
+                        {isExp && (
+                          <div>
+                            {/* Component 2 — Individual provider scores */}
+                            <div style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Individual Provider Scores</div>
+                              {a.providerScores.map(function(ps) {
+                                const below = ps.avg < 6;
+                                return (
+                                  <div key={ps.pid} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #f3f4f6" }}>
+                                    <span style={{ fontSize: 13, color: "#0f1b2d" }}>{ps.name}</span>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: below ? "#ef4444" : "#22c55e" }}>{ps.avg.toFixed(1) + (below ? " ●" : " ●")}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {/* Component 3 — Question-level breakdown */}
+                            {a.questionBreakdown.length > 0 && (
+                              <div style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Question-Level Breakdown (lowest → highest)</div>
+                                {a.questionBreakdown.map(function(q, qi) {
+                                  const qc = q.avg >= 7 ? "#22c55e" : q.avg >= 5 ? "#eab308" : "#ef4444";
+                                  return (
+                                    <div key={qi} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #f3f4f6" }}>
+                                      <span style={{ fontSize: 12, color: "#374151", flex: 1, marginRight: 12 }}>{q.text}</span>
+                                      <span style={{ fontSize: 13, fontWeight: 700, color: qc, whiteSpace: "nowrap" }}>{q.avg.toFixed(1)}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            {/* Component 4 — Phase comparison bar */}
+                            <div style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Phase Comparison — All Periods</div>
+                              {a.phaseComparison.filter(function(ph) { return ph.avg !== null; }).map(function(ph) {
+                                const isTrig = ph.id === a.phaseId;
+                                const bc = ph.avg >= 7 ? "#22c55e" : ph.avg >= 5 ? "#eab308" : "#ef4444";
+                                return (
+                                  <div key={ph.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px " + (isTrig ? "6px" : "0"), background: isTrig ? "#fef2f2" : "transparent", borderRadius: 4, marginBottom: 2 }}>
+                                    <div style={{ width: 64, fontSize: 10, color: isTrig ? "#b91c1c" : "#868e96", fontWeight: isTrig ? 700 : 400, flexShrink: 0 }}>{ph.label}</div>
+                                    <div style={{ flex: 1, height: 10, background: "#e9ecef", borderRadius: 5, overflow: "hidden" }}>
+                                      <div style={{ height: "100%", width: (ph.avg / 10 * 100) + "%", background: bc, borderRadius: 5 }} />
+                                    </div>
+                                    <div style={{ width: 28, fontSize: 11, fontWeight: 700, color: bc, textAlign: "right", flexShrink: 0 }}>{ph.avg.toFixed(1)}</div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {/* Component 5 — Office Manager cross-reference */}
+                            <div style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>{"Office Manager Cross-Reference (" + omPhaseLabel + ")"}</div>
+                              {a.omCategoryAvgs ? (
+                                a.omCategoryAvgs.map(function(cat, ci) {
+                                  const below = cat.avg < 6;
+                                  return (
+                                    <div key={ci} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #f3f4f6" }}>
+                                      <span style={{ fontSize: 12, color: "#374151" }}>{cat.label}</span>
+                                      <span style={{ fontSize: 13, fontWeight: 700, color: below ? "#ef4444" : "#22c55e" }}>{cat.avg.toFixed(1)}</span>
+                                    </div>
+                                  );
+                                })
+                              ) : (
+                                <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No Office Manager data available for this timeframe yet.</div>
+                              )}
+                            </div>
+                            {/* Component 6 — Sharpest decline */}
+                            {a.sharpestDecline && (
+                              <div style={{ padding: "12px 18px", background: "#fef2f2" }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Sharpest Decline</div>
+                                <div style={{ fontSize: 13, color: "#b91c1c", fontWeight: 600 }}>
+                                  {a.sharpestDecline.name + " dropped " + a.sharpestDecline.drop.toFixed(1) + " points from " + a.sharpestDecline.prevPhase + " (" + a.sharpestDecline.prevAvg.toFixed(1) + ") to " + a.label + " (" + a.sharpestDecline.curAvg.toFixed(1) + ") — sharpest decline at this phase."}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Score Trends tab */}
               {isDir && mainTab === "trends" && (
                 <div>
-                  {patterns.length > 0 && (
-                    <div style={{ background: "white", borderRadius: 10, border: "2px solid #fecaca", marginBottom: 16, overflow: "hidden" }}>
-                      <div style={{ padding: "12px 18px", background: "#fef2f2", borderBottom: "1px solid #fecaca" }}>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: "#ef4444" }}>⚠️ Cross-Provider Pattern Alerts</div>
-                      </div>
-                      {patterns.map((a, i) => (
-                        <div key={i} style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
-                          <div style={{ fontSize: 13, fontWeight: 600 }}>{a.label}: {a.affected} of {a.total} providers scored below 6.0 (avg: {a.avg})</div>
-                          <div style={{ fontSize: 12, color: "#ef4444", fontWeight: 600, marginTop: 4 }}>Possible program-level issue at this phase</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                   <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
                     <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div>
