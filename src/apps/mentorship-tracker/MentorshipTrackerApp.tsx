@@ -768,7 +768,7 @@ export default function App() {
       {/* MD tabs when no provider selected */}
       {isDir && !selId && (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
-          {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison" }, { k: "notes", l: "Recent Notes" }].map(t => (
+          {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison Grid" }, { k: "trends", l: "Score Trends" }, { k: "notes", l: "Recent Notes" }].map(t => (
             <button key={t.k} onClick={() => setMainTab(t.k)}
               style={{ padding: "12px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: mainTab === t.k ? 700 : 400, color: mainTab === t.k ? "#0f1b2d" : "#868e96", borderBottom: mainTab === t.k ? "3px solid #028090" : "3px solid transparent" }}>
               {t.l}
@@ -830,18 +830,66 @@ export default function App() {
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 28px" }}>
           {!prov ? (
             <div>
-              {/* Pattern alerts */}
-              {isDir && patterns.length > 0 && (
-                <div style={{ background: "white", borderRadius: 10, border: "2px solid #fecaca", marginBottom: 16, overflow: "hidden" }}>
-                  <div style={{ padding: "12px 18px", background: "#fef2f2", borderBottom: "1px solid #fecaca" }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#ef4444" }}>⚠️ Cross-Provider Pattern Alerts</div>
-                  </div>
-                  {patterns.map((a, i) => (
-                    <div key={i} style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>{a.label}: {a.affected} of {a.total} providers scored below 6.0 (avg: {a.avg})</div>
-                      <div style={{ fontSize: 12, color: "#ef4444", fontWeight: 600, marginTop: 4 }}>Possible program-level issue at this phase</div>
+              {/* Score Trends tab */}
+              {isDir && mainTab === "trends" && (
+                <div>
+                  {patterns.length > 0 && (
+                    <div style={{ background: "white", borderRadius: 10, border: "2px solid #fecaca", marginBottom: 16, overflow: "hidden" }}>
+                      <div style={{ padding: "12px 18px", background: "#fef2f2", borderBottom: "1px solid #fecaca" }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: "#ef4444" }}>⚠️ Cross-Provider Pattern Alerts</div>
+                      </div>
+                      {patterns.map((a, i) => (
+                        <div key={i} style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                          <div style={{ fontSize: 13, fontWeight: 600 }}>{a.label}: {a.affected} of {a.total} providers scored below 6.0 (avg: {a.avg})</div>
+                          <div style={{ fontSize: 12, color: "#ef4444", fontWeight: 600, marginTop: 4 }}>Possible program-level issue at this phase</div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Score Trends — Office Manager Touchpoints</div>
+                      <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Average score per assessment period · <span style={{ color: "#22c55e", fontWeight: 700 }}>≥7</span> · <span style={{ color: "#eab308", fontWeight: 700 }}>5–6</span> · <span style={{ color: "#ef4444", fontWeight: 700 }}>&lt;5</span></div>
+                    </div>
+                    {PROVS.map(p => {
+                      const provScores = OP.map(ph => {
+                        const scores = ph.qs.filter(q => q.ty === "s").map(q => {
+                          const v = qa[p.id + "." + ph.id + "." + q.qid];
+                          return v !== undefined && v !== "" ? parseFloat(v) : null;
+                        }).filter(v => v !== null);
+                        const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+                        return { ph, avg };
+                      }).filter(x => x.avg !== null);
+                      return (
+                        <div key={p.id} style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6" }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d", marginBottom: 8 }}>
+                            {p.name}
+                            <span style={{ fontSize: 10, fontWeight: 400, color: "#868e96", marginLeft: 8 }}>{(MP.find(x => x.id === p.phase) || {}).label}</span>
+                          </div>
+                          {provScores.length === 0 ? (
+                            <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No assessments recorded</div>
+                          ) : (
+                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                              {provScores.map(({ ph, avg }) => {
+                                const scoreColor = avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444";
+                                const bgColor = avg < 6 ? "#fef2f2" : avg < 7 ? "#fefce8" : "#f0fdf4";
+                                const borderColor = avg < 6 ? "#fecaca" : avg < 7 ? "#fef08a" : "#bbf7d0";
+                                return (
+                                  <div key={ph.id} style={{ background: bgColor, border: "1px solid " + borderColor, borderRadius: 8, padding: "8px 12px", minWidth: 80, textAlign: "center" }}>
+                                    <div style={{ fontSize: 10, color: "#868e96", fontWeight: 600, marginBottom: 4 }}>{ph.label}</div>
+                                    <div style={{ fontSize: 20, fontWeight: 700, color: scoreColor }}>{avg.toFixed(1)}</div>
+                                    <div style={{ height: 4, background: "#e9ecef", borderRadius: 2, overflow: "hidden", marginTop: 6 }}>
+                                      <div style={{ height: "100%", width: (avg / 10 * 100) + "%", background: scoreColor, borderRadius: 2 }} />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
@@ -855,10 +903,10 @@ export default function App() {
                     <thead>
                       <tr style={{ background: "#f8f9fb" }}>
                         <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Provider</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#8b5cf6", borderBottom: "2px solid #dee2e6" }}>MD</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>Ops</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Surveys</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#8b5cf6", borderBottom: "2px solid #dee2e6" }}>MD Curriculum</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor Curriculum</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>OM Touchpoints</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>MD Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Status</th>
                       </tr>
                     </thead>
