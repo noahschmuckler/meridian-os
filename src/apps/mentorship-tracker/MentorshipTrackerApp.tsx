@@ -865,7 +865,7 @@ export default function App() {
                       });
                       const provScores = allOPScores.filter(x => x.avg !== null);
 
-                      const W = 520, H = 150;
+                      const W = 800, H = 150;
                       const PL = 32, PR = 16, PT = 26, PB = 28;
                       const cw = W - PL - PR;
                       const ch = H - PT - PB;
@@ -891,7 +891,7 @@ export default function App() {
                               <span style={{ fontSize: 12, fontWeight: 700, color: trendColor }}>{trendLabel} over period</span>
                             )}
                           </div>
-                          <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", maxWidth: 600, height: "auto", display: "block" }}>
+                          <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", height: "auto", display: "block" }}>
                             <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
                             <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
                             <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
@@ -938,7 +938,7 @@ export default function App() {
                       });
                       const provScores = allQPScores.filter(x => x.avg !== null);
 
-                      const W = 520, H = 150;
+                      const W = 1600, H = 150;
                       const PL = 32, PR = 16, PT = 26, PB = 28;
                       const cw = W - PL - PR;
                       const ch = H - PT - PB;
@@ -964,7 +964,7 @@ export default function App() {
                               <span style={{ fontSize: 12, fontWeight: 700, color: trendColor }}>{trendLabel} over period</span>
                             )}
                           </div>
-                          <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", maxWidth: 600, height: "auto", display: "block" }}>
+                          <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", height: "auto", display: "block" }}>
                             <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
                             <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
                             <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
