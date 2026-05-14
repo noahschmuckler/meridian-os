@@ -855,20 +855,21 @@ export default function App() {
                       </div>
                     </div>
                     {PROVS.map(p => {
-                      const provScores = OP.map(ph => {
+                      const allOPScores = OP.map((ph, i) => {
                         const scores = ph.qs.filter(q => q.ty === "s").map(q => {
                           const v = qa[p.id + "." + ph.id + "." + q.qid];
                           return v !== undefined && v !== "" ? parseFloat(v) : null;
                         }).filter(v => v !== null);
                         const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
-                        return { ph, avg };
-                      }).filter(x => x.avg !== null);
+                        return { ph, avg, i };
+                      });
+                      const provScores = allOPScores.filter(x => x.avg !== null);
 
                       const W = 520, H = 150;
                       const PL = 32, PR = 16, PT = 26, PB = 28;
                       const cw = W - PL - PR;
                       const ch = H - PT - PB;
-                      const xOf = (i) => PL + (provScores.length > 1 ? (i / (provScores.length - 1)) : 0.5) * cw;
+                      const xOf = (i) => PL + (OP.length > 1 ? (i / (OP.length - 1)) : 0.5) * cw;
                       const yOf = (s) => PT + (1 - s / 10) * ch;
                       const y7 = yOf(7), y5 = yOf(5);
 
@@ -877,7 +878,7 @@ export default function App() {
                       const trendColor = delta > 0.4 ? "#22c55e" : delta < -0.4 ? "#ef4444" : "#868e96";
                       const trendLabel = delta > 0.4 ? ("↑ +" + delta.toFixed(1)) : delta < -0.4 ? ("↓ " + delta.toFixed(1)) : "→ stable";
 
-                      const polyPts = provScores.map(({ avg }, i) => xOf(i) + "," + yOf(avg)).join(" ");
+                      const polyPts = allOPScores.filter(x => x.avg !== null).map(x => xOf(x.i) + "," + yOf(x.avg)).join(" ");
 
                       return (
                         <div key={p.id} style={{ padding: "14px 20px 10px", borderBottom: "1px solid #dee2e6" }}>
@@ -890,41 +891,35 @@ export default function App() {
                               <span style={{ fontSize: 12, fontWeight: 700, color: trendColor }}>{trendLabel} over period</span>
                             )}
                           </div>
-                          {provScores.length === 0 ? (
-                            <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic", paddingBottom: 8 }}>No assessments recorded</div>
-                          ) : (
-                            <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", maxWidth: 600, height: "auto", display: "block" }}>
-                              {/* chart background */}
-                              <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
-                              {/* reference line y=7 */}
-                              <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
-                              <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
-                              {/* reference line y=5 */}
-                              <line x1={PL} y1={y5} x2={PL + cw} y2={y5} stroke="#eab308" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
-                              <text x={PL - 4} y={y5 + 3.5} textAnchor="end" fontSize={9} fill="#eab308" fontWeight={700}>5</text>
-                              {/* top + bottom axis lines */}
-                              <line x1={PL} y1={PT} x2={PL + cw} y2={PT} stroke="#dee2e6" strokeWidth={0.75} />
-                              <text x={PL - 4} y={PT + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">10</text>
-                              <line x1={PL} y1={PT + ch} x2={PL + cw} y2={PT + ch} stroke="#dee2e6" strokeWidth={0.75} />
-                              <text x={PL - 4} y={PT + ch + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">0</text>
-                              {/* connecting line */}
-                              {provScores.length > 1 && (
-                                <polyline points={polyPts} fill="none" stroke="#0ea5e9" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
-                              )}
-                              {/* data points */}
-                              {provScores.map(({ ph, avg }, i) => {
-                                const cx = xOf(i), cy = yOf(avg);
-                                const dc = avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444";
-                                return (
-                                  <g key={ph.id}>
-                                    <circle cx={cx} cy={cy} r={7} fill={dc} stroke="white" strokeWidth={2} />
-                                    <text x={cx} y={cy - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
-                                    <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill="#868e96">{ph.label}</text>
-                                  </g>
-                                );
-                              })}
-                            </svg>
-                          )}
+                          <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", maxWidth: 600, height: "auto", display: "block" }}>
+                            <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
+                            <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                            <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
+                            <line x1={PL} y1={y5} x2={PL + cw} y2={y5} stroke="#eab308" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                            <text x={PL - 4} y={y5 + 3.5} textAnchor="end" fontSize={9} fill="#eab308" fontWeight={700}>5</text>
+                            <line x1={PL} y1={PT} x2={PL + cw} y2={PT} stroke="#dee2e6" strokeWidth={0.75} />
+                            <text x={PL - 4} y={PT + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">10</text>
+                            <line x1={PL} y1={PT + ch} x2={PL + cw} y2={PT + ch} stroke="#dee2e6" strokeWidth={0.75} />
+                            <text x={PL - 4} y={PT + ch + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">0</text>
+                            {provScores.length > 1 && (
+                              <polyline points={polyPts} fill="none" stroke="#0ea5e9" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+                            )}
+                            {allOPScores.map(({ ph, avg, i }) => {
+                              const cx = xOf(i);
+                              const dc = avg !== null ? (avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444") : null;
+                              return (
+                                <g key={ph.id}>
+                                  {avg !== null && (
+                                    <>
+                                      <circle cx={cx} cy={yOf(avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                      <text x={cx} y={yOf(avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
+                                    </>
+                                  )}
+                                  <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill={avg !== null ? "#868e96" : "#d1d5db"}>{ph.label}</text>
+                                </g>
+                              );
+                            })}
+                          </svg>
                         </div>
                       );
                     })}
@@ -937,16 +932,17 @@ export default function App() {
                       <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Avg score per check-in period &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 on track</span> &nbsp;<span style={{ color: "#eab308", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 concern</span></div>
                     </div>
                     {PROVS.map(p => {
-                      const provScores = QP.map(ph => {
+                      const allQPScores = QP.map((ph, i) => {
                         const avg = avgScore(qa, p.id, ph.id);
-                        return { ph, avg };
-                      }).filter(x => x.avg !== null);
+                        return { ph, avg, i };
+                      });
+                      const provScores = allQPScores.filter(x => x.avg !== null);
 
                       const W = 520, H = 150;
                       const PL = 32, PR = 16, PT = 26, PB = 28;
                       const cw = W - PL - PR;
                       const ch = H - PT - PB;
-                      const xOf = (i) => PL + (provScores.length > 1 ? (i / (provScores.length - 1)) : 0.5) * cw;
+                      const xOf = (i) => PL + (QP.length > 1 ? (i / (QP.length - 1)) : 0.5) * cw;
                       const yOf = (s) => PT + (1 - s / 10) * ch;
                       const y7 = yOf(7), y5 = yOf(5);
 
@@ -955,7 +951,7 @@ export default function App() {
                       const trendColor = delta > 0.4 ? "#22c55e" : delta < -0.4 ? "#ef4444" : "#868e96";
                       const trendLabel = delta > 0.4 ? ("↑ +" + delta.toFixed(1)) : delta < -0.4 ? ("↓ " + delta.toFixed(1)) : "→ stable";
 
-                      const polyPts = provScores.map(({ avg }, i) => xOf(i) + "," + yOf(avg)).join(" ");
+                      const polyPts = allQPScores.filter(x => x.avg !== null).map(x => xOf(x.i) + "," + yOf(x.avg)).join(" ");
 
                       return (
                         <div key={p.id} style={{ padding: "14px 20px 10px", borderBottom: "1px solid #dee2e6" }}>
@@ -968,34 +964,35 @@ export default function App() {
                               <span style={{ fontSize: 12, fontWeight: 700, color: trendColor }}>{trendLabel} over period</span>
                             )}
                           </div>
-                          {provScores.length === 0 ? (
-                            <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic", paddingBottom: 8 }}>No check-ins recorded</div>
-                          ) : (
-                            <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", maxWidth: 600, height: "auto", display: "block" }}>
-                              <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
-                              <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
-                              <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
-                              <line x1={PL} y1={y5} x2={PL + cw} y2={y5} stroke="#eab308" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
-                              <text x={PL - 4} y={y5 + 3.5} textAnchor="end" fontSize={9} fill="#eab308" fontWeight={700}>5</text>
-                              <line x1={PL} y1={PT} x2={PL + cw} y2={PT} stroke="#dee2e6" strokeWidth={0.75} />
-                              <text x={PL - 4} y={PT + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">10</text>
-                              <line x1={PL} y1={PT + ch} x2={PL + cw} y2={PT + ch} stroke="#dee2e6" strokeWidth={0.75} />
-                              <text x={PL - 4} y={PT + ch + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">0</text>
-                              {provScores.length > 1 && (
-                                <polyline points={polyPts} fill="none" stroke="#eab308" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
-                              )}
-                              {provScores.map(({ ph, avg }, i) => {
-                                const cx = xOf(i), cy = yOf(avg);
-                                const dc = avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444";
-                                return (
-                                  <g key={ph.id}>
-                                    <circle cx={cx} cy={cy} r={7} fill={dc} stroke="white" strokeWidth={2} />
-                                    <text x={cx} y={cy - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
-                                    <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill="#868e96">{ph.label}</text>
-                                  </g>
-                                );
-                              })}
-                            </svg>
+                          <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", maxWidth: 600, height: "auto", display: "block" }}>
+                            <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
+                            <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                            <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
+                            <line x1={PL} y1={y5} x2={PL + cw} y2={y5} stroke="#eab308" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                            <text x={PL - 4} y={y5 + 3.5} textAnchor="end" fontSize={9} fill="#eab308" fontWeight={700}>5</text>
+                            <line x1={PL} y1={PT} x2={PL + cw} y2={PT} stroke="#dee2e6" strokeWidth={0.75} />
+                            <text x={PL - 4} y={PT + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">10</text>
+                            <line x1={PL} y1={PT + ch} x2={PL + cw} y2={PT + ch} stroke="#dee2e6" strokeWidth={0.75} />
+                            <text x={PL - 4} y={PT + ch + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">0</text>
+                            {provScores.length > 1 && (
+                              <polyline points={polyPts} fill="none" stroke="#eab308" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+                            )}
+                            {allQPScores.map(({ ph, avg, i }) => {
+                              const cx = xOf(i);
+                              const dc = avg !== null ? (avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444") : null;
+                              return (
+                                <g key={ph.id}>
+                                  {avg !== null && (
+                                    <>
+                                      <circle cx={cx} cy={yOf(avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                      <text x={cx} y={yOf(avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
+                                    </>
+                                  )}
+                                  <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill={avg !== null ? "#868e96" : "#d1d5db"}>{ph.label}</text>
+                                </g>
+                              );
+                            })}
+                          </svg>
                           )}
                         </div>
                       );
