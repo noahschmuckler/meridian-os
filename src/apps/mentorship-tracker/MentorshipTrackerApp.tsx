@@ -105,10 +105,10 @@ const QP = [
   {id:"w6",label:"Week 6",qs:[{qid:"a",text:"Confident with MyChart messaging?",ty:"s"},{qid:"b",text:"Comfortable with med reconciliation?",ty:"s"},{qid:"c",text:"Work-life balance?",ty:"s"},{qid:"d",text:"Workflow changes needed?",ty:"t"}]},
   {id:"w7",label:"Week 7",qs:[{qid:"a",text:"Ready for independence?",ty:"s"},{qid:"b",text:"Comfortable with complex patients?",ty:"s"},{qid:"c",text:"Satisfied with onboarding?",ty:"s"},{qid:"d",text:"Advice for next provider?",ty:"t"}]},
   {id:"w8",label:"Week 8",qs:[{qid:"a",text:"Overall Epic proficiency?",ty:"s"},{qid:"b",text:"Ready for monthly check-ins?",ty:"s"},{qid:"c",text:"Supported by leadership?",ty:"s"},{qid:"d",text:"Goals for next 3 months?",ty:"t"}]},
-  {id:"m3",label:"Month 3",qs:[{qid:"a",text:"Confident with full panel?",ty:"s"},{qid:"b",text:"Integrated into team?",ty:"s"},{qid:"c",text:"Quality metrics?",ty:"s"},{qid:"d",text:"Support still needed?",ty:"t"}]},
-  {id:"m6",label:"Month 6",qs:[{qid:"a",text:"Confident at full capacity?",ty:"s"},{qid:"b",text:"Satisfied with role?",ty:"s"},{qid:"c",text:"Rate onboarding?",ty:"s"},{qid:"d",text:"Most valuable part?",ty:"t"}]},
+  {id:"m3",label:"Month 3",qs:[{qid:"a",text:"Confident with full panel?",ty:"s"},{qid:"b",text:"Integrated into team?",ty:"s"},{qid:"c",text:"Quality metrics?",ty:"s"},{qid:"d",text:"Support still needed?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
+  {id:"m6",label:"Month 6",qs:[{qid:"a",text:"Confident at full capacity?",ty:"s"},{qid:"b",text:"Satisfied with role?",ty:"s"},{qid:"c",text:"Rate onboarding?",ty:"s"},{qid:"d",text:"Most valuable part?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
   {id:"q3",label:"Month 9",qs:[{qid:"a",text:"Satisfied in current role?",ty:"s"},{qid:"b",text:"Organization supports growth?",ty:"s"},{qid:"c",text:"Development needs?",ty:"t"}]},
-  {id:"q4",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"}]},
+  {id:"q4",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
 ];
 
 const QP_TO_OM = {w1:"om1",w2:"om1",w3:"om1",w4:"om1",w5:"om2",w6:"om2",w7:"om2",w8:"om2",m3:"om3",m6:"om6",q3:"om9",q4:"om12"};
@@ -217,18 +217,46 @@ function questPct(qa, pid) {
   return t > 0 ? Math.round(a / t * 100) : 0;
 }
 
-/* NEW: Average questionnaire score for a provider at a phase */
+/* NEW: Average questionnaire score for a provider at a phase (excludes culture questions) */
 function avgScore(qa, pid, phid) {
   const qp = QP.find(x => x.id === phid);
   if (!qp) return null;
   let sum = 0, cnt = 0;
-  qp.qs.forEach(q => {
-    if (q.ty === "s") {
+  qp.qs.forEach(function(q) {
+    if (q.ty === "s" && !q.culture) {
       const v = qa[pid + "." + phid + "." + q.qid];
       if (v !== undefined && v !== "") { sum += Number(v); cnt++; }
     }
   });
   return cnt > 0 ? sum / cnt : null;
+}
+
+/* Culture Integration Index helpers */
+const CULTURE_PHASES = ["m3", "m6", "q4"];
+const CULTURE_QIDS = ["ci1", "ci2", "ci3", "ci4"];
+
+/* Per-phase culture score (avg of 4 questions, null if none answered) */
+function culturePhaseScore(qa, pid, phid) {
+  let sum = 0, cnt = 0;
+  CULTURE_QIDS.forEach(function(qid) {
+    const v = qa[pid + "." + phid + "." + qid];
+    if (v !== undefined && v !== "") { sum += Number(v); cnt++; }
+  });
+  return cnt > 0 ? sum / cnt : null;
+}
+
+/* Overall culture score across all answered culture phases */
+function cultureScore(qa, pid) {
+  let sum = 0, cnt = 0;
+  CULTURE_PHASES.forEach(function(phid) {
+    CULTURE_QIDS.forEach(function(qid) {
+      const v = qa[pid + "." + phid + "." + qid];
+      if (v !== undefined && v !== "") { sum += Number(v); cnt++; }
+    });
+  });
+  if (cnt === 0) return { avg: null, pct: 0, display: "—" };
+  const avg = sum / cnt;
+  return { avg: avg, pct: Math.round(avg * 10), display: avg.toFixed(1) };
 }
 
 /* NEW: Overdue status based on days */
@@ -1126,6 +1154,65 @@ export default function App() {
                     })}
                   </div>
                 </div>
+
+                {/* Culture Integration Trend */}
+                <div style={{ background: "white", borderRadius: 10, border: "1px solid #fce7f3", overflow: "hidden", marginBottom: 16 }}>
+                  <div style={{ padding: "14px 20px", borderBottom: "1px solid #fce7f3", background: "#fdf2f8" }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#9d174d" }}>Culture Integration Trend</div>
+                    <div style={{ fontSize: 12, color: "#be185d", marginTop: 3 }}>Avg of 4 culture questions per phase &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 thriving</span> &nbsp;<span style={{ color: "#ec4899", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 at risk</span></div>
+                  </div>
+                  {PROVS.map(function(p) {
+                    const scores = CULTURE_PHASES.map(function(phid, i) {
+                      return { label: phid === "m3" ? "Month 3" : phid === "m6" ? "Month 6" : "Month 12", avg: culturePhaseScore(qa, p.id, phid), i: i };
+                    });
+                    const answered = scores.filter(function(x) { return x.avg !== null; });
+                    const W = 480, H = 120;
+                    const PL = 32, PR = 16, PT = 20, PB = 24;
+                    const cw = W - PL - PR, ch = H - PT - PB;
+                    const xOf = function(i) { return PL + (CULTURE_PHASES.length > 1 ? (i / (CULTURE_PHASES.length - 1)) : 0.5) * cw; };
+                    const yOf = function(v) { return PT + (1 - v / 10) * ch; };
+                    const polyPts = answered.map(function(x) { return xOf(x.i) + "," + yOf(x.avg); }).join(" ");
+                    const cs = cultureScore(qa, p.id);
+                    const summaryColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                    return (
+                      <div key={p.id} style={{ padding: "12px 20px", borderBottom: "1px solid #fce7f3" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: summaryColor }}>{cs.display !== "—" ? cs.display + " / 10" : "No data yet"}</div>
+                        </div>
+                        <div style={{ overflowX: "auto" }}>
+                          <svg viewBox={"0 0 " + W + " " + H} width="100%" style={{ display: "block" }}>
+                            {[0, 5, 10].map(function(v) {
+                              const y = yOf(v);
+                              return (
+                                <g key={v}>
+                                  <line x1={PL} y1={y} x2={W - PR} y2={y} stroke="#fce7f3" strokeWidth={1} />
+                                  <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="#be185d">{v}</text>
+                                </g>
+                              );
+                            })}
+                            {answered.length >= 2 && <polyline points={polyPts} fill="none" stroke="#ec4899" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+                            {scores.map(function(s) {
+                              const cx = xOf(s.i);
+                              const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#ec4899" : "#ef4444";
+                              return (
+                                <g key={s.label}>
+                                  {s.avg !== null && (
+                                    <>
+                                      <circle cx={cx} cy={yOf(s.avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                      <text x={cx} y={yOf(s.avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{s.avg.toFixed(1)}</text>
+                                    </>
+                                  )}
+                                  <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill={s.avg !== null ? "#868e96" : "#d1d5db"}>{s.label}</text>
+                                </g>
+                              );
+                            })}
+                          </svg>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
 
               {/* Comparison grid */}
@@ -1142,6 +1229,7 @@ export default function App() {
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor Curriculum</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>OM Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Medical Director Touchpoints</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#ec4899", borderBottom: "2px solid #dee2e6" }}>Culture</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Status</th>
                       </tr>
                     </thead>
@@ -1166,6 +1254,8 @@ export default function App() {
                           }
                           return items;
                         };
+                        const cs = cultureScore(qa, p.id);
+                        const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
                         return (
                           <tr key={p.id} style={{ borderBottom: "1px solid #dee2e6" }}>
                             <td style={{ padding: "12px 16px", fontWeight: 600 }}>
@@ -1182,6 +1272,10 @@ export default function App() {
                                 </div>
                               </td>
                             ))}
+                            <td style={{ padding: "12px 8px", textAlign: "center" }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: cultureColor }}>{cs.display}</span>
+                              {cs.avg !== null && <div style={{ fontSize: 9, color: "#adb5bd" }}>/ 10</div>}
+                            </td>
                             <td style={{ padding: "12px 8px", textAlign: "center" }}>
                               {(st === "due" || st === "overdue") ? (
                                 <button
@@ -1290,9 +1384,9 @@ export default function App() {
               {/* JOURNEY TIMELINE */}
               <Timeline currentIdx={curIdx} />
 
-              {/* 4 METRIC CARDS — clickable tab selectors (director only) */}
+              {/* 5 METRIC CARDS — clickable tab selectors (director only) */}
               {isDir && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10, marginBottom: 16 }}>
                   {[
                     { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
                     { label: "Mentor Curriculum", pct: mentorPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase },
@@ -1312,6 +1406,23 @@ export default function App() {
                       </div>
                     );
                   })}
+                  {/* Culture Integration card — shows raw 0-10 avg; navigates to quest tab at m3 */}
+                  {(function() {
+                    const cs = cultureScore(qa, prov.id);
+                    const isActive = tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1;
+                    const dc = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                    return (
+                      <div onClick={function() { setTab("quest"); setPhase("m3"); }}
+                        style={{ background: isActive ? "#ec489912" : "white", borderRadius: 10, border: "2px solid " + (isActive ? "#ec4899" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                        <div style={{ fontSize: 11, color: isActive ? "#ec4899" : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>Culture Integration</div>
+                        <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{cs.display}</div>
+                        <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>avg / 10 · m3, m6, m12</div>
+                        <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
+                          <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
@@ -1449,19 +1560,31 @@ export default function App() {
                     <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{curQuest.label} Questionnaire</h3>
                     <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>Record provider responses</div>
                   </div>
-                  {curQuest.qs.map((q, i) => {
+                  {curQuest.qs.flatMap(function(q, i) {
                     const val = qa[prov.id + "." + phase + "." + q.qid] || "";
-                    return (
-                      <div key={q.qid} style={{ padding: "16px 20px", borderBottom: "1px solid #dee2e6" }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>{(i + 1) + ". " + q.text}</div>
+                    const isCulture = q.culture === true;
+                    const isFirstCulture = isCulture && !curQuest.qs.slice(0, i).some(function(x) { return x.culture; });
+                    const items = [];
+                    if (isFirstCulture) {
+                      items.push(
+                        <div key="culture-header" style={{ padding: "12px 20px 10px", background: "#fdf2f8", borderTop: "2px solid #fce7f3", borderBottom: "1px solid #fce7f3" }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#ec4899", textTransform: "uppercase", letterSpacing: "0.06em" }}>Culture Integration Index</div>
+                          <div style={{ fontSize: 11, color: "#9d4073", marginTop: 3 }}>Provider self-assessment · belonging, safety, connection, advocacy</div>
+                        </div>
+                      );
+                    }
+                    items.push(
+                      <div key={q.qid} style={{ padding: "16px 20px", borderBottom: "1px solid " + (isCulture ? "#fce7f3" : "#dee2e6"), background: isCulture ? "#fdf2f8" : "transparent" }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, color: isCulture ? "#9d174d" : "#0f1b2d" }}>{(i + 1) + ". " + q.text}</div>
                         {q.ty === "s" ? (
-                          <ScaleInput value={val} onChange={v => setAnswer(prov.id, phase, q.qid, v)} />
+                          <ScaleInput value={val} onChange={function(v) { setAnswer(prov.id, phase, q.qid, v); }} />
                         ) : (
-                          <textarea value={val} onChange={e => setAnswer(prov.id, phase, q.qid, e.target.value)}
+                          <textarea value={val} onChange={function(e) { setAnswer(prov.id, phase, q.qid, e.target.value); }}
                             placeholder="Type response..." style={{ padding: "10px 12px", borderRadius: 6, border: "1px solid #dee2e6", fontSize: 14, width: "100%", height: 80, boxSizing: "border-box", resize: "vertical", outline: "none", fontFamily: "inherit" }} />
                         )}
                       </div>
                     );
+                    return items;
                   })}
                   <div style={{ padding: "14px 20px", background: "#f8f9fb", borderTop: "1px solid #dee2e6" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 6 }}>NOTES</div>
