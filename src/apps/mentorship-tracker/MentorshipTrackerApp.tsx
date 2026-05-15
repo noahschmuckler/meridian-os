@@ -154,6 +154,17 @@ function makeSeedQA() {
       });
     });
   });
+  // CII stress-test seed: p1 = full 3-phase trend (green→pink→green), p2 = single low point (red),
+  // p3/p4 = no CII data. Scores are intentionally distinct from clinical avg to verify independence.
+  const ciiScores = {
+    "p1.m3.ci1":"8","p1.m3.ci2":"9","p1.m3.ci3":"7","p1.m3.ci4":"6",   // avg 7.5 → green dot
+    "p1.m6.ci1":"5","p1.m6.ci2":"6","p1.m6.ci3":"5","p1.m6.ci4":"5",   // avg 5.25 → pink dot (overall stays green: 7.1)
+    "p1.q4.ci1":"9","p1.q4.ci2":"8","p1.q4.ci3":"9","p1.q4.ci4":"8",   // avg 8.5 → green dot; 3-phase trend line
+    "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",   // avg 3.5 → red overall; single dot
+    "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",   // avg 5.25 → pink overall; single dot
+    // p4: no CII data → "—" overall; empty chart
+  };
+  Object.assign(qa, ciiScores);
   return qa;
 }
 
