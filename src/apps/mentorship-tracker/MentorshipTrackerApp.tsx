@@ -1153,65 +1153,65 @@ export default function App() {
                       );
                     })}
                   </div>
-                </div>
 
-                {/* Culture Integration Trend */}
-                <div style={{ background: "white", borderRadius: 10, border: "1px solid #fce7f3", overflow: "hidden", marginBottom: 16 }}>
-                  <div style={{ padding: "14px 20px", borderBottom: "1px solid #fce7f3", background: "#fdf2f8" }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "#9d174d" }}>Culture Integration Trend</div>
-                    <div style={{ fontSize: 12, color: "#be185d", marginTop: 3 }}>Avg of 4 culture questions per phase &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 thriving</span> &nbsp;<span style={{ color: "#ec4899", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 at risk</span></div>
+                  {/* Culture Integration Trend */}
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #fce7f3", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #fce7f3", background: "#fdf2f8" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#9d174d" }}>Culture Integration Trend</div>
+                      <div style={{ fontSize: 12, color: "#be185d", marginTop: 3 }}>Avg of 4 culture questions per phase &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 thriving</span> &nbsp;<span style={{ color: "#ec4899", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 at risk</span></div>
+                    </div>
+                    {PROVS.map(function(p) {
+                      const scores = CULTURE_PHASES.map(function(phid, i) {
+                        return { label: phid === "m3" ? "Month 3" : phid === "m6" ? "Month 6" : "Month 12", avg: culturePhaseScore(qa, p.id, phid), i: i };
+                      });
+                      const answered = scores.filter(function(x) { return x.avg !== null; });
+                      const W = 480, H = 120;
+                      const PL = 32, PR = 16, PT = 20, PB = 24;
+                      const cw = W - PL - PR, ch = H - PT - PB;
+                      const xOfC = function(i) { return PL + (CULTURE_PHASES.length > 1 ? (i / (CULTURE_PHASES.length - 1)) : 0.5) * cw; };
+                      const yOfC = function(v) { return PT + (1 - v / 10) * ch; };
+                      const polyPts = answered.map(function(x) { return xOfC(x.i) + "," + yOfC(x.avg); }).join(" ");
+                      const cs = cultureScore(qa, p.id);
+                      const summaryColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                      return (
+                        <div key={p.id} style={{ padding: "12px 20px", borderBottom: "1px solid #fce7f3" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: summaryColor }}>{cs.display !== "—" ? cs.display + " / 10" : "No data yet"}</div>
+                          </div>
+                          <div style={{ overflowX: "auto" }}>
+                            <svg viewBox={"0 0 " + W + " " + H} width="100%" style={{ display: "block" }}>
+                              {[0, 5, 10].map(function(v) {
+                                const y = yOfC(v);
+                                return (
+                                  <g key={v}>
+                                    <line x1={PL} y1={y} x2={W - PR} y2={y} stroke="#fce7f3" strokeWidth={1} />
+                                    <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="#be185d">{v}</text>
+                                  </g>
+                                );
+                              })}
+                              {answered.length >= 2 && <polyline points={polyPts} fill="none" stroke="#ec4899" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+                              {scores.map(function(s) {
+                                const cx = xOfC(s.i);
+                                const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#ec4899" : "#ef4444";
+                                return (
+                                  <g key={s.label}>
+                                    {s.avg !== null && (
+                                      <>
+                                        <circle cx={cx} cy={yOfC(s.avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                        <text x={cx} y={yOfC(s.avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{s.avg.toFixed(1)}</text>
+                                      </>
+                                    )}
+                                    <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill={s.avg !== null ? "#868e96" : "#d1d5db"}>{s.label}</text>
+                                  </g>
+                                );
+                              })}
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  {PROVS.map(function(p) {
-                    const scores = CULTURE_PHASES.map(function(phid, i) {
-                      return { label: phid === "m3" ? "Month 3" : phid === "m6" ? "Month 6" : "Month 12", avg: culturePhaseScore(qa, p.id, phid), i: i };
-                    });
-                    const answered = scores.filter(function(x) { return x.avg !== null; });
-                    const W = 480, H = 120;
-                    const PL = 32, PR = 16, PT = 20, PB = 24;
-                    const cw = W - PL - PR, ch = H - PT - PB;
-                    const xOf = function(i) { return PL + (CULTURE_PHASES.length > 1 ? (i / (CULTURE_PHASES.length - 1)) : 0.5) * cw; };
-                    const yOf = function(v) { return PT + (1 - v / 10) * ch; };
-                    const polyPts = answered.map(function(x) { return xOf(x.i) + "," + yOf(x.avg); }).join(" ");
-                    const cs = cultureScore(qa, p.id);
-                    const summaryColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
-                    return (
-                      <div key={p.id} style={{ padding: "12px 20px", borderBottom: "1px solid #fce7f3" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: summaryColor }}>{cs.display !== "—" ? cs.display + " / 10" : "No data yet"}</div>
-                        </div>
-                        <div style={{ overflowX: "auto" }}>
-                          <svg viewBox={"0 0 " + W + " " + H} width="100%" style={{ display: "block" }}>
-                            {[0, 5, 10].map(function(v) {
-                              const y = yOf(v);
-                              return (
-                                <g key={v}>
-                                  <line x1={PL} y1={y} x2={W - PR} y2={y} stroke="#fce7f3" strokeWidth={1} />
-                                  <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="#be185d">{v}</text>
-                                </g>
-                              );
-                            })}
-                            {answered.length >= 2 && <polyline points={polyPts} fill="none" stroke="#ec4899" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
-                            {scores.map(function(s) {
-                              const cx = xOf(s.i);
-                              const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#ec4899" : "#ef4444";
-                              return (
-                                <g key={s.label}>
-                                  {s.avg !== null && (
-                                    <>
-                                      <circle cx={cx} cy={yOf(s.avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
-                                      <text x={cx} y={yOf(s.avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{s.avg.toFixed(1)}</text>
-                                    </>
-                                  )}
-                                  <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill={s.avg !== null ? "#868e96" : "#d1d5db"}>{s.label}</text>
-                                </g>
-                              );
-                            })}
-                          </svg>
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
               )}
 
