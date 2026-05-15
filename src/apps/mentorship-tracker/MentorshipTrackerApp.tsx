@@ -723,6 +723,7 @@ export default function App() {
   const [mdViewAll, setMdViewAll] = useState(false);
   const [dueMenu, setDueMenu] = useState(null);
   const [expandedAlerts, setExpandedAlerts] = useState({});
+  const [dotModal, setDotModal] = useState(null);
 
   const user = USERS.find(u => u.id === uid);
   const isDir = user && user.role === "director";
@@ -1075,9 +1076,10 @@ export default function App() {
                               const cx = xOf(i);
                               const dc = avg !== null ? (avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444") : null;
                               return (
-                                <g key={ph.id}>
+                                <g key={ph.id} onClick={avg !== null ? function() { setDotModal({ pid: p.id, phaseId: ph.id, type: "om" }); } : undefined} style={{ cursor: avg !== null ? "pointer" : "default" }}>
                                   {avg !== null && (
                                     <>
+                                      <circle cx={cx} cy={yOf(avg)} r={14} fill="transparent" />
                                       <circle cx={cx} cy={yOf(avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
                                       <text x={cx} y={yOf(avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
                                     </>
@@ -1148,9 +1150,10 @@ export default function App() {
                               const cx = xOf(i);
                               const dc = avg !== null ? (avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444") : null;
                               return (
-                                <g key={ph.id}>
+                                <g key={ph.id} onClick={avg !== null ? function() { setDotModal({ pid: p.id, phaseId: ph.id, type: "qp" }); } : undefined} style={{ cursor: avg !== null ? "pointer" : "default" }}>
                                   {avg !== null && (
                                     <>
+                                      <circle cx={cx} cy={yOf(avg)} r={14} fill="transparent" />
                                       <circle cx={cx} cy={yOf(avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
                                       <text x={cx} y={yOf(avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
                                     </>
@@ -1173,7 +1176,7 @@ export default function App() {
                     </div>
                     {PROVS.map(function(p) {
                       const scores = CULTURE_PHASES.map(function(phid, i) {
-                        return { label: phid === "m3" ? "Month 3" : phid === "m6" ? "Month 6" : "Month 12", avg: culturePhaseScore(qa, p.id, phid), i: i };
+                        return { phid: phid, label: phid === "m3" ? "Month 3" : phid === "m6" ? "Month 6" : "Month 12", avg: culturePhaseScore(qa, p.id, phid), i: i };
                       });
                       const answered = scores.filter(function(x) { return x.avg !== null; });
                       const W = 480, H = 120;
@@ -1206,9 +1209,10 @@ export default function App() {
                                 const cx = xOfC(s.i);
                                 const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#ec4899" : "#ef4444";
                                 return (
-                                  <g key={s.label}>
+                                  <g key={s.label} onClick={s.avg !== null ? function() { setDotModal({ pid: p.id, phaseId: s.phid, type: "cii" }); } : undefined} style={{ cursor: s.avg !== null ? "pointer" : "default" }}>
                                     {s.avg !== null && (
                                       <>
+                                        <circle cx={cx} cy={yOfC(s.avg)} r={14} fill="transparent" />
                                         <circle cx={cx} cy={yOfC(s.avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
                                         <text x={cx} y={yOfC(s.avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{s.avg.toFixed(1)}</text>
                                       </>
@@ -1223,6 +1227,92 @@ export default function App() {
                       );
                     })}
                   </div>
+
+                  {/* Dot-click questionnaire modal */}
+                  {dotModal && (function() {
+                    const mp = PROVS.find(function(x) { return x.id === dotModal.pid; });
+                    const provName = mp ? mp.name : dotModal.pid;
+                    var phaseLabel = "", qs = [], typeLabel = "", accentColor = "#868e96", borderColor = "#dee2e6", bgColor = "white";
+                    if (dotModal.type === "om") {
+                      const ph = OP.find(function(x) { return x.id === dotModal.phaseId; });
+                      phaseLabel = ph ? ph.label : dotModal.phaseId;
+                      qs = ph ? ph.qs : [];
+                      typeLabel = "Office Manager Touchpoints";
+                      accentColor = "#0ea5e9";
+                    } else if (dotModal.type === "qp") {
+                      const ph = QP.find(function(x) { return x.id === dotModal.phaseId; });
+                      phaseLabel = ph ? ph.label : dotModal.phaseId;
+                      qs = ph ? ph.qs.filter(function(q) { return !q.culture; }) : [];
+                      typeLabel = "Medical Director Touchpoints";
+                      accentColor = "#eab308";
+                    } else {
+                      const ph = QP.find(function(x) { return x.id === dotModal.phaseId; });
+                      phaseLabel = ph ? ph.label : dotModal.phaseId;
+                      qs = ph ? ph.qs.filter(function(q) { return q.culture === true; }) : [];
+                      typeLabel = "Culture Integration Index";
+                      accentColor = "#ec4899";
+                      borderColor = "#fce7f3";
+                      bgColor = "#fdf2f8";
+                    }
+                    return (
+                      <div onClick={function() { setDotModal(null); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+                        <div onClick={function(e) { e.stopPropagation(); }} style={{ background: "white", borderRadius: 12, width: "min(560px, 100%)", maxHeight: "80vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+                          <div style={{ padding: "16px 20px", borderBottom: "1px solid " + borderColor, background: bgColor, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexShrink: 0 }}>
+                            <div>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: "#0f1b2d" }}>{provName + " — " + phaseLabel}</div>
+                              <div style={{ fontSize: 12, color: accentColor, marginTop: 3, fontWeight: 600 }}>{typeLabel}</div>
+                            </div>
+                            <button onClick={function() { setDotModal(null); }} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#9ca3af", lineHeight: 1, padding: "2px 6px", borderRadius: 4, marginLeft: 12, flexShrink: 0 }}>✕</button>
+                          </div>
+                          <div style={{ overflowY: "auto", padding: "20px" }}>
+                            {qs.length === 0 ? (
+                              <div style={{ fontSize: 13, color: "#adb5bd", fontStyle: "italic" }}>No questions found for this phase.</div>
+                            ) : qs.map(function(q, qi) {
+                              const val = qa[dotModal.pid + "." + dotModal.phaseId + "." + q.qid] || "";
+                              const score = q.ty === "s" && val !== "" ? Number(val) : null;
+                              const scoreColor = score === null ? "#adb5bd" : score >= 7 ? "#22c55e" : score >= 5 ? (dotModal.type === "cii" ? "#ec4899" : "#eab308") : "#ef4444";
+                              const isLast = qi === qs.length - 1;
+                              return (
+                                <div key={q.qid} style={{ marginBottom: isLast ? 0 : 20, paddingBottom: isLast ? 0 : 20, borderBottom: isLast ? "none" : "1px solid #f3f4f6" }}>
+                                  {q.label && (
+                                    <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 5 }}>{q.label}</div>
+                                  )}
+                                  <div style={{ fontSize: 13, color: "#374151", marginBottom: 10, lineHeight: 1.55 }}>{q.text}</div>
+                                  {q.ty === "s" ? (
+                                    val !== "" ? (
+                                      <div>
+                                        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 7 }}>
+                                          <div style={{ fontSize: 26, fontWeight: 700, color: scoreColor, lineHeight: 1 }}>{val}</div>
+                                          <div style={{ fontSize: 12, color: "#9ca3af" }}>/ 10</div>
+                                        </div>
+                                        <div style={{ height: 6, background: "#f3f4f6", borderRadius: 3, overflow: "hidden" }}>
+                                          <div style={{ height: "100%", width: (Number(val) * 10) + "%", background: scoreColor, borderRadius: 3 }} />
+                                        </div>
+                                        {q.anchor_low && q.anchor_high && (
+                                          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
+                                            <div style={{ fontSize: 10, color: "#d1d5db", maxWidth: "48%" }}>{q.anchor_low}</div>
+                                            <div style={{ fontSize: 10, color: "#d1d5db", maxWidth: "48%", textAlign: "right" }}>{q.anchor_high}</div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No response recorded</div>
+                                    )
+                                  ) : (
+                                    val !== "" ? (
+                                      <div style={{ fontSize: 13, color: "#374151", background: "#f9fafb", borderRadius: 8, padding: "10px 14px", lineHeight: 1.6, borderLeft: "3px solid " + accentColor }}>{val}</div>
+                                    ) : (
+                                      <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No written response</div>
+                                    )
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
