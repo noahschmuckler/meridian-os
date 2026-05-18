@@ -4,7 +4,7 @@ import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
 
-/* ─── MD Curriculum (62 items from master checklist, see analysis/) ─── */
+/* ─── Medical Director Curriculum (62 items from master checklist, see analysis/) ─── */
 const MD_PHASES = masterChecklist.phases;
 const MD_ITEMS = masterChecklist.items;
 const MD_ITEMS_BY_PHASE = MD_ITEMS.reduce((acc, item) => {
@@ -105,12 +105,13 @@ const QP = [
   {id:"w6",label:"Week 6",qs:[{qid:"a",text:"Confident with MyChart messaging?",ty:"s"},{qid:"b",text:"Comfortable with med reconciliation?",ty:"s"},{qid:"c",text:"Work-life balance?",ty:"s"},{qid:"d",text:"Workflow changes needed?",ty:"t"}]},
   {id:"w7",label:"Week 7",qs:[{qid:"a",text:"Ready for independence?",ty:"s"},{qid:"b",text:"Comfortable with complex patients?",ty:"s"},{qid:"c",text:"Satisfied with onboarding?",ty:"s"},{qid:"d",text:"Advice for next provider?",ty:"t"}]},
   {id:"w8",label:"Week 8",qs:[{qid:"a",text:"Overall Epic proficiency?",ty:"s"},{qid:"b",text:"Ready for monthly check-ins?",ty:"s"},{qid:"c",text:"Supported by leadership?",ty:"s"},{qid:"d",text:"Goals for next 3 months?",ty:"t"}]},
-  {id:"m3",label:"Month 3",qs:[{qid:"a",text:"Confident with full panel?",ty:"s"},{qid:"b",text:"Integrated into team?",ty:"s"},{qid:"c",text:"Quality metrics?",ty:"s"},{qid:"d",text:"Support still needed?",ty:"t"}]},
-  {id:"m6",label:"Month 6",qs:[{qid:"a",text:"Confident at full capacity?",ty:"s"},{qid:"b",text:"Satisfied with role?",ty:"s"},{qid:"c",text:"Rate onboarding?",ty:"s"},{qid:"d",text:"Most valuable part?",ty:"t"}]},
+  {id:"m3",label:"Month 3",qs:[{qid:"a",text:"Confident with full panel?",ty:"s"},{qid:"b",text:"Integrated into team?",ty:"s"},{qid:"c",text:"Quality metrics?",ty:"s"},{qid:"d",text:"Support still needed?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
+  {id:"m6",label:"Month 6",qs:[{qid:"a",text:"Confident at full capacity?",ty:"s"},{qid:"b",text:"Satisfied with role?",ty:"s"},{qid:"c",text:"Rate onboarding?",ty:"s"},{qid:"d",text:"Most valuable part?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
   {id:"q3",label:"Month 9",qs:[{qid:"a",text:"Satisfied in current role?",ty:"s"},{qid:"b",text:"Organization supports growth?",ty:"s"},{qid:"c",text:"Development needs?",ty:"t"}]},
-  {id:"q4",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"}]},
+  {id:"q4",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
 ];
 
+const QP_TO_OM = {w1:"om1",w2:"om1",w3:"om1",w4:"om1",w5:"om2",w6:"om2",w7:"om2",w8:"om2",m3:"om3",m6:"om6",q3:"om9",q4:"om12"};
 const USERS = [{id:"md1",name:"Dr. Rivera",role:"director"},{id:"mt1",name:"Dr. Smith",role:"mentor"},{id:"mt2",name:"Dr. Lee",role:"mentor"}];
 const PROVS = [
   {id:"p1",name:"Dr. Johnson",role:"MD",mentor:"mt1",phase:"m4",days:110},
@@ -153,6 +154,17 @@ function makeSeedQA() {
       });
     });
   });
+  // CII stress-test seed: p1 = full 3-phase trend (green→pink→green), p2 = single low point (red),
+  // p3/p4 = no CII data. Scores are intentionally distinct from clinical avg to verify independence.
+  const ciiScores = {
+    "p1.m3.ci1":"8","p1.m3.ci2":"9","p1.m3.ci3":"7","p1.m3.ci4":"6",   // avg 7.5 → green dot
+    "p1.m6.ci1":"5","p1.m6.ci2":"6","p1.m6.ci3":"5","p1.m6.ci4":"5",   // avg 5.25 → pink dot (overall stays green: 7.1)
+    "p1.q4.ci1":"9","p1.q4.ci2":"8","p1.q4.ci3":"9","p1.q4.ci4":"8",   // avg 8.5 → green dot; 3-phase trend line
+    "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",   // avg 3.5 → red overall; single dot
+    "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",   // avg 5.25 → pink overall; single dot
+    // p4: no CII data → "—" overall; empty chart
+  };
+  Object.assign(qa, ciiScores);
   return qa;
 }
 
@@ -187,7 +199,7 @@ function opsPct(qa, pid) {
   return t > 0 ? Math.round(a / t * 100) : 0;
 }
 
-// MD Curriculum coverage: percentage of curriculum items completed up to and
+// Medical Director Curriculum coverage: percentage of curriculum items completed up to and
 // including the provider's current phase. Pre-start phases (pre0, pre1) are
 // always counted because they happen before any provider's tracked days.
 function mdCurriculumPct(checks, pid) {
@@ -216,18 +228,46 @@ function questPct(qa, pid) {
   return t > 0 ? Math.round(a / t * 100) : 0;
 }
 
-/* NEW: Average questionnaire score for a provider at a phase */
+/* NEW: Average questionnaire score for a provider at a phase (excludes culture questions) */
 function avgScore(qa, pid, phid) {
   const qp = QP.find(x => x.id === phid);
   if (!qp) return null;
   let sum = 0, cnt = 0;
-  qp.qs.forEach(q => {
-    if (q.ty === "s") {
+  qp.qs.forEach(function(q) {
+    if (q.ty === "s" && !q.culture) {
       const v = qa[pid + "." + phid + "." + q.qid];
       if (v !== undefined && v !== "") { sum += Number(v); cnt++; }
     }
   });
   return cnt > 0 ? sum / cnt : null;
+}
+
+/* Culture Integration Index helpers */
+const CULTURE_PHASES = ["m3", "m6", "q4"];
+const CULTURE_QIDS = ["ci1", "ci2", "ci3", "ci4"];
+
+/* Per-phase culture score (avg of 4 questions, null if none answered) */
+function culturePhaseScore(qa, pid, phid) {
+  let sum = 0, cnt = 0;
+  CULTURE_QIDS.forEach(function(qid) {
+    const v = qa[pid + "." + phid + "." + qid];
+    if (v !== undefined && v !== "") { sum += Number(v); cnt++; }
+  });
+  return cnt > 0 ? sum / cnt : null;
+}
+
+/* Overall culture score across all answered culture phases */
+function cultureScore(qa, pid) {
+  let sum = 0, cnt = 0;
+  CULTURE_PHASES.forEach(function(phid) {
+    CULTURE_QIDS.forEach(function(qid) {
+      const v = qa[pid + "." + phid + "." + qid];
+      if (v !== undefined && v !== "") { sum += Number(v); cnt++; }
+    });
+  });
+  if (cnt === 0) return { avg: null, pct: 0, display: "—" };
+  const avg = sum / cnt;
+  return { avg: avg, pct: Math.round(avg * 10), display: avg.toFixed(1) };
 }
 
 /* NEW: Overdue status based on days */
@@ -245,25 +285,61 @@ function getStatus(pid) {
   return "ok";
 }
 
-/* NEW: Cross-provider pattern detection */
+/* Enhanced cross-provider pattern detection */
 function detectPatterns(qa) {
   const alerts = [];
-  MP.forEach(ph => {
-    const qp = QP.find(x => x.id === ph.id);
-    if (!qp) return;
-    const scores = [];
-    PROVS.forEach(prov => {
-      const a = avgScore(qa, prov.id, ph.id);
-      if (a !== null) scores.push({ name: prov.name, avg: a });
-    });
-    if (scores.length >= 2) {
-      const below = scores.filter(s => s.avg < 6);
-      if (below.length >= 2 && below.length / scores.length >= 0.5) {
-        const overall = scores.reduce((s, x) => s + x.avg, 0) / scores.length;
-        alerts.push({ phaseId: ph.id, label: ph.label, affected: below.length, total: scores.length, avg: overall.toFixed(1) });
-      }
-    }
+  const phaseComparison = QP.map(function(ph) {
+    const vals = PROVS.map(function(prov) { return avgScore(qa, prov.id, ph.id); }).filter(function(v) { return v !== null; });
+    const avg = vals.length > 0 ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+    return {label: ph.label, id: ph.id, avg: avg};
   });
+  QP.forEach(function(qp, qpIdx) {
+    const providerScores = [];
+    PROVS.forEach(function(prov) {
+      const a = avgScore(qa, prov.id, qp.id);
+      if (a !== null) providerScores.push({name: prov.name, pid: prov.id, avg: a});
+    });
+    if (providerScores.length < 2) return;
+    const below = providerScores.filter(function(s) { return s.avg < 6; });
+    if (below.length < 2 || below.length / providerScores.length < 0.5) return;
+    const overall = providerScores.reduce(function(s, x) { return s + x.avg; }, 0) / providerScores.length;
+    const questionBreakdown = qp.qs.filter(function(q) { return q.ty === "s"; }).map(function(q) {
+      const vals = providerScores.map(function(ps) {
+        const v = qa[ps.pid + "." + qp.id + "." + q.qid];
+        return (v !== undefined && v !== "") ? parseFloat(v) : null;
+      }).filter(function(v) { return v !== null; });
+      const avg = vals.length > 0 ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+      return {text: q.text, avg: avg};
+    }).filter(function(x) { return x.avg !== null; }).sort(function(a, b) { return a.avg - b.avg; });
+    const omPhaseId = QP_TO_OM[qp.id];
+    const omPhase = OP.find(function(x) { return x.id === omPhaseId; });
+    let omCategoryAvgs = null;
+    if (omPhase) {
+      const catAvgs = omPhase.qs.filter(function(q) { return q.ty === "s"; }).map(function(q) {
+        const vals = PROVS.map(function(prov) {
+          const v = qa[prov.id + "." + omPhaseId + "." + q.qid];
+          return (v !== undefined && v !== "") ? parseFloat(v) : null;
+        }).filter(function(v) { return v !== null; });
+        const avg = vals.length > 0 ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length : null;
+        return {label: q.label, avg: avg};
+      }).filter(function(x) { return x.avg !== null; });
+      if (catAvgs.length > 0) omCategoryAvgs = catAvgs;
+    }
+    const prevQP = qpIdx > 0 ? QP[qpIdx - 1] : null;
+    let sharpestDecline = null;
+    if (prevQP) {
+      let maxDrop = -Infinity;
+      providerScores.forEach(function(ps) {
+        const prevAvg = avgScore(qa, ps.pid, prevQP.id);
+        if (prevAvg !== null) {
+          const drop = prevAvg - ps.avg;
+          if (drop > maxDrop) { maxDrop = drop; sharpestDecline = {name: ps.name, prevPhase: prevQP.label, prevAvg: prevAvg, curAvg: ps.avg, drop: drop}; }
+        }
+      });
+    }
+    alerts.push({phaseId: qp.id, label: qp.label, affected: below.length, total: providerScores.length, avg: overall.toFixed(1), providerScores: providerScores, questionBreakdown: questionBreakdown, omPhaseId: omPhaseId, omCategoryAvgs: omCategoryAvgs, sharpestDecline: sharpestDecline, phaseComparison: phaseComparison});
+  });
+  alerts.sort(function(a, b) { return parseFloat(a.avg) - parseFloat(b.avg); });
   return alerts;
 }
 
@@ -384,7 +460,8 @@ function Timeline({ currentIdx }) {
   );
 }
 
-/* ─── MD Curriculum row (used by per-phase view + View-All modal) ─── */
+/* ─── Medical Director Curriculum row (used by per-phase view + View-All modal) ─── */
+const OWNER_LABEL = { MD: "Medical Director", Mentor: "Mentor", OM: "Office Manager", CS: "Care Specialist" };
 function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
   const ownerColor = {
     MD: "#8b5cf6",
@@ -406,7 +483,7 @@ function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
             </span>
           )}
           <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: ownerColor + "15", color: ownerColor, textTransform: "uppercase" }}>
-            #{item.n} · {item.owner}
+            #{item.n} · {OWNER_LABEL[item.owner] || item.owner}
           </span>
           {item.partner && (
             <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: "#f1f3f5", color: "#868e96" }}>
@@ -446,10 +523,10 @@ function MdCurriculumRow({ item, checked, canEdit, onToggle, showPhase }) {
 }
 
 /* ─── View-All-Curriculum modal (chronological scroll, all three tracks) ─── */
-// Renders MD Curriculum (62 items pre0..q4), Mentor Check-Ins (MP w1..q4),
+// Renders Medical Director Curriculum (62 items pre0..q4), Mentor Check-Ins (MP w1..q4),
 // and Office Manager (OP om1..om12) as three stacked sections in one
 // scrollable modal. Per-track sticky header + per-phase sub-header. Only
-// the MD Curriculum carries the structured owner / partner / misstep /
+// the Medical Director Curriculum carries the structured owner / partner / misstep /
 // epic_ref_ids metadata — Mentor and OM rows are simple checkbox + text.
 function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, qa }) {
   if (!open) return null;
@@ -473,7 +550,7 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
   }));
 
   // Edit perms by track. Mirrors the App-level canChk semantics:
-  // MD items → director only; MP items → director or mentor; OP → director.
+  // Medical Director items → director only; MP items → director or mentor; OP → director.
   const canEditMd = !!prov && isDir;
   const canEditMp = !!prov && (isDir || isMen);
   const canEditOp = !!prov && isDir;
@@ -485,7 +562,7 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
   const tracks = [
     {
       key: "md",
-      title: "MD Curriculum",
+      title: "Medical Director Curriculum",
       subtitle: `${mdItems.length} items, pre-start → Month 12`,
       gradient: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
       accent: "#8b5cf6",
@@ -573,8 +650,8 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
           <div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>All Onboarding Tracks — Chronological</div>
             <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
-              MD Curriculum + Mentor Check-Ins + Office Manager.
-              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} MD · ${mpDone}/${mpTotal} mentor · ${opDone}/${opTotal} ops` : ""}
+              Medical Director Curriculum + Mentor Check-Ins + Office Manager.
+              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} Medical Director · ${mpDone}/${mpTotal} mentor · ${opDone}/${opTotal} ops` : ""}
             </div>
           </div>
           <button onClick={onClose}
@@ -624,8 +701,8 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
           ))}
         </div>
         <div style={{ padding: "12px 22px", borderTop: "1px solid #dee2e6", background: "#f8f9fb", fontSize: 11, color: "#868e96", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
-          <span>MD ⚠ misstep-risk items: 12 / 19 / 43 / 48 / 56 — keep verbatim when teaching.</span>
-          <span>MD source: Master Checklist · Mentor + Ops: Mentorship Tracker phases</span>
+          <span>Medical Director ⚠ misstep-risk items: 12 / 19 / 43 / 48 / 56 — keep verbatim when teaching.</span>
+          <span>Medical Director source: Master Checklist · Mentor + Ops: Mentorship Tracker phases</span>
         </div>
       </div>
     </div>
@@ -644,6 +721,9 @@ export default function App() {
   const [notes, setNotes] = useState({});
   const [mainTab, setMainTab] = useState("roster");
   const [mdViewAll, setMdViewAll] = useState(false);
+  const [dueMenu, setDueMenu] = useState(null);
+  const [expandedAlerts, setExpandedAlerts] = useState({});
+  const [dotModal, setDotModal] = useState(null);
 
   const user = USERS.find(u => u.id === uid);
   const isDir = user && user.role === "director";
@@ -765,10 +845,10 @@ export default function App() {
         qa={qa}
       />
 
-      {/* MD tabs when no provider selected */}
+      {/* Director dashboard tabs when no provider selected */}
       {isDir && !selId && (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
-          {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison" }, { k: "notes", l: "Recent Notes" }].map(t => (
+          {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison Grid" }, { k: "trends", l: "Score Trends" }, { k: "notes", l: "Recent Notes" }].map(t => (
             <button key={t.k} onClick={() => setMainTab(t.k)}
               style={{ padding: "12px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: mainTab === t.k ? 700 : 400, color: mainTab === t.k ? "#0f1b2d" : "#868e96", borderBottom: mainTab === t.k ? "3px solid #028090" : "3px solid transparent" }}>
               {t.l}
@@ -812,7 +892,7 @@ export default function App() {
                 </div>
                 {isDir ? (
                   <div>
-                    <Bar label="MD Curriculum" pct={md} color="#8b5cf6" />
+                    <Bar label="Medical Director Curriculum" pct={md} color="#8b5cf6" />
                     <Bar label="Mentor" pct={mn} color="#028090" />
                     <Bar label="Ops" pct={op} color="#0ea5e9" />
                     <Bar label="Questionnaires" pct={qp} color="#eab308" />
@@ -830,18 +910,409 @@ export default function App() {
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 28px" }}>
           {!prov ? (
             <div>
-              {/* Pattern alerts */}
+              {/* ── CROSS-PROVIDER PATTERN ALERTS (always at top, all tabs) ── */}
               {isDir && patterns.length > 0 && (
-                <div style={{ background: "white", borderRadius: 10, border: "2px solid #fecaca", marginBottom: 16, overflow: "hidden" }}>
-                  <div style={{ padding: "12px 18px", background: "#fef2f2", borderBottom: "1px solid #fecaca" }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#ef4444" }}>⚠️ Cross-Provider Pattern Alerts</div>
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span>⚠️ Cross-Provider Pattern Alerts</span>
+                    <span style={{ fontSize: 11, fontWeight: 400, color: "#b91c1c" }}>{"(" + patterns.length + " phase" + (patterns.length !== 1 ? "s" : "") + " — sorted by severity)"}</span>
                   </div>
-                  {patterns.map((a, i) => (
-                    <div key={i} style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>{a.label}: {a.affected} of {a.total} providers scored below 6.0 (avg: {a.avg})</div>
-                      <div style={{ fontSize: 12, color: "#ef4444", fontWeight: 600, marginTop: 4 }}>Possible program-level issue at this phase</div>
+                  {patterns.map(function(a) {
+                    const isExp = !!expandedAlerts[a.phaseId];
+                    const toggleAlert = function() { setExpandedAlerts(function(prev) { const n = Object.assign({}, prev); n[a.phaseId] = !prev[a.phaseId]; return n; }); };
+                    const omPhaseLabel = (OP.find(function(x) { return x.id === a.omPhaseId; }) || {label: "—"}).label;
+                    return (
+                      <div key={a.phaseId} style={{ background: "white", borderRadius: 10, border: "2px solid #fecaca", marginBottom: 10, overflow: "hidden" }}>
+                        {/* Component 1 — Header */}
+                        <button onClick={toggleAlert} style={{ width: "100%", padding: "13px 18px", background: "#fef2f2", border: "none", cursor: "pointer", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: isExp ? "1px solid #fecaca" : "none" }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "#b91c1c" }}>{a.label + ": " + a.affected + " of " + a.total + " providers scored below 6.0 (overall avg: " + a.avg + ")"}</div>
+                            <div style={{ fontSize: 11, color: "#ef4444", marginTop: 2 }}>{isExp ? "Click to collapse" : "Click to view details"}</div>
+                          </div>
+                          <span style={{ fontSize: 14, color: "#ef4444", marginLeft: 12, flexShrink: 0 }}>{isExp ? "▲" : "▼"}</span>
+                        </button>
+                        {isExp && (
+                          <div>
+                            {/* Component 2 — Individual provider scores */}
+                            <div style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Individual Provider Scores</div>
+                              {a.providerScores.map(function(ps) {
+                                const below = ps.avg < 6;
+                                return (
+                                  <div key={ps.pid} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #f3f4f6" }}>
+                                    <span style={{ fontSize: 13, color: "#0f1b2d" }}>{ps.name}</span>
+                                    <span style={{ fontSize: 13, fontWeight: 700, color: below ? "#ef4444" : "#22c55e" }}>{ps.avg.toFixed(1) + (below ? " ●" : " ●")}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {/* Component 3 — Question-level breakdown */}
+                            {a.questionBreakdown.length > 0 && (
+                              <div style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Question-Level Breakdown (lowest → highest)</div>
+                                {a.questionBreakdown.map(function(q, qi) {
+                                  const qc = q.avg >= 7 ? "#22c55e" : q.avg >= 5 ? "#eab308" : "#ef4444";
+                                  return (
+                                    <div key={qi} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #f3f4f6" }}>
+                                      <span style={{ fontSize: 12, color: "#374151", flex: 1, marginRight: 12 }}>{q.text}</span>
+                                      <span style={{ fontSize: 13, fontWeight: 700, color: qc, whiteSpace: "nowrap" }}>{q.avg.toFixed(1)}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            {/* Component 4 — Phase comparison bar */}
+                            <div style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Phase Comparison — All Periods</div>
+                              {a.phaseComparison.filter(function(ph) { return ph.avg !== null; }).map(function(ph) {
+                                const isTrig = ph.id === a.phaseId;
+                                const bc = ph.avg >= 7 ? "#22c55e" : ph.avg >= 5 ? "#eab308" : "#ef4444";
+                                return (
+                                  <div key={ph.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px " + (isTrig ? "6px" : "0"), background: isTrig ? "#fef2f2" : "transparent", borderRadius: 4, marginBottom: 2 }}>
+                                    <div style={{ width: 64, fontSize: 10, color: isTrig ? "#b91c1c" : "#868e96", fontWeight: isTrig ? 700 : 400, flexShrink: 0 }}>{ph.label}</div>
+                                    <div style={{ flex: 1, height: 10, background: "#e9ecef", borderRadius: 5, overflow: "hidden" }}>
+                                      <div style={{ height: "100%", width: (ph.avg / 10 * 100) + "%", background: bc, borderRadius: 5 }} />
+                                    </div>
+                                    <div style={{ width: 28, fontSize: 11, fontWeight: 700, color: bc, textAlign: "right", flexShrink: 0 }}>{ph.avg.toFixed(1)}</div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {/* Component 5 — Office Manager cross-reference */}
+                            <div style={{ padding: "12px 18px", borderBottom: "1px solid #dee2e6" }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>{"Office Manager Cross-Reference (" + omPhaseLabel + ")"}</div>
+                              {a.omCategoryAvgs ? (
+                                a.omCategoryAvgs.map(function(cat, ci) {
+                                  const below = cat.avg < 6;
+                                  return (
+                                    <div key={ci} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #f3f4f6" }}>
+                                      <span style={{ fontSize: 12, color: "#374151" }}>{cat.label}</span>
+                                      <span style={{ fontSize: 13, fontWeight: 700, color: below ? "#ef4444" : "#22c55e" }}>{cat.avg.toFixed(1)}</span>
+                                    </div>
+                                  );
+                                })
+                              ) : (
+                                <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No Office Manager data available for this timeframe yet.</div>
+                              )}
+                            </div>
+                            {/* Component 6 — Sharpest decline */}
+                            {a.sharpestDecline && (
+                              <div style={{ padding: "12px 18px", background: "#fef2f2" }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Sharpest Decline</div>
+                                <div style={{ fontSize: 13, color: "#b91c1c", fontWeight: 600 }}>
+                                  {a.sharpestDecline.name + " dropped " + a.sharpestDecline.drop.toFixed(1) + " points from " + a.sharpestDecline.prevPhase + " (" + a.sharpestDecline.prevAvg.toFixed(1) + ") to " + a.label + " (" + a.sharpestDecline.curAvg.toFixed(1) + ") — sharpest decline at this phase."}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Score Trends tab */}
+              {isDir && mainTab === "trends" && (
+                <div>
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Score Trends — Office Manager Touchpoints</div>
+                        <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Avg score per assessment period &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 on track</span> &nbsp;<span style={{ color: "#eab308", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 concern</span></div>
+                      </div>
                     </div>
-                  ))}
+                    {PROVS.map(p => {
+                      const allOPScores = OP.map((ph, i) => {
+                        const scores = ph.qs.filter(q => q.ty === "s").map(q => {
+                          const v = qa[p.id + "." + ph.id + "." + q.qid];
+                          return v !== undefined && v !== "" ? parseFloat(v) : null;
+                        }).filter(v => v !== null);
+                        const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+                        return { ph, avg, i };
+                      });
+                      const provScores = allOPScores.filter(x => x.avg !== null);
+
+                      const W = 800, H = 150;
+                      const PL = 32, PR = 16, PT = 26, PB = 28;
+                      const cw = W - PL - PR;
+                      const ch = H - PT - PB;
+                      const xOf = (i) => PL + (OP.length > 1 ? (i / (OP.length - 1)) : 0.5) * cw;
+                      const yOf = (s) => PT + (1 - s / 10) * ch;
+                      const y7 = yOf(7), y5 = yOf(5);
+
+                      const delta = provScores.length >= 2
+                        ? provScores[provScores.length - 1].avg - provScores[0].avg : 0;
+                      const trendColor = delta > 0.4 ? "#22c55e" : delta < -0.4 ? "#ef4444" : "#868e96";
+                      const trendLabel = delta > 0.4 ? ("↑ +" + delta.toFixed(1)) : delta < -0.4 ? ("↓ " + delta.toFixed(1)) : "→ stable";
+
+                      const polyPts = allOPScores.filter(x => x.avg !== null).map(x => xOf(x.i) + "," + yOf(x.avg)).join(" ");
+
+                      return (
+                        <div key={p.id} style={{ padding: "14px 20px 10px", borderBottom: "1px solid #dee2e6" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <div>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</span>
+                              <span style={{ fontSize: 10, fontWeight: 400, color: "#868e96", marginLeft: 8 }}>{(MP.find(x => x.id === p.phase) || {}).label}</span>
+                            </div>
+                            {provScores.length >= 2 && (
+                              <span style={{ fontSize: 12, fontWeight: 700, color: trendColor }}>{trendLabel} over period</span>
+                            )}
+                          </div>
+                          <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", height: "auto", display: "block" }}>
+                            <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
+                            <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                            <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
+                            <line x1={PL} y1={y5} x2={PL + cw} y2={y5} stroke="#eab308" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                            <text x={PL - 4} y={y5 + 3.5} textAnchor="end" fontSize={9} fill="#eab308" fontWeight={700}>5</text>
+                            <line x1={PL} y1={PT} x2={PL + cw} y2={PT} stroke="#dee2e6" strokeWidth={0.75} />
+                            <text x={PL - 4} y={PT + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">10</text>
+                            <line x1={PL} y1={PT + ch} x2={PL + cw} y2={PT + ch} stroke="#dee2e6" strokeWidth={0.75} />
+                            <text x={PL - 4} y={PT + ch + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">0</text>
+                            {provScores.length > 1 && (
+                              <polyline points={polyPts} fill="none" stroke="#0ea5e9" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+                            )}
+                            {allOPScores.map(({ ph, avg, i }) => {
+                              const cx = xOf(i);
+                              const dc = avg !== null ? (avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444") : null;
+                              return (
+                                <g key={ph.id} onClick={avg !== null ? function() { setDotModal({ pid: p.id, phaseId: ph.id, type: "om" }); } : undefined} style={{ cursor: avg !== null ? "pointer" : "default" }}>
+                                  {avg !== null && (
+                                    <>
+                                      <circle cx={cx} cy={yOf(avg)} r={14} fill="transparent" />
+                                      <circle cx={cx} cy={yOf(avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                      <text x={cx} y={yOf(avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
+                                    </>
+                                  )}
+                                  <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill={avg !== null ? "#868e96" : "#d1d5db"}>{ph.label}</text>
+                                </g>
+                              );
+                            })}
+                          </svg>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Medical Director Touchpoints chart */}
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Score Trends — Medical Director Touchpoints</div>
+                      <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Avg score per check-in period &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 on track</span> &nbsp;<span style={{ color: "#eab308", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 concern</span></div>
+                    </div>
+                    {PROVS.map(p => {
+                      const allQPScores = QP.map((ph, i) => {
+                        const avg = avgScore(qa, p.id, ph.id);
+                        return { ph, avg, i };
+                      });
+                      const provScores = allQPScores.filter(x => x.avg !== null);
+
+                      const W = 1600, H = 150;
+                      const PL = 32, PR = 16, PT = 26, PB = 28;
+                      const cw = W - PL - PR;
+                      const ch = H - PT - PB;
+                      const xOf = (i) => PL + (QP.length > 1 ? (i / (QP.length - 1)) : 0.5) * cw;
+                      const yOf = (s) => PT + (1 - s / 10) * ch;
+                      const y7 = yOf(7), y5 = yOf(5);
+
+                      const delta = provScores.length >= 2
+                        ? provScores[provScores.length - 1].avg - provScores[0].avg : 0;
+                      const trendColor = delta > 0.4 ? "#22c55e" : delta < -0.4 ? "#ef4444" : "#868e96";
+                      const trendLabel = delta > 0.4 ? ("↑ +" + delta.toFixed(1)) : delta < -0.4 ? ("↓ " + delta.toFixed(1)) : "→ stable";
+
+                      const polyPts = allQPScores.filter(x => x.avg !== null).map(x => xOf(x.i) + "," + yOf(x.avg)).join(" ");
+
+                      return (
+                        <div key={p.id} style={{ padding: "14px 20px 10px", borderBottom: "1px solid #dee2e6" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <div>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</span>
+                              <span style={{ fontSize: 10, fontWeight: 400, color: "#868e96", marginLeft: 8 }}>{(MP.find(x => x.id === p.phase) || {}).label}</span>
+                            </div>
+                            {provScores.length >= 2 && (
+                              <span style={{ fontSize: 12, fontWeight: 700, color: trendColor }}>{trendLabel} over period</span>
+                            )}
+                          </div>
+                          <svg viewBox={"0 0 " + W + " " + H} style={{ width: "100%", height: "auto", display: "block" }}>
+                            <rect x={PL} y={PT} width={cw} height={ch} fill="#f8f9fb" rx={3} />
+                            <line x1={PL} y1={y7} x2={PL + cw} y2={y7} stroke="#22c55e" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                            <text x={PL - 4} y={y7 + 3.5} textAnchor="end" fontSize={9} fill="#22c55e" fontWeight={700}>7</text>
+                            <line x1={PL} y1={y5} x2={PL + cw} y2={y5} stroke="#eab308" strokeWidth={1} strokeDasharray="5 3" opacity={0.55} />
+                            <text x={PL - 4} y={y5 + 3.5} textAnchor="end" fontSize={9} fill="#eab308" fontWeight={700}>5</text>
+                            <line x1={PL} y1={PT} x2={PL + cw} y2={PT} stroke="#dee2e6" strokeWidth={0.75} />
+                            <text x={PL - 4} y={PT + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">10</text>
+                            <line x1={PL} y1={PT + ch} x2={PL + cw} y2={PT + ch} stroke="#dee2e6" strokeWidth={0.75} />
+                            <text x={PL - 4} y={PT + ch + 3.5} textAnchor="end" fontSize={8} fill="#adb5bd">0</text>
+                            {provScores.length > 1 && (
+                              <polyline points={polyPts} fill="none" stroke="#eab308" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+                            )}
+                            {allQPScores.map(({ ph, avg, i }) => {
+                              const cx = xOf(i);
+                              const dc = avg !== null ? (avg >= 7 ? "#22c55e" : avg >= 5 ? "#eab308" : "#ef4444") : null;
+                              return (
+                                <g key={ph.id} onClick={avg !== null ? function() { setDotModal({ pid: p.id, phaseId: ph.id, type: "qp" }); } : undefined} style={{ cursor: avg !== null ? "pointer" : "default" }}>
+                                  {avg !== null && (
+                                    <>
+                                      <circle cx={cx} cy={yOf(avg)} r={14} fill="transparent" />
+                                      <circle cx={cx} cy={yOf(avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                      <text x={cx} y={yOf(avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{avg.toFixed(1)}</text>
+                                    </>
+                                  )}
+                                  <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill={avg !== null ? "#868e96" : "#d1d5db"}>{ph.label}</text>
+                                </g>
+                              );
+                            })}
+                          </svg>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Culture Integration Trend */}
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #fce7f3", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #fce7f3", background: "#fdf2f8" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#9d174d" }}>Culture Integration Trend</div>
+                      <div style={{ fontSize: 12, color: "#be185d", marginTop: 3 }}>Avg of 4 culture questions per phase &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 thriving</span> &nbsp;<span style={{ color: "#ec4899", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 at risk</span></div>
+                    </div>
+                    {PROVS.map(function(p) {
+                      const scores = CULTURE_PHASES.map(function(phid, i) {
+                        return { phid: phid, label: phid === "m3" ? "Month 3" : phid === "m6" ? "Month 6" : "Month 12", avg: culturePhaseScore(qa, p.id, phid), i: i };
+                      });
+                      const answered = scores.filter(function(x) { return x.avg !== null; });
+                      const W = 480, H = 120;
+                      const PL = 32, PR = 16, PT = 20, PB = 24;
+                      const cw = W - PL - PR, ch = H - PT - PB;
+                      const xOfC = function(i) { return PL + (CULTURE_PHASES.length > 1 ? (i / (CULTURE_PHASES.length - 1)) : 0.5) * cw; };
+                      const yOfC = function(v) { return PT + (1 - v / 10) * ch; };
+                      const polyPts = answered.map(function(x) { return xOfC(x.i) + "," + yOfC(x.avg); }).join(" ");
+                      const cs = cultureScore(qa, p.id);
+                      const summaryColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                      return (
+                        <div key={p.id} style={{ padding: "12px 20px", borderBottom: "1px solid #fce7f3" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: summaryColor }}>{cs.display !== "—" ? cs.display + " / 10" : "No data yet"}</div>
+                          </div>
+                          <div style={{ overflowX: "auto" }}>
+                            <svg viewBox={"0 0 " + W + " " + H} width="100%" style={{ display: "block" }}>
+                              {[0, 5, 10].map(function(v) {
+                                const y = yOfC(v);
+                                return (
+                                  <g key={v}>
+                                    <line x1={PL} y1={y} x2={W - PR} y2={y} stroke="#fce7f3" strokeWidth={1} />
+                                    <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="#be185d">{v}</text>
+                                  </g>
+                                );
+                              })}
+                              {answered.length >= 2 && <polyline points={polyPts} fill="none" stroke="#ec4899" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+                              {scores.map(function(s) {
+                                const cx = xOfC(s.i);
+                                const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#ec4899" : "#ef4444";
+                                return (
+                                  <g key={s.label} onClick={s.avg !== null ? function() { setDotModal({ pid: p.id, phaseId: s.phid, type: "cii" }); } : undefined} style={{ cursor: s.avg !== null ? "pointer" : "default" }}>
+                                    {s.avg !== null && (
+                                      <>
+                                        <circle cx={cx} cy={yOfC(s.avg)} r={14} fill="transparent" />
+                                        <circle cx={cx} cy={yOfC(s.avg)} r={7} fill={dc} stroke="white" strokeWidth={2} />
+                                        <text x={cx} y={yOfC(s.avg) - 11} textAnchor="middle" fontSize={10} fontWeight={700} fill={dc}>{s.avg.toFixed(1)}</text>
+                                      </>
+                                    )}
+                                    <text x={cx} y={PT + ch + 15} textAnchor="middle" fontSize={9} fill={s.avg !== null ? "#868e96" : "#d1d5db"}>{s.label}</text>
+                                  </g>
+                                );
+                              })}
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Dot-click questionnaire modal */}
+                  {dotModal && (function() {
+                    const mp = PROVS.find(function(x) { return x.id === dotModal.pid; });
+                    const provName = mp ? mp.name : dotModal.pid;
+                    var phaseLabel = "", qs = [], typeLabel = "", accentColor = "#868e96", borderColor = "#dee2e6", bgColor = "white";
+                    if (dotModal.type === "om") {
+                      const ph = OP.find(function(x) { return x.id === dotModal.phaseId; });
+                      phaseLabel = ph ? ph.label : dotModal.phaseId;
+                      qs = ph ? ph.qs : [];
+                      typeLabel = "Office Manager Touchpoints";
+                      accentColor = "#0ea5e9";
+                    } else if (dotModal.type === "qp") {
+                      const ph = QP.find(function(x) { return x.id === dotModal.phaseId; });
+                      phaseLabel = ph ? ph.label : dotModal.phaseId;
+                      qs = ph ? ph.qs.filter(function(q) { return !q.culture; }) : [];
+                      typeLabel = "Medical Director Touchpoints";
+                      accentColor = "#eab308";
+                    } else {
+                      const ph = QP.find(function(x) { return x.id === dotModal.phaseId; });
+                      phaseLabel = ph ? ph.label : dotModal.phaseId;
+                      qs = ph ? ph.qs.filter(function(q) { return q.culture === true; }) : [];
+                      typeLabel = "Culture Integration Index";
+                      accentColor = "#ec4899";
+                      borderColor = "#fce7f3";
+                      bgColor = "#fdf2f8";
+                    }
+                    return (
+                      <div onClick={function() { setDotModal(null); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+                        <div onClick={function(e) { e.stopPropagation(); }} style={{ background: "white", borderRadius: 12, width: "min(560px, 100%)", maxHeight: "80vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+                          <div style={{ padding: "16px 20px", borderBottom: "1px solid " + borderColor, background: bgColor, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexShrink: 0 }}>
+                            <div>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: "#0f1b2d" }}>{provName + " — " + phaseLabel}</div>
+                              <div style={{ fontSize: 12, color: accentColor, marginTop: 3, fontWeight: 600 }}>{typeLabel}</div>
+                            </div>
+                            <button onClick={function() { setDotModal(null); }} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#9ca3af", lineHeight: 1, padding: "2px 6px", borderRadius: 4, marginLeft: 12, flexShrink: 0 }}>✕</button>
+                          </div>
+                          <div style={{ overflowY: "auto", padding: "20px" }}>
+                            {qs.length === 0 ? (
+                              <div style={{ fontSize: 13, color: "#adb5bd", fontStyle: "italic" }}>No questions found for this phase.</div>
+                            ) : qs.map(function(q, qi) {
+                              const val = qa[dotModal.pid + "." + dotModal.phaseId + "." + q.qid] || "";
+                              const score = q.ty === "s" && val !== "" ? Number(val) : null;
+                              const scoreColor = score === null ? "#adb5bd" : score >= 7 ? "#22c55e" : score >= 5 ? (dotModal.type === "cii" ? "#ec4899" : "#eab308") : "#ef4444";
+                              const isLast = qi === qs.length - 1;
+                              return (
+                                <div key={q.qid} style={{ marginBottom: isLast ? 0 : 20, paddingBottom: isLast ? 0 : 20, borderBottom: isLast ? "none" : "1px solid #f3f4f6" }}>
+                                  {q.label && (
+                                    <div style={{ fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 5 }}>{q.label}</div>
+                                  )}
+                                  <div style={{ fontSize: 13, color: "#374151", marginBottom: 10, lineHeight: 1.55 }}>{q.text}</div>
+                                  {q.ty === "s" ? (
+                                    val !== "" ? (
+                                      <div>
+                                        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 7 }}>
+                                          <div style={{ fontSize: 26, fontWeight: 700, color: scoreColor, lineHeight: 1 }}>{val}</div>
+                                          <div style={{ fontSize: 12, color: "#9ca3af" }}>/ 10</div>
+                                        </div>
+                                        <div style={{ height: 6, background: "#f3f4f6", borderRadius: 3, overflow: "hidden" }}>
+                                          <div style={{ height: "100%", width: (Number(val) * 10) + "%", background: scoreColor, borderRadius: 3 }} />
+                                        </div>
+                                        {q.anchor_low && q.anchor_high && (
+                                          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
+                                            <div style={{ fontSize: 10, color: "#d1d5db", maxWidth: "48%" }}>{q.anchor_low}</div>
+                                            <div style={{ fontSize: 10, color: "#d1d5db", maxWidth: "48%", textAlign: "right" }}>{q.anchor_high}</div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No response recorded</div>
+                                    )
+                                  ) : (
+                                    val !== "" ? (
+                                      <div style={{ fontSize: 13, color: "#374151", background: "#f9fafb", borderRadius: 8, padding: "10px 14px", lineHeight: 1.6, borderLeft: "3px solid " + accentColor }}>{val}</div>
+                                    ) : (
+                                      <div style={{ fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No written response</div>
+                                    )
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
@@ -855,10 +1326,11 @@ export default function App() {
                     <thead>
                       <tr style={{ background: "#f8f9fb" }}>
                         <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Provider</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#8b5cf6", borderBottom: "2px solid #dee2e6" }}>MD</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>Ops</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Surveys</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#8b5cf6", borderBottom: "2px solid #dee2e6" }}>Medical Director Curriculum</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor Curriculum</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>OM Touchpoints</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Medical Director Touchpoints</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#ec4899", borderBottom: "2px solid #dee2e6" }}>Culture</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Status</th>
                       </tr>
                     </thead>
@@ -867,6 +1339,24 @@ export default function App() {
                         const vals = [mdCurriculumPct(checks, p.id), mentorPct(checks, p.id), opsPct(qa, p.id), questPct(qa, p.id)];
                         const cols = ["#8b5cf6", "#028090", "#0ea5e9", "#eab308"];
                         const st = getStatus(p.id);
+                        const getDueItems = () => {
+                          const ci = phIdx(p.phase);
+                          const d = p.days;
+                          let expected = 0;
+                          if (d >= 270) expected = 13; else if (d >= 180) expected = 11;
+                          else if (d >= 150) expected = 10; else if (d >= 120) expected = 9;
+                          else if (d >= 90) expected = 8; else if (d >= 56) expected = 7;
+                          else expected = Math.floor(d / 7);
+                          const items = [];
+                          for (let i = ci; i < Math.min(expected, MP.length); i++) {
+                            const ph = MP[i];
+                            const cc = countChecks(checks, p.id, ph.id);
+                            if (cc.total > 0 && cc.pct < 100) items.push({ phase: ph, done: cc.done, total: cc.total });
+                          }
+                          return items;
+                        };
+                        const cs = cultureScore(qa, p.id);
+                        const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
                         return (
                           <tr key={p.id} style={{ borderBottom: "1px solid #dee2e6" }}>
                             <td style={{ padding: "12px 16px", fontWeight: 600 }}>
@@ -884,9 +1374,29 @@ export default function App() {
                               </td>
                             ))}
                             <td style={{ padding: "12px 8px", textAlign: "center" }}>
-                              <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, background: st === "overdue" ? "#fef2f2" : st === "due" ? "#fefce8" : "#dcfce7", color: st === "overdue" ? "#ef4444" : st === "due" ? "#92400e" : "#166534" }}>
-                                {st === "overdue" ? "OVERDUE" : st === "due" ? "DUE" : "ON TRACK"}
-                              </span>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: cultureColor }}>{cs.display}</span>
+                              {cs.avg !== null && <div style={{ fontSize: 9, color: "#adb5bd" }}>/ 10</div>}
+                            </td>
+                            <td style={{ padding: "12px 8px", textAlign: "center" }}>
+                              {(st === "due" || st === "overdue") ? (
+                                <button
+                                  onClick={(e) => {
+                                    const items = getDueItems();
+                                    if (items.length === 1) {
+                                      setSelId(p.id); setTab("mentor"); setPhase(items[0].phase.id);
+                                    } else if (items.length > 1) {
+                                      const rect = e.currentTarget.getBoundingClientRect();
+                                      setDueMenu({ pid: p.id, items, x: rect.left, y: rect.bottom + 6 });
+                                    } else {
+                                      setSelId(p.id); setTab("mentor"); setPhase(p.phase);
+                                    }
+                                  }}
+                                  style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 8, border: "none", cursor: "pointer", background: st === "overdue" ? "#fef2f2" : "#fefce8", color: st === "overdue" ? "#ef4444" : "#92400e" }}>
+                                  {st === "overdue" ? "OVERDUE ↗" : "DUE ↗"}
+                                </button>
+                              ) : (
+                                <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 8, background: "#dcfce7", color: "#166534" }}>ON TRACK</span>
+                              )}
                             </td>
                           </tr>
                         );
@@ -975,19 +1485,21 @@ export default function App() {
               {/* JOURNEY TIMELINE */}
               <Timeline currentIdx={curIdx} />
 
-              {/* 4 METRIC CARDS */}
+              {/* 5 METRIC CARDS — clickable tab selectors (director only) */}
               {isDir && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10, marginBottom: 16 }}>
                   {[
-                    { label: "MD Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6" },
-                    { label: "Mentor", pct: mentorPct(checks, prov.id), color: "#028090" },
-                    { label: "Ops", pct: opsPct(qa, prov.id), color: "#0ea5e9" },
-                    { label: "Questionnaires", pct: questPct(qa, prov.id), color: "#eab308" },
-                  ].map((m, i) => {
+                    { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
+                    { label: "Mentor Curriculum", pct: mentorPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase },
+                    { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
+                    { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
+                  ].map((m) => {
+                    const isActive = tab === m.key;
                     const dc = m.pct >= 70 ? "#22c55e" : m.pct >= 30 ? m.color : m.pct > 0 ? "#ef4444" : "#adb5bd";
                     return (
-                      <div key={i} style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "12px 14px" }}>
-                        <div style={{ fontSize: 11, color: "#868e96", marginBottom: 4 }}>{m.label}</div>
+                      <div key={m.key} onClick={() => { setTab(m.key); setPhase(m.def); }}
+                        style={{ background: isActive ? m.color + "12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? m.color : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                        <div style={{ fontSize: 11, color: isActive ? m.color : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>{m.label}</div>
                         <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{m.pct}%</div>
                         <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 6 }}>
                           <div style={{ height: "100%", width: m.pct + "%", background: m.color, borderRadius: 3 }} />
@@ -995,34 +1507,28 @@ export default function App() {
                       </div>
                     );
                   })}
+                  {/* Culture Integration card — shows raw 0-10 avg; navigates to quest tab at m3 */}
+                  {(function() {
+                    const cs = cultureScore(qa, prov.id);
+                    const isActive = tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1;
+                    const dc = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                    return (
+                      <div onClick={function() { setTab("quest"); setPhase("m3"); }}
+                        style={{ background: isActive ? "#ec489912" : "white", borderRadius: 10, border: "2px solid " + (isActive ? "#ec4899" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                        <div style={{ fontSize: 11, color: isActive ? "#ec4899" : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>Culture Integration</div>
+                        <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{cs.display}</div>
+                        <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>avg / 10 · m3, m6, m12</div>
+                        <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
+                          <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
               {/* SCORE TREND */}
               {isDir && <ScoreTrend qa={qa} pid={prov.id} />}
-
-              {/* TRACK TABS */}
-              <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
-                {[
-                  { key: "mentor", label: "Mentor Check-Ins", color: "#028090", def: prov.phase },
-                  ...(isDir ? [
-                    { key: "md", label: "MD Curriculum", color: "#8b5cf6", def: "pre0" },
-                    { key: "ops", label: "Office Manager", color: "#0ea5e9", def: "om1" },
-                    { key: "quest", label: "Questionnaires", color: "#eab308", def: "w1" },
-                  ] : []),
-                ].map(t => (
-                  <button key={t.key} onClick={() => { setTab(t.key); setPhase(t.def); }}
-                    style={{ padding: "9px 20px", borderRadius: 8, border: "2px solid " + (tab === t.key ? t.color : "#dee2e6"), background: tab === t.key ? t.color : "white", color: tab === t.key ? "white" : "#868e96", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-                    {t.label}
-                  </button>
-                ))}
-                {isDir && tab === "md" && (
-                  <button onClick={() => setMdViewAll(true)}
-                    style={{ marginLeft: "auto", padding: "9px 16px", borderRadius: 8, border: "2px solid #8b5cf6", background: "white", color: "#8b5cf6", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
-                    📋 View All Curriculum
-                  </button>
-                )}
-              </div>
 
               {/* PHASE SELECTOR */}
               <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
@@ -1059,7 +1565,7 @@ export default function App() {
                 })}
               </div>
 
-              {/* MD CURRICULUM CHECKLIST */}
+              {/* MEDICAL DIRECTOR CURRICULUM CHECKLIST */}
               {isMd && curMdItems && (
                 <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", maxWidth: 740, overflow: "hidden" }}>
                   <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1092,7 +1598,7 @@ export default function App() {
                   <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{curChecklist.label}</h3>
-                      <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>{isOps ? "MD + Office Manager" : "Mentor check-in"}</div>
+                      <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>{isOps ? "Medical Director + Office Manager" : "Mentor check-in"}</div>
                     </div>
                     {pc && <div style={{ fontSize: 22, fontWeight: 700, color: pc.pct === 100 ? "#22c55e" : "#0f1b2d" }}>{pc.pct}%</div>}
                   </div>
@@ -1155,19 +1661,31 @@ export default function App() {
                     <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{curQuest.label} Questionnaire</h3>
                     <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>Record provider responses</div>
                   </div>
-                  {curQuest.qs.map((q, i) => {
+                  {curQuest.qs.flatMap(function(q, i) {
                     const val = qa[prov.id + "." + phase + "." + q.qid] || "";
-                    return (
-                      <div key={q.qid} style={{ padding: "16px 20px", borderBottom: "1px solid #dee2e6" }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>{(i + 1) + ". " + q.text}</div>
+                    const isCulture = q.culture === true;
+                    const isFirstCulture = isCulture && !curQuest.qs.slice(0, i).some(function(x) { return x.culture; });
+                    const items = [];
+                    if (isFirstCulture) {
+                      items.push(
+                        <div key="culture-header" style={{ padding: "12px 20px 10px", background: "#fdf2f8", borderTop: "2px solid #fce7f3", borderBottom: "1px solid #fce7f3" }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#ec4899", textTransform: "uppercase", letterSpacing: "0.06em" }}>Culture Integration Index</div>
+                          <div style={{ fontSize: 11, color: "#9d4073", marginTop: 3 }}>Provider self-assessment · belonging, safety, connection, advocacy</div>
+                        </div>
+                      );
+                    }
+                    items.push(
+                      <div key={q.qid} style={{ padding: "16px 20px", borderBottom: "1px solid " + (isCulture ? "#fce7f3" : "#dee2e6"), background: isCulture ? "#fdf2f8" : "transparent" }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, color: isCulture ? "#9d174d" : "#0f1b2d" }}>{(i + 1) + ". " + q.text}</div>
                         {q.ty === "s" ? (
-                          <ScaleInput value={val} onChange={v => setAnswer(prov.id, phase, q.qid, v)} />
+                          <ScaleInput value={val} onChange={function(v) { setAnswer(prov.id, phase, q.qid, v); }} />
                         ) : (
-                          <textarea value={val} onChange={e => setAnswer(prov.id, phase, q.qid, e.target.value)}
+                          <textarea value={val} onChange={function(e) { setAnswer(prov.id, phase, q.qid, e.target.value); }}
                             placeholder="Type response..." style={{ padding: "10px 12px", borderRadius: 6, border: "1px solid #dee2e6", fontSize: 14, width: "100%", height: 80, boxSizing: "border-box", resize: "vertical", outline: "none", fontFamily: "inherit" }} />
                         )}
                       </div>
                     );
+                    return items;
                   })}
                   <div style={{ padding: "14px 20px", background: "#f8f9fb", borderTop: "1px solid #dee2e6" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 6 }}>NOTES</div>
@@ -1196,6 +1714,29 @@ export default function App() {
           )}
         </div>
       </div>
+
+      {/* Due-items popover */}
+      {dueMenu && (
+        <div onClick={() => setDueMenu(null)}
+          style={{ position: "fixed", inset: 0, zIndex: 1000 }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ position: "fixed", left: dueMenu.x, top: dueMenu.y, background: "white", borderRadius: 10, border: "1px solid #dee2e6", boxShadow: "0 8px 24px rgba(0,0,0,0.14)", minWidth: 240, maxWidth: 320, zIndex: 1001 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderBottom: "1px solid #dee2e6" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>Due checklist phases</div>
+              <button onClick={() => setDueMenu(null)}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "#868e96", lineHeight: 1, padding: "0 2px" }}>✕</button>
+            </div>
+            {dueMenu.items.map(it => (
+              <button key={it.phase.id}
+                onClick={() => { setSelId(dueMenu.pid); setTab("mentor"); setPhase(it.phase.id); setDueMenu(null); }}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px 14px", background: "none", border: "none", borderBottom: "1px solid #f1f3f5", cursor: "pointer", textAlign: "left" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#0f1b2d" }}>{it.phase.label}</span>
+                <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>{it.done}/{it.total} done</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
