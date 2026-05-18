@@ -11,7 +11,9 @@ Detailed in-flight work, historical record of shipped phases/tracks, and pending
 
 ---
 
-## Current state (last updated 2026-05-13)
+## Current state (last updated 2026-05-18)
+
+**Mentorship Tracker UX fixes — branch `claude/add-note-removal-feature-x9kR6`, HEAD `19fca14`, pending PR + merge.** Two changes: (1) note removal — `×` button on each note row, gated on `canChk` (Director everywhere; Mentor on their own mentees; OM tab auto-follows when OM gets a real login role); (2) score trend — was `isDir`-only, widened to `isDir || isMen` so mentors see their own mentees' questionnaire score trend. **Resume:** open a PR from `claude/add-note-removal-feature-x9kR6` → `main` and request Scott's review (he owns the file).
 
 **ADHD module v2 — shipped to main 2026-05-13 (squash commit `08c77f6`, PR #1).** Schema 1.3.0 two-tier FAQ + Simplified/Stratified Pass live at https://meridian-os.pages.dev. Full entry under "Shipped milestones" below. The same PR also shipped: (a) the CLAUDE.md/STATE.md split (623-line monolith → 327-line conventions file + this state file), (b) the "Cloudflare preview-URL gotcha" workflow note, and (c) resolution of the Scott-PR-#2 CLAUDE.md conflict (Scott's OM-track bullet relocated to Shipped milestones). **Next clinical-module session likely tasks:** apply the same Simplification/Stratification Pass to **opiates** (currently v1.2.0) and **benzos** (currently v1.2.0) using ADHD as the template — editorial standards at `~/incoming_noah/meridian-module-simplification-standards.pdf` (Standards v1, 2026-05-12) and Section 8 6-step checklist stamp pattern at `verification/adhd.md`. CV monitoring topic-split + footer trimming + first-person sub-questions + module-level smartphrases registry are the highest-leverage moves to mirror. **Future Scope C reference UI** (unified filterable topic-reference primitive, prototype at `~/incoming_noah/meridian-adhd-faq-prototype.jsx`) bookmarked; deferred until v1.3.0 ships across all controlled-substance modules.
 

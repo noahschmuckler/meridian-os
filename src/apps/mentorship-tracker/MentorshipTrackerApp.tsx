@@ -715,6 +715,7 @@ export default function App() {
   const [selId, setSelId] = useState(null);
   const [tab, setTab] = useState("mentor");
   const [phase, setPhase] = useState(null);
+  const [navHistory, setNavHistory] = useState([]);
   const [checks, setChecks] = useState(makeSeedChecks);
   const [qa, setQa] = useState(makeSeedQA);
   const [noteIn, setNoteIn] = useState("");
@@ -731,6 +732,24 @@ export default function App() {
   const myProvs = user ? (isDir ? PROVS : PROVS.filter(p => p.mentor === uid)) : [];
   const patterns = detectPatterns(qa);
 
+  const navigate = (changes) => {
+    setNavHistory(prev => [...prev, { uid, selId, tab, phase, mainTab }]);
+    if ('uid' in changes) setUid(changes.uid);
+    if ('selId' in changes) setSelId(changes.selId);
+    if ('tab' in changes) setTab(changes.tab);
+    if ('phase' in changes) setPhase(changes.phase);
+    if ('mainTab' in changes) setMainTab(changes.mainTab);
+  };
+  const goBack = () => {
+    setNavHistory(prev => {
+      if (!prev.length) return prev;
+      const next = [...prev];
+      const s = next.pop();
+      setUid(s.uid); setSelId(s.selId); setTab(s.tab); setPhase(s.phase); setMainTab(s.mainTab);
+      return next;
+    });
+  };
+
   const toggle = (pid, phid, i) => {
     const k = pid + "." + phid + "." + i;
     setChecks(prev => { const n = { ...prev }; if (n[k]) delete n[k]; else n[k] = true; return n; });
@@ -741,6 +760,10 @@ export default function App() {
     const k = pid + "." + phid;
     setNotes(prev => ({ ...prev, [k]: [...(prev[k] || []), { by: user.name, at: new Date().toLocaleDateString(), text: noteIn.trim() }] }));
     setNoteIn("");
+  };
+  const removeNote = (pid, phid, idx) => {
+    const k = pid + "." + phid;
+    setNotes(prev => ({ ...prev, [k]: (prev[k] || []).filter((_, i) => i !== idx) }));
   };
 
   // Gather recent notes
@@ -769,7 +792,7 @@ export default function App() {
               const c = u.role === "director" ? "#8b5cf6" : "#028090";
               const rl = u.role === "director" ? "Medical Director" : "Mentor";
               return (
-                <div key={u.id} onClick={() => { setUid(u.id); setSelId(null); setTab("mentor"); setPhase(null); setMainTab("roster"); }}
+                <div key={u.id} onClick={() => navigate({ uid: u.id, selId: null, tab: "mentor", phase: null, mainTab: "roster" })}
                   style={{ padding: "16px 18px", borderRadius: 10, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, background: "#f8f9fb", border: "2px solid #dee2e6" }}>
                   <div>
                     <div style={{ fontSize: 17, fontWeight: 600 }}>{u.name}</div>
@@ -810,6 +833,19 @@ export default function App() {
   return (
     <div style={{ background: "#f1f3f5", minHeight: "100vh", fontFamily: "system-ui, sans-serif", color: "#1c2b3a", display: "flex", flexDirection: "column" }}>
 
+      {/* Go Back pill — fixed below the "meridian" launcher chevron */}
+      {navHistory.length > 0 && (
+        <button
+          onClick={goBack}
+          style={{ position: "fixed", top: 62, left: 22, zIndex: 1000, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px 6px 10px", border: "1px solid rgba(15,30,22,0.12)", borderRadius: 999, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: 14, fontWeight: 500, letterSpacing: "0.08em", textTransform: "lowercase", background: "rgba(255,255,255,0.92)", color: "#1c2b3a", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: "0 1px 2px rgba(0,0,0,0.10), 0 6px 18px rgba(0,0,0,0.12), 0 16px 36px rgba(0,0,0,0.10)", transition: "background 120ms ease-out, transform 120ms ease-out" }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateX(-2px)"; (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,1)"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = ""; (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.92)"; }}
+        >
+          <span style={{ fontSize: 22, fontWeight: 300, lineHeight: 1, marginTop: -2 }}>‹</span>
+          <span>back</span>
+        </button>
+      )}
+
       {/* Top bar */}
       <div style={{ background: "#0f1b2d", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
         <div>
@@ -828,7 +864,7 @@ export default function App() {
               📋 View All Curriculum
             </button>
           )}
-          <button onClick={() => { setUid(null); setSelId(null); }}
+          <button onClick={() => { setUid(null); setSelId(null); setNavHistory([]); }}
             style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
             Log Out
           </button>
@@ -877,7 +913,7 @@ export default function App() {
 
             return (
               <div key={p.id}
-                onClick={() => { setSelId(p.id); setTab("mentor"); setPhase(p.phase); }}
+                onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
                 style={{ padding: "14px 16px", cursor: "pointer", borderLeft: isSel ? "4px solid #028090" : "4px solid transparent", background: isSel ? "rgba(2,128,144,0.05)" : "transparent", borderBottom: "1px solid #dee2e6" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                   <div style={{ width: 10, height: 10, borderRadius: "50%", background: sc, flexShrink: 0 }} />
@@ -1528,7 +1564,7 @@ export default function App() {
               )}
 
               {/* SCORE TREND */}
-              {isDir && <ScoreTrend qa={qa} pid={prov.id} />}
+              {(isDir || isMen) && <ScoreTrend qa={qa} pid={prov.id} />}
 
               {/* PHASE SELECTOR */}
               <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
@@ -1608,9 +1644,15 @@ export default function App() {
                   <div style={{ padding: "14px 20px", background: "#f8f9fb", borderTop: "1px solid #dee2e6" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 6 }}>NOTES</div>
                     {curNotes.map((n, i) => (
-                      <div key={i} style={{ padding: "6px 10px", background: "white", borderRadius: 5, marginBottom: 4, border: "1px solid #dee2e6" }}>
-                        <div style={{ fontSize: 12 }}>{n.text}</div>
-                        <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{n.by} — {n.at}</div>
+                      <div key={i} style={{ padding: "6px 10px", background: "white", borderRadius: 5, marginBottom: 4, border: "1px solid #dee2e6", display: "flex", alignItems: "flex-start", gap: 6 }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12 }}>{n.text}</div>
+                          <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{n.by} — {n.at}</div>
+                        </div>
+                        {canChk && (
+                          <button onClick={() => removeNote(prov.id, phase, i)} title="Remove note"
+                            style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 14, lineHeight: 1, padding: "0 2px", marginTop: 1 }}>×</button>
+                        )}
                       </div>
                     ))}
                     {canChk && (
@@ -1690,9 +1732,15 @@ export default function App() {
                   <div style={{ padding: "14px 20px", background: "#f8f9fb", borderTop: "1px solid #dee2e6" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 6 }}>NOTES</div>
                     {curNotes.map((n, i) => (
-                      <div key={i} style={{ padding: "6px 10px", background: "white", borderRadius: 5, marginBottom: 4, border: "1px solid #dee2e6" }}>
-                        <div style={{ fontSize: 12 }}>{n.text}</div>
-                        <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{n.by} — {n.at}</div>
+                      <div key={i} style={{ padding: "6px 10px", background: "white", borderRadius: 5, marginBottom: 4, border: "1px solid #dee2e6", display: "flex", alignItems: "flex-start", gap: 6 }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12 }}>{n.text}</div>
+                          <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{n.by} — {n.at}</div>
+                        </div>
+                        {canChk && (
+                          <button onClick={() => removeNote(prov.id, phase, i)} title="Remove note"
+                            style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 14, lineHeight: 1, padding: "0 2px", marginTop: 1 }}>×</button>
+                        )}
                       </div>
                     ))}
                     <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
