@@ -85,7 +85,10 @@ export function PrintView({ modules }: Props): JSX.Element {
         {m.faqs.map((faq) => (
           <article class="print-faq" key={faq.faq_id}>
             <h3>{faq.topic} — {faq.title}</h3>
-            {faq.items.map((qa, i) => (
+            {faq.first_layer_html && (
+              <div class="print-first-layer" dangerouslySetInnerHTML={{ __html: expandRefMarkers(faq.first_layer_html, m, numberer) }} />
+            )}
+            {(faq.sub_questions ?? faq.items ?? []).map((qa, i) => (
               <div class="print-qa" key={i}>
                 <h4>{qa.question}</h4>
                 <div dangerouslySetInnerHTML={{ __html: expandRefMarkers(qa.answer_html, m, numberer) }} />
