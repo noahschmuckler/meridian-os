@@ -1532,7 +1532,7 @@ export default function App() {
               )}
 
               {/* SCORE TREND */}
-              {isDir && <ScoreTrend qa={qa} pid={prov.id} />}
+              {(isDir || isMen) && <ScoreTrend qa={qa} pid={prov.id} />}
 
               {/* PHASE SELECTOR */}
               <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
