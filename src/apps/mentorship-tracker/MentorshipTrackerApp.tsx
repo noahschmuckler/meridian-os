@@ -742,6 +742,10 @@ export default function App() {
     setNotes(prev => ({ ...prev, [k]: [...(prev[k] || []), { by: user.name, at: new Date().toLocaleDateString(), text: noteIn.trim() }] }));
     setNoteIn("");
   };
+  const removeNote = (pid, phid, idx) => {
+    const k = pid + "." + phid;
+    setNotes(prev => ({ ...prev, [k]: (prev[k] || []).filter((_, i) => i !== idx) }));
+  };
 
   // Gather recent notes
   const recentNotes = [];
@@ -1608,9 +1612,15 @@ export default function App() {
                   <div style={{ padding: "14px 20px", background: "#f8f9fb", borderTop: "1px solid #dee2e6" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 6 }}>NOTES</div>
                     {curNotes.map((n, i) => (
-                      <div key={i} style={{ padding: "6px 10px", background: "white", borderRadius: 5, marginBottom: 4, border: "1px solid #dee2e6" }}>
-                        <div style={{ fontSize: 12 }}>{n.text}</div>
-                        <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{n.by} — {n.at}</div>
+                      <div key={i} style={{ padding: "6px 10px", background: "white", borderRadius: 5, marginBottom: 4, border: "1px solid #dee2e6", display: "flex", alignItems: "flex-start", gap: 6 }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12 }}>{n.text}</div>
+                          <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{n.by} — {n.at}</div>
+                        </div>
+                        {canChk && (
+                          <button onClick={() => removeNote(prov.id, phase, i)} title="Remove note"
+                            style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 14, lineHeight: 1, padding: "0 2px", marginTop: 1 }}>×</button>
+                        )}
                       </div>
                     ))}
                     {canChk && (
@@ -1690,9 +1700,15 @@ export default function App() {
                   <div style={{ padding: "14px 20px", background: "#f8f9fb", borderTop: "1px solid #dee2e6" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 6 }}>NOTES</div>
                     {curNotes.map((n, i) => (
-                      <div key={i} style={{ padding: "6px 10px", background: "white", borderRadius: 5, marginBottom: 4, border: "1px solid #dee2e6" }}>
-                        <div style={{ fontSize: 12 }}>{n.text}</div>
-                        <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{n.by} — {n.at}</div>
+                      <div key={i} style={{ padding: "6px 10px", background: "white", borderRadius: 5, marginBottom: 4, border: "1px solid #dee2e6", display: "flex", alignItems: "flex-start", gap: 6 }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12 }}>{n.text}</div>
+                          <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{n.by} — {n.at}</div>
+                        </div>
+                        {canChk && (
+                          <button onClick={() => removeNote(prov.id, phase, i)} title="Remove note"
+                            style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 14, lineHeight: 1, padding: "0 2px", marginTop: 1 }}>×</button>
+                        )}
                       </div>
                     ))}
                     <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
