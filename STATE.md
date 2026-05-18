@@ -13,7 +13,7 @@ Detailed in-flight work, historical record of shipped phases/tracks, and pending
 
 ## Current state (last updated 2026-05-18)
 
-**Mentorship Tracker UX fixes — branch `claude/add-note-removal-feature-x9kR6`, HEAD `19fca14`, pending PR + merge.** Two changes: (1) note removal — `×` button on each note row, gated on `canChk` (Director everywhere; Mentor on their own mentees; OM tab auto-follows when OM gets a real login role); (2) score trend — was `isDir`-only, widened to `isDir || isMen` so mentors see their own mentees' questionnaire score trend. **Resume:** open a PR from `claude/add-note-removal-feature-x9kR6` → `main` and request Scott's review (he owns the file).
+**Mentorship Tracker — Scott's full director-view feature batch (PR #4) + UX fixes (PR #5) shipped 2026-05-18.** Latest commit on main: `8e0d67b`. PR #4 (squash `db93b82`) landed the Score Trends tab with three SVG charts (OM Touchpoints, MD Touchpoints, Culture Integration Trend), clickable-card tab nav, CII (Culture Integration Index), clickable DUE/OVERDUE comparison-grid badges, enhanced cross-provider pattern alerts, and the repo-wide "MD" → "Medical Director" rename. PR #5 (squash `8e0d67b`) landed note-row `×` removal, mentor score-trend visibility (`isDir || isMen`), and a history-stack "Go Back" pill. Both merged via admin override; full milestones below. PR #4 had a 815-line stale `CLAUDE.md` conflict (branched pre-PR#1 split) — resolved by discarding PR#4's `CLAUDE.md` per the 2026-05-13 inter-instance convention.
 
 **ADHD module v2 — shipped to main 2026-05-13 (squash commit `08c77f6`, PR #1).** Schema 1.3.0 two-tier FAQ + Simplified/Stratified Pass live at https://meridian-os.pages.dev. Full entry under "Shipped milestones" below. The same PR also shipped: (a) the CLAUDE.md/STATE.md split (623-line monolith → 327-line conventions file + this state file), (b) the "Cloudflare preview-URL gotcha" workflow note, and (c) resolution of the Scott-PR-#2 CLAUDE.md conflict (Scott's OM-track bullet relocated to Shipped milestones). **Next clinical-module session likely tasks:** apply the same Simplification/Stratification Pass to **opiates** (currently v1.2.0) and **benzos** (currently v1.2.0) using ADHD as the template — editorial standards at `~/incoming_noah/meridian-module-simplification-standards.pdf` (Standards v1, 2026-05-12) and Section 8 6-step checklist stamp pattern at `verification/adhd.md`. CV monitoring topic-split + footer trimming + first-person sub-questions + module-level smartphrases registry are the highest-leverage moves to mirror. **Future Scope C reference UI** (unified filterable topic-reference primitive, prototype at `~/incoming_noah/meridian-adhd-faq-prototype.jsx`) bookmarked; deferred until v1.3.0 ships across all controlled-substance modules.
 
@@ -33,6 +33,29 @@ Detailed in-flight work, historical record of shipped phases/tracks, and pending
 ---
 
 ## Shipped milestones (chronological, newest first)
+
+### Mentorship Tracker — director-view feature batch (2026-05-18, Scott, PR #4)
+
+Squash commit `db93b82` on main. 17-commit branch spanning 2026-05-13 → 2026-05-15, all inside `src/apps/mentorship-tracker/MentorshipTrackerApp.tsx`. Headline changes:
+
+- **Score Trends tab** — three SVG line charts: OM Touchpoints (6 periods M1–M12), Medical Director Touchpoints (12 periods w1–q4), and Culture Integration Trend (3 periods M3/M6/M12). Fixed-X-axis full-year timelines so charts stay directly comparable across providers regardless of how much data each has. Per-dot color coding (green ≥7, pink 5–6, red <5). Clicking a dot opens a questionnaire-detail modal — scale questions show score badges + color bars + anchor labels; text questions show the written response or "No written response" placeholder.
+- **Metric cards merged with tab nav** — the four percentage cards are now clickable tab selectors; active card gets a colored border + tinted background. The old separate tab-button row is gone. Cards renamed to full track names: Medical Director Curriculum / Mentor Curriculum / Office Manager Touchpoints / Medical Director Touchpoints.
+- **Culture Integration Index (CII)** — 4 self-assessment questions (belonging, social connection, psychological safety, eNPS) added at M3/M6/M12. New 5th metric card (rose `#ec4899`) showing raw 0-10 avg, separate from clinical `avgScore`. New "Culture" column in Comparison Grid. Stress-test seed across 4 providers exercises every metric-card color branch (Johnson green / Patel red / Williams pink / Garcia gray).
+- **Clickable DUE/OVERDUE badges** — comparison-grid status pills are now buttons (`↗` indicator). Single due phase → direct navigation. Multiple due phases → fixed-position popover listing each phase with done/total counts.
+- **Enhanced cross-provider pattern alerts** — `detectPatterns` rebuilt: per-provider scores, question breakdown sorted low→high, phase comparison horizontal bars, OM-touchpoint cross-reference via new `QP_TO_OM` mapping, sharpest-decline detection. Alerts sorted by severity (lowest avg first), expand/collapse independently.
+- **"MD" → "Medical Director" rename throughout** — every user-visible label where "MD" stood for Medical Director now reads the full term (Comparison Grid headers, sidebar progress bars, View-All modal, owner badges, checklist subtitle, footer notes, chart labels). New `OWNER_LABEL` map renders the owner badge "Medical Director" from JSON seed value `"MD"` without touching seed data. Provider degree role `"MD"/"DO"` in `PROVS` is unchanged.
+
+**Merge complication:** PR #4 was branched from `01f6748` (Lipid commit, pre-PR#1), so it never saw the CLAUDE.md/STATE.md split — the 815-line `CLAUDE.md` diff was pure staleness (every substantive bullet already on main, either in the slimmed CLAUDE.md or in this STATE.md). Resolution per the 2026-05-13 inter-instance convention: discarded PR#4's `CLAUDE.md` verbatim, kept main's. The two `MentorshipTrackerApp.tsx` conflicts (metric-card render + CII seed) were resolved by taking PR#4's version (the post-PR#2 OM-questionnaire piece auto-merged cleanly). Admin-override squash-merge; branch auto-deleted; Cloudflare auto-deployed.
+
+### Mentorship Tracker — note removal + mentor score-trend + history-stack back (2026-05-18, Scott, PR #5)
+
+Squash commit `8e0d67b` on main. 5-commit branch (`claude/add-note-removal-feature-x9kR6` upstream; rebased onto post-PR#4 main and renamed to `note-removal-rebase` for the PR). +61/-11 across `MentorshipTrackerApp.tsx` + STATE.md. Three small UX fixes:
+
+- **Note removal** — `×` button on each note row, gated on `canChk` (Director everywhere; Mentor on own mentees; OM tab auto-follows when OM gets a real login role).
+- **Mentor score-trend visibility** — was `isDir`-only; widened to `isDir || isMen` so mentors see their own mentees' questionnaire score trend.
+- **History-stack back button** — adds a "Go Back" pill below the meridian chevron that pops `(uid, selId, tab, phase, mainTab)` state from a new `navHistory` ref.
+
+Rebase against post-PR#4 main was clean — the two branches touched disjoint regions of `MentorshipTrackerApp.tsx`. Admin-override squash-merge; branch auto-deleted; Cloudflare auto-deployed.
 
 ### ADHD module v2.0 — Simplified/Stratified Pass + schema 1.3.0 (2026-05-13, Noah, PR #1)
 
