@@ -97,21 +97,113 @@ const OP = [
 ];
 
 const QP = [
-  {id:"w1",label:"Week 1",qs:[{qid:"a",text:"How comfortable navigating the clinic?",ty:"s"},{qid:"b",text:"How supported by your team?",ty:"s"},{qid:"c",text:"Confident with Epic basics?",ty:"s"},{qid:"d",text:"What has gone well?",ty:"t"},{qid:"e",text:"What could we improve?",ty:"t"}]},
-  {id:"w2",label:"Week 2",qs:[{qid:"a",text:"Comfortable with documentation?",ty:"s"},{qid:"b",text:"Understand In Basket workflow?",ty:"s"},{qid:"c",text:"Supported by your mentor?",ty:"s"},{qid:"d",text:"Current challenges?",ty:"t"}]},
-  {id:"w3",label:"Week 3",qs:[{qid:"a",text:"Confident managing order sets?",ty:"s"},{qid:"b",text:"Comfortable with care gap ID?",ty:"s"},{qid:"c",text:"Overall onboarding experience?",ty:"s"},{qid:"d",text:"Anything you need?",ty:"t"}]},
-  {id:"w4",label:"Week 4",qs:[{qid:"a",text:"Ready to increase volume?",ty:"s"},{qid:"b",text:"Efficient with documentation?",ty:"s"},{qid:"c",text:"Connected to team?",ty:"s"},{qid:"d",text:"Biggest difference needed?",ty:"t"},{qid:"e",text:"Concerns?",ty:"t"}]},
-  {id:"w5",label:"Week 5",qs:[{qid:"a",text:"Comfortable with current volume?",ty:"s"},{qid:"b",text:"Confident with referrals?",ty:"s"},{qid:"c",text:"Managing In Basket end of day?",ty:"s"},{qid:"d",text:"What is working well?",ty:"t"}]},
-  {id:"w6",label:"Week 6",qs:[{qid:"a",text:"Confident with MyChart messaging?",ty:"s"},{qid:"b",text:"Comfortable with med reconciliation?",ty:"s"},{qid:"c",text:"Work-life balance?",ty:"s"},{qid:"d",text:"Workflow changes needed?",ty:"t"}]},
-  {id:"w7",label:"Week 7",qs:[{qid:"a",text:"Ready for independence?",ty:"s"},{qid:"b",text:"Comfortable with complex patients?",ty:"s"},{qid:"c",text:"Satisfied with onboarding?",ty:"s"},{qid:"d",text:"Advice for next provider?",ty:"t"}]},
-  {id:"w8",label:"Week 8",qs:[{qid:"a",text:"Overall Epic proficiency?",ty:"s"},{qid:"b",text:"Ready for monthly check-ins?",ty:"s"},{qid:"c",text:"Supported by leadership?",ty:"s"},{qid:"d",text:"Goals for next 3 months?",ty:"t"}]},
-  {id:"m3",label:"Month 3",qs:[{qid:"a",text:"Confident with full panel?",ty:"s"},{qid:"b",text:"Integrated into team?",ty:"s"},{qid:"c",text:"Quality metrics?",ty:"s"},{qid:"d",text:"Support still needed?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
-  {id:"m6",label:"Month 6",qs:[{qid:"a",text:"Confident at full capacity?",ty:"s"},{qid:"b",text:"Satisfied with role?",ty:"s"},{qid:"c",text:"Rate onboarding?",ty:"s"},{qid:"d",text:"Most valuable part?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
-  {id:"q3",label:"Month 9",qs:[{qid:"a",text:"Satisfied in current role?",ty:"s"},{qid:"b",text:"Organization supports growth?",ty:"s"},{qid:"c",text:"Development needs?",ty:"t"}]},
-  {id:"q4",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
+  {id:"w0",label:"Week 0 — Post-Hire",qs:[
+    {qid:"a",text:"What aspects of the hiring process stood out as particularly positive for you?",ty:"t"},
+    {qid:"b",text:"Were there any points in the hiring process that felt unclear or challenging?",ty:"t"},
+    {qid:"c",text:"How did the onboarding communication (e.g., emails, calls, materials) prepare you for your first day?",ty:"t"},
+    {qid:"d",text:"Was the timeline between your offer acceptance and start date appropriate, or could it be improved?",ty:"t"},
+    {qid:"e",text:"What suggestions do you have for improving the hiring experience for future candidates?",ty:"t"},
+  ]},
+  {id:"w1",label:"Week 1 — End of Orientation",qs:[
+    {qid:"a",text:"Do you have email access on your phone?",ty:"t"},
+    {qid:"b",text:"Can you access Epic on your laptop in the office? Can you access your email and Epic on your laptop at home?",ty:"t"},
+    {qid:"c",text:"What were two positive or most helpful moments of this week? Was there anything particularly daunting that you would like to discuss?",ty:"t"},
+    {qid:"d",text:"Is there anything specific you would like to learn or gain more clarity on this week?",ty:"t"},
+  ]},
+  {id:"w2",label:"Week 2 — First Clinical Week",qs:[
+    {qid:"a",text:"Are you able to prescribe? Any issues sending controlled substances? Do you have Imprivata access?",ty:"t"},
+    {qid:"b",text:"Do you feel the workflow allows you enough time to learn and adapt at a manageable pace? Why or why not?",ty:"t"},
+    {qid:"c",text:"Are there any resources or tools that would help you perform better in your role?",ty:"t"},
+    {qid:"d",text:"How are your interactions with colleagues, staff, and leadership so far? Which team member has been incredibly helpful? How attentive has medical leadership been during this process?",ty:"t"},
+    {qid:"e",text:"Is there anything specific you would like to learn or gain more clarity on this week?",ty:"t"},
+  ]},
+  {id:"w3",label:"Week 3",qs:[
+    {qid:"a",text:"Has the workflow been organized in a way that supports you in identifying areas where you're still learning or need additional support?",ty:"t"},
+    {qid:"b",text:"Are there any resources or tools that would help you perform better in your role?",ty:"t"},
+    {qid:"c",text:"How are your interactions with colleagues, staff, and leadership so far? Which team member has been incredibly helpful? How attentive has medical leadership been during this process?",ty:"t"},
+    {qid:"d",text:"How are you finding the functionality of Epic? How would you rate the ease of use, or lack thereof? Are there specific areas of Epic where you feel more training is needed? For example, documentation time or managing the in-basket? Or, utilizing the AWV smart set?",ty:"t"},
+    {qid:"e",text:"Is there anything specific you would like to learn or gain more clarity on this week?",ty:"t"},
+  ]},
+  {id:"w4",label:"Month 1",qs:[
+    {qid:"a",text:"How satisfied are you with your onboarding experience so far?",ty:"s",anchor_low:"poor experience",anchor_high:"great experience"},
+    {qid:"b",text:"How efficient do you feel with Epic documentation?",ty:"s",anchor_low:"not efficient at all",anchor_high:"very efficient"},
+    {qid:"c",text:"To what extent do you feel prepared to perform your job after completing the initial onboarding?",ty:"s",anchor_low:"not at all prepared",anchor_high:"very prepared"},
+    {qid:"d",text:"How effective was the training you received in helping you understand your role?",ty:"s",anchor_low:"not effective at all",anchor_high:"extremely effective"},
+    {qid:"e",text:"How clear and consistent has communication been from your manager and team?",ty:"s",anchor_low:"very unclear",anchor_high:"very clear"},
+    {qid:"f",text:"What part of the onboarding process was most helpful, and what could be improved?",ty:"t"},
+  ]},
+  {id:"w5",label:"Week 5",qs:[
+    {qid:"a",text:"How comfortable are you with your current patient volume?",ty:"s",anchor_low:"not comfortable at all",anchor_high:"very comfortable"},
+    {qid:"b",text:"How confident are you with referral workflows?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"c",text:"How well are you managing your In Basket at end of day?",ty:"s",anchor_low:"not managing at all",anchor_high:"managing very well"},
+    {qid:"d",text:"What is working well in your daily routine?",ty:"t"},
+  ]},
+  {id:"w6",label:"Week 6",qs:[
+    {qid:"a",text:"How confident are you with patient messaging (MyChart)?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"b",text:"How comfortable are you with medication reconciliation?",ty:"s",anchor_low:"not comfortable at all",anchor_high:"very comfortable"},
+    {qid:"c",text:"How would you rate your work-life balance so far?",ty:"s",anchor_low:"very poor",anchor_high:"excellent"},
+    {qid:"d",text:"Anything you'd change about your workflow?",ty:"t"},
+  ]},
+  {id:"w7",label:"Week 7",qs:[
+    {qid:"a",text:"How ready do you feel to practice more independently?",ty:"s",anchor_low:"not ready at all",anchor_high:"completely ready"},
+    {qid:"b",text:"How comfortable are you with complex patient management?",ty:"s",anchor_low:"not comfortable at all",anchor_high:"very comfortable"},
+    {qid:"c",text:"How satisfied are you with the onboarding program overall?",ty:"s",anchor_low:"very dissatisfied",anchor_high:"very satisfied"},
+    {qid:"d",text:"What would you tell the next new provider about this process?",ty:"t"},
+  ]},
+  {id:"w8",label:"Month 2",qs:[
+    {qid:"a",text:"How confident do you feel in performing your job responsibilities?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"b",text:"How supported do you feel by leadership?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"c",text:"How well do you feel integrated into your team?",ty:"s",anchor_low:"not at all integrated",anchor_high:"fully integrated"},
+    {qid:"d",text:"How confident do you feel navigating Epic?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"e",text:"How effective was the side-by-side Epic training in preparing you for patient care?",ty:"s",anchor_low:"not effective at all",anchor_high:"very effective"},
+    {qid:"f",text:"How confident are you in your ability to complete visit-level coding accurately?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"g",text:"What additional support or resources would help you succeed in your role moving forward?",ty:"t"},
+  ]},
+  {id:"m3",label:"Month 3",qs:[
+    {qid:"a",text:"How satisfied are you with your role and responsibilities so far?",ty:"s",anchor_low:"not satisfied at all",anchor_high:"extremely satisfied"},
+    {qid:"b",text:"How accessible is your medical director when you need guidance?",ty:"s",anchor_low:"not accessible at all",anchor_high:"very accessible"},
+    {qid:"c",text:"How would you rate the communication with your clinical team?",ty:"s",anchor_low:"poor communication",anchor_high:"great communication"},
+    {qid:"d",text:"How well do you understand and align with the company's culture and values?",ty:"s",anchor_low:"not at all clear",anchor_high:"very clear"},
+    {qid:"e",text:"Do you have a clear understanding of growth and development opportunities?",ty:"s",anchor_low:"not clear at all",anchor_high:"very clear"},
+    {qid:"f",text:"Looking back on your first 90 days, what has gone well, and what could have been better?",ty:"t"},
+    {qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},
+    {qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},
+    {qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},
+    {qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true},
+  ]},
+  {id:"m6",label:"Month 6",qs:[
+    {qid:"a",text:"How confident do you feel in your ability to manage your patient panel independently?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"b",text:"How well do you feel your workload is sustainable for the long term?",ty:"s",anchor_low:"not sustainable at all",anchor_high:"very sustainable"},
+    {qid:"c",text:"How valued do you feel as a member of this organization?",ty:"s",anchor_low:"not valued at all",anchor_high:"very valued"},
+    {qid:"d",text:"How satisfied are you with the level of autonomy you have in your role?",ty:"s",anchor_low:"not satisfied at all",anchor_high:"very satisfied"},
+    {qid:"e",text:"How confident are you in your ability to meet quality and performance expectations?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"f",text:"Now that you are six months in, what is one thing you wish you had known on day one?",ty:"t"},
+    {qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},
+    {qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},
+    {qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},
+    {qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true},
+  ]},
+  {id:"q3",label:"Month 9",qs:[
+    {qid:"a",text:"How satisfied are you in your current role?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"b",text:"How strongly do you feel that your organization supports growth?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"c",text:"How efficient do you feel with documentation?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"d",text:"What have you found to be the biggest difference that is needed?",ty:"t"},
+  ]},
+  {id:"q4",label:"Month 12",qs:[
+    {qid:"a",text:"How motivated do you feel in your current role?",ty:"s",anchor_low:"not at all motivated",anchor_high:"extremely motivated"},
+    {qid:"b",text:"How would you rate your current work-life balance?",ty:"s",anchor_low:"very poor",anchor_high:"excellent"},
+    {qid:"c",text:"How often do you feel recognized for your contributions?",ty:"s",anchor_low:"never",anchor_high:"always"},
+    {qid:"d",text:"How satisfied are you with your career growth and development over the past year?",ty:"s",anchor_low:"very dissatisfied",anchor_high:"very satisfied"},
+    {qid:"e",text:"How supported do you feel by your manager in achieving your goals?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"f",text:"What would make your experience here even better in the next 12 months?",ty:"t"},
+    {qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},
+    {qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},
+    {qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},
+    {qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true},
+  ]},
 ];
 
-const QP_TO_OM = {w1:"om1",w2:"om1",w3:"om1",w4:"om1",w5:"om2",w6:"om2",w7:"om2",w8:"om2",m3:"om3",m6:"om6",q3:"om9",q4:"om12"};
+const QP_TO_OM = {w0:"om1",w1:"om1",w2:"om1",w3:"om1",w4:"om1",w5:"om2",w6:"om2",w7:"om2",w8:"om2",m3:"om3",m6:"om6",q3:"om9",q4:"om12"};
 const USERS = [{id:"md1",name:"Dr. Rivera",role:"director"},{id:"mt1",name:"Dr. Smith",role:"mentor"},{id:"mt2",name:"Dr. Lee",role:"mentor"}];
 const PROVS = [
   {id:"p1",name:"Dr. Johnson",role:"MD",mentor:"mt1",phase:"m4",days:110},
@@ -138,7 +230,7 @@ function makeSeedChecks() {
 
 function makeSeedQA() {
   const qa = {};
-  const scores = {p1:{w1:5,w2:6,w3:7,w4:7,w5:4,w6:7,w7:8,w8:8,m3:9},p2:{w1:6,w2:6,w3:7,w4:7,w5:4,w6:7,w7:7,w8:8},p3:{w1:5,w2:6,w3:6,w4:7,w5:5,w6:7},p4:{w1:5,w2:6,w3:6,w4:7,w5:5}};
+  const scores = {p1:{w0:7,w1:5,w2:6,w3:7,w4:7,w5:4,w6:7,w7:8,w8:8,m3:9},p2:{w0:7,w1:6,w2:6,w3:7,w4:7,w5:4,w6:7,w7:7,w8:8},p3:{w0:7,w1:5,w2:6,w3:6,w4:7,w5:5,w6:7},p4:{w0:7,w1:5,w2:6,w3:6,w4:7,w5:5}};
   Object.entries(scores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const qp = QP.find(x => x.id === phid);
@@ -1720,7 +1812,7 @@ export default function App() {
                       <div key={q.qid} style={{ padding: "16px 20px", borderBottom: "1px solid " + (isCulture ? "#fce7f3" : "#dee2e6"), background: isCulture ? "#fdf2f8" : "transparent" }}>
                         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, color: isCulture ? "#9d174d" : "#0f1b2d" }}>{(i + 1) + ". " + q.text}</div>
                         {q.ty === "s" ? (
-                          <ScaleInput value={val} onChange={function(v) { setAnswer(prov.id, phase, q.qid, v); }} />
+                          <ScaleInput value={val} onChange={function(v) { setAnswer(prov.id, phase, q.qid, v); }} anchorLow={q.anchor_low} anchorHigh={q.anchor_high} />
                         ) : (
                           <textarea value={val} onChange={function(e) { setAnswer(prov.id, phase, q.qid, e.target.value); }}
                             placeholder="Type response..." style={{ padding: "10px 12px", borderRadius: 6, border: "1px solid #dee2e6", fontSize: 14, width: "100%", height: 80, boxSizing: "border-box", resize: "vertical", outline: "none", fontFamily: "inherit" }} />
