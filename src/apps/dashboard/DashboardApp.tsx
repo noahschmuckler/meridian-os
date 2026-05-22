@@ -75,19 +75,203 @@ const TILES: Tile[] = [
 ];
 
 // ── HEDIS data (port of ~/Downloads/meridian-dashboard.jsx HEDIS_MEASURES) ───
-const HEDIS_MEASURES = [
-  { id: 'dm-a1c', label: 'DM — A1c Control', pct: 74, target: 80 },
-  { id: 'dm-bp', label: 'DM — BP <140/90', pct: 81, target: 75 },
-  { id: 'dm-eye', label: 'DM — Eye Exam', pct: 58, target: 70 },
-  { id: 'dm-neph', label: 'DM — Nephropathy', pct: 88, target: 80 },
-  { id: 'cad-statin', label: 'CAD — Statin Therapy', pct: 91, target: 85 },
-  { id: 'bp-ctrl', label: 'HTN — BP Control', pct: 66, target: 75 },
-  { id: 'cancer-bc', label: 'Breast Cancer Screen', pct: 72, target: 80 },
-  { id: 'cancer-cc', label: 'Colorectal Screen', pct: 69, target: 75 },
-  { id: 'dep-f-up', label: 'Depression F/U', pct: 83, target: 80 },
-  { id: 'asthma', label: 'Asthma Med Ratio', pct: 79, target: 75 },
-  { id: 'prev-care', label: 'Preventive Care Visit', pct: 61, target: 70 },
-  { id: 'immuniz', label: 'Childhood Immunization', pct: 88, target: 85 },
+interface HedisMeasure { id: string; label: string; pct: number; target: number; panelN: number }
+const HEDIS_MEASURES: HedisMeasure[] = [
+  { id: 'dm-a1c', label: 'DM — A1c Control', pct: 74, target: 80, panelN: 188 },
+  { id: 'dm-bp', label: 'DM — BP <140/90', pct: 81, target: 75, panelN: 188 },
+  { id: 'dm-eye', label: 'DM — Eye Exam', pct: 58, target: 70, panelN: 188 },
+  { id: 'dm-neph', label: 'DM — Nephropathy', pct: 88, target: 80, panelN: 188 },
+  { id: 'cad-statin', label: 'CAD — Statin Therapy', pct: 91, target: 85, panelN: 97 },
+  { id: 'bp-ctrl', label: 'HTN — BP Control', pct: 66, target: 75, panelN: 312 },
+  { id: 'cancer-bc', label: 'Breast Cancer Screen', pct: 72, target: 80, panelN: 254 },
+  { id: 'cancer-cc', label: 'Colorectal Screen', pct: 69, target: 75, panelN: 408 },
+  { id: 'dep-f-up', label: 'Depression F/U', pct: 83, target: 80, panelN: 142 },
+  { id: 'asthma', label: 'Asthma Med Ratio', pct: 79, target: 75, panelN: 88 },
+  { id: 'prev-care', label: 'Preventive Care Visit', pct: 61, target: 70, panelN: 1842 },
+  { id: 'immuniz', label: 'Childhood Immunization', pct: 88, target: 85, panelN: 64 },
+];
+
+// ── Per-measure drill-in detail — description, monthly glidepath (Jan–Oct
+// actuals), and Epic-derived sub-cohorts. Sub-cohorts are hand-crafted to be
+// the kind of patient list a director would want to pull for outreach.
+interface SubCohort { id: string; label: string; count: number; description: string }
+interface HedisMeasureDetail {
+  description: string;
+  baseline: number;     // Jan actual
+  actual: number[];     // 10 monthly data points Jan–Oct
+  subCohorts: SubCohort[];
+}
+const HEDIS_MEASURE_DETAILS: Record<string, HedisMeasureDetail> = {
+  'dm-a1c': {
+    description: 'Adults 18–75 with Type 1 or Type 2 diabetes whose most recent HbA1c result in the measurement year is ≤9%. Counted in compliance when the most recent A1c in the past 12 months meets threshold. A1c missing entirely is treated as non-compliant.',
+    baseline: 68,
+    actual: [68, 69, 70, 71, 71, 72, 72, 73, 74, 74],
+    subCohorts: [
+      { id: 'a1c-overdue', label: 'A1c >9 with overdue appointment', count: 14, description: 'Last A1c >9% AND no scheduled or completed visit in the last 120 days. Outreach candidates for proactive scheduling.' },
+      { id: 'a1c-stale', label: 'No A1c on file in 12 months', count: 21, description: 'Has DM problem on chart but no HbA1c result in the past 12 months. Order panel + brief telehealth check-in closes the gap.' },
+      { id: 'a1c-insulin-no-fu', label: 'Recently started insulin, no 90-day F/U', count: 6, description: 'Insulin initiated in past 6 months without a documented 90-day follow-up visit. High-risk for hypoglycemic events.' },
+      { id: 'a1c-no-second-line', label: 'A1c >8 on metformin monotherapy', count: 11, description: 'A1c >8% on metformin alone for ≥6 months without GLP-1 / SGLT2 / DPP4 add-on or documented contraindication.' },
+    ],
+  },
+  'dm-bp': {
+    description: 'Adults 18–75 with diabetes whose most recent BP reading in the measurement year is <140/90 mm Hg. Most-recent reading rules: same-day duplicates use the lower systolic; office and home readings both count if documented in Epic.',
+    baseline: 76,
+    actual: [76, 77, 78, 79, 80, 80, 81, 81, 81, 81],
+    subCohorts: [
+      { id: 'bp-no-recheck', label: 'Elevated BP, no second-check documented', count: 9, description: 'Single in-office BP ≥140/90 at last visit without a documented repeat reading in the same encounter. Closes immediately with rooming protocol fix.' },
+      { id: 'bp-diabetes-aceiarb', label: 'DM + uncontrolled BP, no ACEi/ARB', count: 18, description: 'BP ≥140/90 and on chronic DM Rx without ACEi or ARB. Renal-protective add-on indicated.' },
+    ],
+  },
+  'dm-eye': {
+    description: 'Adults 18–75 with diabetes who had a retinal or dilated eye exam by an optometrist or ophthalmologist in the measurement year (or a negative exam in the prior year). External-result documentation accepted via quality code 2022F.',
+    baseline: 49,
+    actual: [49, 51, 53, 54, 55, 56, 57, 57, 58, 58],
+    subCohorts: [
+      { id: 'eye-overdue', label: 'No exam on file >12 months', count: 79, description: 'Largest single sub-cohort. Bulk SmartList outreach + scheduling assist closes most. Consider in-office retinal imaging partnership.' },
+      { id: 'eye-refused', label: 'Refused at last visit, no re-counsel', count: 14, description: 'Patient declined screening referral at last visit without documented re-discussion in the past 6 months.' },
+      { id: 'eye-external-not-scanned', label: 'External exam result not in chart', count: 11, description: 'Provider verbally referenced an outside ophthalmology visit but no result document or 2022F quality code on file.' },
+    ],
+  },
+  'dm-neph': {
+    description: 'Adults 18–75 with diabetes who had at least one urine albumin-to-creatinine ratio (uACR) AND an eGFR in the measurement year. Both must be documented; one alone does not close the measure.',
+    baseline: 84,
+    actual: [84, 85, 85, 86, 86, 87, 87, 88, 88, 88],
+    subCohorts: [
+      { id: 'neph-no-uacr', label: 'eGFR done, uACR missing', count: 16, description: 'Order uACR at next routine lab draw — most patients are due for an eGFR repeat at the same interval.' },
+      { id: 'neph-egfr-low-no-arb', label: 'eGFR <60 not on ACEi/ARB', count: 9, description: 'Kidney-protective Rx indicated unless contraindicated. Consider hyperkalemia risk and titrate.' },
+    ],
+  },
+  'cad-statin': {
+    description: 'Adults 21–75 with clinical ASCVD who received a statin prescription during the measurement year. Both moderate- and high-intensity statins count; ezetimibe alone does not.',
+    baseline: 84,
+    actual: [84, 85, 86, 87, 88, 89, 90, 90, 91, 91],
+    subCohorts: [
+      { id: 'cad-no-statin', label: 'ASCVD with no statin Rx', count: 5, description: 'Active ASCVD diagnosis without any statin prescription in the past 12 months. Highest-priority outreach.' },
+      { id: 'cad-low-intensity', label: 'LDL >70 on low-intensity statin', count: 12, description: 'On simvastatin 10–20 or pravastatin 10–20 with LDL still >70. Up-titrate or switch to high-intensity.' },
+      { id: 'cad-discontinued', label: 'Statin discontinued, reason undocumented', count: 4, description: 'Active statin Rx in prior year, no Rx in past 6 months, no chart documentation of intolerance or shared-decision-making.' },
+    ],
+  },
+  'bp-ctrl': {
+    description: 'Adults 18–85 with hypertension whose most recent BP reading in the measurement year is <140/90 mm Hg. Most challenging measure for our panel — represents ~312 patients with active HTN diagnoses across the practice.',
+    baseline: 62,
+    actual: [62, 63, 63, 64, 65, 65, 66, 66, 66, 66],
+    subCohorts: [
+      { id: 'bp-no-second-check', label: 'Out-of-range BP, no second check', count: 24, description: 'In-office BP ≥140/90 at last encounter without a documented repeat in the same visit. Rooming SOP catches these.' },
+      { id: 'bp-uncontrolled-undertreated', label: 'BP >140/90 at ≥2 visits on <3 BP agents', count: 41, description: 'Persistent uncontrolled BP across two or more recent visits while on fewer than 3 antihypertensive agents — under-treatment cohort.' },
+      { id: 'bp-no-home-bp', label: 'No home BP readings documented in 6 months', count: 56, description: 'No SmartForm or device-uploaded home BP readings in chart in the last 6 months. Pairing with home cuff loaner program closes the gap.' },
+      { id: 'bp-sdoh', label: 'Med-noncompliance + SDoH flags', count: 7, description: 'Missed refills + documented SDoH risks (transportation, food insecurity). Care coordination referral indicated.' },
+    ],
+  },
+  'cancer-bc': {
+    description: 'Women 50–74 who had a mammogram in the measurement year or the prior year. Bilateral mastectomy history excludes from the denominator if documented with appropriate ICD-10.',
+    baseline: 65,
+    actual: [65, 66, 67, 68, 69, 70, 71, 71, 72, 72],
+    subCohorts: [
+      { id: 'bc-ordered-no-results', label: 'Mammogram ordered, results not scanned', count: 22, description: 'Order placed in Epic but no result document attached to the chart. Likely completed externally — manual reconciliation closes the gap.' },
+      { id: 'bc-refused-no-recounsel', label: 'Refused mammogram, no documented re-counsel', count: 13, description: 'Patient declined at last visit with no re-discussion documented in the past 12 months.' },
+      { id: 'bc-history-not-coded', label: 'Bilateral mastectomy hx, not on problem list', count: 4, description: 'Surgical history present in old notes but not formally coded — excluding these correctly improves the denominator.' },
+    ],
+  },
+  'cancer-cc': {
+    description: 'Adults 45–75 with a documented colorectal cancer screening in the appropriate interval — colonoscopy within 10 years, sigmoidoscopy within 5, FIT/Cologuard/Guardant-Shield within 1 year, or CT colonography within 5 years.',
+    baseline: 60,
+    actual: [60, 62, 63, 64, 65, 66, 67, 68, 69, 69],
+    subCohorts: [
+      { id: 'cc-ordered-no-results', label: 'Colonoscopy / Cologuard / Guardant order, no results', count: 31, description: 'Order placed in Epic but no result document in the chart. Largest gap-closure opportunity — most have been completed externally.' },
+      { id: 'cc-refused-no-recounsel', label: 'Refused screening, no re-counsel in 12 mo', count: 18, description: 'Declined at last visit without documented re-discussion. Cologuard/Guardant-Shield often acceptable to colonoscopy-refusers.' },
+      { id: 'cc-overdue-50plus', label: 'Age 50+, no screening on file ever', count: 9, description: 'Higher-risk cohort. Combined gap with breast and cervical cancer screening — bundle into a single preventive visit.' },
+    ],
+  },
+  'dep-f-up': {
+    description: 'Patients ≥12 with a PHQ-9 score indicating moderate to severe depression (≥10) who received follow-up within 30 days. Follow-up = in-person, telehealth, or telephone encounter with the prescriber or a behavioral health clinician.',
+    baseline: 78,
+    actual: [78, 79, 80, 81, 82, 82, 83, 83, 83, 83],
+    subCohorts: [
+      { id: 'phq9-mod-no-fu', label: 'PHQ-9 moderate, no F/U scheduled', count: 6, description: 'PHQ-9 score 10–14 at last visit with no follow-up encounter scheduled within 30 days. Briefcase outreach via care manager.' },
+      { id: 'phq9-severe-no-psych', label: 'PHQ-9 ≥20, no psychiatry referral', count: 3, description: 'Severe-range PHQ-9 without a documented psychiatry / behavioral health referral. Urgent outreach indicated.' },
+      { id: 'antidep-no-6wk', label: 'Started antidepressant, no 6-week check-in', count: 8, description: 'New SSRI / SNRI prescription >6 weeks ago without follow-up to assess response and tolerability.' },
+    ],
+  },
+  'asthma': {
+    description: 'Patients 5–64 with persistent asthma whose ratio of controller medications (ICS, ICS/LABA, LTRA) to total asthma medications is ≥0.5 over the measurement year.',
+    baseline: 73,
+    actual: [73, 74, 75, 76, 77, 78, 78, 79, 79, 79],
+    subCohorts: [
+      { id: 'asthma-saba-heavy', label: 'SABA fills > controller fills', count: 11, description: 'More short-acting beta-agonist fills than controller fills in the past 12 months. Over-reliance on rescue inhaler — controller step-up indicated.' },
+      { id: 'asthma-ed-no-controller', label: 'ED visit for asthma, no controller on file', count: 4, description: 'Asthma-coded ED encounter in past 90 days with no active controller prescription. Highest-acuity gap closure.' },
+    ],
+  },
+  'prev-care': {
+    description: 'Patients with at least one preventive care visit (annual physical, AWV, well-child) in the measurement year. Overlaps with the Medicare AWV measure on the dashboard for Medicare-eligible patients.',
+    baseline: 52,
+    actual: [52, 54, 55, 57, 58, 59, 60, 60, 61, 61],
+    subCohorts: [
+      { id: 'prev-medicare-no-awv', label: 'Medicare-eligible, no AWV in 12 mo', count: 62, description: 'Mirrors the Medicare AWV unscheduled cohort. NP-led AWV expansion is the primary closure vector.' },
+      { id: 'prev-commercial-no-physical', label: 'Commercial, no annual physical in 18 mo', count: 138, description: 'Non-Medicare patients overdue for any preventive visit. Bulk-outreach friendly with online self-scheduling.' },
+      { id: 'prev-pediatric-overdue', label: 'Pediatric well-child >9 months overdue', count: 24, description: 'Children due for AAP-recommended well-child checks. Schedule alongside school/sports physical season.' },
+    ],
+  },
+  'immuniz': {
+    description: 'Combo 10 — children who turned 2 in the measurement year with the complete childhood vaccine schedule (DTaP, IPV, MMR, HiB, Hep B, VZV, PCV, Hep A, Rotavirus, Influenza).',
+    baseline: 82,
+    actual: [82, 83, 84, 85, 86, 87, 87, 88, 88, 88],
+    subCohorts: [
+      { id: 'immuniz-catchup', label: 'Missed catch-up dose, parent open to vaccination', count: 5, description: 'Single missing dose with no documented parental refusal. Routine outreach closes most.' },
+      { id: 'immuniz-refused-recounsel', label: 'Documented refusal, no re-counsel in 12 mo', count: 3, description: 'Vaccine-hesitant families where last re-counseling was >12 months ago. AAP shared-decision conversation script in MyChart pre-visit.' },
+    ],
+  },
+};
+
+// ── Cross-measure non-compliance cohorts ─────────────────────────────────────
+interface CrossMeasureGroup {
+  id: string;
+  n: number;
+  title: string;
+  description: string;
+  measureLabels: string[];
+  tone: 'red' | 'amber' | 'navy';
+}
+const CROSS_MEASURE_GROUPS: CrossMeasureGroup[] = [
+  {
+    id: 'dm-triple',
+    n: 23,
+    title: 'Diabetes triple-fail',
+    description: 'A1c above goal AND BP ≥140/90 AND no eye exam in 12 months. The DM cohort that drives DCSI escalation risk.',
+    measureLabels: ['DM A1c', 'DM BP', 'DM Eye'],
+    tone: 'red',
+  },
+  {
+    id: 'cad-htn',
+    n: 41,
+    title: 'ASCVD + uncontrolled BP',
+    description: 'On guideline-indicated statin AND BP ≥140/90 at last reading. Highest-yield combined CV-risk reduction cohort.',
+    measureLabels: ['CAD Statin', 'HTN BP'],
+    tone: 'red',
+  },
+  {
+    id: 'dm-cad',
+    n: 32,
+    title: 'Diabetes + off statin',
+    description: 'A1c above goal AND no statin Rx despite ASCVD, age 40–75, or 10-year ASCVD risk ≥7.5%.',
+    measureLabels: ['DM A1c', 'CAD Statin'],
+    tone: 'amber',
+  },
+  {
+    id: 'five-plus',
+    n: 18,
+    title: '5+ measures out of range',
+    description: 'Non-compliant on at least 5 of 12 HEDIS measures. Complex-polychronic patients — candidates for CCM enrollment.',
+    measureLabels: ['5+ measures'],
+    tone: 'amber',
+  },
+  {
+    id: 'all-12',
+    n: 3,
+    title: 'Out on all 12 measures',
+    description: 'The full sweep — three patients miss every measure. Comprehensive care-plan reset visit indicated.',
+    measureLabels: ['All 12'],
+    tone: 'navy',
+  },
 ];
 
 // ── AWV data ─────────────────────────────────────────────────────────────────
@@ -388,27 +572,166 @@ function SectionDetail({ section, onBack, onPatientSelect }: SectionDetailProps)
 
 // ── HEDIS ────────────────────────────────────────────────────────────────────
 function HedisSection(): JSX.Element {
+  const [activeMeasure, setActiveMeasure] = useState<string | null>(null);
+
+  if (activeMeasure) {
+    const measure = HEDIS_MEASURES.find((m) => m.id === activeMeasure);
+    const detail = HEDIS_MEASURE_DETAILS[activeMeasure];
+    if (measure && detail) {
+      return <HedisMeasureDetail measure={measure} detail={detail} onBack={() => setActiveMeasure(null)} />;
+    }
+  }
+
   return (
     <>
       <div class="info-banner">
-        Panel composite: <strong>74.8%</strong> across all measures. Target: 78%. Click any measure to view care gaps.
+        Panel composite: <strong>74.8%</strong> across all measures. Target: 78%. Click any measure to view its glidepath, sub-cohort breakdown, and outreach candidates.
       </div>
       <div class="hedis-grid">
         {HEDIS_MEASURES.map((m) => {
           const tone = pctTone(m.pct, m.target);
           return (
-            <div key={m.id} class={`hedis-block tone-${tone}`}>
+            <button
+              key={m.id}
+              type="button"
+              class={`hedis-block tone-${tone}`}
+              onClick={() => setActiveMeasure(m.id)}
+              aria-label={`Open ${m.label} drill-in`}
+            >
               <div class="hedis-measure">{m.label}</div>
               <div class="hedis-pct">{m.pct}%</div>
               <div class="hedis-bar-track">
                 <div class="hedis-bar-fill" style={{ width: `${m.pct}%` }} />
               </div>
               <div class="hedis-target">Target: {m.target}%</div>
-            </div>
+            </button>
           );
         })}
       </div>
+
+      <div class="section-divider">Cross-measure non-compliance</div>
+      <div class="cross-measure-grid">
+        {CROSS_MEASURE_GROUPS.map((g) => (
+          <div key={g.id} class={`cross-measure-card tone-${g.tone}`}>
+            <div class="cross-measure-number">{g.n}</div>
+            <div class="cross-measure-title">{g.title}</div>
+            <div class="cross-measure-desc">{g.description}</div>
+            <div class="cross-measure-chips">
+              {g.measureLabels.map((l) => (
+                <span key={l} class="cross-measure-chip">{l}</span>
+              ))}
+            </div>
+            <button type="button" class="cross-measure-action">Generate patient list →</button>
+          </div>
+        ))}
+      </div>
+      <div class="list-export-note">
+        Patient lists are previewable from any individual measure or any combination above — output includes MRN, full name, DOB, payer, and the specific gap(s) per row. CSV export wiring follows in v1.1.
+      </div>
     </>
+  );
+}
+
+// ── HEDIS metric drill-in (description + glidepath + sub-cohorts) ────────────
+
+function HedisMeasureDetail({
+  measure,
+  detail,
+  onBack,
+}: {
+  measure: HedisMeasure;
+  detail: HedisMeasureDetail;
+  onBack: () => void;
+}): JSX.Element {
+  const tone = pctTone(measure.pct, measure.target);
+  return (
+    <>
+      <button type="button" class="measure-back-btn" onClick={onBack} aria-label="Back to all measures">
+        ‹ Quality Metrics
+      </button>
+      <div class="measure-detail-header">
+        <div>
+          <div class="measure-detail-title">{measure.label}</div>
+          <div class="measure-detail-sub">{measure.panelN.toLocaleString()} patients in measure denominator</div>
+        </div>
+        <div class="measure-detail-stat">
+          <div class={`measure-detail-pct tone-${tone}`}>{measure.pct}%</div>
+          <div class="measure-detail-target">Target {measure.target}%</div>
+        </div>
+      </div>
+
+      <div class="measure-section-label">Measure description</div>
+      <p class="measure-description">{detail.description}</p>
+
+      <div class="measure-section-label">Glidepath — actual vs goal, year to date</div>
+      <Glidepath baseline={detail.baseline} actual={detail.actual} target={measure.target} />
+
+      <div class="measure-section-label">Outreach sub-cohorts (Epic-derived)</div>
+      <table class="subcohort-table">
+        <thead>
+          <tr>
+            <th>Cohort</th>
+            <th class="ralign">Patients</th>
+            <th>Why they're in this cohort</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {detail.subCohorts.map((c) => (
+            <tr key={c.id}>
+              <td class="subcohort-label">{c.label}</td>
+              <td class="ralign mono"><strong>{c.count}</strong></td>
+              <td class="subcohort-desc">{c.description}</td>
+              <td><button type="button" class="subcohort-action">Generate list →</button></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div class="list-export-note">
+        Sub-cohort definitions are tunable in Epic Reporting Workbench — these are starting points based on common gap-closure patterns. CSV export wiring follows in v1.1.
+      </div>
+    </>
+  );
+}
+
+// ── Glidepath chart (small inline SVG) ──────────────────────────────────────
+function Glidepath({ baseline, actual, target }: { baseline: number; actual: number[]; target: number }): JSX.Element {
+  const width = 720;
+  const height = 220;
+  const PAD = { top: 18, right: 70, bottom: 28, left: 36 };
+  const W = width - PAD.left - PAD.right;
+  const H = height - PAD.top - PAD.bottom;
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  const yMin = 30;
+  const yMax = 100;
+  const y = (pct: number) => PAD.top + H - ((pct - yMin) / (yMax - yMin)) * H;
+  const x = (i: number) => PAD.left + (i / 11) * W;
+
+  const goalPath = `M ${x(0)} ${y(baseline)} L ${x(11)} ${y(target)}`;
+  const actualPath = actual.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(v)}`).join(' ');
+  const lastIdx = actual.length - 1;
+  const lastVal = actual[lastIdx];
+
+  return (
+    <svg class="glidepath" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Glidepath chart from ${baseline}% baseline to ${target}% goal, currently at ${lastVal}%`}>
+      {[40, 60, 80, 100].map((g) => (
+        <g key={g}>
+          <line x1={PAD.left} x2={PAD.left + W} y1={y(g)} y2={y(g)} class="grid-h" />
+          <text x={PAD.left - 6} y={y(g) + 3} class="axis-label" textAnchor="end">{g}%</text>
+        </g>
+      ))}
+      {MONTHS.map((m, i) => (
+        <text key={m} x={x(i)} y={PAD.top + H + 18} class="axis-label" textAnchor="middle">{m}</text>
+      ))}
+      <path d={goalPath} class="goal-line" />
+      <text x={x(11) + 6} y={y(target) + 3} class="goal-label">Goal {target}%</text>
+      <path d={actualPath} class="actual-line" />
+      {actual.map((v, i) => (
+        <circle key={i} cx={x(i)} cy={y(v)} r="3.5" class={`actual-dot${i === lastIdx ? ' is-latest' : ''}`} />
+      ))}
+      <text x={x(lastIdx) + 8} y={y(lastVal) - 8} class="latest-label">{lastVal}%</text>
+    </svg>
   );
 }
 

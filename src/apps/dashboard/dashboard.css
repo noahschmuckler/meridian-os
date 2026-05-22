@@ -278,9 +278,15 @@
   border-radius: 4px;
   padding: 12px 14px;
   background: #fff;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
+  display: block;
+  width: 100%;
 }
-.dashboard-app .hedis-block:hover { border-color: var(--crh-navy); background: #f8f6f1; }
+.dashboard-app .hedis-block:hover { border-color: var(--crh-navy); background: #f8f6f1; transform: translateY(-1px); }
 .dashboard-app .hedis-measure {
   font-size: 10px;
   font-weight: 600;
@@ -309,6 +315,227 @@
 .dashboard-app .hedis-block.tone-amber .hedis-bar-fill { background: var(--tone-amber); }
 .dashboard-app .hedis-block.tone-red .hedis-bar-fill { background: var(--tone-red); }
 .dashboard-app .hedis-target { font-size: 10px; color: var(--text-light); }
+
+/* ── Cross-measure non-compliance grid (below HEDIS block grid) ─────────── */
+.dashboard-app .cross-measure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.dashboard-app .cross-measure-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left-width: 4px;
+}
+.dashboard-app .cross-measure-card.tone-red { border-left-color: var(--tone-red); }
+.dashboard-app .cross-measure-card.tone-amber { border-left-color: var(--tone-amber); }
+.dashboard-app .cross-measure-card.tone-navy { border-left-color: var(--crh-navy); }
+.dashboard-app .cross-measure-number {
+  font-family: 'DM Serif Display', serif;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--crh-navy);
+}
+.dashboard-app .cross-measure-card.tone-red .cross-measure-number { color: var(--tone-red); }
+.dashboard-app .cross-measure-card.tone-amber .cross-measure-number { color: var(--tone-amber); }
+.dashboard-app .cross-measure-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+  color: var(--crh-navy);
+}
+.dashboard-app .cross-measure-desc {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.dashboard-app .cross-measure-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.dashboard-app .cross-measure-chip {
+  background: #f0ede6;
+  color: var(--text-light);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.dashboard-app .cross-measure-action {
+  align-self: flex-start;
+  margin-top: 8px;
+  background: none;
+  border: 1px solid var(--crh-navy);
+  color: var(--crh-navy);
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+.dashboard-app .cross-measure-action:hover { background: var(--crh-navy); color: #fff; }
+
+.dashboard-app .list-export-note {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: #f0ede6;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+/* ── HEDIS measure drill-in ─────────────────────────────────────────────── */
+.dashboard-app .measure-back-btn {
+  background: rgba(26,39,68,0.06);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 5px 12px;
+  color: var(--crh-navy);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.dashboard-app .measure-back-btn:hover { background: rgba(26,39,68,0.12); }
+
+.dashboard-app .measure-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid var(--crh-navy);
+  padding-bottom: 8px;
+  margin: 14px 0 18px;
+  gap: 16px;
+}
+.dashboard-app .measure-detail-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  color: var(--crh-navy);
+  line-height: 1.1;
+}
+.dashboard-app .measure-detail-sub {
+  font-size: 11px;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+.dashboard-app .measure-detail-stat { text-align: right; }
+.dashboard-app .measure-detail-pct {
+  font-family: 'DM Serif Display', serif;
+  font-size: 34px;
+  line-height: 1;
+}
+.dashboard-app .measure-detail-pct.tone-green { color: var(--tone-green); }
+.dashboard-app .measure-detail-pct.tone-amber { color: var(--tone-amber); }
+.dashboard-app .measure-detail-pct.tone-red { color: var(--tone-red); }
+.dashboard-app .measure-detail-target {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+.dashboard-app .measure-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin: 18px 0 8px;
+}
+
+.dashboard-app .measure-description {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.dashboard-app .glidepath {
+  width: 100%;
+  height: auto;
+  max-width: 720px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+}
+.dashboard-app .glidepath .grid-h { stroke: var(--rule); stroke-width: 1; }
+.dashboard-app .glidepath .axis-label { fill: var(--text-light); font-size: 10px; font-family: 'DM Sans', sans-serif; }
+.dashboard-app .glidepath .goal-line { fill: none; stroke: var(--text-light); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.dashboard-app .glidepath .goal-label { fill: var(--text-light); font-size: 10.5px; font-weight: 600; font-family: 'DM Sans', sans-serif; }
+.dashboard-app .glidepath .actual-line { fill: none; stroke: var(--crh-navy); stroke-width: 2.5; }
+.dashboard-app .glidepath .actual-dot { fill: var(--crh-navy); }
+.dashboard-app .glidepath .actual-dot.is-latest { r: 5; fill: var(--crh-teal); stroke: var(--crh-navy); stroke-width: 1.5; }
+.dashboard-app .glidepath .latest-label { fill: var(--crh-navy); font-size: 11.5px; font-weight: 700; font-family: 'DM Sans', sans-serif; }
+
+.dashboard-app .subcohort-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.dashboard-app .subcohort-table th {
+  background: #f0ede6;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  border-bottom: 1px solid var(--border);
+}
+.dashboard-app .subcohort-table th.ralign,
+.dashboard-app .subcohort-table td.ralign { text-align: right; }
+.dashboard-app .subcohort-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.dashboard-app .subcohort-table tbody tr:last-child td { border-bottom: none; }
+.dashboard-app .subcohort-label {
+  font-weight: 600;
+  color: var(--crh-navy);
+  min-width: 200px;
+}
+.dashboard-app .subcohort-desc { color: var(--text-light); font-size: 11.5px; }
+.dashboard-app .subcohort-action {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--crh-navy);
+  border-radius: 3px;
+  padding: 4px 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+}
+.dashboard-app .subcohort-action:hover { border-color: var(--crh-navy); background: var(--crh-navy); color: #fff; }
 
 /* ── Stat-block row (AWV + RVU summary) ──────────────────────────────────── */
 .dashboard-app .awv-row {
