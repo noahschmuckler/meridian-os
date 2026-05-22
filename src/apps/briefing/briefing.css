@@ -151,10 +151,14 @@
   gap: 14px;
 }
 
-/* ── TOP BUBBLE ROW ── */
+/* ── TOP BUBBLE ROW ──
+   align-items: flex-start so the default `stretch` doesn't fight the
+   bubble's explicit `height: max-content`. Each bubble sits at its own
+   content height; the row's cross-axis = max(children's content heights). */
 .briefing-app .top-bubbles {
   display: flex;
   gap: 14px;
+  align-items: flex-start;
 }
 .briefing-app .top-bubbles .bubble {
   flex: 1;
@@ -170,15 +174,20 @@
   flex-basis: 100%;
 }
 
-/* ── BUBBLE CARDS ── */
-/* overflow: visible + flex-shrink: 0 = bubble box is always at least as
-   tall as its content. Future copy edits won't clip top/bottom. */
+/* ── BUBBLE CARDS ──
+   height: max-content is the load-bearing rule here. CSS Sizing-3 keyword
+   that tells the browser "size this box to exactly its rendered content
+   at the resolved width." This bypasses the container's intrinsic-sizing
+   pass (which under-counted wrapping-prose heights across both grid and
+   flex parents in five prior attempts). The min-height floors on the
+   row-specific selectors still apply for very-short hypothetical content. */
 .briefing-app .bubble {
   border-radius: 12px;
   padding: 14px 16px;
   position: relative;
   overflow: visible;
   flex-shrink: 0;
+  height: max-content;
   cursor: default;
   transition: transform 0.15s, box-shadow 0.15s;
 }
@@ -446,10 +455,4 @@
   .briefing-app thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .briefing-app .page-wrapper { padding: 12px; }
   @page { margin: 0.5in; }
-}
-@media print and (orientation: landscape) {
-  .briefing-app .briefing-grid { grid-template-columns: 180px 1fr 1fr 1fr; }
-}
-@media print and (orientation: portrait) {
-  .briefing-app .briefing-grid { grid-template-columns: 160px 1fr 1fr; }
 }
