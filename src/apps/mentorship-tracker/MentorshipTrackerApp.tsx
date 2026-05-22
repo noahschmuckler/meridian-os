@@ -21,23 +21,214 @@ function openEpicRef(entryId) {
   setLauncherApp("epic-reference");
 }
 
-/* ─── Phase Data (same as v3) ─── */
-const MP = [
-  {id:"w1",label:"Week 1",items:["Checked in on first-day experience","Confirmed Epic login and EHR access","Reviewed clinic layout and team intros","Discussed schedule and ramp-up expectations","Answered workflow or logistics questions"]},
-  {id:"w2",label:"Week 2",items:["Checked in on EHR comfort level","Reviewed SmartPhrase or order set progress","Observed at least one patient encounter","Discussed In Basket management setup","Answered workflow or clinical questions"]},
-  {id:"w3",label:"Week 3",items:["Reviewed order sets and preference lists","Discussed care gap identification","Reviewed Problem List management","Observed documentation quality","Addressed emerging concerns"]},
-  {id:"w4",label:"Week 4",items:["End-of-month progress discussion","Reviewed volume and readiness to ramp","Assessed EHR efficiency","Discussed schedule adjustments","Prepared for Medical Director review"]},
-  {id:"w5",label:"Week 5",items:["Volume ramp-up comfort check","Reviewed referral and order routing","Discussed BPA navigation","Observed encounter closing and billing","Answered clinical questions"]},
-  {id:"w6",label:"Week 6",items:["Reviewed MyChart response quality","Discussed medication reconciliation","Assessed care gap closure consistency","Reviewed workspace personalization","Addressed emerging concerns"]},
-  {id:"w7",label:"Week 7",items:["Assessed independence readiness","Reviewed quality metrics together","Discussed billable encounter types","Observed complex patient management","Answered remaining questions"]},
-  {id:"w8",label:"Week 8",items:["End-of-weekly-phase assessment","Reviewed overall EHR proficiency","Assessed readiness for monthly cadence","Discussed ongoing learning goals","Prepared for Medical Director review"]},
-  {id:"m3",label:"Month 3",items:["Volume vs target review","Care gap and Problem List assessment","Referral routing accuracy","Billing/coding proficiency","Semi-independent readiness"]},
-  {id:"m4",label:"Month 4",items:["Optimization check-in","EHR efficiency review","Complex case discussion","Workload sustainability","Emerging issues addressed"]},
-  {id:"m5",label:"Month 5",items:["Full capacity assessment","Burnout and wellbeing check","Quality and care gap rates","Professional development goals","Month 6 review readiness"]},
-  {id:"m6",label:"Month 6",items:["6-month milestone assessment","Full capacity confirmation","Quality dashboard review","Quarterly transition plan","Medical Director summary prep"]},
-  {id:"q3",label:"Month 9",items:["Continued development and CE planning","Professional goals check-in","Quality and satisfaction review","Emerging support needs"]},
-  {id:"q4",label:"Month 12",items:["Annual comprehensive review","Full performance assessment","Mentorship transition planning","Year 2 development plan"]},
+/* ─── Mentor Curriculum — Physician Track (all providers, Week 0 → Month 12) ─── */
+const MP_PHYS = [
+  {id:"w0",label:"Week 0",items:[
+    "After receiving notification from Deirdre Morgan's team, introduce yourself to the new provider via email or phone — share your name, role, how long you've been at the practice, and that you'll be their go-to person",
+    "Provide your direct contact information and tell them they can reach out anytime, even before day one",
+    "Ask if they have questions or concerns about starting — logistics, parking, dress code, what to bring",
+    "Share one or two practical tips about the practice that nobody puts in the welcome packet",
+    "Confirm you will be available in person during their first week and coordinate your schedule to overlap",
+    "Let them know you are not their evaluator — you are the person who makes sure they never feel lost",
+  ]},
+  {id:"w1",label:"Week 1",items:[
+    "Meet the provider in person on day one — walk them to their workspace and introduce them to daily contacts",
+    "Confirm they know where essentials are: restrooms, break room, supply room, printer, fax, sample closet",
+    "Confirm all system access is working: Epic login, email, phone, building badge, parking",
+    "Introduce them individually to the MAs, front desk staff, and office manager they will work with directly",
+    "Walk them through the daily rhythm: arrival time, huddle, lunch, when most providers leave",
+    "Explain the unwritten rules: how the call schedule actually works, which staff handle which tasks, how to get things done quickly",
+    "Check in at end of day one: How did it go? What was confusing? What do they need tomorrow?",
+    "Check in at end of day three: What has gotten easier? What is still frustrating? Are they eating lunch or working through it?",
+    "Ask if they have met someone on the team they feel comfortable asking questions to besides you",
+    "Confirm they understand how to reach you, the office manager, and the Medical Director if something urgent comes up",
+    "Ask if anything about the physical workspace needs to be fixed — chair, monitor, lighting, noise",
+    "End-of-week check-in: Best and worst moments of week one? Anything they need before Monday?",
+  ]},
+  {id:"w2",label:"Week 2",items:[
+    "Check in on patient encounters — not clinical quality, but workflow: finishing on time? Finding what they need in Epic?",
+    "Ask how the In Basket is going: piling up? Understanding message types? Staying on top of results?",
+    "Ask if any patient interactions left them feeling uncertain or uncomfortable — interpersonally, not clinically",
+    "Observe their general demeanor: overwhelmed, anxious, frustrated, or settling in? If something seems off, ask directly",
+    "Ask if they have questions they feel embarrassed to ask someone else",
+    "Check whether they have been included in team conversations, lunch, or social moments — or eating alone",
+    "Ask if the pace feels sustainable or rushed",
+    "Confirm daily huddle attendance and they understand its purpose, especially care gap review",
+    "Ask if any staff interactions have been confusing, tense, or unclear — offer context about team dynamics",
+    "Flag anything concerning to the Medical Director with appropriate urgency (routine or urgent)",
+  ]},
+  {id:"w3",label:"Week 3",items:[
+    "Ask what part of the daily workflow now feels comfortable and what still feels like a struggle",
+    "Check on Epic efficiency: SmartPhrases helping? Order sets built? Documentation getting faster?",
+    "Ask about In Basket management: under control by end of day, or taking work home?",
+    "Check on schedule management: running on time or consistently behind? Identify whether it is volume, documentation, complexity, or rooming delays",
+    "Ask if they have developed any shortcuts or workarounds — and whether those are helping or masking a problem",
+    "Check on team relationships: part of the team, or still the new person?",
+    "Ask if there is anything the Medical Director should know that the provider might not bring up themselves",
+    "Provide one specific, actionable piece of advice based on what you have observed",
+  ]},
+  {id:"m1",label:"Month 1",items:[
+    "Ask the provider to rate their own first month: what grade would they give themselves, and why?",
+    "Ask what they wish they had known on day one that nobody told them",
+    "Check on documentation speed: notes closing same day? If not, what is causing the delay?",
+    "Ask about care gap identification: noticing care gaps during visits, or still focused on chief complaint only?",
+    "Discuss volume: does the current patient load feel right?",
+    "Ask about the team dynamic from their perspective: respected by staff? Supported?",
+    "Ask if there are concerns they have not raised with the Medical Director that they would raise with you",
+    "Prepare the provider for the Medical Director's Month 1 questionnaire — let them know it is coming and that it is supportive, not evaluative",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"w5",label:"Week 5",items:[
+    "Check how the volume increase is landing: keeping up, or starting to feel rushed?",
+    "Ask about referral workflows: do they know how to route correctly in Epic?",
+    "Ask about encounter closure: closing by end of day, or open encounters piling up?",
+    "Check on In Basket at end of day: manageable, or has increased volume created a backlog?",
+    "Ask if any part of their workflow has broken down as volume increased",
+    "Offer one practical tip for managing the increased pace",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"w6",label:"Week 6",items:[
+    "Ask about MyChart messaging: manageable, or becoming a second In Basket?",
+    "Check on medication reconciliation habits: cleaning the med list during visits, or skipping due to time?",
+    "Ask about work-life balance: leaving at a reasonable time? Charting from home? Sleeping well?",
+    "Ask if there is a specific visit type or patient that consistently feels harder than it should",
+    "Check whether they are personalizing their Epic workspace: custom order sets, preference lists, SmartPhrase library",
+    "Ask if they have advice for you — what have they noticed with fresh eyes?",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"w7",label:"Week 7",items:[
+    "Ask how confident they feel handling a full day independently",
+    "Check whether they know what to do when they encounter a scenario they are not sure about",
+    "Ask about complex patient management: have they handled a multi-problem visit successfully?",
+    "Ask if they feel ready to shift from weekly to monthly check-ins — and whether that feels supportive or abandoned",
+    "Ask what one skill or area they still want to improve over the next three months",
+    "Share your honest assessment of their progress — specific, positive, and constructive",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m2",label:"Month 2",items:[
+    "Conduct a reflective conversation: highest and lowest moments of the first two months",
+    "Ask what part of the onboarding program has been most helpful and what felt unnecessary",
+    "Check all core workflows: documentation, In Basket, referrals, orders, care gaps, MyChart — any still a daily struggle?",
+    "Ask about team integration: established member, or still the new person?",
+    "Ask if there are unresolved concerns from the first two months",
+    "Set expectations for monthly check-ins: shorter, less structured, focused on how things are going",
+    "Remind them you are still available between scheduled check-ins",
+    "Flag a summary to the Medical Director: overall trajectory and any specific items to address",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m3",label:"Month 3",items:[
+    "Ask how the transition from weekly to monthly support has felt",
+    "Check on volume sustainability: daily load manageable at closer to full capacity?",
+    "Ask about quality metrics: aware of their scores? Understand what is being measured?",
+    "Ask if they have had any difficult conversations with patients, staff, or leadership — and how they handled them",
+    "Check on professional satisfaction: is this what they expected? Glad they took this position?",
+    "Ask if there is anything they need from you, the Medical Director, or the organization",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m4",label:"Month 4",items:[
+    "Check on daily workflow: anything changed since Month 3? New frustrations or inefficiencies?",
+    "Ask about their relationship with the team: deepened, plateaued, or developed tension?",
+    "Ask if they are pursuing any professional development and whether the organization is supporting it",
+    "Check on documentation habits: notes still closing same day?",
+    "Has the provider developed at least one close working relationship on the team — someone they talk to, eat with, or ask questions of beyond surface-level pleasantries?",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m5",label:"Month 5",items:[
+    "Ask how they would evaluate their own performance over five months — strengths and areas for growth",
+    "Check on burnout signals: energy level, enthusiasm for coming to work — without being intrusive, just genuinely asking",
+    "Ask if there are goals they set at the beginning that they have not yet achieved — and what is in the way",
+    "Preview the six-month milestone: Medical Director questionnaire, office manager assessment, and what those cover",
+    "Has the provider maintained at least one close working relationship on the team, or has social connection faded?",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m6",label:"Month 6",items:[
+    "Acknowledge the milestone: six months is a real accomplishment. Tell them specifically what you have watched them improve at",
+    "Ask for their honest six-month self-assessment: where are they strongest? Where do they still struggle?",
+    "Check on panel growth: are patients building loyalty? Do patients request them?",
+    "Ask about their long-term vision: do they see themselves here in two years? Five years?",
+    "Ask if the mentorship relationship is still valuable and what format they prefer going forward",
+    "Flag your six-month assessment to the Medical Director: on track for success? Any concerns?",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m7",label:"Month 7",items:[
+    "Brief check-in: any concerns, changes, or developments since Month 6?",
+    "How is your energy and motivation level?",
+    "Anything you need from me, the Medical Director, or the organization?",
+    "Provider appears energized and engaged",
+  ]},
+  {id:"m8",label:"Month 8",items:[
+    "Brief check-in: anything on your mind professionally?",
+    "How are things going with the team?",
+    "Any emerging issues heading into the Month 9 check-in?",
+    "Provider appears energized and engaged",
+  ]},
+  {id:"m9",label:"Month 9",items:[
+    "Ask how things are going — genuinely. Listen for what they say and what they do not say",
+    "Check whether documentation and workflow efficiency have continued to improve, plateaued, or declined",
+    "Ask if they feel recognized and appreciated — by patients, staff, and leadership",
+    "Ask if anything about the organization, practice, or team has surprised them since last check-in",
+    "Ask if they have started mentoring or helping others informally",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m12",label:"Month 12",items:[
+    "Conduct a year-in-review conversation: defining moments, breakthroughs, struggles, turning points",
+    "Ask what they know now that they wish they had been told on day one",
+    "Ask directly: Are you happy here? Is this where you want to be?",
+    "Discuss what the relationship looks like going forward: physicians end formally, APCs continue quarterly through Year 2",
+    "Ask if they would recommend this organization to a friend or colleague — and why or why not",
+    "Thank them for trusting you through this process. Make it personal and genuine",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
 ];
+
+/* ─── Mentor Curriculum — APC Track (NP/PA only, Month 15 → Month 24) ─── */
+const MP_APC = [
+  {id:"m15",label:"Month 15",items:[
+    "Check how the transition from monthly to quarterly check-ins has felt — still supported, or has the gap created distance?",
+    "Ask about clinical confidence: are there still presentations that make them pause, or has most of it become routine?",
+    "Ask about the collaborative relationship with their collaborating physician: working well? Enough access? Respectful and genuinely collaborative?",
+    "Check on professional development: pursuing advanced certifications, specialty training, leadership opportunities?",
+    "Ask if there is anything about their scope of practice, schedule, or role they would like to see change",
+    "Do you feel you are treated as an equal member of the clinical team? (If the answer is anything less than a confident yes, flag for the Medical Director)",
+    "Provider appears energized and engaged",
+  ]},
+  {id:"m18",label:"Month 18",items:[
+    "Ask about workload sustainability at 18 months: has the pace become comfortable, or is fatigue setting in?",
+    "Check on team dynamics: fully integrated, or still treated differently as an NP or PA compared to physicians?",
+    "Ask whether the national education program content has continued to influence their practice",
+    "Ask about compensation satisfaction — not to fix it, but to know whether it is becoming frustration",
+    "Ask what they would change about the APC onboarding program based on their experience",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m21",label:"Month 21",items:[
+    "Check on burnout and emotional wellbeing: 21 months is when initial energy has fully worn off",
+    "Ask if they feel their contributions are visible to leadership, or doing good work nobody notices",
+    "Ask whether they are ready and willing to mentor a new provider",
+    "Check on documentation efficiency: by 21 months, charting should not be a burden",
+    "Ask what keeps them here — genuinely, what is the reason you stay?",
+    "Ask whether the collaborative agreement still reflects their current abilities or should be updated — procedure privileges, chart review frequency, scope",
+    "Provider appears energized and engaged",
+  ]},
+  {id:"m24",label:"Month 24",items:[
+    "Conduct a two-year retrospective: where were they on day one vs now? Help them see the distance traveled",
+    "Ask for their final honest assessment: was the mentorship program worth the time? What made it valuable? What was unnecessary?",
+    "Ask whether they have reached full professional confidence in this role",
+    "Discuss the transition: mentorship formally ends, the relationship does not",
+    "Confirm with the Medical Director whether the collaborative agreement should be formally reviewed and updated based on two years of performance",
+    "Ask if they would serve as a mentor for the next new APC",
+    "Close with genuine recognition: tell them specifically what they have contributed to the practice that was not there before they arrived",
+    "Provider appears energized and engaged",
+  ]},
+];
+
+const MP = [...MP_PHYS, ...MP_APC];
 
 const OP = [
   {id:"om1",label:"Month 1 — First Impressions",qs:[
@@ -100,24 +291,25 @@ const QP = [
   {id:"w1",label:"Week 1",qs:[{qid:"a",text:"How comfortable navigating the clinic?",ty:"s"},{qid:"b",text:"How supported by your team?",ty:"s"},{qid:"c",text:"Confident with Epic basics?",ty:"s"},{qid:"d",text:"What has gone well?",ty:"t"},{qid:"e",text:"What could we improve?",ty:"t"}]},
   {id:"w2",label:"Week 2",qs:[{qid:"a",text:"Comfortable with documentation?",ty:"s"},{qid:"b",text:"Understand In Basket workflow?",ty:"s"},{qid:"c",text:"Supported by your mentor?",ty:"s"},{qid:"d",text:"Current challenges?",ty:"t"}]},
   {id:"w3",label:"Week 3",qs:[{qid:"a",text:"Confident managing order sets?",ty:"s"},{qid:"b",text:"Comfortable with care gap ID?",ty:"s"},{qid:"c",text:"Overall onboarding experience?",ty:"s"},{qid:"d",text:"Anything you need?",ty:"t"}]},
-  {id:"w4",label:"Week 4",qs:[{qid:"a",text:"Ready to increase volume?",ty:"s"},{qid:"b",text:"Efficient with documentation?",ty:"s"},{qid:"c",text:"Connected to team?",ty:"s"},{qid:"d",text:"Biggest difference needed?",ty:"t"},{qid:"e",text:"Concerns?",ty:"t"}]},
+  {id:"m1",label:"Month 1",qs:[{qid:"a",text:"Ready to increase volume?",ty:"s"},{qid:"b",text:"Efficient with documentation?",ty:"s"},{qid:"c",text:"Connected to team?",ty:"s"},{qid:"d",text:"Biggest difference needed?",ty:"t"},{qid:"e",text:"Concerns?",ty:"t"}]},
   {id:"w5",label:"Week 5",qs:[{qid:"a",text:"Comfortable with current volume?",ty:"s"},{qid:"b",text:"Confident with referrals?",ty:"s"},{qid:"c",text:"Managing In Basket end of day?",ty:"s"},{qid:"d",text:"What is working well?",ty:"t"}]},
   {id:"w6",label:"Week 6",qs:[{qid:"a",text:"Confident with MyChart messaging?",ty:"s"},{qid:"b",text:"Comfortable with med reconciliation?",ty:"s"},{qid:"c",text:"Work-life balance?",ty:"s"},{qid:"d",text:"Workflow changes needed?",ty:"t"}]},
   {id:"w7",label:"Week 7",qs:[{qid:"a",text:"Ready for independence?",ty:"s"},{qid:"b",text:"Comfortable with complex patients?",ty:"s"},{qid:"c",text:"Satisfied with onboarding?",ty:"s"},{qid:"d",text:"Advice for next provider?",ty:"t"}]},
-  {id:"w8",label:"Week 8",qs:[{qid:"a",text:"Overall Epic proficiency?",ty:"s"},{qid:"b",text:"Ready for monthly check-ins?",ty:"s"},{qid:"c",text:"Supported by leadership?",ty:"s"},{qid:"d",text:"Goals for next 3 months?",ty:"t"}]},
+  {id:"m2",label:"Month 2",qs:[{qid:"a",text:"Overall Epic proficiency?",ty:"s"},{qid:"b",text:"Ready for monthly check-ins?",ty:"s"},{qid:"c",text:"Supported by leadership?",ty:"s"},{qid:"d",text:"Goals for next 3 months?",ty:"t"}]},
   {id:"m3",label:"Month 3",qs:[{qid:"a",text:"Confident with full panel?",ty:"s"},{qid:"b",text:"Integrated into team?",ty:"s"},{qid:"c",text:"Quality metrics?",ty:"s"},{qid:"d",text:"Support still needed?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
   {id:"m6",label:"Month 6",qs:[{qid:"a",text:"Confident at full capacity?",ty:"s"},{qid:"b",text:"Satisfied with role?",ty:"s"},{qid:"c",text:"Rate onboarding?",ty:"s"},{qid:"d",text:"Most valuable part?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
-  {id:"q3",label:"Month 9",qs:[{qid:"a",text:"Satisfied in current role?",ty:"s"},{qid:"b",text:"Organization supports growth?",ty:"s"},{qid:"c",text:"Development needs?",ty:"t"}]},
-  {id:"q4",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
+  {id:"m9",label:"Month 9",qs:[{qid:"a",text:"Satisfied in current role?",ty:"s"},{qid:"b",text:"Organization supports growth?",ty:"s"},{qid:"c",text:"Development needs?",ty:"t"}]},
+  {id:"m12",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
 ];
 
-const QP_TO_OM = {w1:"om1",w2:"om1",w3:"om1",w4:"om1",w5:"om2",w6:"om2",w7:"om2",w8:"om2",m3:"om3",m6:"om6",q3:"om9",q4:"om12"};
+const QP_TO_OM = {w1:"om1",w2:"om1",w3:"om1",m1:"om1",w5:"om2",w6:"om2",w7:"om2",m2:"om2",m3:"om3",m6:"om6",m9:"om9",m12:"om12"};
 const USERS = [{id:"md1",name:"Dr. Rivera",role:"director"},{id:"mt1",name:"Dr. Smith",role:"mentor"},{id:"mt2",name:"Dr. Lee",role:"mentor"}];
 const PROVS = [
   {id:"p1",name:"Dr. Johnson",role:"MD",mentor:"mt1",phase:"m4",days:110},
   {id:"p2",name:"Dr. Patel",role:"DO",mentor:"mt1",phase:"m3",days:87},
   {id:"p3",name:"Dr. Williams",role:"MD",mentor:"mt2",phase:"w7",days:52},
   {id:"p4",name:"Dr. Garcia",role:"DO",mentor:"mt2",phase:"w5",days:38},
+  {id:"p5",name:"Dr. Martinez",role:"NP",mentor:"mt1",phase:"m18",days:545},
 ];
 
 /* ─── Seed Data ─── */
@@ -129,23 +321,24 @@ function makeSeedChecks() {
       if (ph) ph.items.forEach((_, i) => { c[pid + "." + phid + "." + i] = true; });
     });
   };
-  fill("p1", ["w1","w2","w3","w4","w5","w6","w7","w8","m3"]);
-  fill("p2", ["w1","w2","w3","w4","w5","w6","w7","w8"]);
-  fill("p3", ["w1","w2","w3","w4","w5","w6"]);
-  fill("p4", ["w1","w2","w3","w4"]);
+  fill("p1", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3"]);
+  fill("p2", ["w0","w1","w2","w3","m1","w5","w6","w7","m2"]);
+  fill("p3", ["w0","w1","w2","w3","m1","w5","w6"]);
+  fill("p4", ["w0","w1","w2","w3","m1"]);
+  fill("p5", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9","m12","m15"]);
   return c;
 }
 
 function makeSeedQA() {
   const qa = {};
-  const scores = {p1:{w1:5,w2:6,w3:7,w4:7,w5:4,w6:7,w7:8,w8:8,m3:9},p2:{w1:6,w2:6,w3:7,w4:7,w5:4,w6:7,w7:7,w8:8},p3:{w1:5,w2:6,w3:6,w4:7,w5:5,w6:7},p4:{w1:5,w2:6,w3:6,w4:7,w5:5}};
+  const scores = {p1:{w1:5,w2:6,w3:7,m1:7,w5:4,w6:7,w7:8,m2:8,m3:9},p2:{w1:6,w2:6,w3:7,m1:7,w5:4,w6:7,w7:7,m2:8},p3:{w1:5,w2:6,w3:6,m1:7,w5:5,w6:7},p4:{w1:5,w2:6,w3:6,m1:7,w5:5},p5:{w1:7,w2:7,w3:8,m1:8,w5:7,w6:8,w7:8,m2:8,m3:9,m4:8,m5:8,m6:9,m7:8,m8:8,m9:8,m12:9,m15:8}};
   Object.entries(scores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const qp = QP.find(x => x.id === phid);
       if (qp) qp.qs.forEach(q => { qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Demo response"; });
     });
   });
-  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5}};
+  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5},p5:{om1:8,om2:8,om3:9,om6:8}};
   Object.entries(omScores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const op = OP.find(x => x.id === phid);
@@ -157,12 +350,14 @@ function makeSeedQA() {
   // CII stress-test seed: p1 = full 3-phase trend (green→pink→green), p2 = single low point (red),
   // p3/p4 = no CII data. Scores are intentionally distinct from clinical avg to verify independence.
   const ciiScores = {
-    "p1.m3.ci1":"8","p1.m3.ci2":"9","p1.m3.ci3":"7","p1.m3.ci4":"6",   // avg 7.5 → green dot
-    "p1.m6.ci1":"5","p1.m6.ci2":"6","p1.m6.ci3":"5","p1.m6.ci4":"5",   // avg 5.25 → pink dot (overall stays green: 7.1)
-    "p1.q4.ci1":"9","p1.q4.ci2":"8","p1.q4.ci3":"9","p1.q4.ci4":"8",   // avg 8.5 → green dot; 3-phase trend line
-    "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",   // avg 3.5 → red overall; single dot
-    "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",   // avg 5.25 → pink overall; single dot
-    // p4: no CII data → "—" overall; empty chart
+    "p1.m3.ci1":"8","p1.m3.ci2":"9","p1.m3.ci3":"7","p1.m3.ci4":"6",
+    "p1.m6.ci1":"5","p1.m6.ci2":"6","p1.m6.ci3":"5","p1.m6.ci4":"5",
+    "p1.m12.ci1":"9","p1.m12.ci2":"8","p1.m12.ci3":"9","p1.m12.ci4":"8",
+    "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",
+    "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",
+    "p5.m3.ci1":"8","p5.m3.ci2":"8","p5.m3.ci3":"9","p5.m3.ci4":"8",
+    "p5.m6.ci1":"8","p5.m6.ci2":"9","p5.m6.ci3":"8","p5.m6.ci4":"8",
+    "p5.m12.ci1":"9","p5.m12.ci2":"9","p5.m12.ci3":"9","p5.m12.ci4":"8",
   };
   Object.assign(qa, ciiScores);
   return qa;
@@ -179,12 +374,35 @@ function countChecks(checks, pid, phid) {
   return { done, total: ph.items.length, pct: Math.round(done / ph.items.length * 100) };
 }
 
-function mentorPct(checks, pid) {
+function isAPC(prov) {
+  return prov && (prov.role === "NP" || prov.role === "PA");
+}
+
+function mentorPhysPct(checks, pid) {
   const prov = PROVS.find(x => x.id === pid);
-  const max = phIdx(prov.phase);
+  const max = MP_PHYS.findIndex(ph => ph.id === prov.phase);
   let t = 0, d = 0;
-  MP.forEach((ph, i) => { if (i > max) return; ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; }); });
+  MP_PHYS.forEach((ph, i) => {
+    if (max >= 0 && i > max) return;
+    ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; });
+  });
   return t > 0 ? Math.round(d / t * 100) : 0;
+}
+
+function mentorApcPct(checks, pid) {
+  const prov = PROVS.find(x => x.id === pid);
+  const max = MP_APC.findIndex(ph => ph.id === prov.phase);
+  if (max < 0) return 0;
+  let t = 0, d = 0;
+  MP_APC.forEach((ph, i) => {
+    if (i > max) return;
+    ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; });
+  });
+  return t > 0 ? Math.round(d / t * 100) : 0;
+}
+
+function mentorPct(checks, pid) {
+  return mentorPhysPct(checks, pid);
 }
 
 function opsPct(qa, pid) {
@@ -243,7 +461,7 @@ function avgScore(qa, pid, phid) {
 }
 
 /* Culture Integration Index helpers */
-const CULTURE_PHASES = ["m3", "m6", "q4"];
+const CULTURE_PHASES = ["m3", "m6", "m12"];
 const CULTURE_QIDS = ["ci1", "ci2", "ci3", "ci4"];
 
 /* Per-phase culture score (avg of 4 questions, null if none answered) */
@@ -270,15 +488,21 @@ function cultureScore(qa, pid) {
   return { avg: avg, pct: Math.round(avg * 10), display: avg.toFixed(1) };
 }
 
-/* NEW: Overdue status based on days */
+/* Overdue status based on days — indices refer to MP_PHYS (0=w0 … 16=m12) */
 function getStatus(pid) {
   const prov = PROVS.find(x => x.id === pid);
   const ci = phIdx(prov.phase);
   const d = prov.days;
-  let expected = 0;
-  if (d >= 270) expected = 13; else if (d >= 180) expected = 11;
-  else if (d >= 150) expected = 10; else if (d >= 120) expected = 9;
-  else if (d >= 90) expected = 8; else if (d >= 56) expected = 7;
+  let expected;
+  if (d >= 365) expected = 16;
+  else if (d >= 270) expected = 15;
+  else if (d >= 240) expected = 14;
+  else if (d >= 210) expected = 13;
+  else if (d >= 180) expected = 12;
+  else if (d >= 150) expected = 11;
+  else if (d >= 120) expected = 10;
+  else if (d >= 90) expected = 9;
+  else if (d >= 60) expected = 8;
   else expected = Math.floor(d / 7);
   if (expected > ci + 2) return "overdue";
   if (expected > ci) return "due";
@@ -435,22 +659,23 @@ function ScoreTrend({ qa, pid }) {
   );
 }
 
-/* NEW: Journey timeline */
-function Timeline({ currentIdx }) {
+/* Journey timeline — phases array is passed in (MP_PHYS or full MP for APCs) */
+function Timeline({ phases, currentPhaseId }) {
   return (
     <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "14px 20px", marginBottom: 16 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 10 }}>ONBOARDING JOURNEY</div>
       <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-        {MP.map((ph, i) => {
-          const done = i < currentIdx;
-          const isCur = i === currentIdx;
+        {phases.map((ph, i) => {
+          const curI = phases.findIndex(p => p.id === currentPhaseId);
+          const done = curI >= 0 && i < curI;
+          const isCur = ph.id === currentPhaseId;
           const c = done ? "#22c55e" : isCur ? "#028090" : "#e9ecef";
           return (
             <div key={ph.id} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
               <div style={{ width: "100%", height: 6, background: c, borderRadius: i === 0 ? "3px 0 0 3px" : i === MP.length - 1 ? "0 3px 3px 0" : 0 }} />
               <div style={{ width: isCur ? 12 : 6, height: isCur ? 12 : 6, borderRadius: "50%", background: c, marginTop: 4, border: isCur ? "2px solid #028090" : "none", boxShadow: isCur ? "0 0 0 3px rgba(2,128,144,0.2)" : "none" }} />
               <div style={{ fontSize: 7, color: done ? "#22c55e" : isCur ? "#028090" : "#adb5bd", marginTop: 2, fontWeight: isCur ? 700 : 400 }}>
-                {ph.label.replace("Week ", "W").replace("Month ", "M")}
+                {ph.label.replace("Week ", "W").replace("Month ", "M").replace("W0","W0")}
               </div>
             </div>
           );
@@ -535,10 +760,15 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
   // selected; otherwise the modal is a curriculum reference).
   const mdItems = MD_ITEMS;
   const mdDone = prov ? mdItems.filter(it => checks[prov.id + ".md." + it.id]).length : 0;
-  let mpTotal = 0, mpDone = 0;
-  MP.forEach(ph => ph.items.forEach((_, i) => {
-    mpTotal++;
-    if (prov && checks[prov.id + "." + ph.id + "." + i]) mpDone++;
+  let mpPhysTotal = 0, mpPhysDone = 0;
+  MP_PHYS.forEach(ph => ph.items.forEach((_, i) => {
+    mpPhysTotal++;
+    if (prov && checks[prov.id + "." + ph.id + "." + i]) mpPhysDone++;
+  }));
+  let mpApcTotal = 0, mpApcDone = 0;
+  MP_APC.forEach(ph => ph.items.forEach((_, i) => {
+    mpApcTotal++;
+    if (prov && checks[prov.id + "." + ph.id + "." + i]) mpApcDone++;
   }));
   let opTotal = 0, opDone = 0;
   OP.forEach(ph => ph.qs.forEach(q => {
@@ -585,14 +815,34 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
       countDone: (group) => prov ? group.items.filter(it => checks[prov.id + ".md." + it.id]).length : 0,
     },
     {
-      key: "mp",
-      title: "Mentor Check-Ins",
-      subtitle: `${mpTotal} prompts, Week 1 → Month 12`,
+      key: "mp-phys",
+      title: "Mentor Curriculum — Physician Track",
+      subtitle: `${mpPhysTotal} items · Week 0 → Month 12 · All providers`,
       gradient: "linear-gradient(135deg, #028090, #014a52)",
       accent: "#028090",
-      done: mpDone,
-      total: mpTotal,
-      groups: MP.map(ph => ({ phase: ph, items: ph.items })),
+      done: mpPhysDone,
+      total: mpPhysTotal,
+      groups: MP_PHYS.map(ph => ({ phase: ph, items: ph.items })),
+      renderRow: (text, group, i) => (
+        <CheckItem
+          key={group.phase.id + ":" + i}
+          text={text}
+          checked={prov ? !!checks[prov.id + "." + group.phase.id + "." + i] : false}
+          canEdit={canEditMp}
+          onToggle={() => { if (prov) toggle(prov.id + "." + group.phase.id + "." + i); }}
+        />
+      ),
+      countDone: (group) => prov ? group.items.filter((_, i) => checks[prov.id + "." + group.phase.id + "." + i]).length : 0,
+    },
+    {
+      key: "mp-apc",
+      title: "Mentor Curriculum — APC Track",
+      subtitle: `${mpApcTotal} items · Month 15 → Month 24 · NP/PA only`,
+      gradient: "linear-gradient(135deg, #7c3aed, #4c1d95)",
+      accent: "#7c3aed",
+      done: mpApcDone,
+      total: mpApcTotal,
+      groups: MP_APC.map(ph => ({ phase: ph, items: ph.items })),
       renderRow: (text, group, i) => (
         <CheckItem
           key={group.phase.id + ":" + i}
@@ -650,8 +900,8 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
           <div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>All Onboarding Tracks — Chronological</div>
             <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
-              Medical Director Curriculum + Mentor Check-Ins + Office Manager.
-              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} Medical Director · ${mpDone}/${mpTotal} mentor · ${opDone}/${opTotal} ops` : ""}
+              Medical Director + Mentor (Physician &amp; APC) + Office Manager.
+              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} MD · ${mpPhysDone}/${mpPhysTotal} mentor-phys · ${mpApcDone}/${mpApcTotal} mentor-apc · ${opDone}/${opTotal} ops` : ""}
             </div>
           </div>
           <button onClick={onClose}
@@ -694,6 +944,9 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
                       : tr.key === "op"
                       ? g.items.map(q => tr.renderRow(q, g))
                       : g.items.map((text, i) => tr.renderRow(text, g, i))}
+                    {(tr.key === "mp-apc" && g.items.length === 0) && (
+                      <div style={{ padding: "12px 20px", fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No items in this phase.</div>
+                    )}
                   </div>
                 );
               })}
@@ -815,7 +1068,7 @@ export default function App() {
   const isOps = tab === "ops";
   const isQ = tab === "quest";
   const isMd = tab === "md";
-  const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : MP;
+  const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : (tab === "mentor" && prov && !isAPC(prov) ? MP_PHYS : MP);
   const curOpQuest = isOps && phase ? OP.find(x => x.id === phase) : null;
   const curChecklist = phase && !isQ && !isMd && !isOps ? MP.find(x => x.id === phase) : null;
   const curQuest = isQ && phase ? QP.find(x => x.id === phase) : null;
@@ -929,7 +1182,7 @@ export default function App() {
                 {isDir ? (
                   <div>
                     <Bar label="Medical Director Curriculum" pct={md} color="#8b5cf6" />
-                    <Bar label="Mentor" pct={mn} color="#028090" />
+                    <Bar label="Mentor: Physician" pct={mn} color="#028090" />
                     <Bar label="Ops" pct={op} color="#0ea5e9" />
                     <Bar label="Questionnaires" pct={qp} color="#eab308" />
                   </div>
@@ -1363,7 +1616,7 @@ export default function App() {
                       <tr style={{ background: "#f8f9fb" }}>
                         <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Provider</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#8b5cf6", borderBottom: "2px solid #dee2e6" }}>Medical Director Curriculum</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor Curriculum</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor: Physician</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>OM Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Medical Director Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#ec4899", borderBottom: "2px solid #dee2e6" }}>Culture</th>
@@ -1507,8 +1760,11 @@ export default function App() {
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 4, marginTop: 12, flexWrap: "wrap" }}>
-                  {MP.map((ph, i) => {
-                    const done = i < curIdx || (i === curIdx && countChecks(checks, prov.id, ph.id).pct === 100);
+                  {(isAPC(prov) ? MP : MP_PHYS).map((ph) => {
+                    const phases = isAPC(prov) ? MP : MP_PHYS;
+                    const i = phases.findIndex(p => p.id === ph.id);
+                    const curI = phases.findIndex(p => p.id === prov.phase);
+                    const done = i < curI || (i === curI && countChecks(checks, prov.id, ph.id).pct === 100);
                     return (
                       <span key={ph.id} style={{ fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 8, background: done ? "rgba(34,197,94,0.12)" : "#e9ecef", color: done ? "#166534" : "#868e96" }}>
                         {(done ? "✓ " : "○ ") + ph.label}
@@ -1519,49 +1775,68 @@ export default function App() {
               </div>
 
               {/* JOURNEY TIMELINE */}
-              <Timeline currentIdx={curIdx} />
+              <Timeline phases={prov && isAPC(prov) ? MP : MP_PHYS} currentPhaseId={prov ? prov.phase : null} />
 
-              {/* 5 METRIC CARDS — clickable tab selectors (director only) */}
-              {isDir && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10, marginBottom: 16 }}>
-                  {[
-                    { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
-                    { label: "Mentor Curriculum", pct: mentorPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase },
-                    { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
-                    { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
-                  ].map((m) => {
-                    const isActive = tab === m.key;
-                    const dc = m.pct >= 70 ? "#22c55e" : m.pct >= 30 ? m.color : m.pct > 0 ? "#ef4444" : "#adb5bd";
-                    return (
-                      <div key={m.key} onClick={() => { setTab(m.key); setPhase(m.def); }}
-                        style={{ background: isActive ? m.color + "12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? m.color : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
-                        <div style={{ fontSize: 11, color: isActive ? m.color : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>{m.label}</div>
-                        <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{m.pct}%</div>
-                        <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 6 }}>
-                          <div style={{ height: "100%", width: m.pct + "%", background: m.color, borderRadius: 3 }} />
+              {/* METRIC CARDS — clickable tab selectors (director only) */}
+              {isDir && (function() {
+                const apc = isAPC(prov);
+                const cols = apc ? "repeat(6, 1fr)" : "repeat(5, 1fr)";
+                const physPct = mentorPhysPct(checks, prov.id);
+                const apcPct = mentorApcPct(checks, prov.id);
+                const cards = [
+                  { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
+                  { label: "Mentor: Physician", pct: physPct, color: "#028090", key: "mentor", def: prov.phase },
+                  { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
+                  { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
+                ];
+                const cs = cultureScore(qa, prov.id);
+                const cultureActive = tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1;
+                const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                return (
+                  <div style={{ display: "grid", gridTemplateColumns: cols, gap: 10, marginBottom: 16 }}>
+                    {cards.map((m) => {
+                      const isActive = tab === m.key;
+                      const dc = m.pct >= 70 ? "#22c55e" : m.pct >= 30 ? m.color : m.pct > 0 ? "#ef4444" : "#adb5bd";
+                      return (
+                        <div key={m.key} onClick={() => { setTab(m.key); setPhase(m.def); }}
+                          style={{ background: isActive ? m.color + "12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? m.color : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                          <div style={{ fontSize: 11, color: isActive ? m.color : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>{m.label}</div>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{m.pct}%</div>
+                          <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 6 }}>
+                            <div style={{ height: "100%", width: m.pct + "%", background: m.color, borderRadius: 3 }} />
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                  {/* Culture Integration card — shows raw 0-10 avg; navigates to quest tab at m3 */}
-                  {(function() {
-                    const cs = cultureScore(qa, prov.id);
-                    const isActive = tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1;
-                    const dc = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
-                    return (
-                      <div onClick={function() { setTab("quest"); setPhase("m3"); }}
-                        style={{ background: isActive ? "#ec489912" : "white", borderRadius: 10, border: "2px solid " + (isActive ? "#ec4899" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
-                        <div style={{ fontSize: 11, color: isActive ? "#ec4899" : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>Culture Integration</div>
-                        <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{cs.display}</div>
-                        <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>avg / 10 · m3, m6, m12</div>
-                        <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
-                          <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
+                      );
+                    })}
+                    {/* APC mentor card — only shown for NP/PA providers */}
+                    {apc && (function() {
+                      const isActive = tab === "mentor" && MP_APC.some(p => p.id === phase);
+                      const dc = apcPct >= 70 ? "#22c55e" : apcPct >= 30 ? "#7c3aed" : apcPct > 0 ? "#ef4444" : "#adb5bd";
+                      return (
+                        <div onClick={function() { setTab("mentor"); setPhase(MP_APC[0].id); }}
+                          style={{ background: isActive ? "#7c3aed12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? "#7c3aed" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                          <div style={{ fontSize: 11, color: isActive ? "#7c3aed" : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>Mentor: APC</div>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{apcPct}%</div>
+                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>Year 2 · M15–M24</div>
+                          <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
+                            <div style={{ height: "100%", width: apcPct + "%", background: "#7c3aed", borderRadius: 3 }} />
+                          </div>
                         </div>
+                      );
+                    })()}
+                    {/* Culture Integration card */}
+                    <div onClick={function() { setTab("quest"); setPhase("m3"); }}
+                      style={{ background: cultureActive ? "#ec489912" : "white", borderRadius: 10, border: "2px solid " + (cultureActive ? "#ec4899" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                      <div style={{ fontSize: 11, color: cultureActive ? "#ec4899" : "#868e96", marginBottom: 4, fontWeight: cultureActive ? 700 : 400 }}>Culture Integration</div>
+                      <div style={{ fontSize: 24, fontWeight: 700, color: cultureColor }}>{cs.display}</div>
+                      <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>avg / 10 · m3, m6, m12</div>
+                      <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
+                        <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
                       </div>
-                    );
-                  })()}
-                </div>
-              )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* SCORE TREND */}
               {(isDir || isMen) && <ScoreTrend qa={qa} pid={prov.id} />}
