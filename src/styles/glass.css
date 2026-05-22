@@ -2008,6 +2008,10 @@
   background: linear-gradient(160deg, #2d4a7c 0%, #0f172a 100%);
 }
 
+.launcher__app-icon--briefing {
+  background: linear-gradient(160deg, #1a2744 0%, #00788a 100%);
+}
+
 .launcher__app-glyph--epic {
   color: #fde68a;
   filter: drop-shadow(0 2px 8px rgba(253, 230, 138, 0.45));
