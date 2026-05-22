@@ -151,79 +151,65 @@
   gap: 14px;
 }
 
-/* ── TOP BUBBLE ROW ──
-   align-items: flex-start so the default `stretch` doesn't fight the
-   bubble's explicit `height: max-content`. Each bubble sits at its own
-   content height; the row's cross-axis = max(children's content heights). */
+/* ── TOP BUBBLE ROW ── */
 .briefing-app .top-bubbles {
   display: flex;
   gap: 14px;
-  align-items: flex-start;
 }
-.briefing-app .top-bubbles .bubble {
+.briefing-app .top-bubbles .brief-card {
   flex: 1;
   min-width: 0;
 }
 .briefing-app .briefing-grid.portrait .top-bubbles {
   flex-wrap: wrap;
 }
-.briefing-app .briefing-grid.portrait .top-bubbles .bubble {
+.briefing-app .briefing-grid.portrait .top-bubbles .brief-card {
   flex: 1 1 calc(50% - 7px);
 }
-.briefing-app .briefing-grid.portrait .top-bubbles .bubble:nth-child(3) {
+.briefing-app .briefing-grid.portrait .top-bubbles .brief-card:nth-child(3) {
   flex-basis: 100%;
 }
 
-/* ── BUBBLE CARDS ──
-   height: max-content is the load-bearing rule here. CSS Sizing-3 keyword
-   that tells the browser "size this box to exactly its rendered content
-   at the resolved width." This bypasses the container's intrinsic-sizing
-   pass (which under-counted wrapping-prose heights across both grid and
-   flex parents in five prior attempts). The min-height floors on the
-   row-specific selectors still apply for very-short hypothetical content. */
-.briefing-app .bubble {
+/* ── BRIEFING CARDS ──
+   Class is `brief-card` (NOT `bubble`) to avoid colliding with meridian-os's
+   workspace-primitive .bubble class in glass.css, which carries
+   `container-type: size` + `display: flex` + `overflow: hidden` and was
+   clamping these cards to a fixed container-driven height instead of letting
+   them grow to their wrapped content. That collision wasted six fix attempts
+   before the diagnostic overlay finally surfaced it. */
+.briefing-app .brief-card {
   border-radius: 12px;
   padding: 14px 16px;
   position: relative;
-  overflow: visible;
-  flex-shrink: 0;
-  height: max-content;
   cursor: default;
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.briefing-app .bubble:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+.briefing-app .brief-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
 
-/* Left bubbles — tall, vertical. Block layout (no display: flex on the bubble
-   itself) so the parent grid/flex sees the bubble's wrapped-text intrinsic
-   height correctly. A flex column container reports max-content from its
-   children's unwrapped widths, which under-counts wrapping prose and leaves
-   the bubble box shorter than its rendered content. */
-.briefing-app .left-bubbles .bubble {
+.briefing-app .left-bubbles .brief-card {
   min-height: 100px;
 }
-
-/* Top bubbles — shorter, horizontal. Same block-layout reason. */
 .briefing-app .top-bubble { min-height: 90px; }
 
-.briefing-app .bubble-icon {
+.briefing-app .brief-card-icon {
   font-size: 22px;
   margin-bottom: 8px;
   line-height: 1;
 }
-.briefing-app .bubble-headline {
+.briefing-app .brief-card-headline {
   font-family: 'DM Serif Display', serif;
   font-size: 15px;
   line-height: 1.2;
   margin-bottom: 5px;
   color: #fff;
 }
-.briefing-app .bubble-body {
+.briefing-app .brief-card-body {
   font-size: 11.5px;
   line-height: 1.45;
   color: rgba(255,255,255,0.88);
   font-weight: 300;
 }
-.briefing-app .bubble-tag {
+.briefing-app .brief-card-tag {
   display: inline-block;
   margin-top: 8px;
   font-size: 9px;
@@ -236,18 +222,18 @@
   color: #fff;
 }
 
-/* Color palette for bubbles */
-.briefing-app .bubble-teal    { background: var(--crh-teal); }
-.briefing-app .bubble-navy    { background: var(--crh-navy); }
-.briefing-app .bubble-coral   { background: var(--crh-coral); }
-.briefing-app .bubble-gold    { background: var(--crh-gold); color: #2a1a00; }
-.briefing-app .bubble-gold .bubble-headline { color: #2a1a00; }
-.briefing-app .bubble-gold .bubble-body { color: rgba(42,26,0,0.8); }
-.briefing-app .bubble-gold .bubble-tag { background: rgba(0,0,0,0.12); color: #2a1a00; }
-.briefing-app .bubble-sky     { background: var(--crh-sky); }
-.briefing-app .bubble-sage    { background: var(--crh-sage); }
-.briefing-app .bubble-lavender { background: var(--crh-lavender); }
-.briefing-app .bubble-warm    { background: var(--crh-warm); }
+/* Color palette for cards */
+.briefing-app .brief-card-teal    { background: var(--crh-teal); }
+.briefing-app .brief-card-navy    { background: var(--crh-navy); }
+.briefing-app .brief-card-coral   { background: var(--crh-coral); }
+.briefing-app .brief-card-gold    { background: var(--crh-gold); color: #2a1a00; }
+.briefing-app .brief-card-gold .brief-card-headline { color: #2a1a00; }
+.briefing-app .brief-card-gold .brief-card-body { color: rgba(42,26,0,0.8); }
+.briefing-app .brief-card-gold .brief-card-tag { background: rgba(0,0,0,0.12); color: #2a1a00; }
+.briefing-app .brief-card-sky     { background: var(--crh-sky); }
+.briefing-app .brief-card-sage    { background: var(--crh-sage); }
+.briefing-app .brief-card-lavender { background: var(--crh-lavender); }
+.briefing-app .brief-card-warm    { background: var(--crh-warm); }
 
 /* ── PROJECTS TABLE ── */
 .briefing-app .projects-panel {
@@ -450,7 +436,7 @@
 @media print {
   .briefing-app .orientation-bar { display: none; }
   .briefing-app { background: #fff; }
-  .briefing-app .bubble { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .briefing-app .brief-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .briefing-app .panel-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .briefing-app thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .briefing-app .page-wrapper { padding: 12px; }

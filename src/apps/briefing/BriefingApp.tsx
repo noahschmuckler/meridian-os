@@ -215,11 +215,11 @@ export default function BriefingApp(): JSX.Element {
         <div class={`briefing-grid ${layout}`}>
           <div class="left-bubbles">
             {LEFT_BUBBLES.map((b) => (
-              <div key={b.tint} class={`bubble bubble-${b.tint}`}>
-                <div class="bubble-icon">{b.icon}</div>
-                <div class="bubble-headline">{b.headline}</div>
-                <div class="bubble-body">{b.body}</div>
-                <span class="bubble-tag">{b.tag}</span>
+              <div key={b.tint} class={`brief-card brief-card-${b.tint}`}>
+                <div class="brief-card-icon">{b.icon}</div>
+                <div class="brief-card-headline">{b.headline}</div>
+                <div class="brief-card-body">{b.body}</div>
+                <span class="brief-card-tag">{b.tag}</span>
               </div>
             ))}
           </div>
@@ -227,11 +227,11 @@ export default function BriefingApp(): JSX.Element {
           <div class="right-side">
             <div class="top-bubbles">
               {TOP_BUBBLES.map((b) => (
-                <div key={b.area} class={`bubble bubble-${b.tint} top-bubble`}>
-                  <div class="bubble-icon">{b.icon}</div>
-                  <div class="bubble-headline">{b.headline}</div>
-                  <div class="bubble-body">{b.body}</div>
-                  <span class="bubble-tag">{b.tag}</span>
+                <div key={b.area} class={`brief-card brief-card-${b.tint} top-bubble`}>
+                  <div class="brief-card-icon">{b.icon}</div>
+                  <div class="brief-card-headline">{b.headline}</div>
+                  <div class="brief-card-body">{b.body}</div>
+                  <span class="brief-card-tag">{b.tag}</span>
                 </div>
               ))}
             </div>
