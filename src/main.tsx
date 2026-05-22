@@ -14,6 +14,7 @@ import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { EpicQuickReferenceShell } from './shell/EpicQuickReferenceShell';
 import { BriefingShell } from './shell/BriefingShell';
 import { DashboardShell } from './shell/DashboardShell';
+import { dashboardReturnSignal, returnFromModuleToDashboard } from './apps/dashboard/DashboardApp';
 import { FeedbackModal } from './shell/FeedbackModal';
 import { SelectionMenu } from './shell/SelectionMenu';
 import { GlossaryPopover } from './shell/GlossaryPopover';
@@ -147,6 +148,10 @@ function App(): JSX.Element {
   const id = activeWorkspaceIdSignal.value;
   const homeView = mondrianHomeViewSignal.value;
   const homeForRender = homeView === 'archive' ? home : focusedHome;
+  // When the user followed a hard-stop module link from the dashboard, a
+  // single "Back to Patient Brief" chevron supersedes the Mondrian + module
+  // back chevrons so the round-trip stays obvious.
+  const fromDashboard = dashboardReturnSignal.value;
   return (
     <>
       {!id && <BackToLauncherChevron variant="on-light" />}
@@ -176,8 +181,9 @@ function App(): JSX.Element {
           }}
         />
       )}
-      {id && <BackToMondrianChevron />}
-      {id === 'clinical-modules' && <ModuleBackChevron />}
+      {fromDashboard && <DashboardReturnChevron />}
+      {id && !fromDashboard && <BackToMondrianChevron />}
+      {id === 'clinical-modules' && !fromDashboard && <ModuleBackChevron />}
       <PrintView modules={clinicalModules} />
       <FeedbackModal />
       <SelectionMenu modules={clinicalModules} />
@@ -186,6 +192,20 @@ function App(): JSX.Element {
       <ConsultLinkHandler />
       <ConsultAutoSpawn modules={clinicalModules} />
     </>
+  );
+}
+
+function DashboardReturnChevron(): JSX.Element {
+  return (
+    <button
+      type="button"
+      class="dashboard-return-chevron"
+      onClick={returnFromModuleToDashboard}
+      aria-label="Back to patient brief"
+    >
+      <span class="dashboard-return-chevron__chevron" aria-hidden="true">‹</span>
+      <span class="dashboard-return-chevron__label">Patient Brief</span>
+    </button>
   );
 }
 

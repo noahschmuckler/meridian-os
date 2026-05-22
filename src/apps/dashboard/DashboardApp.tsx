@@ -1,11 +1,46 @@
 import type { ComponentChildren, JSX } from 'preact';
+import { signal } from '@preact/signals';
 import { useState } from 'preact/hooks';
 import { setLauncherApp } from '../../data/launcherState';
+import { activeWorkspaceIdSignal } from '../../data/workspaceNav';
+import { moduleFocusSignal } from '../../data/moduleFocus';
 import cohortJson from '../../data/seed/dashboard-cohort.json';
 import './dashboard.css';
 
+// Module-level signals preserve dashboard navigation state across remounts —
+// critical when the user clicks a hard-stop module link, jumps to the Mondrian
+// clinical-modules workspace, and then returns: the dashboard re-renders the
+// patient detail because activePatientSignal is still set.
+export type DashboardSectionId = 'hedis' | 'awv' | 'rvu' | 'goals' | 'vbc' | 'patients';
+export const activeSectionSignal = signal<DashboardSectionId | null>(null);
+export const activePatientSignal = signal<string | null>(null);
+
+// Set when the user navigates from a patient hard-stop into a clinical module.
+// The App-level DashboardReturnChevron reads this to render the "Back to
+// Patient Brief" pill and clear the workspace / signals on click.
+export interface DashboardReturn { mrn: string; moduleId: string }
+export const dashboardReturnSignal = signal<DashboardReturn | null>(null);
+
+// Programmatic navigation: from inside the dashboard, jump to a clinical
+// module while preserving enough state to return.
+export function openModuleFromDashboard(mrn: string, moduleId: string): void {
+  dashboardReturnSignal.value = { mrn, moduleId };
+  activePatientSignal.value = mrn; // ensure dashboard restores patient on return
+  activeWorkspaceIdSignal.value = 'clinical-modules';
+  moduleFocusSignal('clinical-modules').value = { mode: 'module', moduleId, focusedItemId: null };
+  setLauncherApp('mondrian');
+}
+
+export function returnFromModuleToDashboard(): void {
+  const ret = dashboardReturnSignal.value;
+  if (!ret) return;
+  activeWorkspaceIdSignal.value = null;
+  dashboardReturnSignal.value = null;
+  setLauncherApp('dashboard');
+}
+
 type Layout = 'landscape' | 'portrait';
-type SectionId = 'hedis' | 'awv' | 'rvu' | 'goals' | 'vbc' | 'patients';
+type SectionId = DashboardSectionId;
 
 interface Tile {
   id: SectionId;
@@ -275,11 +310,23 @@ const CROSS_MEASURE_GROUPS: CrossMeasureGroup[] = [
 ];
 
 // ── AWV data ─────────────────────────────────────────────────────────────────
-const AWV_DATA: Array<{ key: string; n: number; label: string; tone: 'blue' | 'green' | 'amber' | 'red' }> = [
-  { key: 'eligible', n: 187, label: 'Eligible', tone: 'blue' },
-  { key: 'completed', n: 94, label: 'Completed', tone: 'green' },
-  { key: 'scheduled', n: 31, label: 'Scheduled', tone: 'amber' },
-  { key: 'unscheduled', n: 62, label: 'Unscheduled', tone: 'red' },
+// AWV stat row — five cards. The NP-AWV (IPPE) cohort is a small subset of
+// Medicare patients new to Crystal Run / never had an AWV; carries a separate
+// billing code (G0438 / G0468) and the rollout to Monroe + West Nyack sites
+// is in flight per Briefing.
+interface AwvDatum {
+  key: 'eligible' | 'completed' | 'scheduled' | 'unscheduled' | 'np-awv';
+  big: string;
+  label: string;
+  sub: string;
+  tone: 'blue' | 'green' | 'amber' | 'red' | 'sky';
+}
+const AWV_DATA: AwvDatum[] = [
+  { key: 'eligible',    big: '187', label: 'Eligible',         sub: 'Medicare panel',          tone: 'blue' },
+  { key: 'completed',   big: '94',  label: 'Completed',        sub: '50% of eligible',          tone: 'green' },
+  { key: 'scheduled',   big: '31',  label: 'Scheduled',        sub: '17% of eligible',          tone: 'amber' },
+  { key: 'unscheduled', big: '62',  label: 'Unscheduled',      sub: '33% of eligible',          tone: 'red' },
+  { key: 'np-awv',      big: '32%', label: 'NP-AWV Completed', sub: '9 of 28 IPPE-eligible',    tone: 'sky' },
 ];
 
 const UNSCHEDULED_AWV_PATIENTS = [
@@ -369,7 +416,7 @@ interface PatientProblem { id: string; text: string; icd10: string }
 interface PatientVital { id: string; label: string; value: string; date: string }
 interface PatientLab { id: string; label: string; value: string; unit?: string; date: string; flag?: 'high' | 'low' }
 interface PatientMed { id: string; text: string }
-interface PatientHardStop { id: string; text: string; severity: 'high' | 'medium' }
+interface PatientHardStop { id: string; text: string; severity: 'high' | 'medium'; moduleId?: string | null }
 interface PatientOppDetail { label: string; text: string }
 interface PatientOpportunity {
   id: string; category: string; summary: string; codes: string; details: PatientOppDetail[];
@@ -412,8 +459,11 @@ function majorOpportunities(p: Patient): PatientHardStop[] {
 
 export default function DashboardApp(): JSX.Element {
   const [layout, setLayout] = useState<Layout>('landscape');
-  const [activeSection, setActiveSection] = useState<SectionId | null>(null);
-  const [activePatient, setActivePatient] = useState<string | null>(null);
+  const activeSection = activeSectionSignal.value;
+  const activePatient = activePatientSignal.value;
+
+  const setActiveSection = (s: SectionId | null): void => { activeSectionSignal.value = s; };
+  const setActivePatient = (m: string | null): void => { activePatientSignal.value = m; };
 
   const selectedPatient = activePatient ? PATIENTS.find((p) => p.mrn === activePatient) ?? null : null;
 
@@ -738,11 +788,10 @@ function Glidepath({ baseline, actual, target }: { baseline: number; actual: num
 // ── AWV ──────────────────────────────────────────────────────────────────────
 function AwvSection(): JSX.Element {
   const [open, setOpen] = useState<string | null>(null);
-  const eligible = AWV_DATA.find((d) => d.key === 'eligible')!.n;
   return (
     <>
       <div class="info-banner">
-        Annual wellness visits improve chronic disease detection, patient-provider relationships, and drive significant value-based incentive revenue. NP AWV (IPPE) applies to new Medicare patients and carries a different billing code — eligible patients are a small subset of the total.
+        Annual wellness visits improve chronic disease detection, patient-provider relationships, and drive significant value-based incentive revenue. NP-led AWV (IPPE) applies to new Medicare patients and carries a different billing code (G0438 initial / G0468 IPPE) — eligible patients are a smaller subset and the NP rollout to Monroe + West Nyack is in flight.
       </div>
       <div class="awv-row">
         {AWV_DATA.map((d) => (
@@ -752,11 +801,9 @@ function AwvSection(): JSX.Element {
             class={`stat-block tone-${d.tone}`}
             onClick={() => setOpen(open === d.key ? null : d.key)}
           >
-            <div class="stat-number">{d.n}</div>
+            <div class="stat-number">{d.big}</div>
             <div class="stat-label">{d.label}</div>
-            <div class="stat-sub">
-              {d.key === 'eligible' ? 'Medicare panel' : `${Math.round((d.n / eligible) * 100)}% of eligible`}
-            </div>
+            <div class="stat-sub">{d.sub}</div>
           </button>
         ))}
       </div>
@@ -1017,6 +1064,20 @@ function PatientListSection({ onPatientSelect }: { onPatientSelect: (mrn: string
 // ─────────────────────────────────────────────────────────────────────────────
 
 function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: () => void; layout: Layout }): JSX.Element {
+  // selected — Set of stable keys like "problem:htn", "med:lisinopril",
+  // "vital:bp", "lab:egfr", "hardStop:hs-opioid-benzo". Clicking any item in
+  // the patient panels toggles it into the query builder.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [freeText, setFreeText] = useState<string>('');
+
+  function toggle(key: string): void {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (n.has(key)) n.delete(key); else n.add(key);
+      return n;
+    });
+  }
+
   return (
     <>
       <div class="masthead patient-masthead">
@@ -1045,81 +1106,122 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
             Hard Stops
           </div>
           <ul class="hard-stops-list">
-            {patient.hardStops.map((h) => (
-              <li key={h.id} class={`hard-stop hard-stop-${h.severity}`}>
-                <span class={`hard-stop-badge badge-${h.severity}`}>{h.severity === 'high' ? 'High' : 'Med'}</span>
-                <span class="hard-stop-text">{h.text}</span>
-              </li>
-            ))}
+            {patient.hardStops.map((h) => {
+              const key = `hardStop:${h.id}`;
+              const isSelected = selected.has(key);
+              return (
+                <li key={h.id} class={`hard-stop hard-stop-${h.severity}${isSelected ? ' is-selected' : ''}`}>
+                  <button
+                    type="button"
+                    class="hard-stop-toggle"
+                    onClick={() => toggle(key)}
+                    aria-label={`${isSelected ? 'Remove from' : 'Add to'} query: ${h.text}`}
+                    aria-pressed={isSelected}
+                  >
+                    <span class={`hard-stop-check${isSelected ? ' is-on' : ''}`} aria-hidden="true">{isSelected ? '✓' : ''}</span>
+                    <span class={`hard-stop-badge badge-${h.severity}`}>{h.severity === 'high' ? 'High' : 'Med'}</span>
+                    <span class="hard-stop-text">{h.text}</span>
+                  </button>
+                  {h.moduleId && (
+                    <button
+                      type="button"
+                      class="hard-stop-module-link"
+                      onClick={() => openModuleFromDashboard(patient.mrn, h.moduleId!)}
+                      aria-label={`Open ${h.moduleId} module`}
+                    >
+                      Open module →
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
 
       <div class={`patient-grid ${layout}`}>
         <div class="patient-col">
-          <PatientPanel title="Problem List">
-            <table class="patient-table">
-              <thead>
-                <tr><th>Problem</th><th>ICD-10</th></tr>
-              </thead>
-              <tbody>
-                {patient.problems.map((p) => (
-                  <tr key={p.id}><td>{p.text}</td><td class="mono">{p.icd10}</td></tr>
-                ))}
-              </tbody>
-            </table>
+          <PatientPanel title="Problem List" hint="Click to add to query">
+            <ul class="selectable-list">
+              {patient.problems.map((p) => {
+                const key = `problem:${p.id}`;
+                const isSel = selected.has(key);
+                return (
+                  <li key={p.id}>
+                    <button type="button" class={`selectable-row${isSel ? ' is-selected' : ''}`} onClick={() => toggle(key)}>
+                      <span class={`selectable-check${isSel ? ' is-on' : ''}`} aria-hidden="true">{isSel ? '✓' : ''}</span>
+                      <span class="selectable-main">{p.text}</span>
+                      <span class="selectable-meta mono">{p.icd10}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </PatientPanel>
 
-          <PatientPanel title="Medications">
-            <ul class="med-list">
-              {patient.medications.map((m) => (
-                <li key={m.id}>{m.text}</li>
-              ))}
+          <PatientPanel title="Medications" hint="Click to add to query">
+            <ul class="selectable-list">
+              {patient.medications.map((m) => {
+                const key = `med:${m.id}`;
+                const isSel = selected.has(key);
+                return (
+                  <li key={m.id}>
+                    <button type="button" class={`selectable-row${isSel ? ' is-selected' : ''}`} onClick={() => toggle(key)}>
+                      <span class={`selectable-check${isSel ? ' is-on' : ''}`} aria-hidden="true">{isSel ? '✓' : ''}</span>
+                      <span class="selectable-main">{m.text}</span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </PatientPanel>
         </div>
 
         <div class="patient-col">
-          <PatientPanel title="Vital Signs">
-            <table class="patient-table">
-              <thead>
-                <tr><th>Measure</th><th>Value</th><th>Date</th></tr>
-              </thead>
-              <tbody>
-                {patient.vitals.map((v) => (
-                  <tr key={v.id}>
-                    <td>{v.label}</td>
-                    <td class="mono">{v.value}</td>
-                    <td class="mono muted">{v.date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <PatientPanel title="Vital Signs" hint="Click to add to query">
+            <ul class="selectable-list">
+              {patient.vitals.map((v) => {
+                const key = `vital:${v.id}`;
+                const isSel = selected.has(key);
+                return (
+                  <li key={v.id}>
+                    <button type="button" class={`selectable-row${isSel ? ' is-selected' : ''}`} onClick={() => toggle(key)}>
+                      <span class={`selectable-check${isSel ? ' is-on' : ''}`} aria-hidden="true">{isSel ? '✓' : ''}</span>
+                      <span class="selectable-main">{v.label}</span>
+                      <span class="selectable-value mono">{v.value}</span>
+                      <span class="selectable-meta mono muted">{v.date}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </PatientPanel>
 
-          <PatientPanel title="Recent Labs">
-            <table class="patient-table">
-              <thead>
-                <tr><th>Lab</th><th>Value</th><th>Date</th></tr>
-              </thead>
-              <tbody>
-                {patient.labs.map((l) => (
-                  <tr key={l.id}>
-                    <td>
-                      {l.label}
-                      {l.flag && <span class={`lab-flag flag-${l.flag}`}>{l.flag === 'high' ? 'H' : 'L'}</span>}
-                    </td>
-                    <td class="mono">
-                      {l.value}{l.unit ? ` ${l.unit}` : ''}
-                    </td>
-                    <td class="mono muted">{l.date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <PatientPanel title="Recent Labs" hint="Click to add to query">
+            <ul class="selectable-list">
+              {patient.labs.map((l) => {
+                const key = `lab:${l.id}`;
+                const isSel = selected.has(key);
+                return (
+                  <li key={l.id}>
+                    <button type="button" class={`selectable-row${isSel ? ' is-selected' : ''}`} onClick={() => toggle(key)}>
+                      <span class={`selectable-check${isSel ? ' is-on' : ''}`} aria-hidden="true">{isSel ? '✓' : ''}</span>
+                      <span class="selectable-main">
+                        {l.label}
+                        {l.flag && <span class={`lab-flag flag-${l.flag}`}>{l.flag === 'high' ? 'H' : 'L'}</span>}
+                      </span>
+                      <span class="selectable-value mono">{l.value}{l.unit ? ` ${l.unit}` : ''}</span>
+                      <span class="selectable-meta mono muted">{l.date}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </PatientPanel>
         </div>
       </div>
+
+      <PatientPreventCalculator patient={patient} />
 
       {patient.opportunities.length > 0 && (
         <div class="opportunities-section">
@@ -1149,15 +1251,339 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
           ))}
         </div>
       )}
+
+      <QueryBuilderPanel
+        patient={patient}
+        selected={selected}
+        freeText={freeText}
+        onFreeText={setFreeText}
+        onClear={() => { setSelected(new Set()); setFreeText(''); }}
+      />
     </>
   );
 }
 
-function PatientPanel({ title, children }: { title: string; children: ComponentChildren }): JSX.Element {
+function PatientPanel({ title, hint, children }: { title: string; hint?: string; children: ComponentChildren }): JSX.Element {
   return (
     <div class="patient-section-panel">
-      <div class="patient-section-header">{title}</div>
+      <div class="patient-section-header">
+        <span>{title}</span>
+        {hint && <span class="patient-section-hint">{hint}</span>}
+      </div>
       <div class="patient-section-body">{children}</div>
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//   QUERY BUILDER — composes natural-language clinical query from selections
+// ─────────────────────────────────────────────────────────────────────────────
+
+function composeQuery(
+  patient: Patient,
+  selected: Set<string>,
+  freeText: string,
+): string {
+  const sexFull = patient.sex === 'F' ? 'female' : 'male';
+  const sel = (bucket: string, id: string): boolean => selected.has(`${bucket}:${id}`);
+
+  const probs = patient.problems.filter((p) => sel('problem', p.id)).map((p) => p.text);
+  const meds = patient.medications.filter((m) => sel('med', m.id)).map((m) => m.text);
+  const vitals = patient.vitals.filter((v) => sel('vital', v.id)).map((v) => `${v.label} ${v.value}`);
+  const labs = patient.labs.filter((l) => sel('lab', l.id)).map((l) => {
+    const flag = l.flag ? ` (${l.flag === 'high' ? 'H' : 'L'})` : '';
+    return `${l.label} ${l.value}${l.unit ? ` ${l.unit}` : ''}${flag}`;
+  });
+  const stops = patient.hardStops.filter((h) => sel('hardStop', h.id)).map((h) => h.text);
+
+  const parts: string[] = [];
+  parts.push(`${patient.age}-year-old ${sexFull} patient.`);
+  if (probs.length) parts.push(`Active problems: ${probs.join(', ')}.`);
+  if (meds.length) parts.push(`Current medications: ${meds.join(', ')}.`);
+  if (vitals.length) parts.push(`Recent vitals: ${vitals.join(', ')}.`);
+  if (labs.length) parts.push(`Recent labs: ${labs.join(', ')}.`);
+  if (stops.length) parts.push(`Key concerns: ${stops.join('; ')}.`);
+  if (freeText.trim()) parts.push(freeText.trim());
+
+  return parts.join(' ');
+}
+
+function QueryBuilderPanel({
+  patient,
+  selected,
+  freeText,
+  onFreeText,
+  onClear,
+}: {
+  patient: Patient;
+  selected: Set<string>;
+  freeText: string;
+  onFreeText: (v: string) => void;
+  onClear: () => void;
+}): JSX.Element {
+  const [copied, setCopied] = useState<boolean>(false);
+  const query = composeQuery(patient, selected, freeText);
+  const count = selected.size;
+
+  async function copy(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(query);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Fallback: select the textarea text. The query is also visible in the
+      // preview so a manual copy is still possible.
+    }
+  }
+
+  return (
+    <div class="query-builder">
+      <div class="query-builder-header">
+        <span class="query-builder-title">Query Builder</span>
+        <span class="query-builder-count">{count} item{count === 1 ? '' : 's'} selected</span>
+        {(count > 0 || freeText.length > 0) && (
+          <button type="button" class="query-builder-clear" onClick={onClear}>Clear</button>
+        )}
+      </div>
+      <div class="query-builder-body">
+        <div class="query-builder-preview" aria-label="Composed query preview">
+          {query}
+        </div>
+        <label class="query-builder-freetext-label">
+          <span>Additional context (free text)</span>
+          <textarea
+            class="query-builder-freetext"
+            value={freeText}
+            placeholder="e.g. concerns about renal dose-adjustment of metformin given eGFR trend"
+            onInput={(e) => onFreeText((e.currentTarget as HTMLTextAreaElement).value)}
+            rows={3}
+          />
+        </label>
+        <div class="query-builder-actions">
+          <button type="button" class="query-builder-copy" onClick={copy}>
+            {copied ? '✓ Copied to clipboard' : 'Copy to clipboard'}
+          </button>
+          <span class="query-builder-hint">
+            Agnostic format — paste into any clinical search tool, LLM, or messaging surface.
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//   PREVENT CALCULATOR — embedded copy of the lipid-module bubble, math
+//   duplicated from src/bubbles/prevent-calculator/index.tsx (keep in sync).
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface PreventInputs {
+  age: number;
+  sex: 'female' | 'male';
+  totalChol: number;
+  hdl: number;
+  sbp: number;
+  bpMed: boolean;
+  diabetes: boolean;
+  smoker: boolean;
+  egfr: number;
+  statin: boolean;
+}
+const PREVENT_TC_FACTOR = 0.02586;
+interface PreventCoefs {
+  constant: number; age: number; nonHdl: number; hdl: number; sbpLow: number; sbpHigh: number;
+  diabetes: number; smoker: number; egfrLow: number; bpMed: number; statin: number;
+  ageNonHdl: number; ageHdl: number; ageSbpHigh: number; ageDiabetes: number; ageSmoker: number;
+}
+const PREVENT_FEMALE: PreventCoefs = {
+  constant: -3.6, age: 0.7939329, nonHdl: 0.0305239, hdl: -0.1606857,
+  sbpLow: -0.2394003, sbpHigh: 0.3600781, diabetes: 0.8667604, smoker: 0.5360739,
+  egfrLow: 0.6045917, bpMed: 0.3151672, statin: -0.1477655,
+  ageNonHdl: -0.0663612, ageHdl: 0.1015067, ageSbpHigh: -0.0855880,
+  ageDiabetes: -0.2899091, ageSmoker: -0.1542850,
+};
+const PREVENT_MALE: PreventCoefs = {
+  constant: -3.3, age: 0.7688528, nonHdl: 0.0736174, hdl: -0.0954431,
+  sbpLow: -0.4347345, sbpHigh: 0.3362658, diabetes: 0.7692857, smoker: 0.4386871,
+  egfrLow: 0.5378979, bpMed: 0.2889610, statin: -0.1337349,
+  ageNonHdl: -0.0475924, ageHdl: 0.0844398, ageSbpHigh: -0.0518984,
+  ageDiabetes: -0.2553929, ageSmoker: -0.1521243,
+};
+function preventCompute(i: PreventInputs): number | null {
+  if (!Number.isFinite(i.age) || i.age < 30 || i.age > 79) return null;
+  if (!Number.isFinite(i.totalChol) || i.totalChol < 100 || i.totalChol > 400) return null;
+  if (!Number.isFinite(i.hdl) || i.hdl < 20 || i.hdl > 120) return null;
+  if (!Number.isFinite(i.sbp) || i.sbp < 80 || i.sbp > 220) return null;
+  if (!Number.isFinite(i.egfr) || i.egfr < 15 || i.egfr > 140) return null;
+  const c = i.sex === 'female' ? PREVENT_FEMALE : PREVENT_MALE;
+  const ageTerm = (i.age - 55) / 10;
+  const nonHdlMmol = (i.totalChol - i.hdl) * PREVENT_TC_FACTOR;
+  const nonHdlTerm = nonHdlMmol - 3.5;
+  const hdlMmol = i.hdl * PREVENT_TC_FACTOR;
+  const hdlTerm = (hdlMmol - 1.3) / 0.3;
+  const sbpLowTerm = Math.min(i.sbp - 110, 0) / 20;
+  const sbpHighTerm = Math.max(i.sbp - 110, 0) / 20;
+  const egfrLowTerm = Math.min(i.egfr - 60, 0) / -15;
+  const dm = i.diabetes ? 1 : 0;
+  const sm = i.smoker ? 1 : 0;
+  const bpm = i.bpMed ? 1 : 0;
+  const st = i.statin ? 1 : 0;
+  const lp =
+    c.constant + c.age * ageTerm + c.nonHdl * nonHdlTerm + c.hdl * hdlTerm
+    + c.sbpLow * sbpLowTerm + c.sbpHigh * sbpHighTerm
+    + c.diabetes * dm + c.smoker * sm + c.egfrLow * egfrLowTerm
+    + c.bpMed * bpm + c.statin * st
+    + c.ageNonHdl * ageTerm * nonHdlTerm + c.ageHdl * ageTerm * hdlTerm
+    + c.ageSbpHigh * ageTerm * sbpHighTerm + c.ageDiabetes * ageTerm * dm
+    + c.ageSmoker * ageTerm * sm;
+  const risk = 1 / (1 + Math.exp(-lp));
+  return Math.round(risk * 1000) / 10;
+}
+function preventTier(risk: number): { label: string; color: string; detail: string } {
+  if (risk < 5) return { label: 'Low', color: '#1a5c3a', detail: 'No statin indicated based on risk alone.' };
+  if (risk < 7.5) return { label: 'Borderline', color: '#b8860b', detail: 'Shared decision-making · statin reasonable if LDL ≥70 plus risk enhancers.' };
+  if (risk < 20) return { label: 'Intermediate', color: '#b8860b', detail: 'Initiate moderate-to-high-intensity statin.' };
+  return { label: 'High', color: '#8b1a1a', detail: 'High-intensity statin · no shared decision-making required.' };
+}
+
+// Pre-populate PREVENT inputs from a patient record. Falls back to PREVENT
+// defaults for missing data so the calculator is always interactive.
+function inferPreventInputs(patient: Patient): PreventInputs {
+  const labByLabel = (re: RegExp): number | null => {
+    const l = patient.labs.find((lab) => re.test(lab.label));
+    return l ? Number(l.value) : null;
+  };
+  const sbp = (() => {
+    const bp = patient.vitals.find((v) => v.label === 'BP')?.value ?? '';
+    const m = bp.match(/(\d+)\/(\d+)/);
+    return m ? Number(m[1]) : 130;
+  })();
+  const bpMedRe = /lisinopril|losartan|valsartan|olmesartan|enalapril|amlodipine|nifedipine|hydrochlorothiazide|hctz|chlorthalidone|metoprolol|carvedilol|atenolol|spironolactone/i;
+  const statinRe = /(atorvastatin|simvastatin|rosuvastatin|pravastatin|lovastatin|pitavastatin|fluvastatin)/i;
+  const diabetesRe = /diabetes|^E1[01]\b/i;
+  const probTxts = patient.problems.map((p) => `${p.text} ${p.icd10}`).join(' ');
+  const medTxts = patient.medications.map((m) => m.text).join(' ');
+
+  const ageNum = Number(patient.age);
+  return {
+    age: Number.isFinite(ageNum) ? Math.max(30, Math.min(79, ageNum)) : 55,
+    sex: patient.sex === 'F' ? 'female' : 'male',
+    totalChol: labByLabel(/^Total Cholesterol$/i) ?? 200,
+    hdl: labByLabel(/^HDL$/i) ?? 50,
+    sbp,
+    egfr: labByLabel(/^eGFR$/i) ?? 90,
+    bpMed: bpMedRe.test(medTxts),
+    statin: statinRe.test(medTxts),
+    diabetes: diabetesRe.test(probTxts),
+    smoker: false,
+  };
+}
+
+function PatientPreventCalculator({ patient }: { patient: Patient }): JSX.Element {
+  const [inputs, setInputs] = useState<PreventInputs>(() => inferPreventInputs(patient));
+  const risk = preventCompute(inputs);
+  const tier = risk == null ? null : preventTier(risk);
+
+  function update<K extends keyof PreventInputs>(k: K, v: PreventInputs[K]): void {
+    setInputs((p) => ({ ...p, [k]: v }));
+  }
+  function reset(): void { setInputs(inferPreventInputs(patient)); }
+
+  return (
+    <div class="prevent-panel">
+      <div class="prevent-panel-header">
+        <span class="prevent-panel-title">PREVENT — 10-yr ASCVD Risk</span>
+        <span class="prevent-panel-sub">Pre-populated from chart · all values editable</span>
+        <button type="button" class="prevent-reset" onClick={reset} title="Reset to patient defaults">Reset</button>
+        <button
+          type="button"
+          class="prevent-module-link"
+          onClick={() => openModuleFromDashboard(patient.mrn, 'lipid-management')}
+        >
+          Open in Lipid Module →
+        </button>
+      </div>
+      <div class="prevent-panel-body">
+        <div class="prevent-inputs">
+          <PreventNumber label="Age" min={30} max={79} value={inputs.age} onChange={(v) => update('age', v)} />
+          <PreventSegment label="Sex" value={inputs.sex} options={[{ k: 'female', l: 'Female' }, { k: 'male', l: 'Male' }]} onChange={(v) => update('sex', v as PreventInputs['sex'])} />
+          <PreventNumber label="Total chol (mg/dL)" min={100} max={400} value={inputs.totalChol} onChange={(v) => update('totalChol', v)} />
+          <PreventNumber label="HDL (mg/dL)" min={20} max={120} value={inputs.hdl} onChange={(v) => update('hdl', v)} />
+          <PreventNumber label="SBP (mmHg)" min={80} max={220} value={inputs.sbp} onChange={(v) => update('sbp', v)} />
+          <PreventNumber label="eGFR" min={15} max={140} value={inputs.egfr} onChange={(v) => update('egfr', v)} />
+        </div>
+        <div class="prevent-toggles">
+          <PreventToggle label="On BP medication" value={inputs.bpMed} onChange={(v) => update('bpMed', v)} />
+          <PreventToggle label="Diabetes" value={inputs.diabetes} onChange={(v) => update('diabetes', v)} />
+          <PreventToggle label="Current smoker" value={inputs.smoker} onChange={(v) => update('smoker', v)} />
+          <PreventToggle label="On statin" value={inputs.statin} onChange={(v) => update('statin', v)} />
+        </div>
+        <div class="prevent-result" style={{ borderLeftColor: tier ? tier.color : 'transparent' }}>
+          {risk == null ? (
+            <div class="prevent-result-error">Inputs out of valid range — adjust above.</div>
+          ) : (
+            <>
+              <div class="prevent-result-headline">
+                <span class="prevent-result-pct" style={{ color: tier!.color }}>{risk.toFixed(1)}%</span>
+                <span class="prevent-result-tier" style={{ color: tier!.color }}>{tier!.label} risk</span>
+              </div>
+              <div class="prevent-result-detail">{tier!.detail}</div>
+            </>
+          )}
+        </div>
+        <div class="prevent-disclaimer">
+          <strong>Draft — not validated.</strong> PREVENT-shape model with hand-calibrated constants. The Lipid Module link opens the same calculator alongside the full guideline reference; verify every result against{' '}
+          <a href="https://professional.heart.org/en/guidelines-and-statements/prevent-calculator" target="_blank" rel="noreferrer">the official PREVENT calculator</a>{' '}
+          before any clinical decision.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PreventNumber({ label, min, max, value, onChange }: { label: string; min: number; max: number; value: number; onChange: (v: number) => void }): JSX.Element {
+  return (
+    <label class="prevent-number">
+      <span>{label}</span>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={min}
+        max={max}
+        value={value}
+        onInput={(e) => {
+          const raw = (e.currentTarget as HTMLInputElement).value;
+          const n = raw === '' ? NaN : Number(raw);
+          if (Number.isFinite(n)) onChange(n);
+        }}
+      />
+    </label>
+  );
+}
+
+function PreventSegment<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: { k: T; l: string }[]; onChange: (v: T) => void }): JSX.Element {
+  return (
+    <div class="prevent-segment">
+      <span class="prevent-segment-label">{label}</span>
+      <div class="prevent-segment-group">
+        {options.map((o) => (
+          <button
+            key={o.k}
+            type="button"
+            class={`prevent-segment-btn${o.k === value ? ' is-active' : ''}`}
+            onClick={() => onChange(o.k)}
+          >{o.l}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PreventToggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }): JSX.Element {
+  return (
+    <button type="button" class={`prevent-toggle${value ? ' is-on' : ''}`} onClick={() => onChange(!value)} aria-pressed={value}>
+      <span class="prevent-toggle-switch"><span class="prevent-toggle-knob" /></span>
+      <span>{label}</span>
+    </button>
   );
 }
