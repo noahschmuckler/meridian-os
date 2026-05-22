@@ -150,28 +150,30 @@
 }
 
 /* ── BUBBLE CARDS ── */
+/* overflow: visible + flex-shrink: 0 = bubble box is always at least as
+   tall as its content. Future copy edits won't clip top/bottom. */
 .briefing-app .bubble {
   border-radius: 12px;
   padding: 14px 16px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  flex-shrink: 0;
   cursor: default;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .briefing-app .bubble:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
 
-/* Left bubbles — tall, vertical. Content-sized (no flex-grow) so the column
-   stays stable when the projects panel swaps between table and detail views,
-   and so the icon/headline/body/tag never get clipped at narrow viewports. */
+/* Left bubbles — tall, vertical. Content-sized (no flex-grow + no flex-shrink
+   via the .bubble rule above). Top-aligned so any future grid slack lands
+   below the content instead of being centered + clipped on both edges. */
 .briefing-app .left-bubbles .bubble {
   min-height: 100px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 /* Top bubbles — shorter, horizontal */
-.briefing-app .top-bubble { min-height: 90px; display: flex; flex-direction: column; justify-content: center; }
+.briefing-app .top-bubble { min-height: 90px; display: flex; flex-direction: column; }
 
 .briefing-app .bubble-icon {
   font-size: 22px;
