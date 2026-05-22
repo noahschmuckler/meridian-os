@@ -923,6 +923,22 @@
   gap: 8px;
   margin-bottom: 8px;
 }
+.dashboard-app .hard-stops-bulk-toggle {
+  margin-left: auto;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 3px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.dashboard-app .hard-stops-bulk-toggle:hover { background: #fff; color: var(--crh-coral); border-color: #fff; }
 .dashboard-app .hard-stops-banner-icon {
   background: rgba(255,255,255,0.18);
   border-radius: 50%;
@@ -1050,6 +1066,24 @@
   text-transform: none;
   color: var(--text-light);
   opacity: 0.85;
+}
+.dashboard-app .patient-section-bulk-toggle {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--crh-teal);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.dashboard-app .patient-section-bulk-toggle:hover {
+  background: rgba(0, 120, 138, 0.1);
+  border-color: rgba(0, 120, 138, 0.35);
 }
 .dashboard-app .patient-section-body { padding: 0; }
 .dashboard-app .patient-section-body .patient-table th { background: transparent; }

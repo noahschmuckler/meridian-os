@@ -12,41 +12,27 @@
 // **draft / demonstration code** — verify every result against acc.org/PREVENT
 // before clinical use. Not validated against the official calculator.
 
-import { useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import type { BubbleInstance } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
+import {
+  PREVENT_DEFAULTS,
+  preventInputsSignal,
+  resetPreventTo,
+  updatePreventInput,
+  type PreventInputs,
+} from '../../data/preventState';
 
 interface Props {
   instance: BubbleInstance;
   seeds: SeedDict;
 }
 
-interface Inputs {
-  age: number;
-  sex: 'female' | 'male';
-  totalChol: number; // mg/dL
-  hdl: number;       // mg/dL
-  sbp: number;       // mmHg
-  bpMed: boolean;
-  diabetes: boolean;
-  smoker: boolean;
-  egfr: number;      // mL/min/1.73m²
-  statin: boolean;
-}
-
-const DEFAULTS: Inputs = {
-  age: 55,
-  sex: 'female',
-  totalChol: 200,
-  hdl: 50,
-  sbp: 130,
-  bpMed: false,
-  diabetes: false,
-  smoker: false,
-  egfr: 90,
-  statin: false,
-};
+// Local alias keeps the existing variable names readable. The shape is
+// identical to the dashboard's calculator — both share preventInputsSignal
+// so a value adjusted in one surface flows to the other.
+type Inputs = PreventInputs;
+const DEFAULTS: Inputs = PREVENT_DEFAULTS;
 
 // mg/dL → mmol/L
 const TC_FACTOR = 0.02586;
@@ -169,16 +155,19 @@ function compute(inputs: Inputs): number | null {
 }
 
 export function PreventCalculator(_props: Props): JSX.Element {
-  const [inputs, setInputs] = useState<Inputs>(DEFAULTS);
+  // Source-of-truth is preventInputsSignal so values carry across the
+  // dashboard↔lipid-module round-trip. When the signal is null (first
+  // mount with no prior dashboard context), fall back to DEFAULTS.
+  const inputs: Inputs = preventInputsSignal.value ?? DEFAULTS;
 
   const risk = compute(inputs);
   const tier = risk == null ? null : classifyTier(risk);
 
   function update<K extends keyof Inputs>(key: K, value: Inputs[K]): void {
-    setInputs((p) => ({ ...p, [key]: value }));
+    updatePreventInput(key, value);
   }
 
-  function reset(): void { setInputs(DEFAULTS); }
+  function reset(): void { resetPreventTo(DEFAULTS, null); }
 
   const eat = { onPointerDown: (e: Event) => e.stopPropagation() };
 

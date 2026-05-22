@@ -1,9 +1,16 @@
 import type { ComponentChildren, JSX } from 'preact';
 import { signal } from '@preact/signals';
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { setLauncherApp } from '../../data/launcherState';
 import { activeWorkspaceIdSignal } from '../../data/workspaceNav';
 import { moduleFocusSignal } from '../../data/moduleFocus';
+import {
+  preventInputsSignal,
+  initPreventForPatient,
+  resetPreventTo,
+  updatePreventInput,
+  type PreventInputs,
+} from '../../data/preventState';
 import cohortJson from '../../data/seed/dashboard-cohort.json';
 import './dashboard.css';
 
@@ -1078,6 +1085,30 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
     });
   }
 
+  // Compute "all selected within this segment" + a bulk-toggle handler for
+  // each panel. Passed to PatientPanel as `bulkSelect={{ allSelected, onToggle }}`.
+  function bulkSelectFor(keys: string[]): { allSelected: boolean; onToggle: () => void } {
+    const allSelected = keys.length > 0 && keys.every((k) => selected.has(k));
+    return {
+      allSelected,
+      onToggle: () => {
+        setSelected((prev) => {
+          const n = new Set(prev);
+          if (allSelected) keys.forEach((k) => n.delete(k));
+          else keys.forEach((k) => n.add(k));
+          return n;
+        });
+      },
+    };
+  }
+
+  const problemKeys = patient.problems.map((p) => `problem:${p.id}`);
+  const medKeys = patient.medications.map((m) => `med:${m.id}`);
+  const vitalKeys = patient.vitals.map((v) => `vital:${v.id}`);
+  const labKeys = patient.labs.map((l) => `lab:${l.id}`);
+  const hardStopKeys = patient.hardStops.map((h) => `hardStop:${h.id}`);
+  const hardStopsBulk = bulkSelectFor(hardStopKeys);
+
   return (
     <>
       <div class="masthead patient-masthead">
@@ -1103,7 +1134,10 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
         <div class="hard-stops-banner">
           <div class="hard-stops-banner-title">
             <span class="hard-stops-banner-icon" aria-hidden="true">⚠</span>
-            Hard Stops
+            <span>Hard Stops</span>
+            <button type="button" class="hard-stops-bulk-toggle" onClick={hardStopsBulk.onToggle}>
+              {hardStopsBulk.allSelected ? 'Clear' : 'Select all'}
+            </button>
           </div>
           <ul class="hard-stops-list">
             {patient.hardStops.map((h) => {
@@ -1141,7 +1175,7 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
 
       <div class={`patient-grid ${layout}`}>
         <div class="patient-col">
-          <PatientPanel title="Problem List" hint="Click to add to query">
+          <PatientPanel title="Problem List" bulkSelect={bulkSelectFor(problemKeys)}>
             <ul class="selectable-list">
               {patient.problems.map((p) => {
                 const key = `problem:${p.id}`;
@@ -1159,7 +1193,7 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
             </ul>
           </PatientPanel>
 
-          <PatientPanel title="Medications" hint="Click to add to query">
+          <PatientPanel title="Medications" bulkSelect={bulkSelectFor(medKeys)}>
             <ul class="selectable-list">
               {patient.medications.map((m) => {
                 const key = `med:${m.id}`;
@@ -1178,7 +1212,7 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
         </div>
 
         <div class="patient-col">
-          <PatientPanel title="Vital Signs" hint="Click to add to query">
+          <PatientPanel title="Vital Signs" bulkSelect={bulkSelectFor(vitalKeys)}>
             <ul class="selectable-list">
               {patient.vitals.map((v) => {
                 const key = `vital:${v.id}`;
@@ -1197,7 +1231,7 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
             </ul>
           </PatientPanel>
 
-          <PatientPanel title="Recent Labs" hint="Click to add to query">
+          <PatientPanel title="Recent Labs" bulkSelect={bulkSelectFor(labKeys)}>
             <ul class="selectable-list">
               {patient.labs.map((l) => {
                 const key = `lab:${l.id}`;
@@ -1263,12 +1297,24 @@ function PatientDetail({ patient, onBack, layout }: { patient: Patient; onBack: 
   );
 }
 
-function PatientPanel({ title, hint, children }: { title: string; hint?: string; children: ComponentChildren }): JSX.Element {
+function PatientPanel({
+  title,
+  bulkSelect,
+  children,
+}: {
+  title: string;
+  bulkSelect?: { allSelected: boolean; onToggle: () => void };
+  children: ComponentChildren;
+}): JSX.Element {
   return (
     <div class="patient-section-panel">
       <div class="patient-section-header">
         <span>{title}</span>
-        {hint && <span class="patient-section-hint">{hint}</span>}
+        {bulkSelect && (
+          <button type="button" class="patient-section-bulk-toggle" onClick={bulkSelect.onToggle}>
+            {bulkSelect.allSelected ? 'Clear' : 'Select all'}
+          </button>
+        )}
       </div>
       <div class="patient-section-body">{children}</div>
     </div>
@@ -1375,20 +1421,10 @@ function QueryBuilderPanel({
 // ─────────────────────────────────────────────────────────────────────────────
 //   PREVENT CALCULATOR — embedded copy of the lipid-module bubble, math
 //   duplicated from src/bubbles/prevent-calculator/index.tsx (keep in sync).
+//   Inputs are shared via preventInputsSignal so values carry across the
+//   dashboard↔lipid-module round-trip in both directions.
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface PreventInputs {
-  age: number;
-  sex: 'female' | 'male';
-  totalChol: number;
-  hdl: number;
-  sbp: number;
-  bpMed: boolean;
-  diabetes: boolean;
-  smoker: boolean;
-  egfr: number;
-  statin: boolean;
-}
 const PREVENT_TC_FACTOR = 0.02586;
 interface PreventCoefs {
   constant: number; age: number; nonHdl: number; hdl: number; sbpLow: number; sbpHigh: number;
@@ -1480,14 +1516,24 @@ function inferPreventInputs(patient: Patient): PreventInputs {
 }
 
 function PatientPreventCalculator({ patient }: { patient: Patient }): JSX.Element {
-  const [inputs, setInputs] = useState<PreventInputs>(() => inferPreventInputs(patient));
+  // Bind the shared signal to this patient on mount. If the user returns from
+  // the lipid module without changing patients, this is a no-op — their
+  // adjustments persist. If a different patient opens, the signal re-inits
+  // from this patient's chart.
+  useEffect(() => {
+    initPreventForPatient(patient.mrn, inferPreventInputs(patient));
+  }, [patient.mrn]);
+
+  const inputs = preventInputsSignal.value ?? inferPreventInputs(patient);
   const risk = preventCompute(inputs);
   const tier = risk == null ? null : preventTier(risk);
 
   function update<K extends keyof PreventInputs>(k: K, v: PreventInputs[K]): void {
-    setInputs((p) => ({ ...p, [k]: v }));
+    updatePreventInput(k, v);
   }
-  function reset(): void { setInputs(inferPreventInputs(patient)); }
+  function reset(): void {
+    resetPreventTo(inferPreventInputs(patient), patient.mrn);
+  }
 
   return (
     <div class="prevent-panel">
