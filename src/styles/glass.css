@@ -2012,6 +2012,10 @@
   background: linear-gradient(160deg, #1a2744 0%, #00788a 100%);
 }
 
+.launcher__app-icon--dashboard {
+  background: linear-gradient(160deg, #4a1d6e 0%, #d4a017 100%);
+}
+
 .launcher__app-glyph--epic {
   color: #fde68a;
   filter: drop-shadow(0 2px 8px rgba(253, 230, 138, 0.45));

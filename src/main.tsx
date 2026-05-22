@@ -13,6 +13,7 @@ import { Launcher, BackToLauncherChevron, HomeViewTogglePill, ModuleBackChevron,
 import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { EpicQuickReferenceShell } from './shell/EpicQuickReferenceShell';
 import { BriefingShell } from './shell/BriefingShell';
+import { DashboardShell } from './shell/DashboardShell';
 import { FeedbackModal } from './shell/FeedbackModal';
 import { SelectionMenu } from './shell/SelectionMenu';
 import { GlossaryPopover } from './shell/GlossaryPopover';
@@ -113,6 +114,10 @@ function App(): JSX.Element {
 
   if (app === 'briefing') {
     return <BriefingShell />;
+  }
+
+  if (app === 'dashboard') {
+    return <DashboardShell />;
   }
 
   // Mentorship Tracker and Epic Quick Reference share a "deep-link round-
