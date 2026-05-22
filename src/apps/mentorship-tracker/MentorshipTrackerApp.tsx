@@ -309,7 +309,7 @@ const PROVS = [
   {id:"p2",name:"Dr. Patel",role:"DO",mentor:"mt1",phase:"m3",days:87},
   {id:"p3",name:"Dr. Williams",role:"MD",mentor:"mt2",phase:"w7",days:52},
   {id:"p4",name:"Dr. Garcia",role:"DO",mentor:"mt2",phase:"w5",days:38},
-  {id:"p5",name:"Dr. Martinez",role:"NP",mentor:"mt1",phase:"m18",days:545},
+  {id:"p5",name:"A. Martinez, NP",role:"NP",mentor:"mt1",phase:"m18",days:545},
 ];
 
 /* ─── Seed Data ─── */
