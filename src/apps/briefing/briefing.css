@@ -113,45 +113,46 @@
 }
 .briefing-app .masthead-meta strong { color: var(--crh-navy); font-weight: 700; }
 
-/* ── GRID SHELL ── */
+/* ── OUTER LAYOUT (flex row) ──
+   Pure flexbox instead of CSS Grid. The grid's intrinsic row-sizing
+   algorithm asks cells for their max-content height before resolving the
+   cell's actual width, which under-counts wrapping-prose heights and
+   leaves top-bubble boxes too short for their rendered content. Flex
+   sizes children's cross-axis at their *resolved* main-axis size, so
+   wrapping is fully accounted for. */
 .briefing-app .briefing-grid {
-  display: grid;
+  display: flex;
+  flex-direction: row;
   gap: 14px;
+  align-items: stretch;
 }
 
-/* LANDSCAPE: left column | right column (top bubbles row above table). The
-   top bubbles live inside an inner flex-row container (.top-bubbles) instead
-   of being grid cells, so the flex container measures each child's wrapped
-   height correctly and the row never under-sizes. */
-.briefing-app .briefing-grid.landscape {
-  grid-template-columns: 200px 1fr;
-  grid-template-rows: auto 1fr;
-  grid-template-areas:
-    "left-bubbles top-bubbles"
-    "left-bubbles table";
+.briefing-app .briefing-grid.landscape .left-bubbles {
+  flex: 0 0 200px;
 }
 
-/* PORTRAIT: same outer structure; the 2+1 top-bubble split moves into the
-   inner flex container via flex-wrap (see .top-bubbles portrait override). */
-.briefing-app .briefing-grid.portrait {
-  grid-template-columns: 180px 1fr;
-  grid-template-rows: auto 1fr;
-  grid-template-areas:
-    "left-bubbles top-bubbles"
-    "left-bubbles table";
+.briefing-app .briefing-grid.portrait .left-bubbles {
+  flex: 0 0 180px;
 }
 
 /* ── LEFT BUBBLE COLUMN ── */
 .briefing-app .left-bubbles {
-  grid-area: left-bubbles;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* ── RIGHT SIDE (top bubbles row above projects panel) ── */
+.briefing-app .right-side {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 /* ── TOP BUBBLE ROW ── */
 .briefing-app .top-bubbles {
-  grid-area: top-bubbles;
   display: flex;
   gap: 14px;
 }
@@ -241,7 +242,7 @@
 
 /* ── PROJECTS TABLE ── */
 .briefing-app .projects-panel {
-  grid-area: table;
+  flex: 1 1 auto;
   background: var(--card-bg);
   border-radius: 10px;
   border: 1px solid var(--border);

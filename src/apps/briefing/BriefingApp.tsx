@@ -224,18 +224,19 @@ export default function BriefingApp(): JSX.Element {
             ))}
           </div>
 
-          <div class="top-bubbles">
-            {TOP_BUBBLES.map((b) => (
-              <div key={b.area} class={`bubble bubble-${b.tint} top-bubble`}>
-                <div class="bubble-icon">{b.icon}</div>
-                <div class="bubble-headline">{b.headline}</div>
-                <div class="bubble-body">{b.body}</div>
-                <span class="bubble-tag">{b.tag}</span>
-              </div>
-            ))}
-          </div>
+          <div class="right-side">
+            <div class="top-bubbles">
+              {TOP_BUBBLES.map((b) => (
+                <div key={b.area} class={`bubble bubble-${b.tint} top-bubble`}>
+                  <div class="bubble-icon">{b.icon}</div>
+                  <div class="bubble-headline">{b.headline}</div>
+                  <div class="bubble-body">{b.body}</div>
+                  <span class="bubble-tag">{b.tag}</span>
+                </div>
+              ))}
+            </div>
 
-          <div class="projects-panel">
+            <div class="projects-panel">
             {expanded === null ? (
               <>
                 <div class="panel-header">
@@ -307,6 +308,7 @@ export default function BriefingApp(): JSX.Element {
                 );
               })()
             )}
+          </div>
           </div>
         </div>
 
