@@ -46,6 +46,18 @@ export function Launcher(): JSX.Element {
           </div>
           <div class="launcher__app-caption">Epic Quick Reference</div>
         </button>
+
+        <button
+          type="button"
+          class="launcher__app"
+          onClick={() => setLauncherApp('briefing')}
+          aria-label="Open Briefing"
+        >
+          <div class="launcher__app-icon launcher__app-icon--briefing">
+            <span class="launcher__app-glyph" aria-hidden="true">📅</span>
+          </div>
+          <div class="launcher__app-caption">Briefing</div>
+        </button>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import { PrintView } from './shell/PrintView';
 import { Launcher, BackToLauncherChevron, HomeViewTogglePill, ModuleBackChevron, BackToMondrianChevron } from './shell/Launcher';
 import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { EpicQuickReferenceShell } from './shell/EpicQuickReferenceShell';
+import { BriefingShell } from './shell/BriefingShell';
 import { FeedbackModal } from './shell/FeedbackModal';
 import { SelectionMenu } from './shell/SelectionMenu';
 import { GlossaryPopover } from './shell/GlossaryPopover';
@@ -108,6 +109,10 @@ function App(): JSX.Element {
 
   if (app === 'launcher') {
     return <Launcher />;
+  }
+
+  if (app === 'briefing') {
+    return <BriefingShell />;
   }
 
   // Mentorship Tracker and Epic Quick Reference share a "deep-link round-
