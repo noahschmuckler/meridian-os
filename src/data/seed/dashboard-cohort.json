@@ -1,0 +1,1278 @@
+{
+  "_note": "Demo cohort for the Dashboard app's 'Patients Tomorrow' panel. Patient records sourced from meridian-onboarding's demoPatients (~/GitHub_Repos/meridian-onboarding/index-rendered.html lines 4914-5371). opportunities[].details[].text fields carry inline <span class=\"opportunity-smartphrase\"> and <span class=\"opportunity-code\"> markup that the patient-detail view renders via dangerouslySetInnerHTML.",
+  "demoPatients": [
+    {
+      "name": "Jane Doe",
+      "mrn": "12345678",
+      "age": "54",
+      "sex": "F",
+      "problems": [
+        {
+          "id": "htn",
+          "text": "Essential hypertension",
+          "icd10": "I10"
+        },
+        {
+          "id": "ckd3",
+          "text": "CKD Stage 3a (eGFR 45-59)",
+          "icd10": "N18.3"
+        },
+        {
+          "id": "hld",
+          "text": "Hyperlipidemia",
+          "icd10": "E78.5"
+        },
+        {
+          "id": "gerd",
+          "text": "GERD",
+          "icd10": "K21.0"
+        },
+        {
+          "id": "oa-knee",
+          "text": "Osteoarthritis, bilateral knees",
+          "icd10": "M17.0"
+        },
+        {
+          "id": "adhd",
+          "text": "ADHD, combined type",
+          "icd10": "F90.2"
+        },
+        {
+          "id": "back-pain",
+          "text": "Chronic low back pain",
+          "icd10": "M54.5"
+        },
+        {
+          "id": "gad",
+          "text": "Generalized anxiety disorder",
+          "icd10": "F41.1"
+        }
+      ],
+      "vitals": [
+        {
+          "id": "bp",
+          "label": "BP",
+          "value": "132/80",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "hr",
+          "label": "HR",
+          "value": "72 bpm",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "bmi",
+          "label": "BMI",
+          "value": "28.4",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "temp",
+          "label": "Temp",
+          "value": "98.2\u00b0F",
+          "date": "2026-04-14"
+        }
+      ],
+      "labs": [
+        {
+          "id": "egfr",
+          "label": "eGFR",
+          "value": "45",
+          "unit": "mL/min",
+          "date": "2026-04-10",
+          "flag": "low"
+        },
+        {
+          "id": "creatinine",
+          "label": "Creatinine",
+          "value": "1.4",
+          "unit": "mg/dL",
+          "date": "2026-04-10",
+          "flag": "high"
+        },
+        {
+          "id": "hba1c",
+          "label": "HbA1c",
+          "value": "5.8",
+          "unit": "%",
+          "date": "2026-03-15"
+        },
+        {
+          "id": "chol",
+          "label": "Total Cholesterol",
+          "value": "228",
+          "unit": "mg/dL",
+          "date": "2026-03-15",
+          "flag": "high"
+        },
+        {
+          "id": "ldl",
+          "label": "LDL",
+          "value": "142",
+          "unit": "mg/dL",
+          "date": "2026-03-15",
+          "flag": "high"
+        },
+        {
+          "id": "hdl",
+          "label": "HDL",
+          "value": "48",
+          "unit": "mg/dL",
+          "date": "2026-03-15"
+        },
+        {
+          "id": "tg",
+          "label": "Triglycerides",
+          "value": "188",
+          "unit": "mg/dL",
+          "date": "2026-03-15",
+          "flag": "high"
+        },
+        {
+          "id": "potassium",
+          "label": "Potassium",
+          "value": "4.2",
+          "unit": "mEq/L",
+          "date": "2026-04-10"
+        },
+        {
+          "id": "hgb",
+          "label": "Hemoglobin",
+          "value": "13.1",
+          "unit": "g/dL",
+          "date": "2026-04-10"
+        }
+      ],
+      "medications": [
+        {
+          "id": "lisinopril",
+          "text": "Lisinopril 20mg daily"
+        },
+        {
+          "id": "amlodipine",
+          "text": "Amlodipine 5mg daily"
+        },
+        {
+          "id": "atorvastatin",
+          "text": "Atorvastatin 20mg daily"
+        },
+        {
+          "id": "omeprazole",
+          "text": "Omeprazole 20mg daily"
+        },
+        {
+          "id": "vyvanse",
+          "text": "Vyvanse 40mg daily"
+        },
+        {
+          "id": "oxycodone",
+          "text": "Oxycodone 10mg q6h PRN"
+        },
+        {
+          "id": "valium",
+          "text": "Diazepam (Valium) 5mg BID"
+        }
+      ],
+      "hardStops": [
+        {
+          "id": "hs-opioid-benzo",
+          "text": "Concurrent opioid + benzodiazepine \u2014 document risk discussion and naloxone Rx",
+          "severity": "high",
+          "moduleId": "opiates"
+        },
+        {
+          "id": "hs-ckd-nsaid",
+          "text": "CKD Stage 3a \u2014 avoid NSAIDs, verify renal dosing on all medications",
+          "severity": "high",
+          "moduleId": "ckd"
+        },
+        {
+          "id": "hs-statin-intensity",
+          "text": "LDL 142 on atorvastatin 20mg \u2014 consider uptitration to high-intensity dose",
+          "severity": "medium",
+          "moduleId": "lipid-management"
+        },
+        {
+          "id": "hs-stimulant-vitals",
+          "text": "Active stimulant (Vyvanse) \u2014 document BP and HR at this visit",
+          "severity": "medium",
+          "moduleId": "adhd"
+        },
+        {
+          "id": "hs-cystatin",
+          "text": "CKD without cystatin C on file \u2014 order to confirm staging",
+          "severity": "medium",
+          "moduleId": "ckd"
+        }
+      ],
+      "payer": {
+        "name": "UnitedHealthcare",
+        "product": "DSNP",
+        "risk": "Full Risk"
+      },
+      "opportunities": [
+        {
+          "id": "opp-ascvd",
+          "category": "billing",
+          "summary": "ASCVD risk counseling \u2014 review PREVENT score and statin intensity",
+          "codes": ".prevent / G0537",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "Patient is on low-dose atorvastatin 20mg with LDL 142. Based on CKD + HLD + HTN risk profile, current guidelines recommend high-intensity statin therapy. Consider uptitration."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.prevent</span> to document PREVENT risk score review and statin therapy decision."
+            },
+            {
+              "label": "Billing",
+              "text": "May apply code <span class=\"opportunity-code\">G0537</span> for cardiovascular risk assessment counseling."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC DSNP \u2014 no prior authorization required for high-intensity statin switch."
+            }
+          ]
+        },
+        {
+          "id": "opp-ckd-mgmt",
+          "category": "screening",
+          "summary": "CKD monitoring \u2014 cystatin C and uACR due for annual screening",
+          "codes": "CPT 82610 / 82570",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "CKD Stage 3a (eGFR 45). Annual cystatin C confirms staging accuracy. uACR monitors for progression to nephrotic range."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.ckdscreen</span> to document rationale for ordering. Pair eGFR + cystatin C + uACR as panel."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">CPT 82610</span> (cystatin C), <span class=\"opportunity-code\">CPT 82570</span> (urine creatinine for uACR). Diagnosis <span class=\"opportunity-code\">N18.3</span>."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC DSNP \u2014 KED quality measure. Completing both eGFR + uACR closes the care gap."
+            }
+          ]
+        },
+        {
+          "id": "opp-opioid-risk",
+          "category": "counseling",
+          "summary": "Opioid + benzo overlap counseling \u2014 risk mitigation and naloxone",
+          "codes": ".opioidrisk / 99401",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "Concurrent oxycodone 10mg q6h + diazepam 5mg BID. CDC guidelines recommend documented risk discussion and naloxone co-prescribing."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.opioidrisk</span> to document risk-benefit discussion. If prescribing naloxone, add <span class=\"opportunity-smartphrase\">.naloxonerx</span>."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">CPT 99401</span> for preventive counseling (15 min). Diagnosis <span class=\"opportunity-code\">F11.10</span> (opioid use, uncomplicated) or <span class=\"opportunity-code\">T40.2X5A</span> if documenting risk."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC DSNP \u2014 naloxone covered at $0 copay under opioid safety benefit."
+            }
+          ]
+        },
+        {
+          "id": "opp-complexity",
+          "category": "billing",
+          "summary": "Visit complexity add-on \u2014 multiple chronic conditions managed",
+          "codes": ".nsg211 / G2211",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "Patient has 8 active problems spanning CKD, HTN, HLD, chronic pain, and ADHD. If visit addresses ongoing management of 2+ chronic conditions, complexity add-on is appropriate."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.nsg211</span> to document how management of one condition (e.g., CKD) intersects with another (e.g., HTN medication renal dosing, statin choice with CKD)."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">G2211</span> \u2014 add-on to E/M for visit complexity. Must document medical decision-making across conditions."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC DSNP (Medicare) \u2014 G2211 billable for Medicare patients only. Requires same-day E/M 99213-99215."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Maria Rodriguez",
+      "mrn": "23456789",
+      "age": "62",
+      "sex": "F",
+      "problems": [
+        {
+          "id": "dm2",
+          "text": "Type 2 Diabetes Mellitus",
+          "icd10": "E11.9"
+        },
+        {
+          "id": "htn",
+          "text": "Essential hypertension",
+          "icd10": "I10"
+        },
+        {
+          "id": "obesity",
+          "text": "Obesity, BMI 34.2",
+          "icd10": "E66.01"
+        },
+        {
+          "id": "dpn",
+          "text": "Diabetic peripheral neuropathy",
+          "icd10": "E11.42"
+        }
+      ],
+      "vitals": [
+        {
+          "id": "bp",
+          "label": "BP",
+          "value": "148/92",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "hr",
+          "label": "HR",
+          "value": "78 bpm",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "bmi",
+          "label": "BMI",
+          "value": "34.2",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "temp",
+          "label": "Temp",
+          "value": "98.6\u00b0F",
+          "date": "2026-04-14"
+        }
+      ],
+      "labs": [
+        {
+          "id": "hba1c",
+          "label": "HbA1c",
+          "value": "8.2",
+          "unit": "%",
+          "date": "2026-02-10",
+          "flag": "high"
+        },
+        {
+          "id": "egfr",
+          "label": "eGFR",
+          "value": "72",
+          "unit": "mL/min",
+          "date": "2026-03-01"
+        },
+        {
+          "id": "creatinine",
+          "label": "Creatinine",
+          "value": "1.0",
+          "unit": "mg/dL",
+          "date": "2026-03-01"
+        },
+        {
+          "id": "chol",
+          "label": "Total Cholesterol",
+          "value": "240",
+          "unit": "mg/dL",
+          "date": "2026-01-15",
+          "flag": "high"
+        },
+        {
+          "id": "ldl",
+          "label": "LDL",
+          "value": "158",
+          "unit": "mg/dL",
+          "date": "2026-01-15",
+          "flag": "high"
+        },
+        {
+          "id": "hdl",
+          "label": "HDL",
+          "value": "38",
+          "unit": "mg/dL",
+          "date": "2026-01-15",
+          "flag": "low"
+        },
+        {
+          "id": "tg",
+          "label": "Triglycerides",
+          "value": "220",
+          "unit": "mg/dL",
+          "date": "2026-01-15",
+          "flag": "high"
+        },
+        {
+          "id": "uacr",
+          "label": "Urine Alb/Cr Ratio",
+          "value": "45",
+          "unit": "mg/g",
+          "date": "2025-08-20",
+          "flag": "high"
+        },
+        {
+          "id": "hgb",
+          "label": "Hemoglobin",
+          "value": "13.8",
+          "unit": "g/dL",
+          "date": "2026-03-01"
+        }
+      ],
+      "medications": [
+        {
+          "id": "metformin",
+          "text": "Metformin 1000mg BID"
+        },
+        {
+          "id": "lisinopril",
+          "text": "Lisinopril 10mg daily"
+        },
+        {
+          "id": "amlodipine",
+          "text": "Amlodipine 10mg daily"
+        }
+      ],
+      "hardStops": [
+        {
+          "id": "hs-eye",
+          "text": "No diabetic eye exam on file \u2014 order or document screening",
+          "severity": "high",
+          "moduleId": null
+        },
+        {
+          "id": "hs-foot",
+          "text": "No diabetic foot exam documented this year",
+          "severity": "high",
+          "moduleId": null
+        },
+        {
+          "id": "hs-statin",
+          "text": "Statin not prescribed despite diabetes + LDL >100",
+          "severity": "high",
+          "moduleId": "lipid-management"
+        },
+        {
+          "id": "hs-uacr",
+          "text": "Microalbumin/creatinine ratio >8 months old \u2014 reorder",
+          "severity": "medium",
+          "moduleId": null
+        },
+        {
+          "id": "hs-a1c",
+          "text": "HbA1c 8.2% \u2014 above target, consider therapy intensification",
+          "severity": "medium",
+          "moduleId": null
+        }
+      ],
+      "payer": {
+        "name": "UnitedHealthcare",
+        "product": "DSNP",
+        "risk": "Full Risk"
+      },
+      "opportunities": [
+        {
+          "id": "opp-glp1",
+          "category": "medication",
+          "summary": "GLP-1 agonist candidate \u2014 A1c 8.2 + BMI 34.2, may improve both",
+          "codes": ".glp1start / 99214",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "A1c 8.2 on metformin alone, BMI 34.2 with diabetic neuropathy. GLP-1 agonist would address glycemic control and weight simultaneously."
+            },
+            {
+              "label": "Payer requirement",
+              "text": "UHC DSNP requires documentation of: (1) trial of metformin \u2265 3 months, (2) A1c still above target. Both criteria met. Monthly follow-up visits documenting weight required for continued coverage."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.glp1start</span> to document indication and payer criteria. At follow-ups, use <span class=\"opportunity-smartphrase\">.wtcounsel</span> to document weight and interventions, supporting <span class=\"opportunity-code\">CPT 99401</span>."
+            },
+            {
+              "label": "Billing",
+              "text": "This visit: <span class=\"opportunity-code\">99214</span> with diagnosis <span class=\"opportunity-code\">E11.9</span> + <span class=\"opportunity-code\">E66.01</span>. Medicare also allows <span class=\"opportunity-code\">G0447</span> (intensive behavioral therapy for obesity) if using <span class=\"opportunity-smartphrase\">.mcintensivebh4obesity</span>."
+            },
+            {
+              "label": "Additional codes",
+              "text": "Diet counseling: <span class=\"opportunity-smartphrase\">.dietcounselMNT</span> with <span class=\"opportunity-code\">CPT 97802</span>. BMI documentation: <span class=\"opportunity-code\">Z68.34</span> for BMI 34.2."
+            }
+          ]
+        },
+        {
+          "id": "opp-dm-complexity",
+          "category": "billing",
+          "summary": "Visit complexity \u2014 diabetes impacts HTN, neuropathy, and weight management",
+          "codes": ".nsg211 / G2211",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "Managing diabetes alongside HTN (BP 148/92), obesity, and neuropathy. Medication choices for one condition affect others (e.g., GLP-1 helps weight + A1c, ACE titration for renal protection)."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.nsg211</span> to document cross-condition complexity. Reference how diabetes management plan accounts for cardiovascular and renal risk."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">G2211</span> add-on to E/M. Use most specific diabetes code: <span class=\"opportunity-code\">E11.42</span> (DM2 with diabetic polyneuropathy) rather than <span class=\"opportunity-code\">E11.9</span>."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC DSNP (Medicare) \u2014 G2211 billable. Requires same-day E/M 99213-99215."
+            }
+          ]
+        },
+        {
+          "id": "opp-dm-statin",
+          "category": "medication",
+          "summary": "Statin initiation \u2014 diabetes + LDL 158, guideline-recommended",
+          "codes": ".prevent / G0537",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "Type 2 diabetes with LDL 158. ACC/AHA guidelines recommend moderate-to-high intensity statin for all diabetic patients age 40-75, regardless of ASCVD score."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.prevent</span> to document cardiovascular risk assessment. Review PREVENT calculator results with patient."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">G0537</span> for cardiovascular risk counseling. Pair with <span class=\"opportunity-code\">E11.9</span> and <span class=\"opportunity-code\">E78.5</span>."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC DSNP \u2014 high-intensity statin (atorvastatin 40-80mg, rosuvastatin 20-40mg) on formulary at Tier 1."
+            }
+          ]
+        },
+        {
+          "id": "opp-dm-eye",
+          "category": "screening",
+          "summary": "Diabetic retinal exam \u2014 overdue, schedule or document external result",
+          "codes": "CPT 92250 / 2022F",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "No diabetic eye exam on file. ADA recommends annual dilated eye exam for all type 2 diabetics. Patient has neuropathy, increasing retinopathy risk."
+            },
+            {
+              "label": "Documentation",
+              "text": "If ordering referral, document with diagnosis <span class=\"opportunity-code\">E11.319</span> (DM2 with unspecified diabetic retinopathy). If documenting external result, use quality code <span class=\"opportunity-code\">2022F</span>."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC DSNP \u2014 closes GSD care gap for diabetic eye exam measure. Panel currently at 15% compliance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Robert Johnson",
+      "mrn": "34567890",
+      "age": "58",
+      "sex": "M",
+      "problems": [
+        {
+          "id": "htn",
+          "text": "Essential hypertension",
+          "icd10": "I10"
+        },
+        {
+          "id": "hld",
+          "text": "Hyperlipidemia, severe",
+          "icd10": "E78.5"
+        },
+        {
+          "id": "cad-fhx",
+          "text": "Family history premature CAD",
+          "icd10": "Z82.49"
+        },
+        {
+          "id": "prediabetes",
+          "text": "Prediabetes",
+          "icd10": "R73.03"
+        }
+      ],
+      "vitals": [
+        {
+          "id": "bp",
+          "label": "BP",
+          "value": "158/94",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "hr",
+          "label": "HR",
+          "value": "68 bpm",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "bmi",
+          "label": "BMI",
+          "value": "30.1",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "temp",
+          "label": "Temp",
+          "value": "98.4\u00b0F",
+          "date": "2026-04-14"
+        }
+      ],
+      "labs": [
+        {
+          "id": "chol",
+          "label": "Total Cholesterol",
+          "value": "279",
+          "unit": "mg/dL",
+          "date": "2026-03-20",
+          "flag": "high"
+        },
+        {
+          "id": "ldl",
+          "label": "LDL",
+          "value": "198",
+          "unit": "mg/dL",
+          "date": "2026-03-20",
+          "flag": "high"
+        },
+        {
+          "id": "hdl",
+          "label": "HDL",
+          "value": "42",
+          "unit": "mg/dL",
+          "date": "2026-03-20",
+          "flag": "low"
+        },
+        {
+          "id": "tg",
+          "label": "Triglycerides",
+          "value": "195",
+          "unit": "mg/dL",
+          "date": "2026-03-20",
+          "flag": "high"
+        },
+        {
+          "id": "hba1c",
+          "label": "HbA1c",
+          "value": "6.1",
+          "unit": "%",
+          "date": "2026-03-20"
+        },
+        {
+          "id": "egfr",
+          "label": "eGFR",
+          "value": "88",
+          "unit": "mL/min",
+          "date": "2026-03-20"
+        },
+        {
+          "id": "creatinine",
+          "label": "Creatinine",
+          "value": "1.0",
+          "unit": "mg/dL",
+          "date": "2026-03-20"
+        },
+        {
+          "id": "hgb",
+          "label": "Hemoglobin",
+          "value": "15.2",
+          "unit": "g/dL",
+          "date": "2026-03-20"
+        },
+        {
+          "id": "alt",
+          "label": "ALT",
+          "value": "28",
+          "unit": "U/L",
+          "date": "2026-03-20"
+        }
+      ],
+      "medications": [
+        {
+          "id": "losartan",
+          "text": "Losartan 100mg daily"
+        },
+        {
+          "id": "hctz",
+          "text": "Hydrochlorothiazide 25mg daily"
+        },
+        {
+          "id": "metoprolol",
+          "text": "Metoprolol succinate 50mg daily"
+        }
+      ],
+      "hardStops": [
+        {
+          "id": "hs-statin-ldl",
+          "text": "LDL 198 \u2014 high-intensity statin indicated per ACC/AHA guidelines",
+          "severity": "high",
+          "moduleId": "lipid-management"
+        },
+        {
+          "id": "hs-bp",
+          "text": "BP 158/94 \u2014 above target on 3 agents, consider add-on therapy",
+          "severity": "high",
+          "moduleId": null
+        },
+        {
+          "id": "hs-ascvd",
+          "text": "Estimated 10-year ASCVD risk elevated \u2014 lifestyle + pharmacotherapy discussion",
+          "severity": "medium",
+          "moduleId": "lipid-management"
+        }
+      ],
+      "payer": {
+        "name": "Humana",
+        "product": "Medicare Advantage",
+        "risk": "Full Risk"
+      },
+      "opportunities": [
+        {
+          "id": "opp-statin-ldl190",
+          "category": "medication",
+          "summary": "High-intensity statin \u2014 LDL 198, guideline threshold exceeded",
+          "codes": ".prevent / G0537",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "LDL 198 with family history of premature CAD and prediabetes. ACC/AHA: LDL \u2265190 is automatic indication for high-intensity statin regardless of ASCVD score."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.prevent</span> to document PREVENT risk assessment. Review calculated risk with patient as shared decision-making tool."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">G0537</span> for CV risk counseling. Diagnoses: <span class=\"opportunity-code\">E78.5</span> (hyperlipidemia) + <span class=\"opportunity-code\">Z82.49</span> (family hx CAD)."
+            },
+            {
+              "label": "Payer note",
+              "text": "Humana MA \u2014 atorvastatin 40-80mg on preferred generic formulary. No PA required."
+            }
+          ]
+        },
+        {
+          "id": "opp-htn-titrate",
+          "category": "counseling",
+          "summary": "Resistant HTN counseling \u2014 BP 158/94 on 3 agents",
+          "codes": ".htncounsel / 99214",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "BP 158/94 on losartan 100mg + HCTZ 25mg + metoprolol 50mg. Consider adding amlodipine or spironolactone. Rule out secondary causes if persists."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.htncounsel</span> to document medication review, dietary counseling (sodium restriction), and plan for follow-up BP check."
+            },
+            {
+              "label": "Billing",
+              "text": "Level 4 E/M (<span class=\"opportunity-code\">99214</span>) supported by moderate MDM with medication adjustment. Add <span class=\"opportunity-code\">G2211</span> for complexity if managing HTN alongside prediabetes and HLD."
+            },
+            {
+              "label": "Payer note",
+              "text": "Humana MA \u2014 controlling high BP is a STARS measure. Current panel at 55% control rate. Closing this gap moves the metric."
+            }
+          ]
+        },
+        {
+          "id": "opp-prediabetes",
+          "category": "screening",
+          "summary": "Prediabetes monitoring \u2014 A1c 6.1, annual recheck and lifestyle counseling",
+          "codes": ".dmprevention / G0447",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "A1c 6.1 (prediabetes range 5.7-6.4). Obesity (BMI 30.1) is modifiable risk factor. Evidence supports intensive lifestyle intervention to prevent progression."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.dmprevention</span> to document diabetes prevention counseling. If discussing weight, add <span class=\"opportunity-smartphrase\">.wtcounsel</span>."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">G0447</span> for intensive behavioral therapy for obesity (Medicare). Diagnosis: <span class=\"opportunity-code\">R73.03</span> (prediabetes) + <span class=\"opportunity-code\">E66.01</span> (obesity, BMI 30.0-30.9 \u2192 <span class=\"opportunity-code\">Z68.30</span>)."
+            },
+            {
+              "label": "Payer note",
+              "text": "Humana MA \u2014 G0447 covered up to 22 visits in first year for BMI \u226530. No copay for preventive services."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tyler Williams",
+      "mrn": "45678901",
+      "age": "34",
+      "sex": "M",
+      "problems": [
+        {
+          "id": "adhd",
+          "text": "ADHD, combined type",
+          "icd10": "F90.2"
+        },
+        {
+          "id": "back-pain",
+          "text": "Chronic low back pain",
+          "icd10": "M54.5"
+        },
+        {
+          "id": "gad",
+          "text": "Generalized anxiety disorder",
+          "icd10": "F41.1"
+        },
+        {
+          "id": "insomnia",
+          "text": "Insomnia",
+          "icd10": "G47.00"
+        }
+      ],
+      "vitals": [
+        {
+          "id": "bp",
+          "label": "BP",
+          "value": "122/78",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "hr",
+          "label": "HR",
+          "value": "82 bpm",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "bmi",
+          "label": "BMI",
+          "value": "25.8",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "temp",
+          "label": "Temp",
+          "value": "98.3\u00b0F",
+          "date": "2026-04-14"
+        }
+      ],
+      "labs": [
+        {
+          "id": "uds",
+          "label": "Urine Drug Screen",
+          "value": "Positive (expected)",
+          "unit": "",
+          "date": "2025-09-12"
+        },
+        {
+          "id": "hgb",
+          "label": "Hemoglobin",
+          "value": "15.6",
+          "unit": "g/dL",
+          "date": "2026-01-08"
+        },
+        {
+          "id": "creatinine",
+          "label": "Creatinine",
+          "value": "0.9",
+          "unit": "mg/dL",
+          "date": "2026-01-08"
+        },
+        {
+          "id": "alt",
+          "label": "ALT",
+          "value": "22",
+          "unit": "U/L",
+          "date": "2026-01-08"
+        }
+      ],
+      "medications": [
+        {
+          "id": "adderall",
+          "text": "Adderall XR 30mg daily"
+        },
+        {
+          "id": "oxycodone",
+          "text": "Oxycodone 5mg q8h PRN"
+        },
+        {
+          "id": "klonopin",
+          "text": "Clonazepam (Klonopin) 1mg BID"
+        },
+        {
+          "id": "gabapentin",
+          "text": "Gabapentin 300mg TID"
+        }
+      ],
+      "hardStops": [
+        {
+          "id": "hs-pdmp",
+          "text": "PDMP check due \u2014 last check >90 days ago",
+          "severity": "high",
+          "moduleId": "opiates"
+        },
+        {
+          "id": "hs-opioid-benzo",
+          "text": "Concurrent opioid + benzodiazepine \u2014 document risk discussion",
+          "severity": "high",
+          "moduleId": "benzos"
+        },
+        {
+          "id": "hs-naloxone",
+          "text": "Naloxone not prescribed \u2014 required with concurrent opioid + benzo",
+          "severity": "high",
+          "moduleId": "opiates"
+        },
+        {
+          "id": "hs-uds",
+          "text": "Urine drug screen overdue \u2014 last UDS >6 months ago",
+          "severity": "medium",
+          "moduleId": "opiates"
+        }
+      ],
+      "payer": {
+        "name": "Aetna",
+        "product": "Commercial PPO",
+        "risk": "Shared Risk"
+      },
+      "opportunities": [
+        {
+          "id": "opp-pain-mgmt",
+          "category": "counseling",
+          "summary": "Chronic pain management plan \u2014 document multimodal approach",
+          "codes": ".painplan / 99214",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "Chronic low back pain on oxycodone 5mg q8h + gabapentin 300mg TID. Document multimodal pain management including non-pharmacologic interventions to support continued opioid prescribing."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.painplan</span> to document pain assessment (functional goals, PEG score), current regimen review, and non-opioid interventions tried or planned."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">99214</span> supported by moderate MDM. Diagnosis: <span class=\"opportunity-code\">M54.5</span> (low back pain) + <span class=\"opportunity-code\">G89.29</span> (chronic pain)."
+            },
+            {
+              "label": "Payer note",
+              "text": "Aetna Commercial \u2014 requires PDMP check documentation for opioid continuation. Prior auth required if dose exceeds 90 MME/day."
+            }
+          ]
+        },
+        {
+          "id": "opp-benzo-taper",
+          "category": "medication",
+          "summary": "Benzodiazepine risk assessment \u2014 concurrent opioid, consider taper plan",
+          "codes": ".benzotaper / 99213",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "Clonazepam 1mg BID + oxycodone. FDA black box warning on concurrent use. Consider gradual benzodiazepine taper if clinically appropriate, or document clear justification for continuation."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.benzotaper</span> to document risk-benefit assessment. If continuing both, use <span class=\"opportunity-smartphrase\">.opioidbenzojustify</span> for informed consent documentation."
+            },
+            {
+              "label": "Billing",
+              "text": "Follow-up visit <span class=\"opportunity-code\">99213</span>. Diagnoses: <span class=\"opportunity-code\">F41.1</span> (GAD) + <span class=\"opportunity-code\">F13.10</span> (sedative use, uncomplicated)."
+            },
+            {
+              "label": "Payer note",
+              "text": "Aetna Commercial \u2014 no PA required for benzodiazepine taper. Behavioral health referral covered at in-network rate."
+            }
+          ]
+        },
+        {
+          "id": "opp-adhd-monitoring",
+          "category": "screening",
+          "summary": "Stimulant monitoring \u2014 document vitals and side effect screening",
+          "codes": ".stimmonitor / 99214",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "Adderall XR 30mg daily. Guidelines recommend periodic BP, HR, and weight monitoring. Document cardiovascular review and screen for abuse/diversion."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.stimmonitor</span> to document vital signs review, side effect screening, and therapeutic benefit assessment."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">99214</span> if combined with medication management for multiple controlled substances. Diagnosis: <span class=\"opportunity-code\">F90.2</span> (ADHD, combined)."
+            },
+            {
+              "label": "Payer note",
+              "text": "Aetna Commercial \u2014 Adderall XR requires PA annually. Documentation of continued medical necessity supports renewal."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Patricia Kim",
+      "mrn": "56789012",
+      "age": "71",
+      "sex": "F",
+      "problems": [
+        {
+          "id": "ckd4",
+          "text": "CKD Stage 4 (eGFR 15-29)",
+          "icd10": "N18.4"
+        },
+        {
+          "id": "anemia-ckd",
+          "text": "Anemia of chronic kidney disease",
+          "icd10": "D63.1"
+        },
+        {
+          "id": "htn",
+          "text": "Hypertensive chronic kidney disease",
+          "icd10": "I12.9"
+        },
+        {
+          "id": "secondary-hpt",
+          "text": "Secondary hyperparathyroidism",
+          "icd10": "E21.1"
+        }
+      ],
+      "vitals": [
+        {
+          "id": "bp",
+          "label": "BP",
+          "value": "138/82",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "hr",
+          "label": "HR",
+          "value": "88 bpm",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "bmi",
+          "label": "BMI",
+          "value": "24.1",
+          "date": "2026-04-14"
+        },
+        {
+          "id": "temp",
+          "label": "Temp",
+          "value": "97.8\u00b0F",
+          "date": "2026-04-14"
+        }
+      ],
+      "labs": [
+        {
+          "id": "egfr",
+          "label": "eGFR",
+          "value": "22",
+          "unit": "mL/min",
+          "date": "2026-04-01",
+          "flag": "low"
+        },
+        {
+          "id": "creatinine",
+          "label": "Creatinine",
+          "value": "2.8",
+          "unit": "mg/dL",
+          "date": "2026-04-01",
+          "flag": "high"
+        },
+        {
+          "id": "hgb",
+          "label": "Hemoglobin",
+          "value": "9.2",
+          "unit": "g/dL",
+          "date": "2026-04-01",
+          "flag": "low"
+        },
+        {
+          "id": "ferritin",
+          "label": "Ferritin",
+          "value": "45",
+          "unit": "ng/mL",
+          "date": "2026-04-01",
+          "flag": "low"
+        },
+        {
+          "id": "tsat",
+          "label": "TSAT",
+          "value": "15",
+          "unit": "%",
+          "date": "2026-04-01",
+          "flag": "low"
+        },
+        {
+          "id": "pth",
+          "label": "PTH",
+          "value": "280",
+          "unit": "pg/mL",
+          "date": "2026-03-15",
+          "flag": "high"
+        },
+        {
+          "id": "phosphorus",
+          "label": "Phosphorus",
+          "value": "5.2",
+          "unit": "mg/dL",
+          "date": "2026-03-15",
+          "flag": "high"
+        },
+        {
+          "id": "potassium",
+          "label": "Potassium",
+          "value": "5.1",
+          "unit": "mEq/L",
+          "date": "2026-04-01",
+          "flag": "high"
+        }
+      ],
+      "medications": [
+        {
+          "id": "losartan",
+          "text": "Losartan 50mg daily"
+        },
+        {
+          "id": "bicarb",
+          "text": "Sodium bicarbonate 650mg TID"
+        },
+        {
+          "id": "sevelamer",
+          "text": "Sevelamer 800mg TID with meals"
+        },
+        {
+          "id": "calcitriol",
+          "text": "Calcitriol 0.25mcg daily"
+        },
+        {
+          "id": "ferrous-sulfate",
+          "text": "Ferrous sulfate 325mg daily"
+        }
+      ],
+      "hardStops": [
+        {
+          "id": "hs-neph",
+          "text": "eGFR 22 \u2014 nephrology referral if not already established",
+          "severity": "high",
+          "moduleId": "ckd"
+        },
+        {
+          "id": "hs-iron",
+          "text": "TSAT 15% + ferritin 45 \u2014 evaluate for IV iron",
+          "severity": "high",
+          "moduleId": "anemia"
+        },
+        {
+          "id": "hs-epo",
+          "text": "Hgb 9.2 with iron deficiency \u2014 consider ESA referral after iron repletion",
+          "severity": "medium",
+          "moduleId": "anemia"
+        },
+        {
+          "id": "hs-potassium",
+          "text": "Potassium 5.1 \u2014 monitor closely, consider dietary counseling",
+          "severity": "medium",
+          "moduleId": "ckd"
+        }
+      ],
+      "payer": {
+        "name": "UnitedHealthcare",
+        "product": "Medicare Advantage",
+        "risk": "Full Risk"
+      },
+      "opportunities": [
+        {
+          "id": "opp-ckd-complexity",
+          "category": "billing",
+          "summary": "CKD complexity \u2014 managing anemia, hyperPTH, hyperkalemia, and HTN",
+          "codes": ".nsg211 / G2211",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "CKD Stage 4 with 4 active complications: anemia (Hgb 9.2), secondary hyperparathyroidism (PTH 280), hyperkalemia (K 5.1), and hypertensive CKD. Each medication decision affects multiple systems."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.nsg211</span> to document how CKD management intersects with anemia treatment (iron/ESA decisions depend on renal function), PTH management (calcitriol dosing with phosphorus levels), and antihypertensive choices (ACEi/ARB with hyperkalemia risk)."
+            },
+            {
+              "label": "Billing",
+              "text": "<span class=\"opportunity-code\">G2211</span> add-on to E/M. Use most specific diagnosis: <span class=\"opportunity-code\">N18.4</span> (CKD Stage 4) + <span class=\"opportunity-code\">D63.1</span> (anemia of CKD) + <span class=\"opportunity-code\">E21.1</span> (secondary hyperPTH)."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC MA (Medicare) \u2014 G2211 billable. KED quality measure requires documentation of both eGFR and uACR."
+            }
+          ]
+        },
+        {
+          "id": "opp-iv-iron",
+          "category": "medication",
+          "summary": "IV iron evaluation \u2014 TSAT 15% and ferritin 45 despite oral iron",
+          "codes": "J1756 / 96365",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "TSAT 15% + ferritin 45 on oral ferrous sulfate. KDIGO guidelines recommend IV iron for CKD patients with TSAT <20% and ferritin <100 who are not responding to oral iron. Hgb 9.2 suggests functional iron deficiency."
+            },
+            {
+              "label": "Documentation",
+              "text": "Document trial of oral iron \u2265 3 months with inadequate response. Reference TSAT and ferritin targets. If referring for infusion, document medical necessity for IV route."
+            },
+            {
+              "label": "Billing",
+              "text": "If administered in office: <span class=\"opportunity-code\">J1756</span> (iron sucrose) + <span class=\"opportunity-code\">96365</span> (IV infusion, first hour) + <span class=\"opportunity-code\">96366</span> (each additional hour). Diagnosis: <span class=\"opportunity-code\">D63.1</span> + <span class=\"opportunity-code\">E61.1</span> (iron deficiency)."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC MA \u2014 IV iron covered with prior documentation of oral iron failure. Submit with clinical notes showing TSAT < 20%."
+            }
+          ]
+        },
+        {
+          "id": "opp-neph-coord",
+          "category": "counseling",
+          "summary": "Nephrology care coordination \u2014 document shared management plan",
+          "codes": ".ckdcarecoord / 99487",
+          "details": [
+            {
+              "label": "Clinical context",
+              "text": "eGFR 22 approaching dialysis threshold. Coordinate with nephrology on: dialysis access planning timeline, medication adjustments, dietary restrictions (potassium, phosphorus), and advance care planning."
+            },
+            {
+              "label": "Documentation",
+              "text": "Use smartphrase <span class=\"opportunity-smartphrase\">.ckdcarecoord</span> to document coordination with nephrology, medication reconciliation, and patient education on CKD progression."
+            },
+            {
+              "label": "Billing",
+              "text": "If \u226560 min/month of care coordination: <span class=\"opportunity-code\">99487</span> (complex chronic care management). Requires patient consent on file. Alternatively, <span class=\"opportunity-code\">99490</span> for 20+ min/month (standard CCM)."
+            },
+            {
+              "label": "Payer note",
+              "text": "UHC MA \u2014 CCM services covered. Must document time spent and activities. Cannot bill same day as E/M if using 99490."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
