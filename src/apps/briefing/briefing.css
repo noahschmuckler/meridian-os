@@ -119,26 +119,26 @@
   gap: 14px;
 }
 
-/* LANDSCAPE: 4-column layout */
+/* LANDSCAPE: left column | right column (top bubbles row above table). The
+   top bubbles live inside an inner flex-row container (.top-bubbles) instead
+   of being grid cells, so the flex container measures each child's wrapped
+   height correctly and the row never under-sizes. */
 .briefing-app .briefing-grid.landscape {
-  grid-template-columns: 200px 1fr 1fr 1fr;
-  grid-template-rows: auto auto 1fr;
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: auto 1fr;
   grid-template-areas:
-    "left-bubbles top-b1 top-b2 top-b3"
-    "left-bubbles table   table  table"
-    "left-bubbles table   table  table";
+    "left-bubbles top-bubbles"
+    "left-bubbles table";
 }
 
-/* PORTRAIT: 3-column layout */
+/* PORTRAIT: same outer structure; the 2+1 top-bubble split moves into the
+   inner flex container via flex-wrap (see .top-bubbles portrait override). */
 .briefing-app .briefing-grid.portrait {
-  grid-template-columns: 180px 1fr 1fr;
-  grid-template-rows: auto auto auto auto 1fr;
+  grid-template-columns: 180px 1fr;
+  grid-template-rows: auto 1fr;
   grid-template-areas:
-    "left-bubbles top-b1 top-b2"
-    "left-bubbles top-b3 top-b3"
-    "left-bubbles table  table"
-    "left-bubbles table  table"
-    "left-bubbles table  table";
+    "left-bubbles top-bubbles"
+    "left-bubbles table";
 }
 
 /* ── LEFT BUBBLE COLUMN ── */
@@ -147,6 +147,26 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* ── TOP BUBBLE ROW ── */
+.briefing-app .top-bubbles {
+  grid-area: top-bubbles;
+  display: flex;
+  gap: 14px;
+}
+.briefing-app .top-bubbles .bubble {
+  flex: 1;
+  min-width: 0;
+}
+.briefing-app .briefing-grid.portrait .top-bubbles {
+  flex-wrap: wrap;
+}
+.briefing-app .briefing-grid.portrait .top-bubbles .bubble {
+  flex: 1 1 calc(50% - 7px);
+}
+.briefing-app .briefing-grid.portrait .top-bubbles .bubble:nth-child(3) {
+  flex-basis: 100%;
 }
 
 /* ── BUBBLE CARDS ── */
@@ -218,11 +238,6 @@
 .briefing-app .bubble-sage    { background: var(--crh-sage); }
 .briefing-app .bubble-lavender { background: var(--crh-lavender); }
 .briefing-app .bubble-warm    { background: var(--crh-warm); }
-
-/* Top bubble grid positions */
-.briefing-app .top-b1 { grid-area: top-b1; }
-.briefing-app .top-b2 { grid-area: top-b2; }
-.briefing-app .top-b3 { grid-area: top-b3; }
 
 /* ── PROJECTS TABLE ── */
 .briefing-app .projects-panel {
