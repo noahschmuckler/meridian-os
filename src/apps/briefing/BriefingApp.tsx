@@ -1,4 +1,3 @@
-import { Fragment } from 'preact';
 import type { JSX } from 'preact';
 import { useState } from 'preact/hooks';
 import { setLauncherApp } from '../../data/launcherState';
@@ -235,27 +234,23 @@ export default function BriefingApp(): JSX.Element {
           ))}
 
           <div class="projects-panel">
-            <div class="panel-header">
-              <div class="panel-header-title">Active Initiatives &amp; Projects</div>
-              <div class="panel-header-sub">Click any row to expand ↓</div>
-            </div>
-            <div class="projects-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Initiative</th>
-                    <th>Current Status &amp; Provider Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {INITIATIVES.map((it) => {
-                    const open = expanded === it.key;
-                    return (
-                      <Fragment key={it.key}>
-                        <tr
-                          class={open ? 'expanded' : ''}
-                          onClick={() => setExpanded(open ? null : it.key)}
-                        >
+            {expanded === null ? (
+              <>
+                <div class="panel-header">
+                  <div class="panel-header-title">Active Initiatives &amp; Projects</div>
+                  <div class="panel-header-sub">Click any row for details →</div>
+                </div>
+                <div class="projects-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Initiative</th>
+                        <th>Current Status &amp; Provider Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {INITIATIVES.map((it) => (
+                        <tr key={it.key} onClick={() => setExpanded(it.key)}>
                           <td>
                             {it.title}
                             <span class="initiative-tag">{it.tag}</span>
@@ -266,30 +261,50 @@ export default function BriefingApp(): JSX.Element {
                             {it.statusBody}
                           </td>
                         </tr>
-                        <tr class="expand-row">
-                          <td colSpan={2}>
-                            <div class={`expand-content${open ? ' open' : ''}`}>
-                              <div class="expand-card">
-                                <div class="expand-card-title">Why This Matters</div>
-                                <div class="expand-card-body">{it.why}</div>
-                              </div>
-                              <div class="expand-card">
-                                <div class="expand-card-title">How It Affects Your Workflow</div>
-                                <div class="expand-card-body">{it.how}</div>
-                              </div>
-                              <div class="expand-card">
-                                <div class="expand-card-title">What You Need To Do</div>
-                                <div class="expand-card-body">{it.what}</div>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      </Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : (
+              (() => {
+                const it = INITIATIVES.find((i) => i.key === expanded)!;
+                return (
+                  <>
+                    <div class="panel-header">
+                      <button type="button" class="panel-back-btn" onClick={() => setExpanded(null)}>
+                        ‹ Active Initiatives
+                      </button>
+                      <div class="panel-header-sub">{it.tag}</div>
+                    </div>
+                    <div class="projects-detail">
+                      <div class="detail-meta">
+                        <div class="detail-title">{it.title}</div>
+                        <div class="detail-status">
+                          <span class={`status-dot dot-${it.dot}`}></span>
+                          <strong>{it.statusLead}</strong>
+                          {it.statusBody}
+                        </div>
+                      </div>
+                      <div class="detail-cards">
+                        <div class="expand-card">
+                          <div class="expand-card-title">Why This Matters</div>
+                          <div class="expand-card-body">{it.why}</div>
+                        </div>
+                        <div class="expand-card">
+                          <div class="expand-card-title">How It Affects Your Workflow</div>
+                          <div class="expand-card-body">{it.how}</div>
+                        </div>
+                        <div class="expand-card">
+                          <div class="expand-card-title">What You Need To Do</div>
+                          <div class="expand-card-body">{it.what}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()
+            )}
           </div>
         </div>
 

@@ -160,9 +160,10 @@
 }
 .briefing-app .bubble:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
 
-/* Left bubbles — tall, vertical */
+/* Left bubbles — tall, vertical. Content-sized (no flex-grow) so the column
+   stays stable when the projects panel swaps between table and detail views,
+   and so the icon/headline/body/tag never get clipped at narrow viewports. */
 .briefing-app .left-bubbles .bubble {
-  flex: 1;
   min-height: 100px;
   display: flex;
   flex-direction: column;
@@ -318,25 +319,52 @@
 .briefing-app .dot-blue { background: #2e7dbd; }
 .briefing-app .dot-purple { background: #6b5b9e; }
 
-/* Expand panel */
-.briefing-app .expand-row td {
+/* Panel-fill detail view — when a row is clicked, the entire projects-panel
+   swaps its content from table → detail (header + meta + 3 cards). Keeps the
+   panel footprint stable so the peripheral bubbles never resize. */
+.briefing-app .panel-back-btn {
+  background: none;
+  border: 0;
   padding: 0;
-  background: #f8f6f1;
-  max-width: 0;
-  overflow: visible;
+  color: #fff;
+  font-family: 'DM Serif Display', serif;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s;
 }
-.briefing-app .expand-row td[colspan] {
-  max-width: none;
+.briefing-app .panel-back-btn:hover { opacity: 1; }
+.briefing-app .projects-detail {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
-.briefing-app .expand-content {
-  padding: 12px 14px 14px 14px;
-  display: none;
+.briefing-app .detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.briefing-app .detail-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: var(--crh-navy);
+  line-height: 1.2;
+}
+.briefing-app .detail-status {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+.briefing-app .detail-status strong { color: var(--text); font-weight: 700; }
+.briefing-app .detail-cards {
+  display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  box-sizing: border-box;
-  width: 100%;
 }
-.briefing-app .expand-content.open { display: flex; }
 .briefing-app .expand-card {
   background: #fff;
   border-radius: 7px;
@@ -398,7 +426,6 @@
   .briefing-app .bubble { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .briefing-app .panel-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .briefing-app thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .briefing-app .expand-content { display: none !important; }
   .briefing-app .page-wrapper { padding: 12px; }
   @page { margin: 0.5in; }
 }
