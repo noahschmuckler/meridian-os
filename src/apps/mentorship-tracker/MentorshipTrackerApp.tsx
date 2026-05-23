@@ -1078,7 +1078,8 @@ export default function App() {
   const patterns = detectPatterns(qa);
 
   const navigate = (changes) => {
-    setNavHistory(prev => [...prev, { uid, selId, tab, phase, mainTab }]);
+    // Don't push the pre-login state when logging in — ‹back from the main view would be a logout
+    if (uid !== null) setNavHistory(prev => [...prev, { uid, selId, tab, phase, mainTab }]);
     if ('uid' in changes) setUid(changes.uid);
     if ('selId' in changes) setSelId(changes.selId);
     if ('tab' in changes) setTab(changes.tab);
