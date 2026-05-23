@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
@@ -1171,6 +1171,9 @@ export default function App() {
   const [editDays, setEditDays] = useState(null);
   const [editDaysVal, setEditDaysVal] = useState("");
   const [exportingDocx, setExportingDocx] = useState(false);
+  const [search, setSearch] = useState("");
+  const [saveFlash, setSaveFlash] = useState(false);
+  const firstSaveRef = useRef(true);
 
   // Read localStorage once at mount to seed initial state
   const [_init] = useState(() => loadMT());
@@ -1184,9 +1187,13 @@ export default function App() {
   // Keep module-level PROVS in sync so helper functions see current state
   PROVS = provs;
 
-  // Autosave whenever data changes
+  // Autosave whenever data changes; flash confirmation on user-driven saves
   useEffect(() => {
     saveMT({ provs, checks, qa, notes, savedAt: new Date().toISOString() });
+    if (firstSaveRef.current) { firstSaveRef.current = false; return; }
+    setSaveFlash(true);
+    const t = setTimeout(() => setSaveFlash(false), 2000);
+    return () => clearTimeout(t);
   }, [provs, checks, qa, notes]);
 
   const user = USERS.find(u => u.id === uid);
@@ -1365,7 +1372,10 @@ export default function App() {
       <div style={{ background: "#0f1b2d", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
         <div>
           <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Mentorship Tracker</div>
-          <div style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</span>
+            <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, opacity: saveFlash ? 1 : 0, transition: "opacity 400ms ease" }}>✓ Autosaved</span>
+          </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {isDir && patterns.length > 0 && (
@@ -1431,11 +1441,23 @@ export default function App() {
 
         {/* ─── SIDEBAR ─── */}
         <div style={{ width: 330, background: "white", borderRight: "1px solid #dee2e6", overflowY: "auto", flexShrink: 0, display: "flex", flexDirection: "column" }}>
-          <div style={{ padding: "16px 16px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{isDir ? "All Providers" : "My Mentees"}</h2>
+          <div style={{ padding: "16px 16px 8px" }}>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d", marginBottom: 10 }}>{isDir ? "All Providers" : "My Mentees"}</h2>
+            <div style={{ position: "relative" }}>
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search providers…"
+                style={{ width: "100%", padding: "7px 30px 7px 10px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 13, outline: "none", boxSizing: "border-box", fontFamily: "inherit", background: "#f8f9fb" }}
+              />
+              {search && (
+                <button onClick={() => setSearch("")}
+                  style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 14, lineHeight: 1, padding: "2px" }}>×</button>
+              )}
+            </div>
           </div>
           <div style={{ flex: 1 }}>
-          {myProvs.map(p => {
+          {myProvs.filter(p => p.name.toLowerCase().includes(search.toLowerCase())).map(p => {
             const m = USERS.find(u => u.id === p.mentor);
             const isSel = selId === p.id;
             const mn = mentorPct(checks, p.id);
@@ -1483,6 +1505,9 @@ export default function App() {
               </div>
             );
           })}
+          {search && myProvs.filter(p => p.name.toLowerCase().includes(search.toLowerCase())).length === 0 && (
+            <div style={{ padding: "20px 16px", textAlign: "center", color: "#adb5bd", fontSize: 13 }}>No providers match "{search}"</div>
+          )}
           </div>
           {isDir && (
             <div style={{ padding: "12px 16px", borderTop: "1px solid #dee2e6" }}>
