@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
@@ -396,13 +396,14 @@ const QP = [
 
 const QP_TO_OM = {w0:"om1",w1:"om1",w2:"om1",w3:"om1",m1:"om1",w5:"om2",w6:"om2",w7:"om2",m2:"om2",m3:"om3",m6:"om6",m9:"om9",m12:"om12"};
 const USERS = [{id:"md1",name:"Dr. Rivera",role:"director"},{id:"mt1",name:"Dr. Smith",role:"mentor"},{id:"mt2",name:"Dr. Lee",role:"mentor"}];
-const PROVS = [
+const SEED_PROVS = [
   {id:"p1",name:"Dr. Johnson",role:"MD",mentor:"mt1",phase:"m4",days:110},
   {id:"p2",name:"Dr. Patel",role:"DO",mentor:"mt1",phase:"m3",days:87},
   {id:"p3",name:"Dr. Williams",role:"MD",mentor:"mt2",phase:"w7",days:52},
   {id:"p4",name:"Dr. Garcia",role:"DO",mentor:"mt2",phase:"w5",days:38},
   {id:"p5",name:"A. Martinez, NP",role:"NP",mentor:"mt1",phase:"m18",days:545},
 ];
+let PROVS = SEED_PROVS;
 
 /* ─── Seed Data ─── */
 function makeSeedChecks() {
@@ -453,6 +454,102 @@ function makeSeedQA() {
   };
   Object.assign(qa, ciiScores);
   return qa;
+}
+
+/* ─── Persistence ─── */
+const MT_KEY = "meridian-mt.v1";
+function loadMT() {
+  try { const r = localStorage.getItem(MT_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
+}
+function saveMT(d) {
+  try { localStorage.setItem(MT_KEY, JSON.stringify(d)); } catch {}
+}
+
+/* ─── JSON Export ─── */
+function exportJSON(data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "mentorship-tracker-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ─── DOCX Export (one document, all providers) ─── */
+async function exportDocx(provs, checks, qa, notes) {
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
+  const children = [];
+  for (const p of provs) {
+    const phLabel = (MP.find(x => x.id === p.phase) || {}).label || p.phase;
+    children.push(new Paragraph({ children: [new TextRun({ text: p.name + " (" + p.role + ")", bold: true, size: 36 })], heading: HeadingLevel.HEADING_1 }));
+    children.push(new Paragraph({ children: [new TextRun("Days in practice: " + p.days + "  ·  Current phase: " + phLabel + "  ·  Mentor: " + (USERS.find(u => u.id === p.mentor) || {}).name)] }));
+    children.push(new Paragraph({}));
+
+    children.push(new Paragraph({ children: [new TextRun({ text: "Medical Director Curriculum", bold: true })], heading: HeadingLevel.HEADING_2 }));
+    MD_PHASES.forEach(function(ph) {
+      const items = MD_ITEMS_BY_PHASE[ph.id] || [];
+      if (items.length === 0) return;
+      const done = items.filter(function(it) { return checks[p.id + ".md." + it.id]; }).length;
+      children.push(new Paragraph({ children: [new TextRun("  " + ph.label + ": " + done + "/" + items.length + " completed")] }));
+    });
+    children.push(new Paragraph({}));
+
+    children.push(new Paragraph({ children: [new TextRun({ text: "Mentor: Physician Track", bold: true })], heading: HeadingLevel.HEADING_2 }));
+    MP_PHYS.forEach(function(ph) {
+      const c = countChecks(checks, p.id, ph.id);
+      children.push(new Paragraph({ children: [new TextRun("  " + (c.pct === 100 ? "✓" : "○") + " " + ph.label + " — " + c.done + "/" + c.total)] }));
+    });
+    children.push(new Paragraph({}));
+
+    if (isAPC(p)) {
+      children.push(new Paragraph({ children: [new TextRun({ text: "Mentor: APC Track (Year 2)", bold: true })], heading: HeadingLevel.HEADING_2 }));
+      MP_APC.forEach(function(ph) {
+        const c = countChecks(checks, p.id, ph.id);
+        children.push(new Paragraph({ children: [new TextRun("  " + (c.pct === 100 ? "✓" : "○") + " " + ph.label + " — " + c.done + "/" + c.total)] }));
+      });
+      children.push(new Paragraph({}));
+    }
+
+    children.push(new Paragraph({ children: [new TextRun({ text: "Questionnaire Scores", bold: true })], heading: HeadingLevel.HEADING_2 }));
+    let hasScores = false;
+    QP.forEach(function(qp) {
+      const s = avgScore(qa, p.id, qp.id);
+      if (s !== null) { hasScores = true; children.push(new Paragraph({ children: [new TextRun("  " + qp.label + ": " + s.toFixed(1) + " / 10")] })); }
+    });
+    if (!hasScores) children.push(new Paragraph({ children: [new TextRun("  No scores recorded")] }));
+    children.push(new Paragraph({}));
+
+    const allNotes = [];
+    Object.entries(notes).forEach(function([key, arr]) {
+      if (!key.startsWith(p.id + ".")) return;
+      const phId = key.split(".")[1];
+      const ph = MP.find(function(x) { return x.id === phId; }) || OP.find(function(x) { return x.id === phId; });
+      arr.forEach(function(n) { allNotes.push({ phase: ph ? ph.label : phId, ...n }); });
+    });
+    if (allNotes.length > 0) {
+      children.push(new Paragraph({ children: [new TextRun({ text: "Notes", bold: true })], heading: HeadingLevel.HEADING_2 }));
+      allNotes.forEach(function(n) {
+        children.push(new Paragraph({ children: [new TextRun("  [" + n.phase + "] " + n.by + " — " + n.at + ": " + n.text)] }));
+      });
+      children.push(new Paragraph({}));
+    }
+
+    children.push(new Paragraph({ children: [new TextRun({ text: "─".repeat(60), color: "AAAAAA" })] }));
+    children.push(new Paragraph({}));
+  }
+  const doc = new Document({ sections: [{ properties: {}, children }] });
+  const blob = await Packer.toBlob(doc);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "mentorship-tracker-" + new Date().toISOString().slice(0, 10) + ".docx";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ─── Helpers ─── */
@@ -1061,15 +1158,36 @@ export default function App() {
   const [tab, setTab] = useState("mentor");
   const [phase, setPhase] = useState(null);
   const [navHistory, setNavHistory] = useState([]);
-  const [checks, setChecks] = useState(makeSeedChecks);
-  const [qa, setQa] = useState(makeSeedQA);
-  const [noteIn, setNoteIn] = useState("");
-  const [notes, setNotes] = useState({});
   const [mainTab, setMainTab] = useState("roster");
   const [mdViewAll, setMdViewAll] = useState(false);
   const [dueMenu, setDueMenu] = useState(null);
   const [expandedAlerts, setExpandedAlerts] = useState({});
   const [dotModal, setDotModal] = useState(null);
+  const [addProvModal, setAddProvModal] = useState(false);
+  const [addProvForm, setAddProvForm] = useState({ name: "", role: "MD", mentor: "mt1", phase: "w0", days: 1 });
+  const [confirmRemove, setConfirmRemove] = useState(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [freshOpts, setFreshOpts] = useState(false);
+  const [editDays, setEditDays] = useState(null);
+  const [editDaysVal, setEditDaysVal] = useState("");
+  const [exportingDocx, setExportingDocx] = useState(false);
+
+  // Read localStorage once at mount to seed initial state
+  const [_init] = useState(() => loadMT());
+  const hasSaved = _init !== null;
+  const [provs, setProvs] = useState(() => _init?.provs || SEED_PROVS);
+  const [checks, setChecks] = useState(() => _init?.checks || makeSeedChecks());
+  const [qa, setQa] = useState(() => _init?.qa || makeSeedQA());
+  const [noteIn, setNoteIn] = useState("");
+  const [notes, setNotes] = useState(() => _init?.notes || {});
+
+  // Keep module-level PROVS in sync so helper functions see current state
+  PROVS = provs;
+
+  // Autosave whenever data changes
+  useEffect(() => {
+    saveMT({ provs, checks, qa, notes, savedAt: new Date().toISOString() });
+  }, [provs, checks, qa, notes]);
 
   const user = USERS.find(u => u.id === uid);
   const isDir = user && user.role === "director";
@@ -1124,6 +1242,17 @@ export default function App() {
 
   /* ─── LOGIN ─── */
   if (!uid) {
+    // Check localStorage at render time — hasSaved from _init is stale after first autosave
+    const runtimeHasSaved = loadMT() !== null;
+    const doReset = (keepProvs) => {
+      const freshChecks = makeSeedChecks();
+      const freshQa = makeSeedQA();
+      const freshProvs = keepProvs ? provs : SEED_PROVS;
+      setChecks(freshChecks); setQa(freshQa); setNotes({});
+      if (!keepProvs) setProvs(SEED_PROVS);
+      setFreshOpts(false);
+      saveMT({ provs: freshProvs, checks: freshChecks, qa: freshQa, notes: {}, savedAt: new Date().toISOString() });
+    };
     return (
       <div style={{ background: "#f1f3f5", minHeight: "100vh", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ width: 440 }}>
@@ -1132,6 +1261,46 @@ export default function App() {
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "#0f1b2d" }}>Mentorship Tracker</h1>
             <p style={{ margin: "8px 0 0", fontSize: 14, color: "#868e96" }}>Provider onboarding follow-ups</p>
           </div>
+
+          {/* Saved data banner */}
+          {runtimeHasSaved && !freshOpts && (
+            <div style={{ background: "#eff6ff", borderRadius: 12, border: "1px solid #bfdbfe", padding: "14px 20px", marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>💾 Saved session found</div>
+                  <div style={{ fontSize: 12, color: "#3b82f6", marginTop: 2 }}>Log in below to continue where you left off</div>
+                </div>
+                <button onClick={() => setFreshOpts(true)}
+                  style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid #bfdbfe", background: "white", color: "#1e40af", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+                  Start Fresh…
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Start Fresh options */}
+          {runtimeHasSaved && freshOpts && (
+            <div style={{ background: "white", borderRadius: 12, border: "1px solid #dee2e6", padding: "18px 20px", marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d", marginBottom: 12 }}>What would you like to reset?</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <button onClick={() => doReset(true)}
+                  style={{ padding: "12px 16px", borderRadius: 8, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>Clear checks, scores &amp; notes</div>
+                  <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>Keep your provider list · reset all checkoffs, questionnaire answers, and notes</div>
+                </button>
+                <button onClick={() => doReset(false)}
+                  style={{ padding: "12px 16px", borderRadius: 8, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>Reset everything</div>
+                  <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>Restore original 5 providers and clear all data</div>
+                </button>
+                <button onClick={() => setFreshOpts(false)}
+                  style={{ padding: "8px", borderRadius: 8, border: "none", background: "none", color: "#868e96", cursor: "pointer", fontSize: 12, textDecoration: "underline" }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           <div style={{ background: "white", borderRadius: 12, border: "1px solid #dee2e6", padding: 28 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#868e96", marginBottom: 14, textTransform: "uppercase" }}>Log in as:</div>
             {USERS.map(u => {
@@ -1210,6 +1379,25 @@ export default function App() {
               📋 View All Curriculum
             </button>
           )}
+          {isDir && (
+            <button onClick={() => exportJSON({ provs, checks, qa, notes, savedAt: new Date().toISOString() })}
+              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.10)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+              ⬇ JSON
+            </button>
+          )}
+          {isDir && (
+            <button onClick={async () => { setExportingDocx(true); try { await exportDocx(provs, checks, qa, notes); } finally { setExportingDocx(false); } }}
+              disabled={exportingDocx}
+              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.10)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 600, opacity: exportingDocx ? 0.6 : 1 }}>
+              {exportingDocx ? "⏳" : "📄 DOCX"}
+            </button>
+          )}
+          {isDir && (
+            <button onClick={() => setConfirmReset(true)}
+              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.10)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+              ↺ Reset
+            </button>
+          )}
           <button onClick={() => { setUid(null); setSelId(null); setNavHistory([]); }}
             style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
             Log Out
@@ -1242,10 +1430,11 @@ export default function App() {
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
 
         {/* ─── SIDEBAR ─── */}
-        <div style={{ width: 330, background: "white", borderRight: "1px solid #dee2e6", overflowY: "auto", flexShrink: 0 }}>
-          <div style={{ padding: "16px 16px 8px" }}>
+        <div style={{ width: 330, background: "white", borderRight: "1px solid #dee2e6", overflowY: "auto", flexShrink: 0, display: "flex", flexDirection: "column" }}>
+          <div style={{ padding: "16px 16px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{isDir ? "All Providers" : "My Mentees"}</h2>
           </div>
+          <div style={{ flex: 1 }}>
           {myProvs.map(p => {
             const m = USERS.find(u => u.id === p.mentor);
             const isSel = selId === p.id;
@@ -1258,34 +1447,51 @@ export default function App() {
             const phLabel = (MP.find(x => x.id === p.phase) || {}).label || "";
 
             return (
-              <div key={p.id}
-                onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
-                style={{ padding: "14px 16px", cursor: "pointer", borderLeft: isSel ? "4px solid #028090" : "4px solid transparent", background: isSel ? "rgba(2,128,144,0.05)" : "transparent", borderBottom: "1px solid #dee2e6" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: sc, flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <span style={{ fontSize: 14, fontWeight: 700 }}>{p.name}</span>
-                      {st === "overdue" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: "#fef2f2", color: "#ef4444" }}>OVERDUE</span>}
-                      {st === "due" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: "#fefce8", color: "#92400e" }}>DUE</span>}
+              <div key={p.id} style={{ position: "relative", borderLeft: isSel ? "4px solid #028090" : "4px solid transparent", borderBottom: "1px solid #dee2e6" }}>
+                <div onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
+                  style={{ padding: "14px 16px", cursor: "pointer", background: isSel ? "rgba(2,128,144,0.05)" : "transparent" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: sc, flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                        <span style={{ fontSize: 14, fontWeight: 700 }}>{p.name}</span>
+                        {st === "overdue" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: "#fef2f2", color: "#ef4444" }}>OVERDUE</span>}
+                        {st === "due" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: "#fefce8", color: "#92400e" }}>DUE</span>}
+                      </div>
+                      <div style={{ fontSize: 10, color: "#868e96" }}>{p.role} — {phLabel} — Day {p.days}</div>
                     </div>
-                    <div style={{ fontSize: 10, color: "#868e96" }}>{p.role} — {phLabel} — Day {p.days}</div>
+                    {isDir && (
+                      <button onClick={e => { e.stopPropagation(); setConfirmRemove(p.id); }}
+                        title="Remove provider"
+                        style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 16, lineHeight: 1, padding: "2px 4px", borderRadius: 4 }}
+                        onMouseEnter={e => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.background = "#fef2f2"; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = "#adb5bd"; e.currentTarget.style.background = "none"; }}>×</button>
+                    )}
                   </div>
+                  {isDir ? (
+                    <div>
+                      <Bar label="Medical Director Curriculum" pct={md} color="#8b5cf6" />
+                      <Bar label="Mentor: Physician" pct={mn} color="#028090" />
+                      <Bar label="Ops" pct={op} color="#0ea5e9" />
+                      <Bar label="Questionnaires" pct={qp} color="#eab308" />
+                    </div>
+                  ) : (
+                    <Bar label="Checklist" pct={mn} color={sc} />
+                  )}
+                  <div style={{ fontSize: 9, color: "#868e96", marginTop: 3 }}>Mentor: {m ? m.name : ""}</div>
                 </div>
-                {isDir ? (
-                  <div>
-                    <Bar label="Medical Director Curriculum" pct={md} color="#8b5cf6" />
-                    <Bar label="Mentor: Physician" pct={mn} color="#028090" />
-                    <Bar label="Ops" pct={op} color="#0ea5e9" />
-                    <Bar label="Questionnaires" pct={qp} color="#eab308" />
-                  </div>
-                ) : (
-                  <Bar label="Checklist" pct={mn} color={sc} />
-                )}
-                <div style={{ fontSize: 9, color: "#868e96", marginTop: 3 }}>Mentor: {m ? m.name : ""}</div>
               </div>
             );
           })}
+          </div>
+          {isDir && (
+            <div style={{ padding: "12px 16px", borderTop: "1px solid #dee2e6" }}>
+              <button onClick={() => { setAddProvForm({ name: "", role: "MD", mentor: "mt1", phase: "w0", days: 1 }); setAddProvModal(true); }}
+                style={{ width: "100%", padding: "10px", borderRadius: 8, border: "2px dashed #dee2e6", background: "none", color: "#028090", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                + Add Provider
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ─── RIGHT CONTENT ─── */}
@@ -1832,11 +2038,31 @@ export default function App() {
                     <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.name}</div>
                     <div style={{ fontSize: 12, color: "#868e96" }}>{prov.role} — Mentor: {mentorUser ? mentorUser.name : "—"}</div>
                   </div>
-                  <div style={{ display: "flex", gap: 20 }}>
+                  <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
                     <div style={{ textAlign: "center" }}>
                       <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Days</div>
-                      <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.days}</div>
-                      <div style={{ fontSize: 9, color: "#868e96" }}>of 365</div>
+                      {isDir && editDays === prov.id ? (
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                          <input type="number" value={editDaysVal} onChange={e => setEditDaysVal(e.target.value)}
+                            style={{ width: 64, textAlign: "center", fontSize: 16, fontWeight: 700, padding: "2px 4px", border: "2px solid #028090", borderRadius: 6, outline: "none" }}
+                            onKeyDown={e => {
+                              if (e.key === "Enter") { const n = parseInt(editDaysVal, 10); if (!isNaN(n) && n >= 0) { setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, days: n } : x)); } setEditDays(null); }
+                              if (e.key === "Escape") setEditDays(null);
+                            }} autoFocus />
+                          <div style={{ display: "flex", gap: 4 }}>
+                            <button onClick={() => { const n = parseInt(editDaysVal, 10); if (!isNaN(n) && n >= 0) { setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, days: n } : x)); } setEditDays(null); }}
+                              style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "none", background: "#028090", color: "white", cursor: "pointer" }}>Save</button>
+                            <button onClick={() => setEditDays(null)}
+                              style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "1px solid #dee2e6", background: "none", cursor: "pointer" }}>✕</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div onClick={isDir ? () => { setEditDays(prov.id); setEditDaysVal(String(prov.days)); } : undefined}
+                          style={{ cursor: isDir ? "pointer" : "default" }} title={isDir ? "Click to edit" : undefined}>
+                          <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.days}</div>
+                          <div style={{ fontSize: 9, color: "#868e96" }}>{isDir ? "click to edit" : "of 365"}</div>
+                        </div>
+                      )}
                     </div>
                     <div style={{ textAlign: "center" }}>
                       <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Score</div>
@@ -1850,6 +2076,21 @@ export default function App() {
                       <div style={{ fontSize: 20, fontWeight: 700, color: mentorPct(checks, prov.id) >= 70 ? "#22c55e" : "#0f1b2d" }}>{mentorPct(checks, prov.id)}%</div>
                       <div style={{ fontSize: 9, color: "#868e96" }}>mentor</div>
                     </div>
+                    {isDir && (function() {
+                      const track = isAPC(prov) ? MP : MP_PHYS;
+                      const ci = track.findIndex(ph => ph.id === prov.phase);
+                      const canAdv = ci >= 0 && ci < track.length - 1;
+                      return canAdv ? (
+                        <div style={{ textAlign: "center" }}>
+                          <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Phase</div>
+                          <button onClick={() => { const next = track[ci + 1].id; setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, phase: next } : x)); setPhase(next); }}
+                            style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 8, border: "1px solid #028090", background: "none", color: "#028090", cursor: "pointer", whiteSpace: "nowrap" }}>
+                            Advance →
+                          </button>
+                          <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{track[ci + 1].label}</div>
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 4, marginTop: 12, flexWrap: "wrap" }}>
@@ -2150,6 +2391,142 @@ export default function App() {
                 <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>{it.done}/{it.total} done</span>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Remove Provider modal */}
+      {confirmRemove && (
+        <div onClick={() => setConfirmRemove(null)}
+          style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: "white", borderRadius: 14, padding: "28px 32px", maxWidth: 380, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d", marginBottom: 8 }}>Remove provider?</div>
+            <div style={{ fontSize: 14, color: "#868e96", marginBottom: 20 }}>
+              {(provs.find(x => x.id === confirmRemove) || {}).name || "This provider"} will be removed along with all their check data, scores, and notes.
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => {
+                setProvs(prev => prev.filter(x => x.id !== confirmRemove));
+                if (selId === confirmRemove) setSelId(null);
+                setConfirmRemove(null);
+              }} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", background: "#ef4444", color: "white", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>
+                Remove
+              </button>
+              <button onClick={() => setConfirmRemove(null)}
+                style={{ flex: 1, padding: "10px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", fontSize: 14 }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Reset modal */}
+      {confirmReset && (
+        <div onClick={() => setConfirmReset(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: "white", borderRadius: 14, padding: "28px 32px", maxWidth: 400, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d", marginBottom: 6 }}>Reset session data</div>
+            <div style={{ fontSize: 13, color: "#868e96", marginBottom: 20 }}>Choose what to reset:</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+              <button onClick={() => {
+                setChecks(makeSeedChecks()); setQa(makeSeedQA()); setNotes({});
+                setConfirmReset(false);
+              }} style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d" }}>Clear checks, scores &amp; notes</div>
+                <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Keep your provider list · reset all checkoffs, questionnaire answers, and notes to seed data</div>
+              </button>
+              <button onClick={() => {
+                setProvs(SEED_PROVS); setChecks(makeSeedChecks()); setQa(makeSeedQA()); setNotes({});
+                if (selId && !SEED_PROVS.find(x => x.id === selId)) setSelId(null);
+                setConfirmReset(false);
+              }} style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d" }}>Reset everything</div>
+                <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Restore original 5 providers and clear all data</div>
+              </button>
+            </div>
+            <button onClick={() => setConfirmReset(false)}
+              style={{ width: "100%", padding: "10px", borderRadius: 8, border: "1px solid #dee2e6", background: "none", cursor: "pointer", color: "#868e96", fontSize: 13 }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Add Provider modal */}
+      {addProvModal && (
+        <div onClick={() => setAddProvModal(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: "white", borderRadius: 14, padding: "28px 32px", maxWidth: 420, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d", marginBottom: 20 }}>Add Provider</div>
+            {[
+              { label: "Full name", field: "name", type: "text", placeholder: "Dr. Smith" },
+            ].map(({ label, field, type, placeholder }) => (
+              <div key={field} style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>{label}</div>
+                <input type={type} value={addProvForm[field]} placeholder={placeholder}
+                  onChange={e => setAddProvForm(prev => ({ ...prev, [field]: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              </div>
+            ))}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>Role</div>
+                <select value={addProvForm.role} onChange={e => setAddProvForm(prev => ({ ...prev, role: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", background: "white", fontFamily: "inherit" }}>
+                  <option value="MD">MD</option>
+                  <option value="DO">DO</option>
+                  <option value="NP">NP</option>
+                  <option value="PA">PA</option>
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>Mentor</div>
+                <select value={addProvForm.mentor} onChange={e => setAddProvForm(prev => ({ ...prev, mentor: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", background: "white", fontFamily: "inherit" }}>
+                  {USERS.filter(u => u.role === "mentor").map(u => (
+                    <option key={u.id} value={u.id}>{u.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>Starting Phase</div>
+                <select value={addProvForm.phase} onChange={e => setAddProvForm(prev => ({ ...prev, phase: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", background: "white", fontFamily: "inherit" }}>
+                  {(["NP","PA"].includes(addProvForm.role) ? MP : MP_PHYS).map(ph => (
+                    <option key={ph.id} value={ph.id}>{ph.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>Days in Practice</div>
+                <input type="number" min="0" value={addProvForm.days}
+                  onChange={e => setAddProvForm(prev => ({ ...prev, days: parseInt(e.target.value, 10) || 0 }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                disabled={!addProvForm.name.trim()}
+                onClick={() => {
+                  if (!addProvForm.name.trim()) return;
+                  const newProv = { id: "p" + Date.now(), name: addProvForm.name.trim(), role: addProvForm.role, mentor: addProvForm.mentor, phase: addProvForm.phase, days: addProvForm.days };
+                  setProvs(prev => [...prev, newProv]);
+                  setAddProvModal(false);
+                }}
+                style={{ flex: 1, padding: "11px", borderRadius: 8, border: "none", background: addProvForm.name.trim() ? "#028090" : "#dee2e6", color: "white", cursor: addProvForm.name.trim() ? "pointer" : "default", fontWeight: 700, fontSize: 14 }}>
+                Add Provider
+              </button>
+              <button onClick={() => setAddProvModal(false)}
+                style={{ flex: 1, padding: "11px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", fontSize: 14 }}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
