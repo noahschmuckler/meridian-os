@@ -1173,6 +1173,7 @@ export default function App() {
   const [exportingDocx, setExportingDocx] = useState(false);
   const [search, setSearch] = useState("");
   const [saveFlash, setSaveFlash] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const firstSaveRef = useRef(true);
 
   // Read localStorage once at mount to seed initial state
@@ -1380,37 +1381,57 @@ export default function App() {
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {isDir && patterns.length > 0 && (
             <div style={{ padding: "5px 12px", borderRadius: 8, background: "#eab308", color: "#78350f", fontSize: 11, fontWeight: 700 }}>
-              {"📊 " + patterns.length + " Pattern Alert" + (patterns.length !== 1 ? "s" : "")}
+              {"📊 " + patterns.length + " Alert" + (patterns.length !== 1 ? "s" : "")}
             </div>
           )}
           {isDir && (
             <button onClick={() => setMdViewAll(true)}
-              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(139,92,246,0.18)", color: "#e9d5ff", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
-              📋 View All Curriculum
+              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.20)", background: "rgba(139,92,246,0.18)", color: "#e9d5ff", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+              📋 Curriculum
             </button>
           )}
+          {/* ⋯ admin menu */}
           {isDir && (
-            <button onClick={() => exportJSON({ provs, checks, qa, notes, savedAt: new Date().toISOString() })}
-              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.10)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
-              ⬇ JSON
-            </button>
-          )}
-          {isDir && (
-            <button onClick={async () => { setExportingDocx(true); try { await exportDocx(provs, checks, qa, notes); } finally { setExportingDocx(false); } }}
-              disabled={exportingDocx}
-              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.10)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 600, opacity: exportingDocx ? 0.6 : 1 }}>
-              {exportingDocx ? "⏳" : "📄 DOCX"}
-            </button>
-          )}
-          {isDir && (
-            <button onClick={() => setConfirmReset(true)}
-              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.10)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
-              ↺ Reset
-            </button>
+            <div style={{ position: "relative" }}>
+              <button onClick={() => setMenuOpen(o => !o)}
+                style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.20)", background: menuOpen ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.08)", color: "white", cursor: "pointer", fontSize: 16, lineHeight: 1, fontWeight: 700 }}>
+                ⋯
+              </button>
+              {menuOpen && (
+                <>
+                  {/* click-away backdrop */}
+                  <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 1500 }} />
+                  <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 1501, background: "white", borderRadius: 10, border: "1px solid #dee2e6", boxShadow: "0 8px 24px rgba(0,0,0,0.14)", minWidth: 180, overflow: "hidden" }}>
+                    <div style={{ padding: "6px 0" }}>
+                      <button onClick={() => { exportJSON({ provs, checks, qa, notes, savedAt: new Date().toISOString() }); setMenuOpen(false); }}
+                        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#1c2b3a", textAlign: "left" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#f8f9fb"}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                        <span style={{ fontSize: 15 }}>⬇</span> Export JSON
+                      </button>
+                      <button onClick={async () => { setMenuOpen(false); setExportingDocx(true); try { await exportDocx(provs, checks, qa, notes); } finally { setExportingDocx(false); } }}
+                        disabled={exportingDocx}
+                        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#1c2b3a", textAlign: "left", opacity: exportingDocx ? 0.5 : 1 }}
+                        onMouseEnter={e => { if (!exportingDocx) e.currentTarget.style.background = "#f8f9fb"; }}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                        <span style={{ fontSize: 15 }}>{exportingDocx ? "⏳" : "📄"}</span> {exportingDocx ? "Exporting…" : "Export DOCX"}
+                      </button>
+                      <div style={{ height: 1, background: "#dee2e6", margin: "4px 0" }} />
+                      <button onClick={() => { setConfirmReset(true); setMenuOpen(false); }}
+                        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#ef4444", textAlign: "left" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#fef2f2"}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                        <span style={{ fontSize: 15 }}>↺</span> Reset data…
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           )}
           <button onClick={() => { setUid(null); setSelId(null); setNavHistory([]); }}
-            style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-            Log Out
+            style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.20)", background: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 13, fontWeight: 500 }}>
+            Log out
           </button>
         </div>
       </div>
