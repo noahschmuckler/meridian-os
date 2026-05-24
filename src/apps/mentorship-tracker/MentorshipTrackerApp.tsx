@@ -2098,7 +2098,8 @@ export default function App() {
             <div>
               {/* ENHANCED PROFILE CARD */}
               <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "18px 22px", marginBottom: 16 }}>
-                <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                {/* Top row: avatar + name + Advance button */}
+                <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 14 }}>
                   <div style={{ width: 50, height: 50, borderRadius: "50%", background: "rgba(2,128,144,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: "#028090", flexShrink: 0 }}>
                     {prov.name.split(" ").pop().substring(0, 2)}
                   </div>
@@ -2106,59 +2107,57 @@ export default function App() {
                     <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.name}</div>
                     <div style={{ fontSize: 12, color: "#868e96" }}>{prov.role} — Mentor: {mentorUser ? mentorUser.name : "—"}</div>
                   </div>
-                  <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Days</div>
-                      {isDir && editDays === prov.id ? (
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                          <input type="number" value={editDaysVal} onChange={e => setEditDaysVal(e.target.value)}
-                            style={{ width: 64, textAlign: "center", fontSize: 16, fontWeight: 700, padding: "2px 4px", border: "2px solid #028090", borderRadius: 6, outline: "none" }}
-                            onKeyDown={e => {
-                              if (e.key === "Enter") { const n = parseInt(editDaysVal, 10); if (!isNaN(n) && n >= 0) { setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, days: n } : x)); } setEditDays(null); }
-                              if (e.key === "Escape") setEditDays(null);
-                            }} autoFocus />
-                          <div style={{ display: "flex", gap: 4 }}>
-                            <button onClick={() => { const n = parseInt(editDaysVal, 10); if (!isNaN(n) && n >= 0) { setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, days: n } : x)); } setEditDays(null); }}
-                              style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "none", background: "#028090", color: "white", cursor: "pointer" }}>Save</button>
-                            <button onClick={() => setEditDays(null)}
-                              style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "1px solid #dee2e6", background: "none", cursor: "pointer" }}>✕</button>
-                          </div>
+                  {isDir && (function() {
+                    const track = isAPC(prov) ? MP : MP_PHYS;
+                    const ci = track.findIndex(ph => ph.id === prov.phase);
+                    const canAdv = ci >= 0 && ci < track.length - 1;
+                    return canAdv ? (
+                      <button onClick={() => { const next = track[ci + 1].id; setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, phase: next } : x)); setPhase(next); }}
+                        style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 16px", borderRadius: 8, border: "none", background: "#028090", color: "white", cursor: "pointer", flexShrink: 0 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>Advance →</span>
+                        <span style={{ fontSize: 10, opacity: 0.8, marginTop: 2, whiteSpace: "nowrap" }}>{track[ci + 1].label}</span>
+                      </button>
+                    ) : null;
+                  })()}
+                </div>
+                {/* Stats row: Days · Score · Overall */}
+                <div style={{ display: "flex", gap: 24, paddingLeft: 66 }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Days</div>
+                    {isDir && editDays === prov.id ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                        <input type="number" value={editDaysVal} onChange={e => setEditDaysVal(e.target.value)}
+                          style={{ width: 64, textAlign: "center", fontSize: 16, fontWeight: 700, padding: "2px 4px", border: "2px solid #028090", borderRadius: 6, outline: "none" }}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") { const n = parseInt(editDaysVal, 10); if (!isNaN(n) && n >= 0) { setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, days: n } : x)); } setEditDays(null); }
+                            if (e.key === "Escape") setEditDays(null);
+                          }} autoFocus />
+                        <div style={{ display: "flex", gap: 4 }}>
+                          <button onClick={() => { const n = parseInt(editDaysVal, 10); if (!isNaN(n) && n >= 0) { setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, days: n } : x)); } setEditDays(null); }}
+                            style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "none", background: "#028090", color: "white", cursor: "pointer" }}>Save</button>
+                          <button onClick={() => setEditDays(null)}
+                            style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "1px solid #dee2e6", background: "none", cursor: "pointer" }}>✕</button>
                         </div>
-                      ) : (
-                        <div onClick={isDir ? () => { setEditDays(prov.id); setEditDaysVal(String(prov.days)); } : undefined}
-                          style={{ cursor: isDir ? "pointer" : "default" }} title={isDir ? "Click to edit" : undefined}>
-                          <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.days}</div>
-                          <div style={{ fontSize: 9, color: "#868e96" }}>{isDir ? "click to edit" : "of 365"}</div>
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Score</div>
-                      <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>
-                        {(() => { for (let i = curIdx; i >= 0; i--) { const s = avgScore(qa, prov.id, MP[i].id); if (s !== null) return s.toFixed(1); } return "—"; })()}
                       </div>
-                      <div style={{ fontSize: 9, color: "#868e96" }}>latest</div>
+                    ) : (
+                      <div onClick={isDir ? () => { setEditDays(prov.id); setEditDaysVal(String(prov.days)); } : undefined}
+                        style={{ cursor: isDir ? "pointer" : "default" }} title={isDir ? "Click to edit" : undefined}>
+                        <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.days}</div>
+                        <div style={{ fontSize: 9, color: "#868e96" }}>{isDir ? "click to edit" : "of 365"}</div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Score</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>
+                      {(() => { for (let i = curIdx; i >= 0; i--) { const s = avgScore(qa, prov.id, MP[i].id); if (s !== null) return s.toFixed(1); } return "—"; })()}
                     </div>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Overall</div>
-                      <div style={{ fontSize: 20, fontWeight: 700, color: mentorPct(checks, prov.id) >= 70 ? "#22c55e" : "#0f1b2d" }}>{mentorPct(checks, prov.id)}%</div>
-                      <div style={{ fontSize: 9, color: "#868e96" }}>mentor</div>
-                    </div>
-                    {isDir && (function() {
-                      const track = isAPC(prov) ? MP : MP_PHYS;
-                      const ci = track.findIndex(ph => ph.id === prov.phase);
-                      const canAdv = ci >= 0 && ci < track.length - 1;
-                      return canAdv ? (
-                        <div style={{ textAlign: "center" }}>
-                          <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Phase</div>
-                          <button onClick={() => { const next = track[ci + 1].id; setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, phase: next } : x)); setPhase(next); }}
-                            style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 8, border: "1px solid #028090", background: "none", color: "#028090", cursor: "pointer", whiteSpace: "nowrap" }}>
-                            Advance →
-                          </button>
-                          <div style={{ fontSize: 9, color: "#868e96", marginTop: 2 }}>{track[ci + 1].label}</div>
-                        </div>
-                      ) : null;
-                    })()}
+                    <div style={{ fontSize: 9, color: "#868e96" }}>latest</div>
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Overall</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: mentorPct(checks, prov.id) >= 70 ? "#22c55e" : "#0f1b2d" }}>{mentorPct(checks, prov.id)}%</div>
+                    <div style={{ fontSize: 9, color: "#868e96" }}>mentor</div>
                   </div>
                 </div>
                 {(() => {
