@@ -2161,19 +2161,42 @@ export default function App() {
                     })()}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 4, marginTop: 12, flexWrap: "wrap" }}>
-                  {(isAPC(prov) ? MP : MP_PHYS).map((ph) => {
-                    const phases = isAPC(prov) ? MP : MP_PHYS;
-                    const i = phases.findIndex(p => p.id === ph.id);
-                    const curI = phases.findIndex(p => p.id === prov.phase);
-                    const done = i < curI || (i === curI && countChecks(checks, prov.id, ph.id).pct === 100);
-                    return (
-                      <span key={ph.id} style={{ fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 8, background: done ? "rgba(34,197,94,0.12)" : "#e9ecef", color: done ? "#166534" : "#868e96" }}>
-                        {(done ? "✓ " : "○ ") + ph.label}
-                      </span>
-                    );
-                  })}
-                </div>
+                {(() => {
+                  const phases = isAPC(prov) ? MP : MP_PHYS;
+                  const curI = phases.findIndex(p => p.id === prov.phase);
+                  const chipGroupLabel = (id) => {
+                    if (["w0","w1","w2","w3","m1","w5","w6","w7","w8","m2"].includes(id)) return "Wk 0–Mo 2";
+                    if (["m15","m18","m24"].includes(id)) return "Mo 15–24";
+                    return "Mo 3–12";
+                  };
+                  const groups = [];
+                  const seen = {};
+                  phases.forEach(ph => {
+                    const g = chipGroupLabel(ph.id);
+                    if (!seen[g]) { seen[g] = true; groups.push({ label: g, phases: [] }); }
+                    groups.find(x => x.label === g).phases.push(ph);
+                  });
+                  return (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 12 }}>
+                      {groups.map(({ label, phases: gPhases }) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#c4c9d0", minWidth: 52, flexShrink: 0 }}>{label}</span>
+                          <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+                            {gPhases.map(ph => {
+                              const i = phases.findIndex(p => p.id === ph.id);
+                              const done = i < curI || (i === curI && countChecks(checks, prov.id, ph.id).pct === 100);
+                              return (
+                                <span key={ph.id} style={{ fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 8, background: done ? "rgba(34,197,94,0.12)" : "#e9ecef", color: done ? "#166534" : "#868e96" }}>
+                                  {(done ? "✓ " : "○ ") + ph.label}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* JOURNEY TIMELINE */}
