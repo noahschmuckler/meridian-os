@@ -1489,39 +1489,61 @@ export default function App() {
             const sc = st === "overdue" ? "#ef4444" : st === "due" ? "#eab308" : mn >= 70 ? "#22c55e" : "#eab308";
             const phLabel = (MP.find(x => x.id === p.phase) || {}).label || "";
 
+            const mentorLastName = m ? m.name.replace(/^Dr\.\s*/, "") : "—";
             return (
-              <div key={p.id} style={{ position: "relative", borderLeft: isSel ? "4px solid #028090" : "4px solid transparent", borderBottom: "1px solid #dee2e6" }}>
+              <div key={p.id} style={{ borderLeft: isSel ? "3px solid #028090" : "3px solid transparent", borderBottom: "1px solid #f1f3f5" }}>
                 <div onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
-                  style={{ padding: "14px 16px", cursor: "pointer", background: isSel ? "rgba(2,128,144,0.05)" : "transparent" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: sc, flexShrink: 0 }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                        <span style={{ fontSize: 14, fontWeight: 700 }}>{p.name}</span>
-                        {st === "overdue" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: "#fef2f2", color: "#ef4444" }}>OVERDUE</span>}
-                        {st === "due" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: "#fefce8", color: "#92400e" }}>DUE</span>}
-                      </div>
-                      <div style={{ fontSize: 10, color: "#868e96" }}>{p.role} — {phLabel} — Day {p.days}</div>
-                    </div>
+                  style={{ padding: "11px 14px 12px", cursor: "pointer", background: isSel ? "rgba(2,128,144,0.04)" : "transparent" }}>
+
+                  {/* Row 1: status dot · name · badge · remove */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: sc, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 700, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+                    {st === "overdue" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 4, background: "#fef2f2", color: "#ef4444", flexShrink: 0 }}>LATE</span>}
+                    {st === "due" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 4, background: "#fefce8", color: "#92400e", flexShrink: 0 }}>DUE</span>}
                     {isDir && (
                       <button onClick={e => { e.stopPropagation(); setConfirmRemove(p.id); }}
                         title="Remove provider"
-                        style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 16, lineHeight: 1, padding: "2px 4px", borderRadius: 4 }}
+                        style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "#d1d5db", fontSize: 15, lineHeight: 1, padding: "1px 3px", borderRadius: 3 }}
                         onMouseEnter={e => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.background = "#fef2f2"; }}
-                        onMouseLeave={e => { e.currentTarget.style.color = "#adb5bd"; e.currentTarget.style.background = "none"; }}>×</button>
+                        onMouseLeave={e => { e.currentTarget.style.color = "#d1d5db"; e.currentTarget.style.background = "none"; }}>×</button>
                     )}
                   </div>
+
+                  {/* Row 2: meta */}
+                  <div style={{ fontSize: 10, color: "#9ca3af", marginBottom: 9, paddingLeft: 14 }}>
+                    {p.role} · {phLabel} · Day {p.days} · <span style={{ color: "#c4c9d0" }}>{mentorLastName}</span>
+                  </div>
+
+                  {/* Row 3: track grid (director) or single bar (mentor) */}
                   {isDir ? (
-                    <div>
-                      <Bar label="Medical Director Curriculum" pct={md} color="#8b5cf6" />
-                      <Bar label="Mentor: Physician" pct={mn} color="#028090" />
-                      <Bar label="Ops" pct={op} color="#0ea5e9" />
-                      <Bar label="Questionnaires" pct={qp} color="#eab308" />
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 10px", paddingLeft: 14 }}>
+                      {[
+                        { label: "MD Curriculum", pct: md, color: "#8b5cf6" },
+                        { label: "Mentor", pct: mn, color: "#028090" },
+                        { label: "OM Touchpoints", pct: op, color: "#0ea5e9" },
+                        { label: "Questionnaires", pct: qp, color: "#eab308" },
+                      ].map(({ label, pct, color }) => {
+                        const dc = pct >= 70 ? "#22c55e" : pct >= 30 ? color : pct > 0 ? "#ef4444" : "#d1d5db";
+                        return (
+                          <div key={label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                            <div style={{ width: 32, height: 3, borderRadius: 2, background: "#e9ecef", flexShrink: 0, overflow: "hidden" }}>
+                              <div style={{ height: "100%", width: pct + "%", background: dc, borderRadius: 2 }} />
+                            </div>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: dc, minWidth: 24 }}>{pct}%</span>
+                            <span style={{ fontSize: 9, color: "#b0b8c4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
-                    <Bar label="Checklist" pct={mn} color={sc} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 14 }}>
+                      <div style={{ flex: 1, height: 3, borderRadius: 2, background: "#e9ecef", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: mn + "%", background: sc, borderRadius: 2 }} />
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: sc }}>{mn}%</span>
+                    </div>
                   )}
-                  <div style={{ fontSize: 9, color: "#868e96", marginTop: 3 }}>Mentor: {m ? m.name : ""}</div>
                 </div>
               </div>
             );
