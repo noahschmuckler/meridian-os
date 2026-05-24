@@ -1262,69 +1262,85 @@ export default function App() {
       saveMT({ provs: freshProvs, checks: freshChecks, qa: freshQa, notes: {}, savedAt: new Date().toISOString() });
     };
     return (
-      <div style={{ background: "#f1f3f5", minHeight: "100vh", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 440 }}>
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div style={{ fontSize: 48, marginBottom: 10 }}>👥</div>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "#0f1b2d" }}>Mentorship Tracker</h1>
-            <p style={{ margin: "8px 0 0", fontSize: 14, color: "#868e96" }}>Provider onboarding follow-ups</p>
+      <div style={{ background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", minHeight: "100vh", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
+        <div style={{ width: "100%", maxWidth: 420 }}>
+
+          {/* Brand header */}
+          <div style={{ textAlign: "center", marginBottom: 28 }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 16px" }}>👥</div>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "white", letterSpacing: "-0.3px" }}>Mentorship Tracker</h1>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>Crystal Run Healthcare · Provider Onboarding</p>
           </div>
 
-          {/* Saved data banner */}
-          {runtimeHasSaved && !freshOpts && (
-            <div style={{ background: "#eff6ff", borderRadius: 12, border: "1px solid #bfdbfe", padding: "14px 20px", marginBottom: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          {/* Main card */}
+          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", overflow: "hidden" }}>
+
+            {/* Saved data banner */}
+            {runtimeHasSaved && !freshOpts && (
+              <div style={{ background: "#eff6ff", borderBottom: "1px solid #bfdbfe", padding: "13px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>💾 Saved session found</div>
-                  <div style={{ fontSize: 12, color: "#3b82f6", marginTop: 2 }}>Log in below to continue where you left off</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>💾 Saved session found</div>
+                  <div style={{ fontSize: 11, color: "#3b82f6", marginTop: 1 }}>Log in to continue where you left off</div>
                 </div>
                 <button onClick={() => setFreshOpts(true)}
-                  style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid #bfdbfe", background: "white", color: "#1e40af", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+                  style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #bfdbfe", background: "white", color: "#1e40af", cursor: "pointer", fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}>
                   Start Fresh…
                 </button>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Start Fresh options */}
-          {runtimeHasSaved && freshOpts && (
-            <div style={{ background: "white", borderRadius: 12, border: "1px solid #dee2e6", padding: "18px 20px", marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d", marginBottom: 12 }}>What would you like to reset?</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <button onClick={() => doReset(true)}
-                  style={{ padding: "12px 16px", borderRadius: 8, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>Clear checks, scores &amp; notes</div>
-                  <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>Keep your provider list · reset all checkoffs, questionnaire answers, and notes</div>
-                </button>
-                <button onClick={() => doReset(false)}
-                  style={{ padding: "12px 16px", borderRadius: 8, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>Reset everything</div>
-                  <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>Restore original 5 providers and clear all data</div>
-                </button>
-                <button onClick={() => setFreshOpts(false)}
-                  style={{ padding: "8px", borderRadius: 8, border: "none", background: "none", color: "#868e96", cursor: "pointer", fontSize: 12, textDecoration: "underline" }}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div style={{ background: "white", borderRadius: 12, border: "1px solid #dee2e6", padding: 28 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#868e96", marginBottom: 14, textTransform: "uppercase" }}>Log in as:</div>
-            {USERS.map(u => {
-              const c = u.role === "director" ? "#8b5cf6" : "#028090";
-              const rl = u.role === "director" ? "Medical Director" : "Mentor";
-              return (
-                <div key={u.id} onClick={() => navigate({ uid: u.id, selId: null, tab: "mentor", phase: null, mainTab: "roster" })}
-                  style={{ padding: "16px 18px", borderRadius: 10, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, background: "#f8f9fb", border: "2px solid #dee2e6" }}>
-                  <div>
-                    <div style={{ fontSize: 17, fontWeight: 600 }}>{u.name}</div>
-                    <div style={{ fontSize: 13, color: "#868e96" }}>{rl}</div>
-                  </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, padding: "5px 14px", borderRadius: 16, background: c + "20", color: c }}>{rl}</span>
+            {/* Start Fresh options */}
+            {runtimeHasSaved && freshOpts && (
+              <div style={{ background: "#fafafa", borderBottom: "1px solid #dee2e6", padding: "16px 20px" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d", marginBottom: 10 }}>What would you like to reset?</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <button onClick={() => doReset(true)}
+                    style={{ padding: "11px 14px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", textAlign: "left" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>Clear checks, scores &amp; notes</div>
+                    <div style={{ fontSize: 11, color: "#868e96", marginTop: 2 }}>Keep your provider list · reset all checkoffs and answers</div>
+                  </button>
+                  <button onClick={() => doReset(false)}
+                    style={{ padding: "11px 14px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", textAlign: "left" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>Reset everything</div>
+                    <div style={{ fontSize: 11, color: "#868e96", marginTop: 2 }}>Restore original 5 providers and clear all data</div>
+                  </button>
+                  <button onClick={() => setFreshOpts(false)}
+                    style={{ padding: "6px", border: "none", background: "none", color: "#868e96", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>
+                    Cancel
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            )}
+
+            {/* User tiles */}
+            <div style={{ padding: "20px 20px 24px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Select your account</div>
+              {USERS.map(u => {
+                const isDir = u.role === "director";
+                const c = isDir ? "#8b5cf6" : "#028090";
+                const rl = isDir ? "Medical Director" : "Mentor";
+                const initials = u.name.replace("Dr. ", "").split(" ").map(w => w[0]).join("").slice(0, 2);
+                return (
+                  <div key={u.id} onClick={() => navigate({ uid: u.id, selId: null, tab: "mentor", phase: null, mainTab: "roster" })}
+                    style={{ padding: "12px 14px", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 8, border: "1.5px solid #e9ecef", transition: "border-color 0.15s, background 0.15s" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = c; e.currentTarget.style.background = c + "08"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "#e9ecef"; e.currentTarget.style.background = "transparent"; }}>
+                    <div style={{ width: 38, height: 38, borderRadius: "50%", background: c + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: c, flexShrink: 0 }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "#0f1b2d" }}>{u.name}</div>
+                      <div style={{ fontSize: 11, color: "#868e96", marginTop: 1 }}>{rl}</div>
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 12, background: c + "15", color: c }}>{rl}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 20, fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
+            For authorized Crystal Run Healthcare staff only
           </div>
         </div>
       </div>
