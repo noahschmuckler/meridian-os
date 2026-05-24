@@ -2292,8 +2292,7 @@ export default function App() {
                     if (["w5","w6","w7","w8"].includes(id)) return "Wks 5–8";
                     return "Months";
                   }
-                  if (["w0","w1","w2","w3","m1"].includes(id)) return "Wks 0–4";
-                  if (["w5","w6","w7","w8","m2"].includes(id)) return "Wks 5–8";
+                  if (["w0","w1","w2","w3","m1","w5","w6","w7","w8","m2"].includes(id)) return "Wk 0–Mo 2";
                   if (["m15","m18","m24"].includes(id)) return "Mo 15–24";
                   return "Mo 3–12";
                 };
