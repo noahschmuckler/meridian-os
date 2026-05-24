@@ -1153,6 +1153,7 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
 
 /* ─── Main App ─── */
 export default function App() {
+  const [dept, setDept] = useState(null); // null = picker, "pc" | "peds" | "spec"
   const [uid, setUid] = useState(null);
   const [selId, setSelId] = useState(null);
   const [tab, setTab] = useState("mentor");
@@ -1249,6 +1250,50 @@ export default function App() {
   recentNotes.reverse();
 
   /* ─── LOGIN ─── */
+  const gradBg = { background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", minHeight: "100vh", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" };
+
+  // ── DEPARTMENT PICKER ──────────────────────────────────────────────────────
+  if (!dept) {
+    const depts = [
+      { key: "pc",   label: "Primary Care", icon: "🩺", available: true },
+      { key: "peds", label: "Pediatrics",   icon: "👶", available: false },
+      { key: "spec", label: "Specialty",    icon: "🏥", available: false },
+    ];
+    return (
+      <div style={gradBg}>
+        <div style={{ width: "100%", maxWidth: 420 }}>
+          <div style={{ textAlign: "center", marginBottom: 28 }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 16px" }}>👥</div>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "white", letterSpacing: "-0.3px" }}>Mentorship Tracker</h1>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>Optum NY/NJ · Provider Onboarding</p>
+          </div>
+          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", padding: "24px 20px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>Select your department</div>
+            {depts.map(d => (
+              <div key={d.key} onClick={() => d.available && setDept(d.key)}
+                style={{ padding: "14px 16px", borderRadius: 10, cursor: d.available ? "pointer" : "default", display: "flex", alignItems: "center", gap: 14, marginBottom: 8, border: "1.5px solid #e9ecef", opacity: d.available ? 1 : 0.5, transition: "border-color 0.15s, background 0.15s" }}
+                onMouseEnter={e => { if (d.available) { e.currentTarget.style.borderColor = "#028090"; e.currentTarget.style.background = "rgba(2,128,144,0.04)"; }}}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "#e9ecef"; e.currentTarget.style.background = "transparent"; }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(2,128,144,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{d.icon}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#0f1b2d" }}>{d.label}</div>
+                  {!d.available && <div style={{ fontSize: 11, color: "#adb5bd", marginTop: 1 }}>Coming soon</div>}
+                </div>
+                {d.available ? (
+                  <span style={{ fontSize: 16, color: "#028090" }}>›</span>
+                ) : (
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: "#f1f3f5", color: "#adb5bd" }}>Soon</span>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 20, fontSize: 11, color: "rgba(255,255,255,0.3)" }}>For authorized Optum NY/NJ staff only</div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── LOGIN ──────────────────────────────────────────────────────────────────
   if (!uid) {
     // Check localStorage at render time — hasSaved from _init is stale after first autosave
     const runtimeHasSaved = loadMT() !== null;
@@ -1262,14 +1307,14 @@ export default function App() {
       saveMT({ provs: freshProvs, checks: freshChecks, qa: freshQa, notes: {}, savedAt: new Date().toISOString() });
     };
     return (
-      <div style={{ background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", minHeight: "100vh", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" }}>
+      <div style={gradBg}>
         <div style={{ width: "100%", maxWidth: 420 }}>
 
           {/* Brand header */}
           <div style={{ textAlign: "center", marginBottom: 28 }}>
             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 16px" }}>👥</div>
             <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "white", letterSpacing: "-0.3px" }}>Mentorship Tracker</h1>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>Crystal Run Healthcare · Provider Onboarding</p>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>Optum NY/NJ · Primary Care</p>
           </div>
 
           {/* Main card */}
@@ -1339,8 +1384,9 @@ export default function App() {
             </div>
           </div>
 
-          <div style={{ textAlign: "center", marginTop: 20, fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
-            For authorized Crystal Run Healthcare staff only
+          <div style={{ textAlign: "center", marginTop: 16, fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+            <span onClick={() => setDept(null)} style={{ cursor: "pointer", textDecoration: "underline", marginRight: 12 }}>‹ Change department</span>
+            For authorized Optum NY/NJ staff only
           </div>
         </div>
       </div>
