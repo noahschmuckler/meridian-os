@@ -2244,11 +2244,12 @@ export default function App() {
               {(isDir || isMen) && <ScoreTrend qa={qa} pid={prov.id} />}
 
               {/* PHASE SELECTOR */}
-              <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
-                {phaseList.map(ph => {
+              {(() => {
+                const accent = isOps ? "#0ea5e9" : isQ ? "#eab308" : isMd ? "#8b5cf6" : "#028090";
+
+                const renderPhBtn = (ph) => {
                   const isAct = phase === ph.id;
                   const isCur = tab === "mentor" && ph.id === prov.phase;
-                  const accent = isOps ? "#0ea5e9" : isQ ? "#eab308" : isMd ? "#8b5cf6" : "#028090";
                   let cc = null;
                   if (isMd) {
                     const items = MD_ITEMS_BY_PHASE[ph.id] || [];
@@ -2258,10 +2259,7 @@ export default function App() {
                     const op = OP.find(p => p.id === ph.id);
                     if (op) {
                       const total = op.qs.length;
-                      const done = op.qs.filter(q => {
-                        const v = qa[prov.id + "." + ph.id + "." + q.qid];
-                        return v !== undefined && v !== "";
-                      }).length;
+                      const done = op.qs.filter(q => { const v = qa[prov.id + "." + ph.id + "." + q.qid]; return v !== undefined && v !== ""; }).length;
                       cc = { done, total };
                     }
                   } else if (!isQ) {
@@ -2275,8 +2273,52 @@ export default function App() {
                       {isCur && !isAct && <div style={{ fontSize: 8, color: "#028090", fontWeight: 700 }}>CURRENT</div>}
                     </button>
                   );
-                })}
-              </div>
+                };
+
+                // OP (4 phases) and QP (6 phases) stay flat — no group labels needed
+                if (isOps || isQ) {
+                  return (
+                    <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
+                      {phaseList.map(renderPhBtn)}
+                    </div>
+                  );
+                }
+
+                // Group phases into labelled rows
+                const getGroupLabel = (id) => {
+                  if (isMd) {
+                    if (id === "pre0" || id === "pre1") return "Pre-Start";
+                    if (["w1","w2","w3","w4"].includes(id)) return "Wks 1–4";
+                    if (["w5","w6","w7","w8"].includes(id)) return "Wks 5–8";
+                    return "Months";
+                  }
+                  if (["w0","w1","w2","w3","m1"].includes(id)) return "Wks 0–4";
+                  if (["w5","w6","w7","w8","m2"].includes(id)) return "Wks 5–8";
+                  if (["m15","m18","m24"].includes(id)) return "Mo 15–24";
+                  return "Mo 3–12";
+                };
+
+                const groups = [];
+                const seenGroups = {};
+                phaseList.forEach(ph => {
+                  const g = getGroupLabel(ph.id);
+                  if (!seenGroups[g]) { seenGroups[g] = true; groups.push({ label: g, phases: [] }); }
+                  groups.find(x => x.label === g).phases.push(ph);
+                });
+
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 16 }}>
+                    {groups.map(({ label, phases }) => (
+                      <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#adb5bd", minWidth: 56, paddingTop: 9, flexShrink: 0 }}>{label}</span>
+                        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                          {phases.map(renderPhBtn)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {/* MEDICAL DIRECTOR CURRICULUM CHECKLIST */}
               {isMd && curMdItems && (
