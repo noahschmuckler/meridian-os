@@ -37,6 +37,7 @@ import { MentorshipExecOverview } from './mentorship-exec-overview';
 import { Questionnaire } from './questionnaire';
 import { GlossaryBrowser } from './glossary-browser';
 import { ConsultBuilder } from './consult-builder';
+import { ContractBuilder } from './contract-builder';
 
 export interface BubbleProps {
   instance: BubbleInstance;
@@ -77,6 +78,7 @@ const REGISTRY: Partial<Record<BubblePrimitiveType, ComponentType<BubbleProps>>>
   'questionnaire': Questionnaire as ComponentType<BubbleProps>,
   'glossary-browser': GlossaryBrowser as ComponentType<BubbleProps>,
   'consult-builder': ConsultBuilder as ComponentType<BubbleProps>,
+  'contract-builder': ContractBuilder as ComponentType<BubbleProps>,
 };
 
 export function getPrimitiveComponent(type: BubblePrimitiveType): ComponentType<BubbleProps> {

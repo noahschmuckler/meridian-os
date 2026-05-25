@@ -1514,6 +1514,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
               workspaceId: workspace.id,
             }
           : inst.type === 'consult-builder'
+            || inst.type === 'contract-builder'
           ? {
               workspaceId: workspace.id,
               selfBubbleId: leaf.bubbleId,

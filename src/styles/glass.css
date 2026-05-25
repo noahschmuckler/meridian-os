@@ -2899,6 +2899,7 @@
 
 .t-glossary-browser { --type-color: #5f6b7a; }
 .t-consult-builder  { --type-color: #6B4F9B; }
+.t-contract-builder { --type-color: #6B4F9B; }
 
 .glossary-browser__search {
   width: 100%;

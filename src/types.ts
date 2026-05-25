@@ -49,6 +49,7 @@ export type BubblePrimitiveType =
   | 'mentorship-phase-notes'
   | 'glossary-browser'
   | 'consult-builder'
+  | 'contract-builder'
   | 'placeholder';
 
 export type SizeKey = 'xs' | 's' | 'm' | 'l' | 'xl';
@@ -356,6 +357,83 @@ export interface ModuleData {
   // entries, or future hooks). Future phrases live here even before they
   // have homes so they aren't lost on the next pass.
   smartphrases?: ModuleSmartPhrase[];
+}
+
+// ─── Controlled-substances contract builder (Track 4d) ─────────────────
+// Top-level seed library at src/data/seed/controlled-substances-contracts.json
+// is the source of truth for clause text (Section 6 versioning). The builder
+// bubble assembles a contract by filtering clauses against provider inputs
+// (substance class, state, risk tier, situational flags). Conditions are
+// declarative so clause text never embeds selection logic.
+
+export type CsSubstanceClass = 'opioid' | 'benzo' | 'stimulant' | 'multi-class';
+export type CsState = 'NY' | 'NJ';
+export type CsRiskTier = 'standard' | 'enhanced' | 'high-risk';
+
+// A clause is included when `condition` is null (always) or the named input
+// field equals `eq` / is one of `in`.
+export interface CsContractCondition {
+  field: string;
+  eq?: string | boolean;
+  in?: string[];
+}
+
+export interface CsContractClause {
+  clause_id: string;
+  section: string;
+  type: 'fixed' | 'variable';
+  condition: CsContractCondition | null;
+  text: string;             // NY / default clause text
+  text_NJ?: string;         // NJ override when wording differs (omit if identical)
+  authority: string;
+  proposed_institutional_standard: boolean;  // true = no national mandate
+}
+
+export interface CsContractSection {
+  section_id: string;
+  title: string;
+  order: number;
+  clauses: CsContractClause[];
+}
+
+export interface CsContractChangeLogEntry {
+  version: string;
+  date: string;
+  author: string;
+  summary: string;
+}
+
+export interface CsContractLibrary {
+  schema_version: string;
+  title: string;
+  org: string;
+  scope: string;
+  change_log: CsContractChangeLogEntry[];
+  next_review_offset_months: Record<CsRiskTier, number>;
+  class_codes: Record<CsSubstanceClass, string>;
+  tier_codes: Record<CsRiskTier, string>;
+  class_labels: Record<CsSubstanceClass, string>;
+  module_class_map: Record<string, CsSubstanceClass>;
+  sections: CsContractSection[];
+}
+
+// Provider-collected inputs (schema Section 1.2). Drives tier auto-suggestion
+// and clause selection.
+export interface CsContractInputs {
+  substance_class: CsSubstanceClass;
+  state: CsState;
+  risk_tier: CsRiskTier;
+  sud_history: 'none' | 'past' | 'active';
+  concurrent_cs: 'none' | 'same-class' | 'cross-class';
+  combo_opioid_benzo: boolean;
+  age_65_plus: boolean;
+  dose_above_threshold: boolean;
+  early_fill_history: boolean;
+  driving_or_safety_sensitive: boolean;
+  prior_lost_medication: boolean;
+  indication_status: 'established' | 'inherited-presumptive' | 'none-pending-assessment';
+  naloxone_indicated: boolean;
+  specialist_involved: boolean;
 }
 
 export interface Bubble<P = unknown> {

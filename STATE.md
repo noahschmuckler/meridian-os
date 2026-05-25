@@ -11,7 +11,9 @@ Detailed in-flight work, historical record of shipped phases/tracks, and pending
 
 ---
 
-## Current state (last updated 2026-05-22)
+## Current state (last updated 2026-05-25)
+
+**Controlled-substances contract builder (Track 4d) — implemented 2026-05-25 (Noah, branch `noah/cs-contract-builder`, PR pending review on Cloudflare preview).** New `contract-builder` bubble + `src/data/seed/controlled-substances-contracts.json` clause library, implemented to the v1.0.0 schema (`~/Downloads/cs-contract-builder-schema.md`). Provider sets substance class / state (NY·NJ) / situational flags → builder auto-suggests a risk tier (standard/enhanced/high-risk, Section 2 logic, override logged) → assembles the matching clauses (36-clause library, 5 sections, NY/NJ text variants, declarative `condition` objects) → outputs agreement text + `.CSAGREE-[CLASS]-[STATE]-[TIER]` trigger + flags summary + next-review date. Class-driven (not per-module); spawns from clinical-tools' new "Contracts" card (pre-selects class from the active CS module: adhd→stimulant, opiates→opioid, benzos→benzo). Files: `src/bubbles/contract-builder/index.tsx` (new, first-class typed), `src/data/seed/controlled-substances-contracts.json` (new, built by `/tmp/build_cs_contracts.py`), `src/types.ts` (union + Cs* interfaces), `src/bubbles/{index.ts,labels.ts}`, `src/styles/glass.css` (purple `#6B4F9B`), `src/shell/BspWorkspace.tsx` (extraProps), `src/bubbles/clinical-tools/index.tsx` (Contracts card). **Verified:** `npm run build` clean; tier/assembly logic simulated across 4 scenarios (mutually-exclusive UDS+reassessment tiers resolve to one; state PDMP correct; combo→high-risk+naloxone+specialist). **v1 deferrals:** DOCX/PDF export (copy-only for now), Section-5 per-class subsections (clauses aren't class-partitioned), the "controlled substance agreement" mention decorator. **Bracketed tokens** ([MEDICATION] etc.) pass through verbatim as Epic SmartPhrase fill-ins; only [MEDICATION CLASS] + [VERSION STAMP] are substituted. **Branch note:** off clean `main`, independent of PR #11 (opiates/benzos modules); both PRs touch STATE.md/CLAUDE.md current-state + file-map, so expect a trivial prepend conflict when the second merges. **Open follow-up for Noah:** the boolean inputs `dose_above_threshold` / `prior_lost_medication` can't express the schema's magnitude/count wording ("significantly above", "2+") for tier auto-suggest — mapped conservatively (provider override covers it); confirm or add finer inputs in schema v1.1.
 
 **Dashboard app + Briefing app — both shipped 2026-05-22 (Noah).** Full milestones for each under "Shipped milestones" below. **Latest commit on main:** Dashboard PR #9 squash-merge (this entry will be bumped to the exact hash post-merge). Dashboard sits to the right of Briefing on the launcher; Briefing was the visual-language template. Both share the `--crh-*` palette tokens (DM Sans + DM Serif Display, parchment, scoped color-tinted "brief cards"). Five total launcher apps now live: Mondrian GUI · Mentorship Tracker · Epic Quick Reference · Briefing · Dashboard.
 
@@ -219,7 +221,7 @@ All three legs landed: (a) Epic Quick Reference ported as third launcher app —
 ### Track 4a–4b sub-tracks remaining
 
 - **Track 4c — Smartphrase selector + hyperlink wiring.** Bumps `green_zone.smartphrase` (single string) to `smartphrases?: SmartPhrase[]` with a back-compat shim. New `smartphrase-selector` bubble + `decorateSmartphraseMentions` wraps `.command-name` strings in anchors.
-- **Track 4d — NJ/NY Controlled Substances Contract builder.** Top-level `src/data/seed/controlled-substances-contracts.json` registry; `contract-builder` bubble assembles clauses by jurisdiction + variation tags + patient-info fields; export as DOCX / PDF / markdown.
+- **Track 4d — NJ/NY Controlled Substances Contract builder. SHIPPED 2026-05-25 (PR pending).** Implemented to the v1.0.0 schema (`~/Downloads/cs-contract-builder-schema.md`): top-level `src/data/seed/controlled-substances-contracts.json` clause library (5 sections, 36 clauses, NY/NJ text variants, structured conditions); `contract-builder` bubble (purple) collects substance-class/state/situational-flags → auto-suggests risk tier (Section 2 logic, provider-override) → assembles matching clauses → emits agreement text + `.CSAGREE-[CLASS]-[STATE]-[TIER]` SmartPhrase trigger + flags summary + next-review date. Spawns from clinical-tools' new "Contracts" card (pre-selects class from the active CS module). v1 export = copy-to-clipboard (bracketed tokens pass through as Epic fill-ins); DOCX/PDF export + Section-5 per-class subsections + "controlled substance agreement" mention decorator deferred.
 
 ### Major systems landed since 2026-04-27
 
@@ -293,7 +295,7 @@ All three legs landed: (a) Epic Quick Reference ported as third launcher app —
 
 ### QOL roadmap remaining
 
-Active scoping plan: `~/.claude/plans/i-love-the-work-whimsical-porcupine.md`. Tracks 1, 2, 3, 4a, 4b shipped. Remaining: Track 4c (smartphrase selector) + Track 4d (controlled substances contract builder) — descriptions in "Track 4a–4b sub-tracks remaining" above.
+Active scoping plan: `~/.claude/plans/i-love-the-work-whimsical-porcupine.md`. Tracks 1, 2, 3, 4a, 4b, 4d shipped. **Only Track 4c (smartphrase selector) remains** — description in "Track 4a–4b sub-tracks remaining" above.
 
 ### Next candidates (no immediate-next locked)
 
