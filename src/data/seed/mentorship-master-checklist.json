@@ -605,8 +605,8 @@
       "n": 63,
       "phase": "w1",
       "owner": "MD",
-      "section": "Controlled Substances — Module Review",
-      "text": "Reviewed the Meridian Opiates clinical module together. Discussed the practice's approach to continuing care for established opioid patients — the goal is continuity, not reflexive tapering. Provider understands documentation expectations and the PDMP workflow for existing patients.",
+      "section": "Clinical Modules — Introduction",
+      "text": "Introduced the provider to the Meridian clinical modules — walked through the full set (lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos) and explained that these are the practice's reference standard for clinical decision-making. Encouraged them to open each module before they encounter that condition in the first weeks.",
       "epic_ref_ids": []
     },
     {
@@ -615,7 +615,7 @@
       "phase": "w1",
       "owner": "MD",
       "section": "Controlled Substances — Module Review",
-      "text": "Reviewed the Meridian Benzos module together. Discussed how to distinguish appropriate continuation of an inherited benzodiazepine prescription from a regimen that warrants a taper conversation — and how to have that conversation without alienating a long-established patient.",
+      "text": "Reviewed the Meridian Opiates clinical module together. Discussed the practice's approach to continuing care for established opioid patients — the goal is continuity, not reflexive tapering. Provider understands documentation expectations and the PDMP workflow for existing patients.",
       "epic_ref_ids": []
     },
     {
@@ -624,12 +624,21 @@
       "phase": "w1",
       "owner": "MD",
       "section": "Controlled Substances — Module Review",
-      "text": "Reviewed the Meridian ADHD module together. Discussed stimulant prescribing for established patients, Schedule II documentation requirements, and the practice's expectation that new providers will continue existing regimens for stable patients rather than requiring re-evaluation before every refill.",
+      "text": "Reviewed the Meridian Benzos module together. Discussed how to distinguish appropriate continuation of an inherited benzodiazepine prescription from a regimen that warrants a taper conversation — and how to have that conversation without alienating a long-established patient.",
       "epic_ref_ids": []
     },
     {
       "id": "md-66",
       "n": 66,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Controlled Substances — Module Review",
+      "text": "Reviewed the Meridian ADHD module together. Discussed stimulant prescribing for established patients, Schedule II documentation requirements, and the practice's expectation that new providers will continue existing regimens for stable patients rather than requiring re-evaluation before every refill.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-67",
+      "n": 67,
       "phase": "m6",
       "owner": "MD",
       "section": "Controlled Substances — Six-Month Check-In",
@@ -637,8 +646,8 @@
       "epic_ref_ids": []
     },
     {
-      "id": "md-67",
-      "n": 67,
+      "id": "md-68",
+      "n": 68,
       "phase": "m6",
       "owner": "MD",
       "section": "Clinical Modules — Six-Month Check-In",

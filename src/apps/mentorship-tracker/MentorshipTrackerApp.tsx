@@ -77,6 +77,7 @@ const MP_PHYS = [
     "Ask if there are concerns they have not raised with the Medical Director that they would raise with you",
     "Prepare the provider for the Medical Director's Month 1 questionnaire — let them know it is coming and that it is supportive, not evaluative",
     "Ask how they have been handling inherited controlled substances patients so far — opioids, benzodiazepines, stimulants. Are they continuing existing regimens comfortably, or feeling uncertain about taking them on? Share how you personally approach these patients and normalize the discomfort if it is there.",
+    "Ask if they have opened the Meridian clinical modules yet — lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos. If not, walk them through where to find them and show them one you use regularly. Make it concrete, not aspirational.",
     "Share one specific thing this provider is doing well that they may not realize",
   ]},
   {id:"w5",label:"Week 5",items:[
