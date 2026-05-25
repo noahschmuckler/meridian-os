@@ -178,6 +178,7 @@ src/
     CiteBlockPopover.tsx             App-mounted popover for "Cite this decision". Renders selected text as Decision and a numbered "Supported by" list.
     ConsultLinkHandler.tsx           App-mounted capture-phase document click listener. Catches clicks on .consult-link spans, dispatches meridian:spawn-bubble for a consult-builder.
     ConsultAutoSpawn.tsx             App-mounted. Auto-spawns consult-builder on first module entry. Idempotent per module id via meridian-os.consultBuilderShown localStorage.
+    ContractAutoSpawn.tsx            App-mounted. Auto-spawns contract-builder on first entry to a controlled-substance module (module_class_map). Idempotent per module id via meridian-os.contractBuilderShown localStorage. The only way the builder surfaces in module mode (clinical-tools is gallery-only).
     FeedbackModal.tsx                App-mounted modal. Mailto-only feedback.
     FontSizeControls.tsx             Shared chrome control (A− / ↺ / A+).
   cell/                              Legacy; retained but unused by trainer
@@ -203,6 +204,7 @@ src/
     _calculators/                    Track 4a calculator family — shared.tsx + registry.ts + 5 calculator dirs (gad7, phq9, audit-c, ciwa-ar, cows)
     glossary-browser/                Real (slate) — runtime-spawn-only via meridian:spawn-bubble
     consult-builder/                 Real (purple) — Track 4b. Reads active module's consults[]. Catalog → walker → leaf (recommend with output template OR block).
+    contract-builder/                Real (purple) — Track 4d. Class-driven CS prescribing-agreement assembler. Reads controlled-substances-contracts.json; inputs → auto-suggested risk tier (override) → assembled clauses + .CSAGREE-* SmartPhrase trigger. Surfaced via ContractAutoSpawn (auto-spawn on CS-module entry).
     index.ts                         PRIMITIVE_REGISTRY — type → component
     labels.ts                        PRIMITIVE_LABELS — defaultLabel per type
   mechanics/
@@ -217,6 +219,7 @@ src/
     seed/patel-cohort.json           Dr. Patel's mid-onboarding state
     seed/clinical-modules.json       All 7 bundled modules. adhd + opiates + benzos at schema_version 1.3.0 (Simplified/Stratified Pass — two-tier first_layer_html + sub_questions[] + module-level smartphrases[] registry; opiates + benzos landed 2026-05-25, each 11 FAQ topics incl. a standalone §5-split topic: opiates-first-visit / benzos-taper-primer). Lipid at 1.1.0 (evidence-confirmation complete, simplification-pass pending — its bundle map differs, non-controlled-substance). ckd + anemia + abd-pain still at 1.0.0/1.0.1 (byte-identical to vanilla). [Noah owns]
     seed/glossary.json               Global glossary — 69 entries. [Noah owns]
+    seed/controlled-substances-contracts.json   Track 4d clause library — v1.0.0, 5 sections / 36 clauses, NY/NJ text variants, declarative conditions, module_class_map. Source of truth for clause text (Section 6 versioning). [Noah owns]
     seed/mentorship-master-checklist.json   62-item curriculum JSON with epic_ref_ids deep-links. [Scott owns]
     demo-script.json                 Stub
     seedResolver.ts                  { "$seed": "key.path" } token expansion
@@ -331,6 +334,7 @@ Three topic bubbles (Cardiometabolic / Behavioral & Controlled / General). Tap a
 - **Consult walker edges include random-access by node_id.** `if_yes` / `if_no` accept `'continue' | 'recommend' | 'block' | <node_id>`. Sequential `continue` is default. Unknown node id falls through to `recommend` (visible-fallback policy).
 - **Consult-link click goes straight to spawn, no popover.** Different from `GlossaryPopover`. The consult-builder bubble *is* the popover for this affordance.
 - **Auto-spawn is one-shot per module id.** `meridian-os.consultBuilderShown.{moduleId}` localStorage map. Re-entering doesn't re-spawn. Manual re-spawn via clinical-tools' Consults card.
+- **CS contract builder is class-driven, not per-module (Track 4d).** Unlike `consults[]` (per-module), the contract clause library is a single global seed (`controlled-substances-contracts.json`) keyed by `substance_class` / `state` / `risk_tier` / situational flags via declarative `condition` objects. Clause text lives in JSON (source of truth, Section 6 versioned); the risk-tier auto-suggestion (Section 2) and assembly live in the bubble. Provider confirms/overrides the suggested tier (the override is the safety valve for inputs the booleans can't express). Bracketed tokens (`[MEDICATION]` …) pass through verbatim as Epic SmartPhrase fill-ins; only `[MEDICATION CLASS]` + `[VERSION STAMP]` are substituted. Output is a `.CSAGREE-[CLASS]-[STATE]-[TIER]` trigger + agreement text. **Surfaced only via `ContractAutoSpawn`** (auto-spawn on CS-module entry) because the clinical-tools card can't appear in module mode — same constraint that makes ConsultAutoSpawn necessary. When the schema changes, bump its `schema_version` + `change_log` per Section 6.
 
 ---
 

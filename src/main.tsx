@@ -21,6 +21,7 @@ import { GlossaryPopover } from './shell/GlossaryPopover';
 import { CiteBlockPopover } from './shell/CiteBlockPopover';
 import { ConsultLinkHandler } from './shell/ConsultLinkHandler';
 import { ConsultAutoSpawn } from './shell/ConsultAutoSpawn';
+import { ContractAutoSpawn } from './shell/ContractAutoSpawn';
 import { loadSeeds } from './data/seedResolver';
 import type { SeedDict } from './data/seedResolver';
 import { activeWorkspaceIdSignal, entryFromSignal } from './data/workspaceNav';
@@ -191,6 +192,7 @@ function App(): JSX.Element {
       <CiteBlockPopover />
       <ConsultLinkHandler />
       <ConsultAutoSpawn modules={clinicalModules} />
+      <ContractAutoSpawn modules={clinicalModules} />
     </>
   );
 }

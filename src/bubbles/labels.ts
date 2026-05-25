@@ -58,5 +58,6 @@ export const PRIMITIVE_LABELS: Record<BubblePrimitiveType, string> = {
   'mentorship-phase-notes': 'Phase notes',
   'glossary-browser': 'Glossary',
   'consult-builder': 'Consult builder',
+  'contract-builder': 'Contract builder',
   'placeholder': 'Empty slot',
 };
