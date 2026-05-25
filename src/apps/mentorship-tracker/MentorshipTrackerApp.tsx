@@ -1250,7 +1250,7 @@ export default function App() {
   recentNotes.reverse();
 
   /* ─── LOGIN ─── */
-  const gradBg = { background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", height: "100%", overflowY: "auto" as const, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" };
+  const gradBg = { position: "fixed" as const, inset: 0, zIndex: 50, background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", overflowY: "auto" as const, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" };
 
   // ── DEPARTMENT PICKER ──────────────────────────────────────────────────────
   if (!dept) {
