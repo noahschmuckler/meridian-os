@@ -1250,7 +1250,9 @@ export default function App() {
   recentNotes.reverse();
 
   /* ─── LOGIN ─── */
-  const gradBg = { position: "fixed" as const, inset: 0, zIndex: 50, background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", overflowY: "auto" as const, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" };
+  // paddingLeft accounts for the fixed ‹ meridian pill (left:22px + ~110px wide)
+  // so the flex center point lands in the open area, not the full viewport width
+  const gradBg = { position: "fixed" as const, inset: 0, zIndex: 50, background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", overflowY: "auto" as const, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px 24px 146px" };
 
   // ── DEPARTMENT PICKER ──────────────────────────────────────────────────────
   if (!dept) {
