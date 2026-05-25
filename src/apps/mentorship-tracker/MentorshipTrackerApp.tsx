@@ -1260,7 +1260,7 @@ export default function App() {
       <p style={{ margin: "0 0 40px", fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>Structured onboarding follow-ups for new providers — track progress, document touchpoints, and keep every hire on course.</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {[
-          { icon: "📋", text: "MD curriculum across all onboarding phases" },
+          { icon: "📋", text: "Medical Director curriculum across all onboarding phases" },
           { icon: "🤝", text: "Mentor check-ins for physicians and APCs" },
           { icon: "📊", text: "Score trends and progress at a glance" },
         ].map(({ icon, text }) => (
@@ -1605,7 +1605,7 @@ export default function App() {
                   {isDir ? (
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 10px", paddingLeft: 14 }}>
                       {[
-                        { label: "MD Curriculum", pct: md, color: "#8b5cf6" },
+                        { label: "Dir. Curriculum", pct: md, color: "#8b5cf6" },
                         { label: "Mentor", pct: mn, color: "#028090" },
                         { label: "OM Touchpoints", pct: op, color: "#0ea5e9" },
                         { label: "Questionnaires", pct: qp, color: "#eab308" },
