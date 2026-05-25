@@ -1250,9 +1250,37 @@ export default function App() {
   recentNotes.reverse();
 
   /* ─── LOGIN ─── */
-  // paddingLeft accounts for the fixed ‹ meridian pill (left:22px + ~110px wide)
-  // so the flex center point lands in the open area, not the full viewport width
-  const gradBg = { position: "fixed" as const, inset: 0, zIndex: 50, background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", overflowY: "auto" as const, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px 24px 146px" };
+  const gradBg = { position: "fixed" as const, inset: 0, zIndex: 50, background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", overflowY: "auto" as const, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "stretch" };
+
+  const BrandPanel = () => (
+    <div style={{ flex: "0 0 42%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "60px 48px 60px 60px" }}>
+      <div style={{ width: 64, height: 64, borderRadius: 18, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, marginBottom: 28 }}>👥</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Optum NY/NJ</div>
+      <h1 style={{ margin: "0 0 14px", fontSize: 36, fontWeight: 700, color: "white", lineHeight: 1.15, letterSpacing: "-0.5px" }}>Mentorship<br/>Tracker</h1>
+      <p style={{ margin: "0 0 40px", fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>Structured onboarding follow-ups for new providers — track progress, document touchpoints, and keep every hire on course.</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {[
+          { icon: "📋", text: "MD curriculum across all onboarding phases" },
+          { icon: "🤝", text: "Mentor check-ins for physicians and APCs" },
+          { icon: "📊", text: "Score trends and progress at a glance" },
+        ].map(({ icon, text }) => (
+          <div key={text} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 18 }}>{icon}</span>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{text}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: "auto", paddingTop: 48, fontSize: 11, color: "rgba(255,255,255,0.25)" }}>For authorized Optum NY/NJ staff only</div>
+    </div>
+  );
+
+  const CardPanel = ({ children }) => (
+    <div style={{ flex: "0 0 58%", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 60px 60px 40px" }}>
+      <div style={{ width: "100%", maxWidth: 420 }}>
+        {children}
+      </div>
+    </div>
+  );
 
   // ── DEPARTMENT PICKER ──────────────────────────────────────────────────────
   if (!dept) {
@@ -1263,14 +1291,10 @@ export default function App() {
     ];
     return (
       <div style={gradBg}>
-        <div style={{ width: "100%", maxWidth: 420 }}>
-          <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 16px" }}>👥</div>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "white", letterSpacing: "-0.3px" }}>Mentorship Tracker</h1>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>Optum NY/NJ · Provider Onboarding</p>
-          </div>
-          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", padding: "24px 20px" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>Select your department</div>
+        <BrandPanel />
+        <CardPanel>
+          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", padding: "28px 24px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>Select your department</div>
             {depts.map(d => (
               <div key={d.key} onClick={() => d.available && setDept(d.key)}
                 style={{ padding: "14px 16px", borderRadius: 10, cursor: d.available ? "pointer" : "default", display: "flex", alignItems: "center", gap: 14, marginBottom: 8, border: "1.5px solid #e9ecef", opacity: d.available ? 1 : 0.5, transition: "border-color 0.15s, background 0.15s" }}
@@ -1289,8 +1313,7 @@ export default function App() {
               </div>
             ))}
           </div>
-          <div style={{ textAlign: "center", marginTop: 20, fontSize: 11, color: "rgba(255,255,255,0.3)" }}>For authorized Optum NY/NJ staff only</div>
-        </div>
+        </CardPanel>
       </div>
     );
   }
@@ -1310,15 +1333,8 @@ export default function App() {
     };
     return (
       <div style={gradBg}>
-        <div style={{ width: "100%", maxWidth: 420 }}>
-
-          {/* Brand header */}
-          <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 16px" }}>👥</div>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "white", letterSpacing: "-0.3px" }}>Mentorship Tracker</h1>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>Optum NY/NJ · Primary Care</p>
-          </div>
-
+        <BrandPanel />
+        <CardPanel>
           {/* Main card */}
           <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", overflow: "hidden" }}>
 
@@ -1396,8 +1412,7 @@ export default function App() {
               <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Tap here to choose a different department</div>
             </div>
           </div>
-          <div style={{ textAlign: "center", marginTop: 14, fontSize: 11, color: "rgba(255,255,255,0.3)" }}>For authorized Optum NY/NJ staff only</div>
-        </div>
+        </CardPanel>
       </div>
     );
   }
