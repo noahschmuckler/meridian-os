@@ -1195,6 +1195,7 @@ export default function App() {
   const [addProvForm, setAddProvForm] = useState({ name: "", role: "MD", mentor: "mt1", phase: "w0", days: 1 });
   const [confirmRemove, setConfirmRemove] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [mdCurrOpen, setMdCurrOpen] = useState(false);
   const [freshOpts, setFreshOpts] = useState(false);
   const [editDays, setEditDays] = useState(null);
   const [editDaysVal, setEditDaysVal] = useState("");
@@ -2411,12 +2412,85 @@ export default function App() {
                 );
               })()}
 
-              {/* Non-director empty state */}
-              {!isDir && (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, color: "#868e96", fontSize: 16 }}>
-                  ← Select a provider from the list
-                </div>
-              )}
+              {/* ── MY PANEL — mentor landing page ── */}
+              {!isDir && !selId && (() => {
+                const panel = myProvs;
+                const behind = panel.filter(p => getStatus(p.id) !== "ok");
+                return (
+                  <div>
+                    {/* Header */}
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14 }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: "#0f1b2d" }}>My Panel</div>
+                      <div style={{ fontSize: 13, color: "#868e96" }}>{panel.length} provider{panel.length !== 1 ? "s" : ""}</div>
+                    </div>
+
+                    {/* Behind-schedule notice */}
+                    {behind.length > 0 && (
+                      <div style={{ background: "#fff8f0", border: "1px solid #fed7aa", borderRadius: 8, padding: "9px 14px", marginBottom: 14, fontSize: 12, color: "#9a3412" }}>
+                        ⚠️ {behind.map(p => p.name.split(",")[0].replace("Dr. ", "")).join(", ")} {behind.length === 1 ? "is" : "are"} behind schedule — check their Mentor tab
+                      </div>
+                    )}
+
+                    {/* Mentee cards */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {panel.map(p => {
+                        const st = getStatus(p.id);
+                        const dot = st === "overdue" ? "#ef4444" : st === "due" ? "#f97316" : "#22c55e";
+                        const borderCol = st === "overdue" ? "#fca5a5" : st === "due" ? "#fdba74" : "#dee2e6";
+                        const phLabel = (MP.find(x => x.id === p.phase) || {}).label || p.phase;
+                        const menPct = mentorPct(checks, p.id);
+                        const barCol = menPct >= 70 ? "#22c55e" : menPct >= 40 ? "#eab308" : "#ef4444";
+                        // Next unchecked mentor item in current phase
+                        const curMPh = MP.find(x => x.id === p.phase);
+                        const nextIdx = curMPh ? curMPh.items.findIndex((_, i) => !checks[p.id + "." + p.phase + "." + i]) : -1;
+                        const nextItem = nextIdx >= 0 && curMPh ? curMPh.items[nextIdx] : null;
+                        // Most recent note across all phases
+                        const allNotes = Object.entries(notes)
+                          .filter(([k]) => k.startsWith(p.id + "."))
+                          .flatMap(([, arr]) => (arr as any[]))
+                          .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+                        const lastNote = allNotes[0];
+                        return (
+                          <div key={p.id}
+                            onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
+                            onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)"; e.currentTarget.style.borderColor = "#028090"; }}
+                            onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = borderCol; }}
+                            style={{ background: "white", borderRadius: 10, border: "1px solid " + borderCol, padding: "14px 18px", cursor: "pointer", transition: "box-shadow 0.15s, border-color 0.15s" }}>
+                            {/* Row 1: status dot + name + badges + phase */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                              <div style={{ width: 8, height: 8, borderRadius: "50%", background: dot, flexShrink: 0 }} />
+                              <span style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d", flex: 1 }}>{p.name}</span>
+                              {st === "overdue" && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "#ef4444", color: "white" }}>LATE</span>}
+                              {st === "due"     && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "#f97316", color: "white" }}>DUE</span>}
+                              <span style={{ fontSize: 11, color: "#adb5bd" }}>{phLabel} · Day {p.days}</span>
+                            </div>
+                            {/* Row 2: mentor progress bar */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: nextItem || lastNote ? 8 : 0 }}>
+                              <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f1f3f5", overflow: "hidden" }}>
+                                <div style={{ width: menPct + "%", height: "100%", borderRadius: 3, background: barCol }} />
+                              </div>
+                              <span style={{ fontSize: 11, color: "#868e96", whiteSpace: "nowrap" }}>Mentor {menPct}%</span>
+                            </div>
+                            {/* Row 3: next item + last note */}
+                            {(nextItem || lastNote) && (
+                              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                                {nextItem && (
+                                  <div style={{ flex: 1, fontSize: 11, color: "#028090", background: "#f0fdfe", borderRadius: 6, padding: "4px 9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    <span style={{ fontWeight: 700 }}>Next: </span>{nextItem}
+                                  </div>
+                                )}
+                                <div style={{ fontSize: 10, color: "#adb5bd", whiteSpace: "nowrap", flexShrink: 0 }}>
+                                  {lastNote ? "📝 " + lastNote.at : "no notes yet"}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           ) : (
             <div>
@@ -2588,6 +2662,71 @@ export default function App() {
 
               {/* SCORE TREND */}
               {(isDir || isMen) && <ScoreTrend qa={qa} pid={prov.id} />}
+
+              {/* DIR. CURRICULUM — read-only collapsed card for mentors */}
+              {isMen && !isDir && (() => {
+                const mdPct = mdCurriculumPct(checks, prov.id);
+                const allMdItems = Object.values(MD_ITEMS_BY_PHASE).flat() as any[];
+                const doneCount = allMdItems.filter((it: any) => checks[prov.id + ".md." + it.id]).length;
+                return (
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", marginBottom: 14, overflow: "hidden" }}>
+                    <button onClick={() => setMdCurrOpen(o => !o)}
+                      style={{ width: "100%", padding: "11px 16px", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, textAlign: "left" }}>
+                      <span style={{ fontSize: 11, color: "#8b5cf6", transition: "transform 0.2s", display: "inline-block", transform: mdCurrOpen ? "rotate(90deg)" : "rotate(0deg)" }}>▶</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#374151", flex: 1 }}>Director Curriculum</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#8b5cf6" }}>{mdPct}%</span>
+                      <div style={{ width: 72, height: 5, borderRadius: 3, background: "#f1f3f5", overflow: "hidden" }}>
+                        <div style={{ width: mdPct + "%", height: "100%", background: "#8b5cf6", borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 9, color: "#adb5bd", letterSpacing: "0.04em", textTransform: "uppercase" }}>read only</span>
+                    </button>
+                    {mdCurrOpen && (
+                      <div style={{ borderTop: "1px solid #f1f3f5", padding: "8px 16px 14px", maxHeight: 280, overflowY: "auto" }}>
+                        <div style={{ fontSize: 10, color: "#adb5bd", marginBottom: 8 }}>{doneCount} of {allMdItems.length} items completed by Medical Director</div>
+                        {MD_PHASES.map(ph => {
+                          const phItems = MD_ITEMS_BY_PHASE[ph.id] || [];
+                          if (phItems.length === 0) return null;
+                          const phDone = phItems.filter((it: any) => checks[prov.id + ".md." + it.id]).length;
+                          return (
+                            <div key={ph.id} style={{ marginBottom: 10 }}>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                {ph.label} — {phDone}/{phItems.length}
+                              </div>
+                              {phItems.map((it: any) => {
+                                const done = !!checks[prov.id + ".md." + it.id];
+                                return (
+                                  <div key={it.id} style={{ display: "flex", alignItems: "flex-start", gap: 7, padding: "3px 0" }}>
+                                    <span style={{ fontSize: 13, color: done ? "#22c55e" : "#d1d5db", flexShrink: 0, marginTop: 1 }}>{done ? "✓" : "○"}</span>
+                                    <span style={{ fontSize: 11, color: done ? "#374151" : "#9ca3af", lineHeight: 1.4 }}>{it.text}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* NEXT MENTOR TOUCHPOINT — prompt for mentors */}
+              {isMen && !isDir && (() => {
+                const curMPh = MP.find(x => x.id === phase);
+                if (!curMPh) return null;
+                const nextIdx = curMPh.items.findIndex((_, i) => !checks[prov.id + "." + phase + "." + i]);
+                if (nextIdx < 0) return (
+                  <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 8, padding: "9px 14px", marginBottom: 14, fontSize: 12, color: "#166534" }}>
+                    ✓ All {curMPh.items.length} items complete for {curMPh.label}
+                  </div>
+                );
+                return (
+                  <div style={{ background: "#f0fdfe", border: "1px solid #67e8f9", borderRadius: 8, padding: "9px 14px", marginBottom: 14 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#0891b2", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>Up next · {curMPh.label}</div>
+                    <div style={{ fontSize: 12, color: "#0f172a" }}>{curMPh.items[nextIdx]}</div>
+                  </div>
+                );
+              })()}
 
               {/* PHASE SELECTOR */}
               {(() => {
