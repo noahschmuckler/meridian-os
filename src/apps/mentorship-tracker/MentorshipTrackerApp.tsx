@@ -2465,25 +2465,27 @@ export default function App() {
                               <span style={{ fontSize: 11, color: "#adb5bd" }}>{phLabel} · Day {p.days}</span>
                             </div>
                             {/* Row 2: mentor progress bar */}
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: nextItem || lastNote ? 8 : 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                               <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f1f3f5", overflow: "hidden" }}>
                                 <div style={{ width: menPct + "%", height: "100%", borderRadius: 3, background: barCol }} />
                               </div>
                               <span style={{ fontSize: 11, color: "#868e96", whiteSpace: "nowrap" }}>Mentor {menPct}%</span>
                             </div>
-                            {/* Row 3: next item + last note */}
-                            {(nextItem || lastNote) && (
-                              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                                {nextItem && (
-                                  <div style={{ flex: 1, fontSize: 11, color: "#028090", background: "#f0fdfe", borderRadius: 6, padding: "4px 9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                    <span style={{ fontWeight: 700 }}>Next: </span>{nextItem}
-                                  </div>
-                                )}
-                                <div style={{ fontSize: 10, color: "#adb5bd", whiteSpace: "nowrap", flexShrink: 0 }}>
-                                  {lastNote ? "📝 " + lastNote.at : "no notes yet"}
+                            {/* Row 3: next item (or phase-complete chip) + last note */}
+                            <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 8 }}>
+                              {nextItem ? (
+                                <div style={{ flex: 1, fontSize: 11, color: "#028090", background: "#f0fdfe", borderRadius: 6, padding: "4px 9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  <span style={{ fontWeight: 700 }}>Next: </span>{nextItem}
                                 </div>
+                              ) : curMPh ? (
+                                <div style={{ flex: 1, fontSize: 11, color: "#166534", background: "#f0fdf4", borderRadius: 6, padding: "4px 9px" }}>
+                                  ✓ {curMPh.label} complete
+                                </div>
+                              ) : <div style={{ flex: 1 }} />}
+                              <div style={{ fontSize: 10, color: "#adb5bd", whiteSpace: "nowrap", flexShrink: 0 }}>
+                                {lastNote ? "📝 " + lastNote.at : "no notes yet"}
                               </div>
-                            )}
+                            </div>
                           </div>
                         );
                       })}
