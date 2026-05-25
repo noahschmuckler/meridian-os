@@ -395,13 +395,25 @@ const QP = [
 ];
 
 const QP_TO_OM = {w0:"om1",w1:"om1",w2:"om1",w3:"om1",m1:"om1",w5:"om2",w6:"om2",w7:"om2",m2:"om2",m3:"om3",m6:"om6",m9:"om9",m12:"om12"};
-const USERS = [{id:"md1",name:"Dr. Rivera",role:"director"},{id:"mt1",name:"Dr. Smith",role:"mentor"},{id:"mt2",name:"Dr. Lee",role:"mentor"}];
+const USERS = [
+  {id:"md1",name:"Dr. Rivera",role:"director"},
+  {id:"mt1",name:"Dr. Smith",role:"mentor"},
+  {id:"mt2",name:"Dr. Lee",role:"mentor"},
+  {id:"mt3",name:"M. Torres, NP",role:"mentor"},
+];
 const SEED_PROVS = [
-  {id:"p1",name:"Dr. Johnson",role:"MD",mentor:"mt1",phase:"m4",days:110},
-  {id:"p2",name:"Dr. Patel",role:"DO",mentor:"mt1",phase:"m3",days:87},
-  {id:"p3",name:"Dr. Williams",role:"MD",mentor:"mt2",phase:"w7",days:52},
-  {id:"p4",name:"Dr. Garcia",role:"DO",mentor:"mt2",phase:"w5",days:38},
-  {id:"p5",name:"A. Martinez, NP",role:"NP",mentor:"mt1",phase:"m18",days:545},
+  // Physician providers — Dr. Smith's panel
+  {id:"p1",name:"Dr. Johnson",   role:"MD", mentor:"mt1", phase:"m4",  days:110},
+  {id:"p2",name:"Dr. Patel",     role:"DO", mentor:"mt1", phase:"m3",  days:87},
+  {id:"p7",name:"Dr. Hassan",    role:"DO", mentor:"mt1", phase:"m2",  days:65},
+  // Physician providers — Dr. Lee's panel
+  {id:"p3",name:"Dr. Williams",  role:"MD", mentor:"mt2", phase:"w7",  days:52},
+  {id:"p4",name:"Dr. Garcia",    role:"DO", mentor:"mt2", phase:"w5",  days:38},
+  {id:"p6",name:"Dr. Park",      role:"MD", mentor:"mt2", phase:"w3",  days:22},
+  // APC providers — M. Torres panel
+  {id:"p5",name:"A. Martinez, NP",role:"NP",mentor:"mt1", phase:"m18", days:545},
+  {id:"p8",name:"R. Okafor, PA", role:"PA", mentor:"mt3", phase:"w7",  days:52},
+  {id:"p9",name:"T. Singh, NP",  role:"NP", mentor:"mt3", phase:"m6",  days:182},
 ];
 let PROVS = SEED_PROVS;
 
@@ -419,19 +431,33 @@ function makeSeedChecks() {
   fill("p3", ["w0","w1","w2","w3","m1","w5","w6"]);
   fill("p4", ["w0","w1","w2","w3","m1"]);
   fill("p5", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9","m12","m15"]);
+  fill("p6", ["w0","w1","w2"]);
+  fill("p7", ["w0","w1","w2","w3","m1","w5","w6"]);
+  fill("p8", ["w0","w1","w2","w3","m1","w5","w6"]);
+  fill("p9", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5"]);
   return c;
 }
 
 function makeSeedQA() {
   const qa = {};
-  const scores = {p1:{w0:7,w1:5,w2:6,w3:7,m1:7,w5:4,w6:7,w7:8,m2:8,m3:9},p2:{w0:7,w1:6,w2:6,w3:7,m1:7,w5:4,w6:7,w7:7,m2:8},p3:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5,w6:7},p4:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5},p5:{w0:7,w1:7,w2:7,w3:8,m1:8,w5:7,w6:8,w7:8,m2:8,m3:9,m4:8,m5:8,m6:9,m7:8,m8:8,m9:8,m12:9,m15:8}};
+  const scores = {
+    p1:{w0:7,w1:5,w2:6,w3:7,m1:7,w5:4,w6:7,w7:8,m2:8,m3:9},
+    p2:{w0:7,w1:6,w2:6,w3:7,m1:7,w5:4,w6:7,w7:7,m2:8},
+    p3:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5,w6:7},
+    p4:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5},
+    p5:{w0:7,w1:7,w2:7,w3:8,m1:8,w5:7,w6:8,w7:8,m2:8,m3:9,m4:8,m5:8,m6:9,m7:8,m8:8,m9:8,m12:9,m15:8},
+    p6:{w0:8,w1:7,w2:8},
+    p7:{w0:6,w1:5,w2:5,w3:6,m1:6,w5:5,w6:6},
+    p8:{w0:7,w1:7,w2:8,w3:7,m1:8,w5:7,w6:8},
+    p9:{w0:8,w1:8,w2:8,w3:9,m1:8,w5:8,w6:9,w7:9,m2:9,m3:9,m4:8,m5:9},
+  };
   Object.entries(scores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const qp = QP.find(x => x.id === phid);
       if (qp) qp.qs.forEach(q => { qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Demo response"; });
     });
   });
-  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5},p5:{om1:8,om2:8,om3:9,om6:8}};
+  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5},p5:{om1:8,om2:8,om3:9,om6:8},p7:{om1:5},p8:{om1:7},p9:{om1:8,om2:9,om3:9}};
   Object.entries(omScores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const op = OP.find(x => x.id === phid);
