@@ -2246,8 +2246,95 @@ export default function App() {
                 </div>
               )}
 
-              {/* Default empty state */}
-              {(mainTab === "roster" || !isDir) && (
+              {/* ── MEDICAL DIRECTOR DASHBOARD ── */}
+              {isDir && mainTab === "roster" && (() => {
+                const mentors = USERS.filter(u => u.role === "mentor");
+                const totalProv = PROVS.length;
+                const onTrack = PROVS.filter(p => getStatus(p.id) === "ok").length;
+                const behind = PROVS.filter(p => getStatus(p.id) !== "ok").length;
+                const avgCurr = totalProv ? Math.round(PROVS.reduce((acc, p) => acc + mdCurriculumPct(checks, p.id), 0) / totalProv) : 0;
+                return (
+                  <div>
+                    {/* Title */}
+                    <div style={{ fontSize: 18, fontWeight: 700, color: "#0f1b2d", marginBottom: 16 }}>Medical Director Dashboard</div>
+
+                    {/* Stats row */}
+                    <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+                      {[
+                        { val: totalProv, label: "Total Providers", color: "#0f1b2d" },
+                        { val: onTrack,   label: "On Track",        color: "#22c55e" },
+                        { val: behind,    label: "Behind Schedule", color: behind > 0 ? "#ef4444" : "#22c55e" },
+                        { val: avgCurr + "%", label: "Avg Dir. Curriculum", color: "#028090" },
+                      ].map(({ val, label, color }) => (
+                        <div key={label} style={{ flex: 1, background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "14px 16px" }}>
+                          <div style={{ fontSize: 26, fontWeight: 700, color }}>{val}</div>
+                          <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>{label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Mentor panel cards */}
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Mentor Panels</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                      {mentors.map(mentor => {
+                        const panel = PROVS.filter(p => p.mentor === mentor.id);
+                        const late = panel.filter(p => getStatus(p.id) === "overdue").length;
+                        const due  = panel.filter(p => getStatus(p.id) === "due").length;
+                        const avgMen = panel.length ? Math.round(panel.reduce((acc, p) => acc + mentorPct(checks, p.id), 0) / panel.length) : 0;
+                        const initials = mentor.name.replace("Dr. ", "").replace(/,.*/, "").substring(0, 2).toUpperCase();
+                        return (
+                          <div key={mentor.id} style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "14px 18px" }}>
+                            {/* Header row */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                              <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(2,128,144,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#028090", flexShrink: 0 }}>
+                                {initials}
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{mentor.name}</div>
+                                <div style={{ fontSize: 11, color: "#868e96" }}>{panel.length} provider{panel.length !== 1 ? "s" : ""}</div>
+                              </div>
+                              {late > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#fef2f2", color: "#ef4444" }}>{late} LATE</span>}
+                              {due  > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#fefce8", color: "#92400e" }}>{due} DUE</span>}
+                              {late === 0 && due === 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#dcfce7", color: "#166534" }}>All on track</span>}
+                            </div>
+                            {/* Avg mentor progress bar */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                              <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f1f3f5", overflow: "hidden" }}>
+                                <div style={{ width: avgMen + "%", height: "100%", borderRadius: 3, background: avgMen >= 70 ? "#22c55e" : avgMen >= 40 ? "#eab308" : "#ef4444" }} />
+                              </div>
+                              <span style={{ fontSize: 11, color: "#868e96", whiteSpace: "nowrap" }}>{avgMen}% avg mentor completion</span>
+                            </div>
+                            {/* Provider chips */}
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                              {panel.map(p => {
+                                const pst = getStatus(p.id);
+                                const dot = pst === "overdue" ? "#ef4444" : pst === "due" ? "#f97316" : "#22c55e";
+                                const phLabel = (MP.find(x => x.id === p.phase) || {}).label || p.phase;
+                                return (
+                                  <div key={p.id} onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
+                                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 16, background: "#f8f9fb", border: "1px solid #e9ecef", cursor: "pointer", fontSize: 12, color: "#374151" }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = "#e9ecef"; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = "#f8f9fb"; }}>
+                                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: dot, flexShrink: 0 }} />
+                                    {p.name} <span style={{ color: "#adb5bd" }}>· {phLabel}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div style={{ fontSize: 12, color: "#adb5bd", textAlign: "center" }}>
+                      Select a provider from the list or click a name above to open their profile
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Non-director empty state */}
+              {!isDir && (
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, color: "#868e96", fontSize: 16 }}>
                   ← Select a provider from the list
                 </div>
