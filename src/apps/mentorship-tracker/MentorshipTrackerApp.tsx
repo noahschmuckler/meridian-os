@@ -76,6 +76,7 @@ const MP_PHYS = [
     "Ask about the team dynamic from their perspective: respected by staff? Supported?",
     "Ask if there are concerns they have not raised with the Medical Director that they would raise with you",
     "Prepare the provider for the Medical Director's Month 1 questionnaire — let them know it is coming and that it is supportive, not evaluative",
+    "Ask how they have been handling inherited controlled substances patients so far — opioids, benzodiazepines, stimulants. Are they continuing existing regimens comfortably, or feeling uncertain about taking them on? Share how you personally approach these patients and normalize the discomfort if it is there.",
     "Share one specific thing this provider is doing well that they may not realize",
   ]},
   {id:"w5",label:"Week 5",items:[
@@ -123,6 +124,7 @@ const MP_PHYS = [
     "Ask if they have had any difficult conversations with patients, staff, or leadership — and how they handled them",
     "Check on professional satisfaction: is this what they expected? Glad they took this position?",
     "Ask if there is anything they need from you, the Medical Director, or the organization",
+    "Controlled substances check-in: how have encounters with inherited opioid, benzodiazepine, and stimulant patients gone over the past two months? Debrief any cases where they felt stuck or over-cautious. Remind them that continuing a stable patient's established regimen is the right call, and that the Meridian modules are there if they need a refresher.",
     "Provider appears energized and engaged",
     "Share one specific thing this provider is doing well that they may not realize",
   ]},

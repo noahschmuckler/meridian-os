@@ -599,6 +599,42 @@
       "section": "Mentorship and Ongoing Check-Ins",
       "text": "Established protected, recurring mentor↔new-hire time on calendar at 30 / 60 / 90 / 180 / 270 days post-start. Email mentor + new hire + pertinent OM(s) to establish.",
       "epic_ref_ids": []
+    },
+    {
+      "id": "md-63",
+      "n": 63,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Controlled Substances — Module Review",
+      "text": "Reviewed the Meridian Opiates clinical module together. Discussed the practice's approach to continuing care for established opioid patients — the goal is continuity, not reflexive tapering. Provider understands documentation expectations and the PDMP workflow for existing patients.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-64",
+      "n": 64,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Controlled Substances — Module Review",
+      "text": "Reviewed the Meridian Benzos module together. Discussed how to distinguish appropriate continuation of an inherited benzodiazepine prescription from a regimen that warrants a taper conversation — and how to have that conversation without alienating a long-established patient.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-65",
+      "n": 65,
+      "phase": "w1",
+      "owner": "MD",
+      "section": "Controlled Substances — Module Review",
+      "text": "Reviewed the Meridian ADHD module together. Discussed stimulant prescribing for established patients, Schedule II documentation requirements, and the practice's expectation that new providers will continue existing regimens for stable patients rather than requiring re-evaluation before every refill.",
+      "epic_ref_ids": []
+    },
+    {
+      "id": "md-66",
+      "n": 66,
+      "phase": "m6",
+      "owner": "MD",
+      "section": "Controlled Substances — Six-Month Check-In",
+      "text": "Six-month controlled substances check-in. Review how the provider has been managing inherited opioid, benzodiazepine, and stimulant patients over the first six months. Are they continuing established care appropriately, or have there been patterns of avoidance, unnecessary tapering, or referral out? Use this as a direct coaching conversation.",
+      "epic_ref_ids": []
     }
   ]
 }
