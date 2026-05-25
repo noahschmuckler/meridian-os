@@ -2199,7 +2199,54 @@ export default function App() {
                 </div>
               )}
 
-              {/* Default */}
+              {/* NEEDS ATTENTION BANNER */}
+              {(mainTab === "roster" || !isDir) && isDir && (() => {
+                const flagged = PROVS.map(p => {
+                  const st = getStatus(p.id);
+                  if (st === "ok") return null;
+                  const track = isAPC(p) ? MP : MP_PHYS;
+                  const curPhLabel = (track.find(x => x.id === p.phase) || {}).label || p.phase;
+                  const mentor = USERS.find(u => u.id === p.mentor);
+                  // Score trend: last two QP scores
+                  const scoreHistory = QP.map(qp => avgScore(qa, p.id, qp.id)).filter(s => s !== null);
+                  const trending = scoreHistory.length >= 2
+                    ? (scoreHistory[scoreHistory.length - 1] - scoreHistory[scoreHistory.length - 2])
+                    : null;
+                  const trendIcon = trending === null ? "" : trending < -0.5 ? " · score↓" : trending > 0.5 ? " · score↑" : "";
+                  return { p, st, curPhLabel, mentor, trendIcon };
+                }).filter(Boolean);
+
+                if (flagged.length === 0) return null;
+                return (
+                  <div style={{ background: "#fff8f0", border: "1px solid #fed7aa", borderRadius: 10, padding: "14px 18px", marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 15 }}>⚠️</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#9a3412" }}>Needs Attention</span>
+                      <span style={{ fontSize: 11, color: "#c2410c", background: "#fee2e2", borderRadius: 10, padding: "1px 8px", fontWeight: 700 }}>{flagged.length}</span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {flagged.map(({ p, st, curPhLabel, mentor, trendIcon }) => (
+                        <div key={p.id} onClick={() => navigate({ uid, selId: p.id, tab: "mentor", phase: p.phase, mainTab: "roster" })}
+                          style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "white", borderRadius: 8, border: "1px solid " + (st === "overdue" ? "#fca5a5" : "#fdba74"), cursor: "pointer" }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "#fef9f5"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "white"; }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: st === "overdue" ? "#ef4444" : "#f97316", color: "white", flexShrink: 0 }}>
+                            {st === "overdue" ? "LATE" : "DUE"}
+                          </span>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: "#0f1b2d", flex: 1 }}>{p.name}</span>
+                          <span style={{ fontSize: 11, color: "#6b7280" }}>
+                            {curPhLabel} · Day {p.days}{trendIcon}
+                            {mentor ? <span style={{ color: "#adb5bd" }}> · {mentor.name.split(",")[0].replace("Dr. ","")}</span> : ""}
+                          </span>
+                          <span style={{ fontSize: 11, color: "#9ca3af" }}>→</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Default empty state */}
               {(mainTab === "roster" || !isDir) && (
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, color: "#868e96", fontSize: 16 }}>
                   ← Select a provider from the list
