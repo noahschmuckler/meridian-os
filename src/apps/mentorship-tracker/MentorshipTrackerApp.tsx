@@ -1170,7 +1170,7 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
         </div>
         <div style={{ padding: "12px 22px", borderTop: "1px solid #dee2e6", background: "#f8f9fb", fontSize: 11, color: "#868e96", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
           <span>Medical Director ⚠ misstep-risk items: 12 / 19 / 43 / 48 / 56 — keep verbatim when teaching.</span>
-          <span>Medical Director source: Master Checklist · Mentor + Ops: Mentorship Tracker phases</span>
+          <span>Medical Director source: Master Checklist · Mentor + Ops: Onboarding Tracker phases</span>
         </div>
       </div>
     </div>
@@ -1190,6 +1190,7 @@ export default function App() {
   const [dueMenu, setDueMenu] = useState(null);
   const [expandedAlerts, setExpandedAlerts] = useState({});
   const [dotModal, setDotModal] = useState(null);
+  const [sidebarFilter, setSidebarFilter] = useState(null);
   const [addProvModal, setAddProvModal] = useState(false);
   const [addProvForm, setAddProvForm] = useState({ name: "", role: "MD", mentor: "mt1", phase: "w0", days: 1 });
   const [confirmRemove, setConfirmRemove] = useState(null);
@@ -1282,7 +1283,7 @@ export default function App() {
     <div style={{ flex: "0 0 42%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "60px 48px 60px 60px" }}>
       <div style={{ width: 64, height: 64, borderRadius: 18, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, marginBottom: 28 }}>👥</div>
       <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Optum NY/NJ</div>
-      <h1 style={{ margin: "0 0 14px", fontSize: 36, fontWeight: 700, color: "white", lineHeight: 1.15, letterSpacing: "-0.5px" }}>Mentorship<br/>Tracker</h1>
+      <h1 style={{ margin: "0 0 14px", fontSize: 36, fontWeight: 700, color: "white", lineHeight: 1.15, letterSpacing: "-0.5px" }}>Onboarding<br/>Tracker</h1>
       <p style={{ margin: "0 0 40px", fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>Structured onboarding follow-ups for new providers — track progress, document touchpoints, and keep every hire on course.</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {[
@@ -1484,7 +1485,7 @@ export default function App() {
       {/* Top bar */}
       <div style={{ background: "#0f1b2d", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Mentorship Tracker</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Onboarding Tracker</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</span>
             <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, opacity: saveFlash ? 1 : 0, transition: "opacity 400ms ease" }}>✓ Autosaved</span>
@@ -1622,7 +1623,15 @@ export default function App() {
         {/* ─── SIDEBAR ─── */}
         <div style={{ width: 330, background: "white", borderRight: "1px solid #dee2e6", overflowY: "auto", flexShrink: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ padding: "16px 16px 8px" }}>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d", marginBottom: 10 }}>{isDir ? "All Providers" : "My Mentees"}</h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{isDir ? "All Providers" : "My Mentees"}</h2>
+              {sidebarFilter && (
+                <button onClick={() => setSidebarFilter(null)}
+                  style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, border: "none", cursor: "pointer", background: sidebarFilter === "ok" ? "#dcfce7" : "#fee2e2", color: sidebarFilter === "ok" ? "#166534" : "#991b1b" }}>
+                  {sidebarFilter === "ok" ? "On Track ×" : "Behind ×"}
+                </button>
+              )}
+            </div>
             <div style={{ position: "relative" }}>
               <input
                 value={search}
@@ -1637,7 +1646,11 @@ export default function App() {
             </div>
           </div>
           <div style={{ flex: 1 }}>
-          {myProvs.filter(p => p.name.toLowerCase().includes(search.toLowerCase())).map(p => {
+          {myProvs.filter(p => p.name.toLowerCase().includes(search.toLowerCase())).filter(p => {
+            if (sidebarFilter === "ok") return getStatus(p.id) === "ok";
+            if (sidebarFilter === "behind") return getStatus(p.id) !== "ok";
+            return true;
+          }).map(p => {
             const m = USERS.find(u => u.id === p.mentor);
             const isSel = selId === p.id;
             const mn = mentorPct(checks, p.id);
@@ -2259,19 +2272,84 @@ export default function App() {
                     <div style={{ fontSize: 18, fontWeight: 700, color: "#0f1b2d", marginBottom: 16 }}>Medical Director Dashboard</div>
 
                     {/* Stats row */}
-                    <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-                      {[
-                        { val: totalProv, label: "Total Providers", color: "#0f1b2d" },
-                        { val: onTrack,   label: "On Track",        color: "#22c55e" },
-                        { val: behind,    label: "Behind Schedule", color: behind > 0 ? "#ef4444" : "#22c55e" },
-                        { val: avgCurr + "%", label: "Avg Dir. Curriculum", color: "#028090" },
-                      ].map(({ val, label, color }) => (
-                        <div key={label} style={{ flex: 1, background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "14px 16px" }}>
-                          <div style={{ fontSize: 26, fontWeight: 700, color }}>{val}</div>
-                          <div style={{ fontSize: 11, color: "#868e96", marginTop: 3 }}>{label}</div>
+                    {(() => {
+                      const tiles = [
+                        {
+                          val: totalProv,
+                          label: "Total Providers",
+                          sub: "in your program",
+                          icon: "👥",
+                          accent: "#028090",
+                          bg: "linear-gradient(135deg,#f0fdfe 0%,#e0f9fb 100%)",
+                          filterId: null,
+                          onClick: () => { setSidebarFilter(null); setSearch(""); },
+                        },
+                        {
+                          val: onTrack,
+                          label: "On Track",
+                          sub: totalProv ? Math.round(onTrack / totalProv * 100) + "% of cohort" : "—",
+                          icon: "✅",
+                          accent: "#22c55e",
+                          bg: "linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%)",
+                          filterId: "ok",
+                          onClick: () => setSidebarFilter(sidebarFilter === "ok" ? null : "ok"),
+                        },
+                        {
+                          val: behind,
+                          label: "Behind Schedule",
+                          sub: behind > 0 ? "need attention" : "none — great!",
+                          icon: behind > 0 ? "⚠️" : "🎉",
+                          accent: behind > 0 ? "#ef4444" : "#22c55e",
+                          bg: behind > 0 ? "linear-gradient(135deg,#fff5f5 0%,#fee2e2 100%)" : "linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%)",
+                          filterId: "behind",
+                          onClick: () => setSidebarFilter(sidebarFilter === "behind" ? null : "behind"),
+                        },
+                        {
+                          val: avgCurr + "%",
+                          label: "Dir. Curriculum",
+                          sub: "avg across all providers",
+                          icon: "📋",
+                          accent: "#8b5cf6",
+                          bg: "linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%)",
+                          filterId: "compare",
+                          onClick: () => setMainTab("compare"),
+                        },
+                      ];
+                      return (
+                        <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+                          {tiles.map(({ val, label, sub, icon, accent, bg, filterId, onClick }) => {
+                            const isActive = filterId === "compare" ? mainTab === "compare" : sidebarFilter === filterId;
+                            return (
+                              <div key={label}
+                                onClick={onClick}
+                                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.10)"; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = isActive ? "0 0 0 2px " + accent : "0 1px 4px rgba(0,0,0,0.06)"; }}
+                                style={{
+                                  flex: 1, borderRadius: 12, padding: "16px 16px 14px",
+                                  background: bg,
+                                  border: isActive ? "2px solid " + accent : "1px solid rgba(0,0,0,0.06)",
+                                  boxShadow: isActive ? "0 0 0 2px " + accent : "0 1px 4px rgba(0,0,0,0.06)",
+                                  cursor: "pointer", position: "relative", transition: "transform 0.15s, box-shadow 0.15s",
+                                  borderTop: "4px solid " + accent,
+                                }}>
+                                <div style={{ position: "absolute", top: 12, right: 12, fontSize: 16, opacity: 0.7 }}>{icon}</div>
+                                <div style={{ fontSize: 30, fontWeight: 800, color: accent, lineHeight: 1, marginBottom: 4 }}>{val}</div>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>{label}</div>
+                                <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>{sub}</div>
+                                {filterId && filterId !== "compare" && (
+                                  <div style={{ fontSize: 9, color: accent, marginTop: 6, fontWeight: 600, opacity: 0.8 }}>
+                                    {isActive ? "▼ filtering sidebar" : "click to filter ↓"}
+                                  </div>
+                                )}
+                                {filterId === "compare" && (
+                                  <div style={{ fontSize: 9, color: accent, marginTop: 6, fontWeight: 600, opacity: 0.8 }}>click for details →</div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })()}
 
                     {/* Mentor panel cards */}
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Mentor Panels</div>
