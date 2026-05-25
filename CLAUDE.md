@@ -215,7 +215,7 @@ src/
     workspaces/trainer.json          Trainer workspace config
     workspaces/clinical-modules.json Clinical Modules workspace config
     seed/patel-cohort.json           Dr. Patel's mid-onboarding state
-    seed/clinical-modules.json       All 7 bundled modules. adhd at schema_version 1.3.0 (Simplified/Stratified Pass — two-tier first_layer_html + sub_questions[] + module-level smartphrases[] registry). Lipid + opiates + benzos at 1.1.0/1.2.0 (evidence-confirmation pass complete, simplification-pass pending). ckd + anemia + abd-pain still at 1.0.0/1.0.1 (byte-identical to vanilla). [Noah owns]
+    seed/clinical-modules.json       All 7 bundled modules. adhd + opiates + benzos at schema_version 1.3.0 (Simplified/Stratified Pass — two-tier first_layer_html + sub_questions[] + module-level smartphrases[] registry; opiates + benzos landed 2026-05-25, each 11 FAQ topics incl. a standalone §5-split topic: opiates-first-visit / benzos-taper-primer). Lipid at 1.1.0 (evidence-confirmation complete, simplification-pass pending — its bundle map differs, non-controlled-substance). ckd + anemia + abd-pain still at 1.0.0/1.0.1 (byte-identical to vanilla). [Noah owns]
     seed/glossary.json               Global glossary — 69 entries. [Noah owns]
     seed/mentorship-master-checklist.json   62-item curriculum JSON with epic_ref_ids deep-links. [Scott owns]
     demo-script.json                 Stub

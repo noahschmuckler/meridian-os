@@ -1,5 +1,29 @@
 # Opiates Module — OpenEvidence Verification Tracker
 
+> **STATUS: SIMPLIFIED/STRATIFIED PASS COMPLETE — 2026-05-25.** Module bumped schema 1.2.0 → 1.3.0. The evidence-confirmation tracker (Bundles + 108 rows) is preserved below unchanged; this header records the simplification pass that ran on top of it. **Pipeline location:** Evidence-confirmation → **Simplified/Stratified Pass** (this commit) → Provider-ready.
+>
+> **Content source:** `~/Downloads/Opiates-Inherited-v2.docx` (canonical v2 draft, Claude-chat authored to Standards v1, handed in 2026-05-25). Implemented into JSON via the surgical-splice script `/tmp/build_opiates_v13.py`. Standards doc: `/home/noahs/incoming_noah/meridian-module-simplification-standards.pdf`. Template precedent: `verification/adhd.md` (first module through this pass).
+>
+> **Structural changes this pass:**
+> - All 10 FAQ topics converted from flat `items[]` → two-tier `first_layer_html` + `sub_questions[]`.
+> - **New 11th topic `opiates-first-visit`** ("Complete First-Visit Framework", the 11-element synthesis table) added as a standalone reference topic (`referenced_by: []` — reachable from the topic index, no surface checklist/escalation row). This is the Section 5 topic-split for this module — the full chart framework is independently important and would be missed if buried under a checklist item.
+> - Footer trimmed to 2 sentences (advisory + jurisdiction); framework rationale + numeric-threshold caveats + regulatory scope live in `context_strip`.
+> - Module-level `smartphrases[]` registry created: **1 confirmed** (`.OPIATES-CONT`, full green-zone continuation text) + **5 future** (`.CSAGREE`, `.OPIATES-PDMP-HOLD`, `.OPIATES-NALOXONE`, `.OPIATES-UDS-UNEXPECTED`, `.OPIATES-OUD-TRANSITION`). Only `.OPIATES-CONT` + `.CSAGREE` were named in the DOCX; the other four future flags are Claude-proposed per Standards §6 ("flag remaining SmartPhrases for future development") — **Noah to confirm IDs/scope.**
+> - **5 consult decision points** added (DOCX-derived prefill text), wired to the existing two consults: `pain-medicine` (first-visit, high-dose, combo) and `addiction-medicine-opiate` (unexpected-UDS, OUD).
+> - `references[]` preserved verbatim at the **92-entry evidence-confirmation superset** (all 49 DOCX-cited refs ⊆ existing 92; merge policy was a no-op). 36 unique refs cited inline; 0 undeclared markers; 56 declared-but-unused adjacency refs (expected, matches benzos/adhd).
+>
+> **§8 6-step checklist (this commit's stamp):**
+> - [x] **Step 1 — Read and inventory.** v2 DOCX extracted end-to-end; mapped to schema; CV-equivalent topic-split identified (first-visit framework).
+> - [x] **Step 2 — Surface layer.** 4 checklist items + 6 escalation items each a single statement; green-zone narrative ends on the institutional-support sentence; footer = 2 sentences; context section absorbed framework + threshold + jurisdiction prose.
+> - [x] **Step 3 — Detail layer, first-layer FAQ.** Each topic's `first_layer_html` uses table / bullets / prose / callout per §3; answer-first; callouts reserved for guideline tension + caveats (PDMP risk-score limits, CDC "no studies on agreements," Rec 11 Category B, pain-adjusted OUD).
+> - [x] **Step 4 — Detail layer, sub-questions.** Each `sub_questions[]` entry is a first-person provider question (distinct scenario / edge case), no first-layer duplication.
+> - [x] **Step 5 — SmartPhrase + consult decision points.** Registry populated; 5 FAQ entries carry `consult_decision_point`; 1 carries `smartphrase_note` (`.CSAGREE`).
+> - [x] **Step 6 — Final review.** No revision-artifact language; footer 2 sentences; all 11 topics have first-layer + ≥1 sub-question; references intact at 92; `npm run build` clean; HTML tag-balance + faq_ref link integrity verified.
+>
+> **Follow-up (deferred):** (a) Noah confirms the 4 Claude-proposed future SmartPhrase IDs. (b) Re-run the same pass on **benzos** once its v2 DOCX is handed in (user drafting in parallel 2026-05-25). (c) When the Consult Builder gains an external-prefill API, wire each `consult_decision_point.consult_id` to spawn the builder pre-loaded.
+
+---
+
 Working document for evidence-reviewing the `opiates` module in `src/data/seed/clinical-modules.json` (lines 1308–1603) before finalization. Not read by the app. See plan at `~/.claude/plans/i-want-to-verify-jiggly-sky.md` for context. Modeled on `verification/benzos.md` (sibling module, same author) and `~/GitHub_Repos/meridian-server/modules/adhd-verification.md` (original ADHD pass that established the workflow).
 
 **Workflow:** Run the meta-pass prompt first. Then run Bundle 1 (regulatory & MME pharmacology — the black-and-white facts) to calibrate prompt wording. Iterate if needed. Then run Bundles 2–8. Log each claim's verdict in the tracker table at the bottom. Once verdicts are captured, a follow-up coding session will rewrite the opiate module JSON with `references[]` and `[ref:X]` markers in the prose.
