@@ -635,6 +635,15 @@
       "section": "Controlled Substances — Six-Month Check-In",
       "text": "Six-month controlled substances check-in. Review how the provider has been managing inherited opioid, benzodiazepine, and stimulant patients over the first six months. Are they continuing established care appropriately, or have there been patterns of avoidance, unnecessary tapering, or referral out? Use this as a direct coaching conversation.",
       "epic_ref_ids": []
+    },
+    {
+      "id": "md-67",
+      "n": 67,
+      "phase": "m6",
+      "owner": "MD",
+      "section": "Clinical Modules — Six-Month Check-In",
+      "text": "Six-month clinical modules check-in. Ask which Meridian modules the provider has used — lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos. Which have been most useful? Are there modules they have not opened yet that are relevant to their patient population? Identify any clinical areas where they seem to be avoiding complexity and use the modules as a shared reference point for coaching.",
+      "epic_ref_ids": []
     }
   ]
 }

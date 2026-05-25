@@ -125,6 +125,7 @@ const MP_PHYS = [
     "Check on professional satisfaction: is this what they expected? Glad they took this position?",
     "Ask if there is anything they need from you, the Medical Director, or the organization",
     "Controlled substances check-in: how have encounters with inherited opioid, benzodiazepine, and stimulant patients gone over the past two months? Debrief any cases where they felt stuck or over-cautious. Remind them that continuing a stable patient's established regimen is the right call, and that the Meridian modules are there if they need a refresher.",
+    "Clinical modules check-in: which Meridian modules have they actually opened — lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos? Which have been useful? Are there any they have not tried yet that seem relevant to what they are seeing? Share which ones you rely on most.",
     "Provider appears energized and engaged",
     "Share one specific thing this provider is doing well that they may not realize",
   ]},
