@@ -1250,7 +1250,7 @@ export default function App() {
   recentNotes.reverse();
 
   /* ─── LOGIN ─── */
-  const gradBg = { background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", minHeight: "100vh", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" };
+  const gradBg = { background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", height: "100%", overflowY: "auto" as const, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px" };
 
   // ── DEPARTMENT PICKER ──────────────────────────────────────────────────────
   if (!dept) {
@@ -1384,10 +1384,17 @@ export default function App() {
             </div>
           </div>
 
-          <div style={{ textAlign: "center", marginTop: 16, fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
-            <span onClick={() => setDept(null)} style={{ cursor: "pointer", textDecoration: "underline", marginRight: 12 }}>‹ Change department</span>
-            For authorized Optum NY/NJ staff only
+          <div onClick={() => setDept(null)}
+            style={{ marginTop: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 12, padding: "14px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.16)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}>
+            <span style={{ fontSize: 22, color: "white", lineHeight: 1 }}>←</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "white" }}>Back to Department Selection</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Tap here to choose a different department</div>
+            </div>
           </div>
+          <div style={{ textAlign: "center", marginTop: 14, fontSize: 11, color: "rgba(255,255,255,0.3)" }}>For authorized Optum NY/NJ staff only</div>
         </div>
       </div>
     );
