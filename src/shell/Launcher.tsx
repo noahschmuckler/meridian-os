@@ -27,12 +27,12 @@ export function Launcher(): JSX.Element {
           type="button"
           class="launcher__app"
           onClick={() => setLauncherApp('mentorship')}
-          aria-label="Open Mentorship Tracker"
+          aria-label="Open Onboarding Tracker"
         >
           <div class="launcher__app-icon launcher__app-icon--mentorship">
             <span class="launcher__app-glyph" aria-hidden="true">👥</span>
           </div>
-          <div class="launcher__app-caption">Mentorship Tracker</div>
+          <div class="launcher__app-caption">Onboarding Tracker</div>
         </button>
 
         <button

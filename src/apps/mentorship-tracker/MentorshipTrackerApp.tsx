@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
@@ -21,23 +21,218 @@ function openEpicRef(entryId) {
   setLauncherApp("epic-reference");
 }
 
-/* ─── Phase Data (same as v3) ─── */
-const MP = [
-  {id:"w1",label:"Week 1",items:["Checked in on first-day experience","Confirmed Epic login and EHR access","Reviewed clinic layout and team intros","Discussed schedule and ramp-up expectations","Answered workflow or logistics questions"]},
-  {id:"w2",label:"Week 2",items:["Checked in on EHR comfort level","Reviewed SmartPhrase or order set progress","Observed at least one patient encounter","Discussed In Basket management setup","Answered workflow or clinical questions"]},
-  {id:"w3",label:"Week 3",items:["Reviewed order sets and preference lists","Discussed care gap identification","Reviewed Problem List management","Observed documentation quality","Addressed emerging concerns"]},
-  {id:"w4",label:"Week 4",items:["End-of-month progress discussion","Reviewed volume and readiness to ramp","Assessed EHR efficiency","Discussed schedule adjustments","Prepared for Medical Director review"]},
-  {id:"w5",label:"Week 5",items:["Volume ramp-up comfort check","Reviewed referral and order routing","Discussed BPA navigation","Observed encounter closing and billing","Answered clinical questions"]},
-  {id:"w6",label:"Week 6",items:["Reviewed MyChart response quality","Discussed medication reconciliation","Assessed care gap closure consistency","Reviewed workspace personalization","Addressed emerging concerns"]},
-  {id:"w7",label:"Week 7",items:["Assessed independence readiness","Reviewed quality metrics together","Discussed billable encounter types","Observed complex patient management","Answered remaining questions"]},
-  {id:"w8",label:"Week 8",items:["End-of-weekly-phase assessment","Reviewed overall EHR proficiency","Assessed readiness for monthly cadence","Discussed ongoing learning goals","Prepared for Medical Director review"]},
-  {id:"m3",label:"Month 3",items:["Volume vs target review","Care gap and Problem List assessment","Referral routing accuracy","Billing/coding proficiency","Semi-independent readiness"]},
-  {id:"m4",label:"Month 4",items:["Optimization check-in","EHR efficiency review","Complex case discussion","Workload sustainability","Emerging issues addressed"]},
-  {id:"m5",label:"Month 5",items:["Full capacity assessment","Burnout and wellbeing check","Quality and care gap rates","Professional development goals","Month 6 review readiness"]},
-  {id:"m6",label:"Month 6",items:["6-month milestone assessment","Full capacity confirmation","Quality dashboard review","Quarterly transition plan","Medical Director summary prep"]},
-  {id:"q3",label:"Month 9",items:["Continued development and CE planning","Professional goals check-in","Quality and satisfaction review","Emerging support needs"]},
-  {id:"q4",label:"Month 12",items:["Annual comprehensive review","Full performance assessment","Mentorship transition planning","Year 2 development plan"]},
+/* ─── Mentor Curriculum — Physician Track (all providers, Week 0 → Month 12) ─── */
+const MP_PHYS = [
+  {id:"w0",label:"Week 0",items:[
+    "After receiving notification from Deirdre Morgan's team, introduce yourself to the new provider via email or phone — share your name, role, how long you've been at the practice, and that you'll be their go-to person",
+    "Provide your direct contact information and tell them they can reach out anytime, even before day one",
+    "Ask if they have questions or concerns about starting — logistics, parking, dress code, what to bring",
+    "Share one or two practical tips about the practice that nobody puts in the welcome packet",
+    "Confirm you will be available in person during their first week and coordinate your schedule to overlap",
+    "Let them know you are not their evaluator — you are the person who makes sure they never feel lost",
+  ]},
+  {id:"w1",label:"Week 1",items:[
+    "Meet the provider in person on day one — walk them to their workspace and introduce them to daily contacts",
+    "Confirm they know where essentials are: restrooms, break room, supply room, printer, fax, sample closet",
+    "Confirm all system access is working: Epic login, email, phone, building badge, parking",
+    "Introduce them individually to the MAs, front desk staff, and office manager they will work with directly",
+    "Walk them through the daily rhythm: arrival time, huddle, lunch, when most providers leave",
+    "Explain the unwritten rules: how the call schedule actually works, which staff handle which tasks, how to get things done quickly",
+    "Check in at end of day one: How did it go? What was confusing? What do they need tomorrow?",
+    "Check in at end of day three: What has gotten easier? What is still frustrating? Are they eating lunch or working through it?",
+    "Ask if they have met someone on the team they feel comfortable asking questions to besides you",
+    "Confirm they understand how to reach you, the office manager, and the Medical Director if something urgent comes up",
+    "Ask if anything about the physical workspace needs to be fixed — chair, monitor, lighting, noise",
+    "End-of-week check-in: Best and worst moments of week one? Anything they need before Monday?",
+  ]},
+  {id:"w2",label:"Week 2",items:[
+    "Check in on patient encounters — not clinical quality, but workflow: finishing on time? Finding what they need in Epic?",
+    "Ask how the In Basket is going: piling up? Understanding message types? Staying on top of results?",
+    "Ask if any patient interactions left them feeling uncertain or uncomfortable — interpersonally, not clinically",
+    "Observe their general demeanor: overwhelmed, anxious, frustrated, or settling in? If something seems off, ask directly",
+    "Ask if they have questions they feel embarrassed to ask someone else",
+    "Check whether they have been included in team conversations, lunch, or social moments — or eating alone",
+    "Ask if the pace feels sustainable or rushed",
+    "Confirm daily huddle attendance and they understand its purpose, especially care gap review",
+    "Ask if any staff interactions have been confusing, tense, or unclear — offer context about team dynamics",
+    "Flag anything concerning to the Medical Director with appropriate urgency (routine or urgent)",
+  ]},
+  {id:"w3",label:"Week 3",items:[
+    "Ask what part of the daily workflow now feels comfortable and what still feels like a struggle",
+    "Check on Epic efficiency: SmartPhrases helping? Order sets built? Documentation getting faster?",
+    "Ask about In Basket management: under control by end of day, or taking work home?",
+    "Check on schedule management: running on time or consistently behind? Identify whether it is volume, documentation, complexity, or rooming delays",
+    "Ask if they have developed any shortcuts or workarounds — and whether those are helping or masking a problem",
+    "Check on team relationships: part of the team, or still the new person?",
+    "Ask if there is anything the Medical Director should know that the provider might not bring up themselves",
+    "Provide one specific, actionable piece of advice based on what you have observed",
+  ]},
+  {id:"m1",label:"Month 1",items:[
+    "Ask the provider to rate their own first month: what grade would they give themselves, and why?",
+    "Ask what they wish they had known on day one that nobody told them",
+    "Check on documentation speed: notes closing same day? If not, what is causing the delay?",
+    "Ask about care gap identification: noticing care gaps during visits, or still focused on chief complaint only?",
+    "Discuss volume: does the current patient load feel right?",
+    "Ask about the team dynamic from their perspective: respected by staff? Supported?",
+    "Ask if there are concerns they have not raised with the Medical Director that they would raise with you",
+    "Prepare the provider for the Medical Director's Month 1 questionnaire — let them know it is coming and that it is supportive, not evaluative",
+    "Ask how they have been handling inherited controlled substances patients so far — opioids, benzodiazepines, stimulants. Are they continuing existing regimens comfortably, or feeling uncertain about taking them on? Share how you personally approach these patients and normalize the discomfort if it is there.",
+    "Ask if they have opened the Meridian clinical modules yet — lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos. If not, walk them through where to find them and show them one you use regularly. Make it concrete, not aspirational.",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"w5",label:"Week 5",items:[
+    "Check how the volume increase is landing: keeping up, or starting to feel rushed?",
+    "Ask about referral workflows: do they know how to route correctly in Epic?",
+    "Ask about encounter closure: closing by end of day, or open encounters piling up?",
+    "Check on In Basket at end of day: manageable, or has increased volume created a backlog?",
+    "Ask if any part of their workflow has broken down as volume increased",
+    "Offer one practical tip for managing the increased pace",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"w6",label:"Week 6",items:[
+    "Ask about MyChart messaging: manageable, or becoming a second In Basket?",
+    "Check on medication reconciliation habits: cleaning the med list during visits, or skipping due to time?",
+    "Ask about work-life balance: leaving at a reasonable time? Charting from home? Sleeping well?",
+    "Ask if there is a specific visit type or patient that consistently feels harder than it should",
+    "Check whether they are personalizing their Epic workspace: custom order sets, preference lists, SmartPhrase library",
+    "Ask if they have advice for you — what have they noticed with fresh eyes?",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"w7",label:"Week 7",items:[
+    "Ask how confident they feel handling a full day independently",
+    "Check whether they know what to do when they encounter a scenario they are not sure about",
+    "Ask about complex patient management: have they handled a multi-problem visit successfully?",
+    "Ask if they feel ready to shift from weekly to monthly check-ins — and whether that feels supportive or abandoned",
+    "Ask what one skill or area they still want to improve over the next three months",
+    "Share your honest assessment of their progress — specific, positive, and constructive",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m2",label:"Month 2",items:[
+    "Conduct a reflective conversation: highest and lowest moments of the first two months",
+    "Ask what part of the onboarding program has been most helpful and what felt unnecessary",
+    "Check all core workflows: documentation, In Basket, referrals, orders, care gaps, MyChart — any still a daily struggle?",
+    "Ask about team integration: established member, or still the new person?",
+    "Ask if there are unresolved concerns from the first two months",
+    "Set expectations for monthly check-ins: shorter, less structured, focused on how things are going",
+    "Remind them you are still available between scheduled check-ins",
+    "Flag a summary to the Medical Director: overall trajectory and any specific items to address",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m3",label:"Month 3",items:[
+    "Ask how the transition from weekly to monthly support has felt",
+    "Check on volume sustainability: daily load manageable at closer to full capacity?",
+    "Ask about quality metrics: aware of their scores? Understand what is being measured?",
+    "Ask if they have had any difficult conversations with patients, staff, or leadership — and how they handled them",
+    "Check on professional satisfaction: is this what they expected? Glad they took this position?",
+    "Ask if there is anything they need from you, the Medical Director, or the organization",
+    "Controlled substances check-in: how have encounters with inherited opioid, benzodiazepine, and stimulant patients gone over the past two months? Debrief any cases where they felt stuck or over-cautious. Remind them that continuing a stable patient's established regimen is the right call, and that the Meridian modules are there if they need a refresher.",
+    "Clinical modules check-in: which Meridian modules have they actually opened — lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos? Which have been useful? Are there any they have not tried yet that seem relevant to what they are seeing? Share which ones you rely on most.",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m4",label:"Month 4",items:[
+    "Check on daily workflow: anything changed since Month 3? New frustrations or inefficiencies?",
+    "Ask about their relationship with the team: deepened, plateaued, or developed tension?",
+    "Ask if they are pursuing any professional development and whether the organization is supporting it",
+    "Check on documentation habits: notes still closing same day?",
+    "Has the provider developed at least one close working relationship on the team — someone they talk to, eat with, or ask questions of beyond surface-level pleasantries?",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m5",label:"Month 5",items:[
+    "Ask how they would evaluate their own performance over five months — strengths and areas for growth",
+    "Check on burnout signals: energy level, enthusiasm for coming to work — without being intrusive, just genuinely asking",
+    "Ask if there are goals they set at the beginning that they have not yet achieved — and what is in the way",
+    "Preview the six-month milestone: Medical Director questionnaire, office manager assessment, and what those cover",
+    "Has the provider maintained at least one close working relationship on the team, or has social connection faded?",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m6",label:"Month 6",items:[
+    "Acknowledge the milestone: six months is a real accomplishment. Tell them specifically what you have watched them improve at",
+    "Ask for their honest six-month self-assessment: where are they strongest? Where do they still struggle?",
+    "Check on panel growth: are patients building loyalty? Do patients request them?",
+    "Ask about their long-term vision: do they see themselves here in two years? Five years?",
+    "Ask if the mentorship relationship is still valuable and what format they prefer going forward",
+    "Flag your six-month assessment to the Medical Director: on track for success? Any concerns?",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m7",label:"Month 7",items:[
+    "Brief check-in: any concerns, changes, or developments since Month 6?",
+    "How is your energy and motivation level?",
+    "Anything you need from me, the Medical Director, or the organization?",
+    "Provider appears energized and engaged",
+  ]},
+  {id:"m8",label:"Month 8",items:[
+    "Brief check-in: anything on your mind professionally?",
+    "How are things going with the team?",
+    "Any emerging issues heading into the Month 9 check-in?",
+    "Provider appears energized and engaged",
+  ]},
+  {id:"m9",label:"Month 9",items:[
+    "Ask how things are going — genuinely. Listen for what they say and what they do not say",
+    "Check whether documentation and workflow efficiency have continued to improve, plateaued, or declined",
+    "Ask if they feel recognized and appreciated — by patients, staff, and leadership",
+    "Ask if anything about the organization, practice, or team has surprised them since last check-in",
+    "Ask if they have started mentoring or helping others informally",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m12",label:"Month 12",items:[
+    "Conduct a year-in-review conversation: defining moments, breakthroughs, struggles, turning points",
+    "Ask what they know now that they wish they had been told on day one",
+    "Ask directly: Are you happy here? Is this where you want to be?",
+    "Discuss what the relationship looks like going forward: physicians end formally, APCs continue quarterly through Year 2",
+    "Ask if they would recommend this organization to a friend or colleague — and why or why not",
+    "Thank them for trusting you through this process. Make it personal and genuine",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
 ];
+
+/* ─── Mentor Curriculum — APC Track (NP/PA only, Month 15 → Month 24) ─── */
+const MP_APC = [
+  {id:"m15",label:"Month 15",items:[
+    "Check how the transition from monthly to quarterly check-ins has felt — still supported, or has the gap created distance?",
+    "Ask about clinical confidence: are there still presentations that make them pause, or has most of it become routine?",
+    "Ask about the collaborative relationship with their collaborating physician: working well? Enough access? Respectful and genuinely collaborative?",
+    "Check on professional development: pursuing advanced certifications, specialty training, leadership opportunities?",
+    "Ask if there is anything about their scope of practice, schedule, or role they would like to see change",
+    "Do you feel you are treated as an equal member of the clinical team? (If the answer is anything less than a confident yes, flag for the Medical Director)",
+    "Provider appears energized and engaged",
+  ]},
+  {id:"m18",label:"Month 18",items:[
+    "Ask about workload sustainability at 18 months: has the pace become comfortable, or is fatigue setting in?",
+    "Check on team dynamics: fully integrated, or still treated differently as an NP or PA compared to physicians?",
+    "Ask whether the national education program content has continued to influence their practice",
+    "Ask about compensation satisfaction — not to fix it, but to know whether it is becoming frustration",
+    "Ask what they would change about the APC onboarding program based on their experience",
+    "Provider appears energized and engaged",
+    "Share one specific thing this provider is doing well that they may not realize",
+  ]},
+  {id:"m21",label:"Month 21",items:[
+    "Check on burnout and emotional wellbeing: 21 months is when initial energy has fully worn off",
+    "Ask if they feel their contributions are visible to leadership, or doing good work nobody notices",
+    "Ask whether they are ready and willing to mentor a new provider",
+    "Check on documentation efficiency: by 21 months, charting should not be a burden",
+    "Ask what keeps them here — genuinely, what is the reason you stay?",
+    "Ask whether the collaborative agreement still reflects their current abilities or should be updated — procedure privileges, chart review frequency, scope",
+    "Provider appears energized and engaged",
+  ]},
+  {id:"m24",label:"Month 24",items:[
+    "Conduct a two-year retrospective: where were they on day one vs now? Help them see the distance traveled",
+    "Ask for their final honest assessment: was the mentorship program worth the time? What made it valuable? What was unnecessary?",
+    "Ask whether they have reached full professional confidence in this role",
+    "Discuss the transition: mentorship formally ends, the relationship does not",
+    "Confirm with the Medical Director whether the collaborative agreement should be formally reviewed and updated based on two years of performance",
+    "Ask if they would serve as a mentor for the next new APC",
+    "Close with genuine recognition: tell them specifically what they have contributed to the practice that was not there before they arrived",
+    "Provider appears energized and engaged",
+  ]},
+];
+
+const MP = [...MP_PHYS, ...MP_APC];
 
 const OP = [
   {id:"om1",label:"Month 1 — First Impressions",qs:[
@@ -97,28 +292,134 @@ const OP = [
 ];
 
 const QP = [
-  {id:"w1",label:"Week 1",qs:[{qid:"a",text:"How comfortable navigating the clinic?",ty:"s"},{qid:"b",text:"How supported by your team?",ty:"s"},{qid:"c",text:"Confident with Epic basics?",ty:"s"},{qid:"d",text:"What has gone well?",ty:"t"},{qid:"e",text:"What could we improve?",ty:"t"}]},
-  {id:"w2",label:"Week 2",qs:[{qid:"a",text:"Comfortable with documentation?",ty:"s"},{qid:"b",text:"Understand In Basket workflow?",ty:"s"},{qid:"c",text:"Supported by your mentor?",ty:"s"},{qid:"d",text:"Current challenges?",ty:"t"}]},
-  {id:"w3",label:"Week 3",qs:[{qid:"a",text:"Confident managing order sets?",ty:"s"},{qid:"b",text:"Comfortable with care gap ID?",ty:"s"},{qid:"c",text:"Overall onboarding experience?",ty:"s"},{qid:"d",text:"Anything you need?",ty:"t"}]},
-  {id:"w4",label:"Week 4",qs:[{qid:"a",text:"Ready to increase volume?",ty:"s"},{qid:"b",text:"Efficient with documentation?",ty:"s"},{qid:"c",text:"Connected to team?",ty:"s"},{qid:"d",text:"Biggest difference needed?",ty:"t"},{qid:"e",text:"Concerns?",ty:"t"}]},
-  {id:"w5",label:"Week 5",qs:[{qid:"a",text:"Comfortable with current volume?",ty:"s"},{qid:"b",text:"Confident with referrals?",ty:"s"},{qid:"c",text:"Managing In Basket end of day?",ty:"s"},{qid:"d",text:"What is working well?",ty:"t"}]},
-  {id:"w6",label:"Week 6",qs:[{qid:"a",text:"Confident with MyChart messaging?",ty:"s"},{qid:"b",text:"Comfortable with med reconciliation?",ty:"s"},{qid:"c",text:"Work-life balance?",ty:"s"},{qid:"d",text:"Workflow changes needed?",ty:"t"}]},
-  {id:"w7",label:"Week 7",qs:[{qid:"a",text:"Ready for independence?",ty:"s"},{qid:"b",text:"Comfortable with complex patients?",ty:"s"},{qid:"c",text:"Satisfied with onboarding?",ty:"s"},{qid:"d",text:"Advice for next provider?",ty:"t"}]},
-  {id:"w8",label:"Week 8",qs:[{qid:"a",text:"Overall Epic proficiency?",ty:"s"},{qid:"b",text:"Ready for monthly check-ins?",ty:"s"},{qid:"c",text:"Supported by leadership?",ty:"s"},{qid:"d",text:"Goals for next 3 months?",ty:"t"}]},
-  {id:"m3",label:"Month 3",qs:[{qid:"a",text:"Confident with full panel?",ty:"s"},{qid:"b",text:"Integrated into team?",ty:"s"},{qid:"c",text:"Quality metrics?",ty:"s"},{qid:"d",text:"Support still needed?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
-  {id:"m6",label:"Month 6",qs:[{qid:"a",text:"Confident at full capacity?",ty:"s"},{qid:"b",text:"Satisfied with role?",ty:"s"},{qid:"c",text:"Rate onboarding?",ty:"s"},{qid:"d",text:"Most valuable part?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
-  {id:"q3",label:"Month 9",qs:[{qid:"a",text:"Satisfied in current role?",ty:"s"},{qid:"b",text:"Organization supports growth?",ty:"s"},{qid:"c",text:"Development needs?",ty:"t"}]},
-  {id:"q4",label:"Month 12",qs:[{qid:"a",text:"Rate your first year?",ty:"s"},{qid:"b",text:"Likely to stay long-term?",ty:"s"},{qid:"c",text:"Best part of year one?",ty:"t"},{qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},{qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},{qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},{qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true}]},
+  {id:"w0",label:"Week 0 — Post-Hire",qs:[
+    {qid:"a",text:"What aspects of the hiring process stood out as particularly positive for you?",ty:"t"},
+    {qid:"b",text:"Were there any points in the hiring process that felt unclear or challenging?",ty:"t"},
+    {qid:"c",text:"How did the onboarding communication (e.g., emails, calls, materials) prepare you for your first day?",ty:"t"},
+    {qid:"d",text:"Was the timeline between your offer acceptance and start date appropriate, or could it be improved?",ty:"t"},
+    {qid:"e",text:"What suggestions do you have for improving the hiring experience for future candidates?",ty:"t"},
+  ]},
+  {id:"w1",label:"Week 1 — End of Orientation",qs:[
+    {qid:"a",text:"Do you have email access on your phone?",ty:"t"},
+    {qid:"b",text:"Can you access Epic on your laptop in the office? Can you access your email and Epic on your laptop at home?",ty:"t"},
+    {qid:"c",text:"What were two positive or most helpful moments of this week? Was there anything particularly daunting that you would like to discuss?",ty:"t"},
+    {qid:"d",text:"Is there anything specific you would like to learn or gain more clarity on this week?",ty:"t"},
+  ]},
+  {id:"w2",label:"Week 2 — First Clinical Week",qs:[
+    {qid:"a",text:"Are you able to prescribe? Any issues sending controlled substances? Do you have Imprivata access?",ty:"t"},
+    {qid:"b",text:"Do you feel the workflow allows you enough time to learn and adapt at a manageable pace? Why or why not?",ty:"t"},
+    {qid:"c",text:"Are there any resources or tools that would help you perform better in your role?",ty:"t"},
+    {qid:"d",text:"How are your interactions with colleagues, staff, and leadership so far? Which team member has been incredibly helpful? How attentive has medical leadership been during this process?",ty:"t"},
+    {qid:"e",text:"Is there anything specific you would like to learn or gain more clarity on this week?",ty:"t"},
+  ]},
+  {id:"w3",label:"Week 3",qs:[
+    {qid:"a",text:"Has the workflow been organized in a way that supports you in identifying areas where you're still learning or need additional support?",ty:"t"},
+    {qid:"b",text:"Are there any resources or tools that would help you perform better in your role?",ty:"t"},
+    {qid:"c",text:"How are your interactions with colleagues, staff, and leadership so far? Which team member has been incredibly helpful? How attentive has medical leadership been during this process?",ty:"t"},
+    {qid:"d",text:"How are you finding the functionality of Epic? How would you rate the ease of use, or lack thereof? Are there specific areas of Epic where you feel more training is needed? For example, documentation time or managing the in-basket? Or, utilizing the AWV smart set?",ty:"t"},
+    {qid:"e",text:"Is there anything specific you would like to learn or gain more clarity on this week?",ty:"t"},
+  ]},
+  {id:"m1",label:"Month 1",qs:[
+    {qid:"a",text:"How satisfied are you with your onboarding experience so far?",ty:"s",anchor_low:"poor experience",anchor_high:"great experience"},
+    {qid:"b",text:"How efficient do you feel with Epic documentation?",ty:"s",anchor_low:"not efficient at all",anchor_high:"very efficient"},
+    {qid:"c",text:"To what extent do you feel prepared to perform your job after completing the initial onboarding?",ty:"s",anchor_low:"not at all prepared",anchor_high:"very prepared"},
+    {qid:"d",text:"How effective was the training you received in helping you understand your role?",ty:"s",anchor_low:"not effective at all",anchor_high:"extremely effective"},
+    {qid:"e",text:"How clear and consistent has communication been from your manager and team?",ty:"s",anchor_low:"very unclear",anchor_high:"very clear"},
+    {qid:"f",text:"What part of the onboarding process was most helpful, and what could be improved?",ty:"t"},
+  ]},
+  {id:"w5",label:"Week 5",qs:[
+    {qid:"a",text:"How comfortable are you with your current patient volume?",ty:"s",anchor_low:"not comfortable at all",anchor_high:"very comfortable"},
+    {qid:"b",text:"How confident are you with referral workflows?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"c",text:"How well are you managing your In Basket at end of day?",ty:"s",anchor_low:"not managing at all",anchor_high:"managing very well"},
+    {qid:"d",text:"What is working well in your daily routine?",ty:"t"},
+  ]},
+  {id:"w6",label:"Week 6",qs:[
+    {qid:"a",text:"How confident are you with patient messaging (MyChart)?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"b",text:"How comfortable are you with medication reconciliation?",ty:"s",anchor_low:"not comfortable at all",anchor_high:"very comfortable"},
+    {qid:"c",text:"How would you rate your work-life balance so far?",ty:"s",anchor_low:"very poor",anchor_high:"excellent"},
+    {qid:"d",text:"Anything you'd change about your workflow?",ty:"t"},
+  ]},
+  {id:"w7",label:"Week 7",qs:[
+    {qid:"a",text:"How ready do you feel to practice more independently?",ty:"s",anchor_low:"not ready at all",anchor_high:"completely ready"},
+    {qid:"b",text:"How comfortable are you with complex patient management?",ty:"s",anchor_low:"not comfortable at all",anchor_high:"very comfortable"},
+    {qid:"c",text:"How satisfied are you with the onboarding program overall?",ty:"s",anchor_low:"very dissatisfied",anchor_high:"very satisfied"},
+    {qid:"d",text:"What would you tell the next new provider about this process?",ty:"t"},
+  ]},
+  {id:"m2",label:"Month 2",qs:[
+    {qid:"a",text:"How confident do you feel in performing your job responsibilities?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"b",text:"How supported do you feel by leadership?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"c",text:"How well do you feel integrated into your team?",ty:"s",anchor_low:"not at all integrated",anchor_high:"fully integrated"},
+    {qid:"d",text:"How confident do you feel navigating Epic?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"e",text:"How effective was the side-by-side Epic training in preparing you for patient care?",ty:"s",anchor_low:"not effective at all",anchor_high:"very effective"},
+    {qid:"f",text:"How confident are you in your ability to complete visit-level coding accurately?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"g",text:"What additional support or resources would help you succeed in your role moving forward?",ty:"t"},
+  ]},
+  {id:"m3",label:"Month 3",qs:[
+    {qid:"a",text:"How satisfied are you with your role and responsibilities so far?",ty:"s",anchor_low:"not satisfied at all",anchor_high:"extremely satisfied"},
+    {qid:"b",text:"How accessible is your medical director when you need guidance?",ty:"s",anchor_low:"not accessible at all",anchor_high:"very accessible"},
+    {qid:"c",text:"How would you rate the communication with your clinical team?",ty:"s",anchor_low:"poor communication",anchor_high:"great communication"},
+    {qid:"d",text:"How well do you understand and align with the company's culture and values?",ty:"s",anchor_low:"not at all clear",anchor_high:"very clear"},
+    {qid:"e",text:"Do you have a clear understanding of growth and development opportunities?",ty:"s",anchor_low:"not clear at all",anchor_high:"very clear"},
+    {qid:"f",text:"Looking back on your first 90 days, what has gone well, and what could have been better?",ty:"t"},
+    {qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},
+    {qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},
+    {qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},
+    {qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true},
+  ]},
+  {id:"m6",label:"Month 6",qs:[
+    {qid:"a",text:"How confident do you feel in your ability to manage your patient panel independently?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"b",text:"How well do you feel your workload is sustainable for the long term?",ty:"s",anchor_low:"not sustainable at all",anchor_high:"very sustainable"},
+    {qid:"c",text:"How valued do you feel as a member of this organization?",ty:"s",anchor_low:"not valued at all",anchor_high:"very valued"},
+    {qid:"d",text:"How satisfied are you with the level of autonomy you have in your role?",ty:"s",anchor_low:"not satisfied at all",anchor_high:"very satisfied"},
+    {qid:"e",text:"How confident are you in your ability to meet quality and performance expectations?",ty:"s",anchor_low:"not confident at all",anchor_high:"very confident"},
+    {qid:"f",text:"Now that you are six months in, what is one thing you wish you had known on day one?",ty:"t"},
+    {qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},
+    {qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},
+    {qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},
+    {qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true},
+  ]},
+  {id:"m9",label:"Month 9",qs:[
+    {qid:"a",text:"How satisfied are you in your current role?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"b",text:"How strongly do you feel that your organization supports growth?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"c",text:"How efficient do you feel with documentation?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"d",text:"What have you found to be the biggest difference that is needed?",ty:"t"},
+  ]},
+  {id:"m12",label:"Month 12",qs:[
+    {qid:"a",text:"How motivated do you feel in your current role?",ty:"s",anchor_low:"not at all motivated",anchor_high:"extremely motivated"},
+    {qid:"b",text:"How would you rate your current work-life balance?",ty:"s",anchor_low:"very poor",anchor_high:"excellent"},
+    {qid:"c",text:"How often do you feel recognized for your contributions?",ty:"s",anchor_low:"never",anchor_high:"always"},
+    {qid:"d",text:"How satisfied are you with your career growth and development over the past year?",ty:"s",anchor_low:"very dissatisfied",anchor_high:"very satisfied"},
+    {qid:"e",text:"How supported do you feel by your manager in achieving your goals?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
+    {qid:"f",text:"What would make your experience here even better in the next 12 months?",ty:"t"},
+    {qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},
+    {qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},
+    {qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},
+    {qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true},
+  ]},
 ];
 
-const QP_TO_OM = {w1:"om1",w2:"om1",w3:"om1",w4:"om1",w5:"om2",w6:"om2",w7:"om2",w8:"om2",m3:"om3",m6:"om6",q3:"om9",q4:"om12"};
-const USERS = [{id:"md1",name:"Dr. Rivera",role:"director"},{id:"mt1",name:"Dr. Smith",role:"mentor"},{id:"mt2",name:"Dr. Lee",role:"mentor"}];
-const PROVS = [
-  {id:"p1",name:"Dr. Johnson",role:"MD",mentor:"mt1",phase:"m4",days:110},
-  {id:"p2",name:"Dr. Patel",role:"DO",mentor:"mt1",phase:"m3",days:87},
-  {id:"p3",name:"Dr. Williams",role:"MD",mentor:"mt2",phase:"w7",days:52},
-  {id:"p4",name:"Dr. Garcia",role:"DO",mentor:"mt2",phase:"w5",days:38},
+const QP_TO_OM = {w0:"om1",w1:"om1",w2:"om1",w3:"om1",m1:"om1",w5:"om2",w6:"om2",w7:"om2",m2:"om2",m3:"om3",m6:"om6",m9:"om9",m12:"om12"};
+const USERS = [
+  {id:"md1",name:"Dr. Rivera",role:"director"},
+  {id:"mt1",name:"Dr. Smith",role:"mentor"},
+  {id:"mt2",name:"Dr. Lee",role:"mentor"},
+  {id:"mt3",name:"M. Torres, NP",role:"mentor"},
 ];
+const SEED_PROVS = [
+  // Physician providers — Dr. Smith's panel
+  {id:"p1",name:"Dr. Johnson",   role:"MD", mentor:"mt1", phase:"w7",  days:110},
+  {id:"p2",name:"Dr. Patel",     role:"DO", mentor:"mt1", phase:"m3",  days:87},
+  {id:"p7",name:"Dr. Hassan",    role:"DO", mentor:"mt1", phase:"w3",  days:65},
+  // Physician providers — Dr. Lee's panel
+  {id:"p3",name:"Dr. Williams",  role:"MD", mentor:"mt2", phase:"w7",  days:52},
+  {id:"p4",name:"Dr. Garcia",    role:"DO", mentor:"mt2", phase:"w5",  days:38},
+  {id:"p6",name:"Dr. Park",      role:"MD", mentor:"mt2", phase:"w3",  days:22},
+  // APC providers — M. Torres panel
+  {id:"p5",name:"A. Martinez, NP",role:"NP",mentor:"mt1", phase:"m18", days:545},
+  {id:"p8",name:"R. Okafor, PA", role:"PA", mentor:"mt3", phase:"w7",  days:52},
+  {id:"p9",name:"T. Singh, NP",  role:"NP", mentor:"mt3", phase:"m6",  days:182},
+];
+let PROVS = SEED_PROVS;
 
 /* ─── Seed Data ─── */
 function makeSeedChecks() {
@@ -129,23 +430,38 @@ function makeSeedChecks() {
       if (ph) ph.items.forEach((_, i) => { c[pid + "." + phid + "." + i] = true; });
     });
   };
-  fill("p1", ["w1","w2","w3","w4","w5","w6","w7","w8","m3"]);
-  fill("p2", ["w1","w2","w3","w4","w5","w6","w7","w8"]);
-  fill("p3", ["w1","w2","w3","w4","w5","w6"]);
-  fill("p4", ["w1","w2","w3","w4"]);
+  fill("p1", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3"]);
+  fill("p2", ["w0","w1","w2","w3","m1","w5","w6","w7","m2"]);
+  fill("p3", ["w0","w1","w2","w3","m1","w5","w6"]);
+  fill("p4", ["w0","w1","w2","w3","m1"]);
+  fill("p5", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9","m12","m15"]);
+  fill("p6", ["w0","w1","w2"]);
+  fill("p7", ["w0","w1","w2","w3","m1","w5","w6"]);
+  fill("p8", ["w0","w1","w2","w3","m1","w5","w6"]);
+  fill("p9", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5"]);
   return c;
 }
 
 function makeSeedQA() {
   const qa = {};
-  const scores = {p1:{w1:5,w2:6,w3:7,w4:7,w5:4,w6:7,w7:8,w8:8,m3:9},p2:{w1:6,w2:6,w3:7,w4:7,w5:4,w6:7,w7:7,w8:8},p3:{w1:5,w2:6,w3:6,w4:7,w5:5,w6:7},p4:{w1:5,w2:6,w3:6,w4:7,w5:5}};
+  const scores = {
+    p1:{w0:7,w1:5,w2:6,w3:7,m1:7,w5:4,w6:7,w7:8,m2:8,m3:9},
+    p2:{w0:7,w1:6,w2:6,w3:7,m1:7,w5:4,w6:7,w7:7,m2:8},
+    p3:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5,w6:7},
+    p4:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5},
+    p5:{w0:7,w1:7,w2:7,w3:8,m1:8,w5:7,w6:8,w7:8,m2:8,m3:9,m4:8,m5:8,m6:9,m7:8,m8:8,m9:8,m12:9,m15:8},
+    p6:{w0:8,w1:7,w2:8},
+    p7:{w0:6,w1:5,w2:5,w3:6,m1:6,w5:5,w6:6},
+    p8:{w0:7,w1:7,w2:8,w3:7,m1:8,w5:7,w6:8},
+    p9:{w0:8,w1:8,w2:8,w3:9,m1:8,w5:8,w6:9,w7:9,m2:9,m3:9,m4:8,m5:9},
+  };
   Object.entries(scores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const qp = QP.find(x => x.id === phid);
       if (qp) qp.qs.forEach(q => { qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Demo response"; });
     });
   });
-  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5}};
+  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5},p5:{om1:8,om2:8,om3:9,om6:8},p7:{om1:5},p8:{om1:7},p9:{om1:8,om2:9,om3:9}};
   Object.entries(omScores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const op = OP.find(x => x.id === phid);
@@ -157,15 +473,113 @@ function makeSeedQA() {
   // CII stress-test seed: p1 = full 3-phase trend (green→pink→green), p2 = single low point (red),
   // p3/p4 = no CII data. Scores are intentionally distinct from clinical avg to verify independence.
   const ciiScores = {
-    "p1.m3.ci1":"8","p1.m3.ci2":"9","p1.m3.ci3":"7","p1.m3.ci4":"6",   // avg 7.5 → green dot
-    "p1.m6.ci1":"5","p1.m6.ci2":"6","p1.m6.ci3":"5","p1.m6.ci4":"5",   // avg 5.25 → pink dot (overall stays green: 7.1)
-    "p1.q4.ci1":"9","p1.q4.ci2":"8","p1.q4.ci3":"9","p1.q4.ci4":"8",   // avg 8.5 → green dot; 3-phase trend line
-    "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",   // avg 3.5 → red overall; single dot
-    "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",   // avg 5.25 → pink overall; single dot
-    // p4: no CII data → "—" overall; empty chart
+    "p1.m3.ci1":"8","p1.m3.ci2":"9","p1.m3.ci3":"7","p1.m3.ci4":"6",
+    "p1.m6.ci1":"5","p1.m6.ci2":"6","p1.m6.ci3":"5","p1.m6.ci4":"5",
+    "p1.m12.ci1":"9","p1.m12.ci2":"8","p1.m12.ci3":"9","p1.m12.ci4":"8",
+    "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",
+    "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",
+    "p5.m3.ci1":"8","p5.m3.ci2":"8","p5.m3.ci3":"9","p5.m3.ci4":"8",
+    "p5.m6.ci1":"8","p5.m6.ci2":"9","p5.m6.ci3":"8","p5.m6.ci4":"8",
+    "p5.m12.ci1":"9","p5.m12.ci2":"9","p5.m12.ci3":"9","p5.m12.ci4":"8",
   };
   Object.assign(qa, ciiScores);
   return qa;
+}
+
+/* ─── Persistence ─── */
+const MT_KEY = "meridian-mt.v1";
+function loadMT() {
+  try { const r = localStorage.getItem(MT_KEY); return r ? JSON.parse(r) : null; } catch { return null; }
+}
+function saveMT(d) {
+  try { localStorage.setItem(MT_KEY, JSON.stringify(d)); } catch {}
+}
+
+/* ─── JSON Export ─── */
+function exportJSON(data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "mentorship-tracker-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ─── DOCX Export (one document, all providers) ─── */
+async function exportDocx(provs, checks, qa, notes) {
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
+  const children = [];
+  for (const p of provs) {
+    const phLabel = (MP.find(x => x.id === p.phase) || {}).label || p.phase;
+    children.push(new Paragraph({ children: [new TextRun({ text: p.name + " (" + p.role + ")", bold: true, size: 36 })], heading: HeadingLevel.HEADING_1 }));
+    children.push(new Paragraph({ children: [new TextRun("Days in practice: " + p.days + "  ·  Current phase: " + phLabel + "  ·  Mentor: " + (USERS.find(u => u.id === p.mentor) || {}).name)] }));
+    children.push(new Paragraph({}));
+
+    children.push(new Paragraph({ children: [new TextRun({ text: "Medical Director Curriculum", bold: true })], heading: HeadingLevel.HEADING_2 }));
+    MD_PHASES.forEach(function(ph) {
+      const items = MD_ITEMS_BY_PHASE[ph.id] || [];
+      if (items.length === 0) return;
+      const done = items.filter(function(it) { return checks[p.id + ".md." + it.id]; }).length;
+      children.push(new Paragraph({ children: [new TextRun("  " + ph.label + ": " + done + "/" + items.length + " completed")] }));
+    });
+    children.push(new Paragraph({}));
+
+    children.push(new Paragraph({ children: [new TextRun({ text: "Mentor: Physician Track", bold: true })], heading: HeadingLevel.HEADING_2 }));
+    MP_PHYS.forEach(function(ph) {
+      const c = countChecks(checks, p.id, ph.id);
+      children.push(new Paragraph({ children: [new TextRun("  " + (c.pct === 100 ? "✓" : "○") + " " + ph.label + " — " + c.done + "/" + c.total)] }));
+    });
+    children.push(new Paragraph({}));
+
+    if (isAPC(p)) {
+      children.push(new Paragraph({ children: [new TextRun({ text: "Mentor: APC Track (Year 2)", bold: true })], heading: HeadingLevel.HEADING_2 }));
+      MP_APC.forEach(function(ph) {
+        const c = countChecks(checks, p.id, ph.id);
+        children.push(new Paragraph({ children: [new TextRun("  " + (c.pct === 100 ? "✓" : "○") + " " + ph.label + " — " + c.done + "/" + c.total)] }));
+      });
+      children.push(new Paragraph({}));
+    }
+
+    children.push(new Paragraph({ children: [new TextRun({ text: "Questionnaire Scores", bold: true })], heading: HeadingLevel.HEADING_2 }));
+    let hasScores = false;
+    QP.forEach(function(qp) {
+      const s = avgScore(qa, p.id, qp.id);
+      if (s !== null) { hasScores = true; children.push(new Paragraph({ children: [new TextRun("  " + qp.label + ": " + s.toFixed(1) + " / 10")] })); }
+    });
+    if (!hasScores) children.push(new Paragraph({ children: [new TextRun("  No scores recorded")] }));
+    children.push(new Paragraph({}));
+
+    const allNotes = [];
+    Object.entries(notes).forEach(function([key, arr]) {
+      if (!key.startsWith(p.id + ".")) return;
+      const phId = key.split(".")[1];
+      const ph = MP.find(function(x) { return x.id === phId; }) || OP.find(function(x) { return x.id === phId; });
+      arr.forEach(function(n) { allNotes.push({ phase: ph ? ph.label : phId, ...n }); });
+    });
+    if (allNotes.length > 0) {
+      children.push(new Paragraph({ children: [new TextRun({ text: "Notes", bold: true })], heading: HeadingLevel.HEADING_2 }));
+      allNotes.forEach(function(n) {
+        children.push(new Paragraph({ children: [new TextRun("  [" + n.phase + "] " + n.by + " — " + n.at + ": " + n.text)] }));
+      });
+      children.push(new Paragraph({}));
+    }
+
+    children.push(new Paragraph({ children: [new TextRun({ text: "─".repeat(60), color: "AAAAAA" })] }));
+    children.push(new Paragraph({}));
+  }
+  const doc = new Document({ sections: [{ properties: {}, children }] });
+  const blob = await Packer.toBlob(doc);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "mentorship-tracker-" + new Date().toISOString().slice(0, 10) + ".docx";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ─── Helpers ─── */
@@ -179,12 +593,35 @@ function countChecks(checks, pid, phid) {
   return { done, total: ph.items.length, pct: Math.round(done / ph.items.length * 100) };
 }
 
-function mentorPct(checks, pid) {
+function isAPC(prov) {
+  return prov && (prov.role === "NP" || prov.role === "PA");
+}
+
+function mentorPhysPct(checks, pid) {
   const prov = PROVS.find(x => x.id === pid);
-  const max = phIdx(prov.phase);
+  const max = MP_PHYS.findIndex(ph => ph.id === prov.phase);
   let t = 0, d = 0;
-  MP.forEach((ph, i) => { if (i > max) return; ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; }); });
+  MP_PHYS.forEach((ph, i) => {
+    if (max >= 0 && i > max) return;
+    ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; });
+  });
   return t > 0 ? Math.round(d / t * 100) : 0;
+}
+
+function mentorApcPct(checks, pid) {
+  const prov = PROVS.find(x => x.id === pid);
+  const max = MP_APC.findIndex(ph => ph.id === prov.phase);
+  if (max < 0) return 0;
+  let t = 0, d = 0;
+  MP_APC.forEach((ph, i) => {
+    if (i > max) return;
+    ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; });
+  });
+  return t > 0 ? Math.round(d / t * 100) : 0;
+}
+
+function mentorPct(checks, pid) {
+  return mentorPhysPct(checks, pid);
 }
 
 function opsPct(qa, pid) {
@@ -243,7 +680,7 @@ function avgScore(qa, pid, phid) {
 }
 
 /* Culture Integration Index helpers */
-const CULTURE_PHASES = ["m3", "m6", "q4"];
+const CULTURE_PHASES = ["m3", "m6", "m12"];
 const CULTURE_QIDS = ["ci1", "ci2", "ci3", "ci4"];
 
 /* Per-phase culture score (avg of 4 questions, null if none answered) */
@@ -270,15 +707,21 @@ function cultureScore(qa, pid) {
   return { avg: avg, pct: Math.round(avg * 10), display: avg.toFixed(1) };
 }
 
-/* NEW: Overdue status based on days */
+/* Overdue status based on days — indices refer to MP_PHYS (0=w0 … 16=m12) */
 function getStatus(pid) {
   const prov = PROVS.find(x => x.id === pid);
   const ci = phIdx(prov.phase);
   const d = prov.days;
-  let expected = 0;
-  if (d >= 270) expected = 13; else if (d >= 180) expected = 11;
-  else if (d >= 150) expected = 10; else if (d >= 120) expected = 9;
-  else if (d >= 90) expected = 8; else if (d >= 56) expected = 7;
+  let expected;
+  if (d >= 365) expected = 16;
+  else if (d >= 270) expected = 15;
+  else if (d >= 240) expected = 14;
+  else if (d >= 210) expected = 13;
+  else if (d >= 180) expected = 12;
+  else if (d >= 150) expected = 11;
+  else if (d >= 120) expected = 10;
+  else if (d >= 90) expected = 9;
+  else if (d >= 60) expected = 8;
   else expected = Math.floor(d / 7);
   if (expected > ci + 2) return "overdue";
   if (expected > ci) return "due";
@@ -435,22 +878,23 @@ function ScoreTrend({ qa, pid }) {
   );
 }
 
-/* NEW: Journey timeline */
-function Timeline({ currentIdx }) {
+/* Journey timeline — phases array is passed in (MP_PHYS or full MP for APCs) */
+function Timeline({ phases, currentPhaseId }) {
   return (
     <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "14px 20px", marginBottom: 16 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 10 }}>ONBOARDING JOURNEY</div>
       <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-        {MP.map((ph, i) => {
-          const done = i < currentIdx;
-          const isCur = i === currentIdx;
+        {phases.map((ph, i) => {
+          const curI = phases.findIndex(p => p.id === currentPhaseId);
+          const done = curI >= 0 && i < curI;
+          const isCur = ph.id === currentPhaseId;
           const c = done ? "#22c55e" : isCur ? "#028090" : "#e9ecef";
           return (
             <div key={ph.id} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
               <div style={{ width: "100%", height: 6, background: c, borderRadius: i === 0 ? "3px 0 0 3px" : i === MP.length - 1 ? "0 3px 3px 0" : 0 }} />
               <div style={{ width: isCur ? 12 : 6, height: isCur ? 12 : 6, borderRadius: "50%", background: c, marginTop: 4, border: isCur ? "2px solid #028090" : "none", boxShadow: isCur ? "0 0 0 3px rgba(2,128,144,0.2)" : "none" }} />
               <div style={{ fontSize: 7, color: done ? "#22c55e" : isCur ? "#028090" : "#adb5bd", marginTop: 2, fontWeight: isCur ? 700 : 400 }}>
-                {ph.label.replace("Week ", "W").replace("Month ", "M")}
+                {ph.label.replace("Week ", "W").replace("Month ", "M").replace("W0","W0")}
               </div>
             </div>
           );
@@ -535,10 +979,15 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
   // selected; otherwise the modal is a curriculum reference).
   const mdItems = MD_ITEMS;
   const mdDone = prov ? mdItems.filter(it => checks[prov.id + ".md." + it.id]).length : 0;
-  let mpTotal = 0, mpDone = 0;
-  MP.forEach(ph => ph.items.forEach((_, i) => {
-    mpTotal++;
-    if (prov && checks[prov.id + "." + ph.id + "." + i]) mpDone++;
+  let mpPhysTotal = 0, mpPhysDone = 0;
+  MP_PHYS.forEach(ph => ph.items.forEach((_, i) => {
+    mpPhysTotal++;
+    if (prov && checks[prov.id + "." + ph.id + "." + i]) mpPhysDone++;
+  }));
+  let mpApcTotal = 0, mpApcDone = 0;
+  MP_APC.forEach(ph => ph.items.forEach((_, i) => {
+    mpApcTotal++;
+    if (prov && checks[prov.id + "." + ph.id + "." + i]) mpApcDone++;
   }));
   let opTotal = 0, opDone = 0;
   OP.forEach(ph => ph.qs.forEach(q => {
@@ -585,14 +1034,34 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
       countDone: (group) => prov ? group.items.filter(it => checks[prov.id + ".md." + it.id]).length : 0,
     },
     {
-      key: "mp",
-      title: "Mentor Check-Ins",
-      subtitle: `${mpTotal} prompts, Week 1 → Month 12`,
+      key: "mp-phys",
+      title: "Mentor Curriculum — Physician Track",
+      subtitle: `${mpPhysTotal} items · Week 0 → Month 12 · All providers`,
       gradient: "linear-gradient(135deg, #028090, #014a52)",
       accent: "#028090",
-      done: mpDone,
-      total: mpTotal,
-      groups: MP.map(ph => ({ phase: ph, items: ph.items })),
+      done: mpPhysDone,
+      total: mpPhysTotal,
+      groups: MP_PHYS.map(ph => ({ phase: ph, items: ph.items })),
+      renderRow: (text, group, i) => (
+        <CheckItem
+          key={group.phase.id + ":" + i}
+          text={text}
+          checked={prov ? !!checks[prov.id + "." + group.phase.id + "." + i] : false}
+          canEdit={canEditMp}
+          onToggle={() => { if (prov) toggle(prov.id + "." + group.phase.id + "." + i); }}
+        />
+      ),
+      countDone: (group) => prov ? group.items.filter((_, i) => checks[prov.id + "." + group.phase.id + "." + i]).length : 0,
+    },
+    {
+      key: "mp-apc",
+      title: "Mentor Curriculum — APC Track",
+      subtitle: `${mpApcTotal} items · Month 15 → Month 24 · NP/PA only`,
+      gradient: "linear-gradient(135deg, #7c3aed, #4c1d95)",
+      accent: "#7c3aed",
+      done: mpApcDone,
+      total: mpApcTotal,
+      groups: MP_APC.map(ph => ({ phase: ph, items: ph.items })),
       renderRow: (text, group, i) => (
         <CheckItem
           key={group.phase.id + ":" + i}
@@ -650,8 +1119,8 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
           <div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>All Onboarding Tracks — Chronological</div>
             <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
-              Medical Director Curriculum + Mentor Check-Ins + Office Manager.
-              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} Medical Director · ${mpDone}/${mpTotal} mentor · ${opDone}/${opTotal} ops` : ""}
+              Medical Director + Mentor (Physician &amp; APC) + Office Manager.
+              {prov ? ` · ${prov.name}: ${mdDone}/${mdItems.length} MD · ${mpPhysDone}/${mpPhysTotal} mentor-phys · ${mpApcDone}/${mpApcTotal} mentor-apc · ${opDone}/${opTotal} ops` : ""}
             </div>
           </div>
           <button onClick={onClose}
@@ -694,6 +1163,9 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
                       : tr.key === "op"
                       ? g.items.map(q => tr.renderRow(q, g))
                       : g.items.map((text, i) => tr.renderRow(text, g, i))}
+                    {(tr.key === "mp-apc" && g.items.length === 0) && (
+                      <div style={{ padding: "12px 20px", fontSize: 12, color: "#adb5bd", fontStyle: "italic" }}>No items in this phase.</div>
+                    )}
                   </div>
                 );
               })}
@@ -702,7 +1174,7 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
         </div>
         <div style={{ padding: "12px 22px", borderTop: "1px solid #dee2e6", background: "#f8f9fb", fontSize: 11, color: "#868e96", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
           <span>Medical Director ⚠ misstep-risk items: 12 / 19 / 43 / 48 / 56 — keep verbatim when teaching.</span>
-          <span>Medical Director source: Master Checklist · Mentor + Ops: Mentorship Tracker phases</span>
+          <span>Medical Director source: Master Checklist · Mentor + Ops: Onboarding Tracker phases</span>
         </div>
       </div>
     </div>
@@ -711,20 +1183,52 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
 
 /* ─── Main App ─── */
 export default function App() {
+  const [dept, setDept] = useState(null); // null = picker, "pc" | "peds" | "spec"
   const [uid, setUid] = useState(null);
   const [selId, setSelId] = useState(null);
   const [tab, setTab] = useState("mentor");
   const [phase, setPhase] = useState(null);
   const [navHistory, setNavHistory] = useState([]);
-  const [checks, setChecks] = useState(makeSeedChecks);
-  const [qa, setQa] = useState(makeSeedQA);
-  const [noteIn, setNoteIn] = useState("");
-  const [notes, setNotes] = useState({});
   const [mainTab, setMainTab] = useState("roster");
   const [mdViewAll, setMdViewAll] = useState(false);
   const [dueMenu, setDueMenu] = useState(null);
   const [expandedAlerts, setExpandedAlerts] = useState({});
   const [dotModal, setDotModal] = useState(null);
+  const [sidebarFilter, setSidebarFilter] = useState(null);
+  const [addProvModal, setAddProvModal] = useState(false);
+  const [addProvForm, setAddProvForm] = useState({ name: "", role: "MD", mentor: "mt1", phase: "w0", days: 1 });
+  const [confirmRemove, setConfirmRemove] = useState(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [mdCurrOpen, setMdCurrOpen] = useState(false);
+  const [freshOpts, setFreshOpts] = useState(false);
+  const [editDays, setEditDays] = useState(null);
+  const [editDaysVal, setEditDaysVal] = useState("");
+  const [exportingDocx, setExportingDocx] = useState(false);
+  const [search, setSearch] = useState("");
+  const [saveFlash, setSaveFlash] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const firstSaveRef = useRef(true);
+
+  // Read localStorage once at mount to seed initial state
+  const [_init] = useState(() => loadMT());
+  const hasSaved = _init !== null;
+  const [provs, setProvs] = useState(() => _init?.provs || SEED_PROVS);
+  const [checks, setChecks] = useState(() => _init?.checks || makeSeedChecks());
+  const [qa, setQa] = useState(() => _init?.qa || makeSeedQA());
+  const [noteIn, setNoteIn] = useState("");
+  const [notes, setNotes] = useState(() => _init?.notes || {});
+
+  // Keep module-level PROVS in sync so helper functions see current state
+  PROVS = provs;
+
+  // Autosave whenever data changes; flash confirmation on user-driven saves
+  useEffect(() => {
+    saveMT({ provs, checks, qa, notes, savedAt: new Date().toISOString() });
+    if (firstSaveRef.current) { firstSaveRef.current = false; return; }
+    setSaveFlash(true);
+    const t = setTimeout(() => setSaveFlash(false), 2000);
+    return () => clearTimeout(t);
+  }, [provs, checks, qa, notes]);
 
   const user = USERS.find(u => u.id === uid);
   const isDir = user && user.role === "director";
@@ -733,7 +1237,8 @@ export default function App() {
   const patterns = detectPatterns(qa);
 
   const navigate = (changes) => {
-    setNavHistory(prev => [...prev, { uid, selId, tab, phase, mainTab }]);
+    // Don't push the pre-login state when logging in — ‹back from the main view would be a logout
+    if (uid !== null) setNavHistory(prev => [...prev, { uid, selId, tab, phase, mainTab }]);
     if ('uid' in changes) setUid(changes.uid);
     if ('selId' in changes) setSelId(changes.selId);
     if ('tab' in changes) setTab(changes.tab);
@@ -777,33 +1282,284 @@ export default function App() {
   recentNotes.reverse();
 
   /* ─── LOGIN ─── */
-  if (!uid) {
+  const gradBg = { position: "fixed" as const, inset: 0, zIndex: 50, background: "linear-gradient(145deg, #0f1b2d 0%, #013d47 60%, #028090 100%)", overflowY: "auto" as const, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "stretch" };
+
+  const BrandPanel = () => (
+    <div style={{ flex: "0 0 42%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "60px 48px 60px 60px" }}>
+      <div style={{ width: 64, height: 64, borderRadius: 18, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, marginBottom: 28 }}>👥</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Optum NY/NJ</div>
+      <h1 style={{ margin: "0 0 14px", fontSize: 36, fontWeight: 700, color: "white", lineHeight: 1.15, letterSpacing: "-0.5px" }}>Onboarding<br/>Tracker</h1>
+      <p style={{ margin: "0 0 40px", fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>Structured onboarding follow-ups for new providers — track progress, document touchpoints, and keep every hire on course.</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {[
+          { icon: "📋", text: "Medical Director curriculum across all onboarding phases" },
+          { icon: "🤝", text: "Mentor check-ins for physicians and APCs" },
+          { icon: "📊", text: "Score trends and progress at a glance" },
+        ].map(({ icon, text }) => (
+          <div key={text} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 18 }}>{icon}</span>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{text}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: "auto", paddingTop: 48, fontSize: 11, color: "rgba(255,255,255,0.25)" }}>For authorized Optum NY/NJ staff only</div>
+    </div>
+  );
+
+  const CardPanel = ({ children }) => (
+    <div style={{ flex: "0 0 58%", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 60px 60px 40px" }}>
+      <div style={{ width: "100%", maxWidth: 420 }}>
+        {children}
+      </div>
+    </div>
+  );
+
+  // ── DEPARTMENT PICKER ──────────────────────────────────────────────────────
+  if (!dept) {
+    const depts = [
+      { key: "pc",   label: "Primary Care", icon: "🩺", available: true  },
+      { key: "peds", label: "Pediatrics",   icon: "👶", available: true  },
+      { key: "spec", label: "Specialty",    icon: "🏥", available: true  },
+      { key: "uc",   label: "Urgent Care",  icon: "⚡", available: true  },
+    ];
     return (
-      <div style={{ background: "#f1f3f5", minHeight: "100vh", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 440 }}>
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div style={{ fontSize: 48, marginBottom: 10 }}>👥</div>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "#0f1b2d" }}>Mentorship Tracker</h1>
-            <p style={{ margin: "8px 0 0", fontSize: 14, color: "#868e96" }}>Provider onboarding follow-ups</p>
-          </div>
-          <div style={{ background: "white", borderRadius: 12, border: "1px solid #dee2e6", padding: 28 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#868e96", marginBottom: 14, textTransform: "uppercase" }}>Log in as:</div>
-            {USERS.map(u => {
-              const c = u.role === "director" ? "#8b5cf6" : "#028090";
-              const rl = u.role === "director" ? "Medical Director" : "Mentor";
-              return (
-                <div key={u.id} onClick={() => navigate({ uid: u.id, selId: null, tab: "mentor", phase: null, mainTab: "roster" })}
-                  style={{ padding: "16px 18px", borderRadius: 10, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, background: "#f8f9fb", border: "2px solid #dee2e6" }}>
-                  <div>
-                    <div style={{ fontSize: 17, fontWeight: 600 }}>{u.name}</div>
-                    <div style={{ fontSize: 13, color: "#868e96" }}>{rl}</div>
-                  </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, padding: "5px 14px", borderRadius: 16, background: c + "20", color: c }}>{rl}</span>
+      <div style={gradBg}>
+        <BrandPanel />
+        <CardPanel>
+          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", padding: "28px 24px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>Select your department</div>
+            {depts.map(d => (
+              <div key={d.key} onClick={() => setDept(d.key)}
+                style={{ padding: "14px 16px", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, marginBottom: 8, border: "1.5px solid #e9ecef", transition: "border-color 0.15s, background 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "#028090"; e.currentTarget.style.background = "rgba(2,128,144,0.04)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "#e9ecef"; e.currentTarget.style.background = "transparent"; }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(2,128,144,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{d.icon}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#0f1b2d" }}>{d.label}</div>
                 </div>
-              );
-            })}
+                <span style={{ fontSize: 16, color: "#028090" }}>›</span>
+              </div>
+            ))}
           </div>
+        </CardPanel>
+      </div>
+    );
+  }
+
+  // ── COMING SOON — Pediatrics / Specialty / Urgent Care ────────────────────
+  if (dept !== "pc") {
+    const deptMeta = {
+      peds: {
+        label: "Pediatrics",
+        icon: "👶",
+        accent: "#059669",
+        accentLight: "#d1fae5",
+        director: "Dr. Sarah Chen",
+        directorTitle: "Pediatric Medical Director",
+        tagline: "Building confident, family-centered pediatric providers from day one.",
+        description: "Structured onboarding for new pediatric providers — covering the full well-child visit schedule, developmental screening, vaccine administration, behavioral health integration, and family communication.",
+        features: [
+          { icon: "📋", label: "Well-Child Curriculum", sub: "Birth → 18 years, visit by visit" },
+          { icon: "🧠", label: "Developmental Milestones Tracker", sub: "M-CHAT, ASQ, ADHD screening workflows" },
+          { icon: "💉", label: "Vaccine Schedule Reference", sub: "ACIP schedule + catch-up logic" },
+          { icon: "👨‍👩‍👧", label: "Family Communication Coaching", sub: "Vaccine hesitancy, behavioral concerns" },
+        ],
+      },
+      spec: {
+        label: "Specialty",
+        icon: "🏥",
+        accent: "#7c3aed",
+        accentLight: "#ede9fe",
+        director: "Dr. Michael Torres",
+        directorTitle: "Specialty Medical Director",
+        tagline: "Equipping specialist providers with the systems, workflows, and referral standards that define great consultative care.",
+        description: "Onboarding curriculum for specialty providers — covering consultative note standards, referral integration with primary care, Epic specialty workflows, and the communication norms that keep the care team aligned.",
+        features: [
+          { icon: "📋", label: "Consultative Standards Curriculum", sub: "Note structure, decision transparency, follow-up" },
+          { icon: "🔄", label: "Referral Integration Workflows", sub: "Inbound triage, turnaround expectations, Epic routing" },
+          { icon: "⚕️", label: "Epic Specialty Module", sub: "Order sets, preference lists, specialty SmartPhrases" },
+          { icon: "🤝", label: "Primary Care Partnership", sub: "Co-management protocols, curbside etiquette" },
+        ],
+      },
+      uc: {
+        label: "Urgent Care",
+        icon: "⚡",
+        accent: "#dc2626",
+        accentLight: "#fee2e2",
+        director: "Dr. Rachel Kim",
+        directorTitle: "Urgent Care Medical Director",
+        tagline: "Preparing urgent care providers for high-volume, high-stakes acute visits — every shift, from day one.",
+        description: "Onboarding program for urgent care providers — covering acute visit workflow efficiency, triage decision frameworks, Epic rapid-documentation tools, escalation and transfer protocols, and managing patient expectations in a walk-in environment.",
+        features: [
+          { icon: "📋", label: "Acute Visit Curriculum", sub: "Chief complaint protocols, decision points, disposition" },
+          { icon: "🚨", label: "Escalation & Transfer Protocols", sub: "When to escalate, how to hand off, documentation" },
+          { icon: "⚡", label: "Epic Efficiency Tools", sub: "Rapid-fire orders, dot phrases, encounter closure" },
+          { icon: "🏃", label: "High-Volume Flow Training", sub: "Managing pace, minimizing bottlenecks, team communication" },
+        ],
+      },
+    }[dept] || { label: dept, icon: "🏥", accent: "#028090", accentLight: "#e0f9fb", director: "Medical Director", directorTitle: "Medical Director", tagline: "", description: "", features: [] };
+
+    return (
+      <div style={{ ...gradBg, alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: "100%", maxWidth: 400, padding: "24px 20px" }}>
+
+          {/* Card */}
+          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.35)", overflow: "hidden", marginBottom: 12 }}>
+
+            {/* Header */}
+            <div style={{ background: `linear-gradient(135deg, #101c2e 0%, #1e3a5f 100%)`, padding: "18px 20px 16px" }}>
+              {/* Top row: icon + name + badge — all on one line, badge never clips */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: deptMeta.accentLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>
+                  {deptMeta.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "white", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{deptMeta.label}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", marginTop: 2, whiteSpace: "nowrap" }}>Optum NY/NJ · Onboarding Tracker</div>
+                </div>
+                <div style={{ fontSize: 9, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: deptMeta.accent, color: "white", letterSpacing: "0.05em", textTransform: "uppercase", flexShrink: 0, whiteSpace: "nowrap" }}>
+                  Coming Soon
+                </div>
+              </div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", lineHeight: 1.45 }}>{deptMeta.tagline}</div>
+            </div>
+
+            {/* Medical Director strip */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 20px", borderBottom: "1px solid #f1f3f5", background: "#fafafa" }}>
+              <div style={{ width: 30, height: 30, borderRadius: "50%", background: deptMeta.accent + "20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: deptMeta.accent, flexShrink: 0 }}>
+                {deptMeta.director.replace("Dr. ", "").split(" ").map(w => w[0]).join("").slice(0, 2)}
+              </div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>{deptMeta.director}</div>
+                <div style={{ fontSize: 10, color: "#868e96" }}>{deptMeta.directorTitle}</div>
+              </div>
+            </div>
+
+            {/* Feature tiles — 2×2 grid */}
+            <div style={{ padding: "14px 20px 16px" }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Program preview</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                {deptMeta.features.map((f, i) => (
+                  <div key={i} style={{ padding: "10px", borderRadius: 8, background: "#f8f9fa", border: "1px solid #e9ecef", opacity: 0.75 }}>
+                    <div style={{ fontSize: 16, marginBottom: 4 }}>{f.icon}</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#374151", lineHeight: 1.3 }}>{f.label}</div>
+                    <div style={{ fontSize: 9, color: "#9ca3af", marginTop: 3, lineHeight: 1.3 }}>{f.sub}</div>
+                    <div style={{ marginTop: 6, fontSize: 8, fontWeight: 700, padding: "1px 6px", borderRadius: 6, background: "#e9ecef", color: "#adb5bd", display: "inline-block" }}>Soon</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Back */}
+          <div onClick={() => setDept(null)}
+            style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 12, padding: "12px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.16)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}>
+            <span style={{ fontSize: 18, color: "white", lineHeight: 1 }}>←</span>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>Back to Department Selection</div>
+          </div>
+
         </div>
+      </div>
+    );
+  }
+
+  // ── LOGIN ──────────────────────────────────────────────────────────────────
+  if (!uid) {
+    // Check localStorage at render time — hasSaved from _init is stale after first autosave
+    const runtimeHasSaved = loadMT() !== null;
+    const doReset = (keepProvs) => {
+      const freshChecks = makeSeedChecks();
+      const freshQa = makeSeedQA();
+      const freshProvs = keepProvs ? provs : SEED_PROVS;
+      setChecks(freshChecks); setQa(freshQa); setNotes({});
+      if (!keepProvs) setProvs(SEED_PROVS);
+      setFreshOpts(false);
+      saveMT({ provs: freshProvs, checks: freshChecks, qa: freshQa, notes: {}, savedAt: new Date().toISOString() });
+    };
+    return (
+      <div style={gradBg}>
+        <BrandPanel />
+        <CardPanel>
+          {/* Main card */}
+          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", overflow: "hidden" }}>
+
+            {/* Saved data banner */}
+            {runtimeHasSaved && !freshOpts && (
+              <div style={{ background: "#eff6ff", borderBottom: "1px solid #bfdbfe", padding: "13px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>💾 Saved session found</div>
+                  <div style={{ fontSize: 11, color: "#3b82f6", marginTop: 1 }}>Log in to continue where you left off</div>
+                </div>
+                <button onClick={() => setFreshOpts(true)}
+                  style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid #bfdbfe", background: "white", color: "#1e40af", cursor: "pointer", fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}>
+                  Start Fresh…
+                </button>
+              </div>
+            )}
+
+            {/* Start Fresh options */}
+            {runtimeHasSaved && freshOpts && (
+              <div style={{ background: "#fafafa", borderBottom: "1px solid #dee2e6", padding: "16px 20px" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d", marginBottom: 10 }}>What would you like to reset?</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <button onClick={() => doReset(true)}
+                    style={{ padding: "11px 14px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", textAlign: "left" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>Clear checks, scores &amp; notes</div>
+                    <div style={{ fontSize: 11, color: "#868e96", marginTop: 2 }}>Keep your provider list · reset all checkoffs and answers</div>
+                  </button>
+                  <button onClick={() => doReset(false)}
+                    style={{ padding: "11px 14px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", textAlign: "left" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>Reset everything</div>
+                    <div style={{ fontSize: 11, color: "#868e96", marginTop: 2 }}>Restore original 5 providers and clear all data</div>
+                  </button>
+                  <button onClick={() => setFreshOpts(false)}
+                    style={{ padding: "6px", border: "none", background: "none", color: "#868e96", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* User tiles */}
+            <div style={{ padding: "20px 20px 24px" }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Select your account</div>
+              {USERS.map(u => {
+                const isDir = u.role === "director";
+                const c = isDir ? "#8b5cf6" : "#028090";
+                const rl = isDir ? "Medical Director" : "Mentor";
+                const initials = u.name.replace("Dr. ", "").split(" ").map(w => w[0]).join("").slice(0, 2);
+                return (
+                  <div key={u.id} onClick={() => navigate({ uid: u.id, selId: null, tab: "mentor", phase: null, mainTab: "roster" })}
+                    style={{ padding: "12px 14px", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 8, border: "1.5px solid #e9ecef", transition: "border-color 0.15s, background 0.15s" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = c; e.currentTarget.style.background = c + "08"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "#e9ecef"; e.currentTarget.style.background = "transparent"; }}>
+                    <div style={{ width: 38, height: 38, borderRadius: "50%", background: c + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: c, flexShrink: 0 }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "#0f1b2d" }}>{u.name}</div>
+                      <div style={{ fontSize: 11, color: "#868e96", marginTop: 1 }}>{rl}</div>
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 12, background: c + "15", color: c }}>{rl}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div onClick={() => setDept(null)}
+            style={{ marginTop: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 12, padding: "14px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.16)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}>
+            <span style={{ fontSize: 22, color: "white", lineHeight: 1 }}>←</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "white" }}>Back to Department Selection</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Tap here to choose a different department</div>
+            </div>
+          </div>
+        </CardPanel>
       </div>
     );
   }
@@ -815,7 +1571,7 @@ export default function App() {
   const isOps = tab === "ops";
   const isQ = tab === "quest";
   const isMd = tab === "md";
-  const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : MP;
+  const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : (tab === "mentor" && prov && !isAPC(prov) ? MP_PHYS : MP);
   const curOpQuest = isOps && phase ? OP.find(x => x.id === phase) : null;
   const curChecklist = phase && !isQ && !isMd && !isOps ? MP.find(x => x.id === phase) : null;
   const curQuest = isQ && phase ? QP.find(x => x.id === phase) : null;
@@ -849,24 +1605,66 @@ export default function App() {
       {/* Top bar */}
       <div style={{ background: "#0f1b2d", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Mentorship Tracker</div>
-          <div style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Onboarding Tracker</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</span>
+            <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, opacity: saveFlash ? 1 : 0, transition: "opacity 400ms ease" }}>✓ Autosaved</span>
+          </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {isDir && patterns.length > 0 && (
             <div style={{ padding: "5px 12px", borderRadius: 8, background: "#eab308", color: "#78350f", fontSize: 11, fontWeight: 700 }}>
-              {"📊 " + patterns.length + " Pattern Alert" + (patterns.length !== 1 ? "s" : "")}
+              {"📊 " + patterns.length + " Alert" + (patterns.length !== 1 ? "s" : "")}
             </div>
           )}
           {isDir && (
             <button onClick={() => setMdViewAll(true)}
-              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(139,92,246,0.18)", color: "#e9d5ff", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
-              📋 View All Curriculum
+              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.20)", background: "rgba(139,92,246,0.18)", color: "#e9d5ff", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
+              📋 Curriculum
             </button>
           )}
+          {/* ⋯ admin menu */}
+          {isDir && (
+            <div style={{ position: "relative" }}>
+              <button onClick={() => setMenuOpen(o => !o)}
+                style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.20)", background: menuOpen ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.08)", color: "white", cursor: "pointer", fontSize: 16, lineHeight: 1, fontWeight: 700 }}>
+                ⋯
+              </button>
+              {menuOpen && (
+                <>
+                  {/* click-away backdrop */}
+                  <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 1500 }} />
+                  <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 1501, background: "white", borderRadius: 10, border: "1px solid #dee2e6", boxShadow: "0 8px 24px rgba(0,0,0,0.14)", minWidth: 180, overflow: "hidden" }}>
+                    <div style={{ padding: "6px 0" }}>
+                      <button onClick={() => { exportJSON({ provs, checks, qa, notes, savedAt: new Date().toISOString() }); setMenuOpen(false); }}
+                        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#1c2b3a", textAlign: "left" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#f8f9fb"}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                        <span style={{ fontSize: 15 }}>⬇</span> Export JSON
+                      </button>
+                      <button onClick={async () => { setMenuOpen(false); setExportingDocx(true); try { await exportDocx(provs, checks, qa, notes); } finally { setExportingDocx(false); } }}
+                        disabled={exportingDocx}
+                        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#1c2b3a", textAlign: "left", opacity: exportingDocx ? 0.5 : 1 }}
+                        onMouseEnter={e => { if (!exportingDocx) e.currentTarget.style.background = "#f8f9fb"; }}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                        <span style={{ fontSize: 15 }}>{exportingDocx ? "⏳" : "📄"}</span> {exportingDocx ? "Exporting…" : "Export DOCX"}
+                      </button>
+                      <div style={{ height: 1, background: "#dee2e6", margin: "4px 0" }} />
+                      <button onClick={() => { setConfirmReset(true); setMenuOpen(false); }}
+                        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#ef4444", textAlign: "left" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#fef2f2"}
+                        onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                        <span style={{ fontSize: 15 }}>↺</span> Reset data…
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           <button onClick={() => { setUid(null); setSelId(null); setNavHistory([]); }}
-            style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-            Log Out
+            style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.20)", background: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 13, fontWeight: 500 }}>
+            Log out
           </button>
         </div>
       </div>
@@ -893,14 +1691,86 @@ export default function App() {
         </div>
       )}
 
+      {/* ── NEEDS ATTENTION BANNER — full-width, roster tab only ── */}
+      {isDir && !selId && mainTab === "roster" && (() => {
+        const flagged = PROVS.map(p => {
+          const st = getStatus(p.id);
+          if (st === "ok") return null;
+          const track = isAPC(p) ? MP : MP_PHYS;
+          const curPhLabel = (track.find(x => x.id === p.phase) || {}).label || p.phase;
+          const mentor = USERS.find(u => u.id === p.mentor);
+          const scoreHistory = QP.map(qp => avgScore(qa, p.id, qp.id)).filter(s => s !== null);
+          const trending = scoreHistory.length >= 2
+            ? (scoreHistory[scoreHistory.length - 1] - scoreHistory[scoreHistory.length - 2])
+            : null;
+          const trendIcon = trending === null ? "" : trending < -0.5 ? " · score↓" : trending > 0.5 ? " · score↑" : "";
+          return { p, st, curPhLabel, mentor, trendIcon };
+        }).filter(Boolean);
+
+        if (flagged.length === 0) return null;
+        return (
+          <div style={{ background: "#fff8f0", borderBottom: "2px solid #fed7aa", padding: "12px 24px", display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 14 }}>⚠️</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#9a3412" }}>Needs Attention</span>
+              <span style={{ fontSize: 11, color: "#c2410c", background: "#fee2e2", borderRadius: 10, padding: "1px 8px", fontWeight: 700 }}>{flagged.length}</span>
+              <span style={{ fontSize: 11, color: "#c2410c", marginLeft: 2 }}>provider{flagged.length !== 1 ? "s" : ""} behind schedule — click a row to open their profile</span>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {flagged.map(({ p, st, curPhLabel, mentor, trendIcon }) => (
+                <div key={p.id} onClick={() => navigate({ uid, selId: p.id, tab: "mentor", phase: p.phase, mainTab: "roster" })}
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", background: "white", borderRadius: 8, border: "1px solid " + (st === "overdue" ? "#fca5a5" : "#fdba74"), cursor: "pointer", flexShrink: 0 }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#fef9f5"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "white"; }}>
+                  <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: st === "overdue" ? "#ef4444" : "#f97316", color: "white" }}>
+                    {st === "overdue" ? "LATE" : "DUE"}
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#0f1b2d" }}>{p.name}</span>
+                  <span style={{ fontSize: 11, color: "#6b7280" }}>
+                    {curPhLabel} · Day {p.days}{trendIcon}
+                    {mentor ? <span style={{ color: "#adb5bd" }}> · {mentor.name.split(",")[0].replace("Dr. ","")}</span> : ""}
+                  </span>
+                  <span style={{ fontSize: 10, color: "#9ca3af" }}>→</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
 
         {/* ─── SIDEBAR ─── */}
-        <div style={{ width: 330, background: "white", borderRight: "1px solid #dee2e6", overflowY: "auto", flexShrink: 0 }}>
+        <div style={{ width: 330, background: "white", borderRight: "1px solid #dee2e6", overflowY: "auto", flexShrink: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ padding: "16px 16px 8px" }}>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{isDir ? "All Providers" : "My Mentees"}</h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{isDir ? "All Providers" : "My Mentees"}</h2>
+              {sidebarFilter && (
+                <button onClick={() => setSidebarFilter(null)}
+                  style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, border: "none", cursor: "pointer", background: sidebarFilter === "ok" ? "#dcfce7" : "#fee2e2", color: sidebarFilter === "ok" ? "#166534" : "#991b1b" }}>
+                  {sidebarFilter === "ok" ? "On Track ×" : "Behind ×"}
+                </button>
+              )}
+            </div>
+            <div style={{ position: "relative" }}>
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search providers…"
+                style={{ width: "100%", padding: "7px 30px 7px 10px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 13, outline: "none", boxSizing: "border-box", fontFamily: "inherit", background: "#f8f9fb" }}
+              />
+              {search && (
+                <button onClick={() => setSearch("")}
+                  style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 14, lineHeight: 1, padding: "2px" }}>×</button>
+              )}
+            </div>
           </div>
-          {myProvs.map(p => {
+          <div style={{ flex: 1 }}>
+          {myProvs.filter(p => p.name.toLowerCase().includes(search.toLowerCase())).filter(p => {
+            if (sidebarFilter === "ok") return getStatus(p.id) === "ok";
+            if (sidebarFilter === "behind") return getStatus(p.id) !== "ok";
+            return true;
+          }).map(p => {
             const m = USERS.find(u => u.id === p.mentor);
             const isSel = selId === p.id;
             const mn = mentorPct(checks, p.id);
@@ -911,35 +1781,77 @@ export default function App() {
             const sc = st === "overdue" ? "#ef4444" : st === "due" ? "#eab308" : mn >= 70 ? "#22c55e" : "#eab308";
             const phLabel = (MP.find(x => x.id === p.phase) || {}).label || "";
 
+            const mentorLastName = m ? m.name.replace(/^Dr\.\s*/, "") : "—";
             return (
-              <div key={p.id}
-                onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
-                style={{ padding: "14px 16px", cursor: "pointer", borderLeft: isSel ? "4px solid #028090" : "4px solid transparent", background: isSel ? "rgba(2,128,144,0.05)" : "transparent", borderBottom: "1px solid #dee2e6" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: sc, flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <span style={{ fontSize: 14, fontWeight: 700 }}>{p.name}</span>
-                      {st === "overdue" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: "#fef2f2", color: "#ef4444" }}>OVERDUE</span>}
-                      {st === "due" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 6, background: "#fefce8", color: "#92400e" }}>DUE</span>}
+              <div key={p.id} style={{ borderLeft: isSel ? "3px solid #028090" : "3px solid transparent", borderBottom: "1px solid #f1f3f5" }}>
+                <div onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
+                  style={{ padding: "11px 14px 12px", cursor: "pointer", background: isSel ? "rgba(2,128,144,0.04)" : "transparent" }}>
+
+                  {/* Row 1: status dot · name · badge · remove */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: sc, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 700, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+                    {st === "overdue" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 4, background: "#fef2f2", color: "#ef4444", flexShrink: 0 }}>LATE</span>}
+                    {st === "due" && <span style={{ fontSize: 8, fontWeight: 700, padding: "1px 5px", borderRadius: 4, background: "#fefce8", color: "#92400e", flexShrink: 0 }}>DUE</span>}
+                    {isDir && (
+                      <button onClick={e => { e.stopPropagation(); setConfirmRemove(p.id); }}
+                        title="Remove provider"
+                        style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "#d1d5db", fontSize: 15, lineHeight: 1, padding: "1px 3px", borderRadius: 3 }}
+                        onMouseEnter={e => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.background = "#fef2f2"; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = "#d1d5db"; e.currentTarget.style.background = "none"; }}>×</button>
+                    )}
+                  </div>
+
+                  {/* Row 2: meta */}
+                  <div style={{ fontSize: 10, color: "#9ca3af", marginBottom: 9, paddingLeft: 14 }}>
+                    {p.role} · {phLabel} · Day {p.days} · <span style={{ color: "#c4c9d0" }}>{mentorLastName}</span>
+                  </div>
+
+                  {/* Row 3: track grid (director) or single bar (mentor) */}
+                  {isDir ? (
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 10px", paddingLeft: 14 }}>
+                      {[
+                        { label: "Dir. Curriculum", pct: md, color: "#8b5cf6" },
+                        { label: "Mentor", pct: mn, color: "#028090" },
+                        { label: "OM Touchpoints", pct: op, color: "#0ea5e9" },
+                        { label: "Questionnaires", pct: qp, color: "#eab308" },
+                      ].map(({ label, pct, color }) => {
+                        const dc = pct >= 70 ? "#22c55e" : pct >= 30 ? color : pct > 0 ? "#ef4444" : "#d1d5db";
+                        return (
+                          <div key={label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                            <div style={{ width: 32, height: 3, borderRadius: 2, background: "#e9ecef", flexShrink: 0, overflow: "hidden" }}>
+                              <div style={{ height: "100%", width: pct + "%", background: dc, borderRadius: 2 }} />
+                            </div>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: dc, minWidth: 24 }}>{pct}%</span>
+                            <span style={{ fontSize: 9, color: "#b0b8c4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div style={{ fontSize: 10, color: "#868e96" }}>{p.role} — {phLabel} — Day {p.days}</div>
-                  </div>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 14 }}>
+                      <div style={{ flex: 1, height: 3, borderRadius: 2, background: "#e9ecef", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: mn + "%", background: sc, borderRadius: 2 }} />
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: sc }}>{mn}%</span>
+                    </div>
+                  )}
                 </div>
-                {isDir ? (
-                  <div>
-                    <Bar label="Medical Director Curriculum" pct={md} color="#8b5cf6" />
-                    <Bar label="Mentor" pct={mn} color="#028090" />
-                    <Bar label="Ops" pct={op} color="#0ea5e9" />
-                    <Bar label="Questionnaires" pct={qp} color="#eab308" />
-                  </div>
-                ) : (
-                  <Bar label="Checklist" pct={mn} color={sc} />
-                )}
-                <div style={{ fontSize: 9, color: "#868e96", marginTop: 3 }}>Mentor: {m ? m.name : ""}</div>
               </div>
             );
           })}
+          {search && myProvs.filter(p => p.name.toLowerCase().includes(search.toLowerCase())).length === 0 && (
+            <div style={{ padding: "20px 16px", textAlign: "center", color: "#adb5bd", fontSize: 13 }}>No providers match "{search}"</div>
+          )}
+          </div>
+          {isDir && (
+            <div style={{ padding: "12px 16px", borderTop: "1px solid #dee2e6" }}>
+              <button onClick={() => { setAddProvForm({ name: "", role: "MD", mentor: "mt1", phase: "w0", days: 1 }); setAddProvModal(true); }}
+                style={{ width: "100%", padding: "10px", borderRadius: 8, border: "2px dashed #dee2e6", background: "none", color: "#028090", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                + Add Provider
+              </button>
+            </div>
+          )}
         </div>
 
         {/* ─── RIGHT CONTENT ─── */}
@@ -1363,7 +2275,7 @@ export default function App() {
                       <tr style={{ background: "#f8f9fb" }}>
                         <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Provider</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#8b5cf6", borderBottom: "2px solid #dee2e6" }}>Medical Director Curriculum</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor Curriculum</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor: Physician</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>OM Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Medical Director Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#ec4899", borderBottom: "2px solid #dee2e6" }}>Culture</th>
@@ -1467,18 +2379,246 @@ export default function App() {
                 </div>
               )}
 
-              {/* Default */}
-              {(mainTab === "roster" || !isDir) && (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 300, color: "#868e96", fontSize: 16 }}>
-                  ← Select a provider from the list
-                </div>
-              )}
+              {/* ── MEDICAL DIRECTOR DASHBOARD ── */}
+              {isDir && mainTab === "roster" && (() => {
+                const mentors = USERS.filter(u => u.role === "mentor");
+                const totalProv = PROVS.length;
+                const onTrack = PROVS.filter(p => getStatus(p.id) === "ok").length;
+                const behind = PROVS.filter(p => getStatus(p.id) !== "ok").length;
+                const avgCurr = totalProv ? Math.round(PROVS.reduce((acc, p) => acc + mdCurriculumPct(checks, p.id), 0) / totalProv) : 0;
+                return (
+                  <div>
+                    {/* Title */}
+                    <div style={{ fontSize: 18, fontWeight: 700, color: "#0f1b2d", marginBottom: 16 }}>Medical Director Dashboard</div>
+
+                    {/* Stats row */}
+                    {(() => {
+                      const tiles = [
+                        {
+                          val: totalProv,
+                          label: "Total Providers",
+                          sub: "in your program",
+                          icon: "👥",
+                          accent: "#028090",
+                          bg: "linear-gradient(135deg,#f0fdfe 0%,#e0f9fb 100%)",
+                          filterId: null,
+                          onClick: () => { setSidebarFilter(null); setSearch(""); },
+                        },
+                        {
+                          val: onTrack,
+                          label: "On Track",
+                          sub: totalProv ? Math.round(onTrack / totalProv * 100) + "% of cohort" : "—",
+                          icon: "✅",
+                          accent: "#22c55e",
+                          bg: "linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%)",
+                          filterId: "ok",
+                          onClick: () => setSidebarFilter(sidebarFilter === "ok" ? null : "ok"),
+                        },
+                        {
+                          val: behind,
+                          label: "Behind Schedule",
+                          sub: behind > 0 ? "need attention" : "none — great!",
+                          icon: behind > 0 ? "⚠️" : "🎉",
+                          accent: behind > 0 ? "#ef4444" : "#22c55e",
+                          bg: behind > 0 ? "linear-gradient(135deg,#fff5f5 0%,#fee2e2 100%)" : "linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%)",
+                          filterId: "behind",
+                          onClick: () => setSidebarFilter(sidebarFilter === "behind" ? null : "behind"),
+                        },
+                        {
+                          val: avgCurr + "%",
+                          label: "Dir. Curriculum",
+                          sub: "avg across all providers",
+                          icon: "📋",
+                          accent: "#8b5cf6",
+                          bg: "linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%)",
+                          filterId: "compare",
+                          onClick: () => setMainTab("compare"),
+                        },
+                      ];
+                      return (
+                        <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+                          {tiles.map(({ val, label, sub, icon, accent, bg, filterId, onClick }) => {
+                            const isActive = filterId === "compare" ? mainTab === "compare" : sidebarFilter === filterId;
+                            return (
+                              <div key={label}
+                                onClick={onClick}
+                                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.10)"; }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = isActive ? "0 0 0 2px " + accent : "0 1px 4px rgba(0,0,0,0.06)"; }}
+                                style={{
+                                  flex: 1, borderRadius: 12, padding: "16px 16px 14px",
+                                  background: bg,
+                                  border: isActive ? "2px solid " + accent : "1px solid rgba(0,0,0,0.06)",
+                                  boxShadow: isActive ? "0 0 0 2px " + accent : "0 1px 4px rgba(0,0,0,0.06)",
+                                  cursor: "pointer", position: "relative", transition: "transform 0.15s, box-shadow 0.15s",
+                                  borderTop: "4px solid " + accent,
+                                }}>
+                                <div style={{ position: "absolute", top: 12, right: 12, fontSize: 16, opacity: 0.7 }}>{icon}</div>
+                                <div style={{ fontSize: 30, fontWeight: 800, color: accent, lineHeight: 1, marginBottom: 4 }}>{val}</div>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>{label}</div>
+                                <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>{sub}</div>
+                                {filterId && filterId !== "compare" && (
+                                  <div style={{ fontSize: 9, color: accent, marginTop: 6, fontWeight: 600, opacity: 0.8 }}>
+                                    {isActive ? "▼ filtering sidebar" : "click to filter ↓"}
+                                  </div>
+                                )}
+                                {filterId === "compare" && (
+                                  <div style={{ fontSize: 9, color: accent, marginTop: 6, fontWeight: 600, opacity: 0.8 }}>click for details →</div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Mentor panel cards */}
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Mentor Panels</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                      {mentors.map(mentor => {
+                        const panel = PROVS.filter(p => p.mentor === mentor.id);
+                        const late = panel.filter(p => getStatus(p.id) === "overdue").length;
+                        const due  = panel.filter(p => getStatus(p.id) === "due").length;
+                        const avgMen = panel.length ? Math.round(panel.reduce((acc, p) => acc + mentorPct(checks, p.id), 0) / panel.length) : 0;
+                        const initials = mentor.name.replace("Dr. ", "").replace(/,.*/, "").substring(0, 2).toUpperCase();
+                        return (
+                          <div key={mentor.id} style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "14px 18px" }}>
+                            {/* Header row */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                              <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(2,128,144,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#028090", flexShrink: 0 }}>
+                                {initials}
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{mentor.name}</div>
+                                <div style={{ fontSize: 11, color: "#868e96" }}>{panel.length} provider{panel.length !== 1 ? "s" : ""}</div>
+                              </div>
+                              {late > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#fef2f2", color: "#ef4444" }}>{late} LATE</span>}
+                              {due  > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#fefce8", color: "#92400e" }}>{due} DUE</span>}
+                              {late === 0 && due === 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#dcfce7", color: "#166534" }}>All on track</span>}
+                            </div>
+                            {/* Avg mentor progress bar */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                              <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f1f3f5", overflow: "hidden" }}>
+                                <div style={{ width: avgMen + "%", height: "100%", borderRadius: 3, background: avgMen >= 70 ? "#22c55e" : avgMen >= 40 ? "#eab308" : "#ef4444" }} />
+                              </div>
+                              <span style={{ fontSize: 11, color: "#868e96", whiteSpace: "nowrap" }}>{avgMen}% avg mentor completion</span>
+                            </div>
+                            {/* Provider chips */}
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                              {panel.map(p => {
+                                const pst = getStatus(p.id);
+                                const dot = pst === "overdue" ? "#ef4444" : pst === "due" ? "#f97316" : "#22c55e";
+                                const phLabel = (MP.find(x => x.id === p.phase) || {}).label || p.phase;
+                                return (
+                                  <div key={p.id} onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
+                                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 16, background: "#f8f9fb", border: "1px solid #e9ecef", cursor: "pointer", fontSize: 12, color: "#374151" }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = "#e9ecef"; }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = "#f8f9fb"; }}>
+                                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: dot, flexShrink: 0 }} />
+                                    {p.name} <span style={{ color: "#adb5bd" }}>· {phLabel}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div style={{ fontSize: 12, color: "#adb5bd", textAlign: "center" }}>
+                      Select a provider from the list or click a name above to open their profile
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* ── MY PANEL — mentor landing page ── */}
+              {!isDir && !selId && (() => {
+                const panel = myProvs;
+                const behind = panel.filter(p => getStatus(p.id) !== "ok");
+                return (
+                  <div>
+                    {/* Header */}
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 14 }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: "#0f1b2d" }}>My Panel</div>
+                      <div style={{ fontSize: 13, color: "#868e96" }}>{panel.length} provider{panel.length !== 1 ? "s" : ""}</div>
+                    </div>
+
+                    {/* Behind-schedule notice */}
+                    {behind.length > 0 && (
+                      <div style={{ background: "#fff8f0", border: "1px solid #fed7aa", borderRadius: 8, padding: "9px 14px", marginBottom: 14, fontSize: 12, color: "#9a3412" }}>
+                        ⚠️ {behind.map(p => p.name.split(",")[0].replace("Dr. ", "")).join(", ")} {behind.length === 1 ? "is" : "are"} behind schedule — check their Mentor tab
+                      </div>
+                    )}
+
+                    {/* Mentee cards */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {panel.map(p => {
+                        const st = getStatus(p.id);
+                        const dot = st === "overdue" ? "#ef4444" : st === "due" ? "#f97316" : "#22c55e";
+                        const borderCol = st === "overdue" ? "#fca5a5" : st === "due" ? "#fdba74" : "#dee2e6";
+                        const phLabel = (MP.find(x => x.id === p.phase) || {}).label || p.phase;
+                        const menPct = mentorPct(checks, p.id);
+                        const barCol = menPct >= 70 ? "#22c55e" : menPct >= 40 ? "#eab308" : "#ef4444";
+                        // Next unchecked mentor item in current phase
+                        const curMPh = MP.find(x => x.id === p.phase);
+                        const nextIdx = curMPh ? curMPh.items.findIndex((_, i) => !checks[p.id + "." + p.phase + "." + i]) : -1;
+                        const nextItem = nextIdx >= 0 && curMPh ? curMPh.items[nextIdx] : null;
+                        // Most recent note across all phases
+                        const allNotes = Object.entries(notes)
+                          .filter(([k]) => k.startsWith(p.id + "."))
+                          .flatMap(([, arr]) => (arr as any[]))
+                          .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+                        const lastNote = allNotes[0];
+                        return (
+                          <div key={p.id}
+                            onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
+                            onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)"; e.currentTarget.style.borderColor = "#028090"; }}
+                            onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = borderCol; }}
+                            style={{ background: "white", borderRadius: 10, border: "1px solid " + borderCol, padding: "14px 18px", cursor: "pointer", transition: "box-shadow 0.15s, border-color 0.15s" }}>
+                            {/* Row 1: status dot + name + badges + phase */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                              <div style={{ width: 8, height: 8, borderRadius: "50%", background: dot, flexShrink: 0 }} />
+                              <span style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d", flex: 1 }}>{p.name}</span>
+                              {st === "overdue" && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "#ef4444", color: "white" }}>LATE</span>}
+                              {st === "due"     && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "#f97316", color: "white" }}>DUE</span>}
+                              <span style={{ fontSize: 11, color: "#adb5bd" }}>{phLabel} · Day {p.days}</span>
+                            </div>
+                            {/* Row 2: mentor progress bar */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f1f3f5", overflow: "hidden" }}>
+                                <div style={{ width: menPct + "%", height: "100%", borderRadius: 3, background: barCol }} />
+                              </div>
+                              <span style={{ fontSize: 11, color: "#868e96", whiteSpace: "nowrap" }}>Mentor {menPct}%</span>
+                            </div>
+                            {/* Row 3: next item (or phase-complete chip) + last note */}
+                            <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 8 }}>
+                              {nextItem ? (
+                                <div style={{ flex: 1, fontSize: 11, color: "#028090", background: "#f0fdfe", borderRadius: 6, padding: "4px 9px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  <span style={{ fontWeight: 700 }}>Next: </span>{nextItem}
+                                </div>
+                              ) : curMPh ? (
+                                <div style={{ flex: 1, fontSize: 11, color: "#166534", background: "#f0fdf4", borderRadius: 6, padding: "4px 9px" }}>
+                                  ✓ {curMPh.label} complete
+                                </div>
+                              ) : <div style={{ flex: 1 }} />}
+                              <div style={{ fontSize: 10, color: "#adb5bd", whiteSpace: "nowrap", flexShrink: 0 }}>
+                                {lastNote ? "📝 " + lastNote.at : "no notes yet"}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           ) : (
             <div>
               {/* ENHANCED PROFILE CARD */}
               <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "18px 22px", marginBottom: 16 }}>
-                <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                {/* Top row: avatar + name + Advance button */}
+                <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 14 }}>
                   <div style={{ width: 50, height: 50, borderRadius: "50%", background: "rgba(2,128,144,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: "#028090", flexShrink: 0 }}>
                     {prov.name.split(" ").pop().substring(0, 2)}
                   </div>
@@ -1486,92 +2626,236 @@ export default function App() {
                     <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.name}</div>
                     <div style={{ fontSize: 12, color: "#868e96" }}>{prov.role} — Mentor: {mentorUser ? mentorUser.name : "—"}</div>
                   </div>
-                  <div style={{ display: "flex", gap: 20 }}>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Days</div>
-                      <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.days}</div>
-                      <div style={{ fontSize: 9, color: "#868e96" }}>of 365</div>
-                    </div>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Score</div>
-                      <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>
-                        {(() => { for (let i = curIdx; i >= 0; i--) { const s = avgScore(qa, prov.id, MP[i].id); if (s !== null) return s.toFixed(1); } return "—"; })()}
+                  {isDir && (function() {
+                    const track = isAPC(prov) ? MP : MP_PHYS;
+                    const ci = track.findIndex(ph => ph.id === prov.phase);
+                    const canAdv = ci >= 0 && ci < track.length - 1;
+                    return canAdv ? (
+                      <button onClick={() => { const next = track[ci + 1].id; setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, phase: next } : x)); setPhase(next); }}
+                        style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 16px", borderRadius: 8, border: "none", background: "#028090", color: "white", cursor: "pointer", flexShrink: 0 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>Advance →</span>
+                        <span style={{ fontSize: 10, opacity: 0.8, marginTop: 2, whiteSpace: "nowrap" }}>{track[ci + 1].label}</span>
+                      </button>
+                    ) : null;
+                  })()}
+                </div>
+                {/* Stats row: Days · Score · Overall */}
+                <div style={{ display: "flex", gap: 24, paddingLeft: 66 }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Days</div>
+                    {isDir && editDays === prov.id ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                        <input type="number" value={editDaysVal} onChange={e => setEditDaysVal(e.target.value)}
+                          style={{ width: 64, textAlign: "center", fontSize: 16, fontWeight: 700, padding: "2px 4px", border: "2px solid #028090", borderRadius: 6, outline: "none" }}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") { const n = parseInt(editDaysVal, 10); if (!isNaN(n) && n >= 0) { setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, days: n } : x)); } setEditDays(null); }
+                            if (e.key === "Escape") setEditDays(null);
+                          }} autoFocus />
+                        <div style={{ display: "flex", gap: 4 }}>
+                          <button onClick={() => { const n = parseInt(editDaysVal, 10); if (!isNaN(n) && n >= 0) { setProvs(prev => prev.map(x => x.id === prov.id ? { ...x, days: n } : x)); } setEditDays(null); }}
+                            style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "none", background: "#028090", color: "white", cursor: "pointer" }}>Save</button>
+                          <button onClick={() => setEditDays(null)}
+                            style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "1px solid #dee2e6", background: "none", cursor: "pointer" }}>✕</button>
+                        </div>
                       </div>
-                      <div style={{ fontSize: 9, color: "#868e96" }}>latest</div>
+                    ) : (
+                      <div onClick={isDir ? () => { setEditDays(prov.id); setEditDaysVal(String(prov.days)); } : undefined}
+                        style={{ cursor: isDir ? "pointer" : "default" }} title={isDir ? "Click to edit" : undefined}>
+                        <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>{prov.days}</div>
+                        <div style={{ fontSize: 9, color: "#868e96" }}>{isDir ? "click to edit" : "of 365"}</div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Score</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#0f1b2d" }}>
+                      {(() => { for (let i = curIdx; i >= 0; i--) { const s = avgScore(qa, prov.id, MP[i].id); if (s !== null) return s.toFixed(1); } return "—"; })()}
                     </div>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Overall</div>
-                      <div style={{ fontSize: 20, fontWeight: 700, color: mentorPct(checks, prov.id) >= 70 ? "#22c55e" : "#0f1b2d" }}>{mentorPct(checks, prov.id)}%</div>
-                      <div style={{ fontSize: 9, color: "#868e96" }}>mentor</div>
-                    </div>
+                    <div style={{ fontSize: 9, color: "#868e96" }}>latest</div>
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 9, color: "#868e96", textTransform: "uppercase", fontWeight: 600, marginBottom: 3 }}>Overall</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: mentorPct(checks, prov.id) >= 70 ? "#22c55e" : "#0f1b2d" }}>{mentorPct(checks, prov.id)}%</div>
+                    <div style={{ fontSize: 9, color: "#868e96" }}>mentor</div>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 4, marginTop: 12, flexWrap: "wrap" }}>
-                  {MP.map((ph, i) => {
-                    const done = i < curIdx || (i === curIdx && countChecks(checks, prov.id, ph.id).pct === 100);
-                    return (
-                      <span key={ph.id} style={{ fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 8, background: done ? "rgba(34,197,94,0.12)" : "#e9ecef", color: done ? "#166534" : "#868e96" }}>
-                        {(done ? "✓ " : "○ ") + ph.label}
-                      </span>
-                    );
-                  })}
-                </div>
+                {(() => {
+                  const phases = isAPC(prov) ? MP : MP_PHYS;
+                  const curI = phases.findIndex(p => p.id === prov.phase);
+                  const chipGroupLabel = (id) => {
+                    if (["w0","w1","w2","w3","m1","w5","w6","w7","w8","m2"].includes(id)) return "Wk 0–Mo 2";
+                    if (["m15","m18","m24"].includes(id)) return "Mo 15–24";
+                    return "Mo 3–12";
+                  };
+                  const groups = [];
+                  const seen = {};
+                  phases.forEach(ph => {
+                    const g = chipGroupLabel(ph.id);
+                    if (!seen[g]) { seen[g] = true; groups.push({ label: g, phases: [] }); }
+                    groups.find(x => x.label === g).phases.push(ph);
+                  });
+                  return (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 12 }}>
+                      {groups.map(({ label, phases: gPhases }) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <span style={{ fontSize: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#c4c9d0", minWidth: 52, flexShrink: 0 }}>{label}</span>
+                          <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+                            {gPhases.map(ph => {
+                              const i = phases.findIndex(p => p.id === ph.id);
+                              const done = i < curI || (i === curI && countChecks(checks, prov.id, ph.id).pct === 100);
+                              return (
+                                <span key={ph.id} style={{ fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 8, background: done ? "rgba(34,197,94,0.12)" : "#e9ecef", color: done ? "#166534" : "#868e96" }}>
+                                  {(done ? "✓ " : "○ ") + ph.label}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* JOURNEY TIMELINE */}
-              <Timeline currentIdx={curIdx} />
+              <Timeline phases={prov && isAPC(prov) ? MP : MP_PHYS} currentPhaseId={prov ? prov.phase : null} />
 
-              {/* 5 METRIC CARDS — clickable tab selectors (director only) */}
-              {isDir && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10, marginBottom: 16 }}>
-                  {[
-                    { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
-                    { label: "Mentor Curriculum", pct: mentorPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase },
-                    { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
-                    { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
-                  ].map((m) => {
-                    const isActive = tab === m.key;
-                    const dc = m.pct >= 70 ? "#22c55e" : m.pct >= 30 ? m.color : m.pct > 0 ? "#ef4444" : "#adb5bd";
-                    return (
-                      <div key={m.key} onClick={() => { setTab(m.key); setPhase(m.def); }}
-                        style={{ background: isActive ? m.color + "12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? m.color : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
-                        <div style={{ fontSize: 11, color: isActive ? m.color : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>{m.label}</div>
-                        <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{m.pct}%</div>
-                        <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 6 }}>
-                          <div style={{ height: "100%", width: m.pct + "%", background: m.color, borderRadius: 3 }} />
+              {/* METRIC CARDS — clickable tab selectors (director only) */}
+              {isDir && (function() {
+                const apc = isAPC(prov);
+                const cols = apc ? "repeat(6, 1fr)" : "repeat(5, 1fr)";
+                const physPct = mentorPhysPct(checks, prov.id);
+                const apcPct = mentorApcPct(checks, prov.id);
+                const cards = [
+                  { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
+                  { label: "Mentor: Physician", pct: physPct, color: "#028090", key: "mentor", def: prov.phase },
+                  { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
+                  { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
+                ];
+                const cs = cultureScore(qa, prov.id);
+                const cultureActive = tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1;
+                const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                return (
+                  <div style={{ display: "grid", gridTemplateColumns: cols, gap: 10, marginBottom: 16 }}>
+                    {cards.map((m) => {
+                      const isActive = tab === m.key;
+                      const dc = m.pct >= 70 ? "#22c55e" : m.pct >= 30 ? m.color : m.pct > 0 ? "#ef4444" : "#adb5bd";
+                      return (
+                        <div key={m.key} onClick={() => { setTab(m.key); setPhase(m.def); }}
+                          style={{ background: isActive ? m.color + "12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? m.color : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                          <div style={{ fontSize: 11, color: isActive ? m.color : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>{m.label}</div>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{m.pct}%</div>
+                          <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 6 }}>
+                            <div style={{ height: "100%", width: m.pct + "%", background: m.color, borderRadius: 3 }} />
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                  {/* Culture Integration card — shows raw 0-10 avg; navigates to quest tab at m3 */}
-                  {(function() {
-                    const cs = cultureScore(qa, prov.id);
-                    const isActive = tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1;
-                    const dc = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
-                    return (
-                      <div onClick={function() { setTab("quest"); setPhase("m3"); }}
-                        style={{ background: isActive ? "#ec489912" : "white", borderRadius: 10, border: "2px solid " + (isActive ? "#ec4899" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
-                        <div style={{ fontSize: 11, color: isActive ? "#ec4899" : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>Culture Integration</div>
-                        <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{cs.display}</div>
-                        <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>avg / 10 · m3, m6, m12</div>
-                        <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
-                          <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
+                      );
+                    })}
+                    {/* APC mentor card — only shown for NP/PA providers */}
+                    {apc && (function() {
+                      const isActive = tab === "mentor" && MP_APC.some(p => p.id === phase);
+                      const dc = apcPct >= 70 ? "#22c55e" : apcPct >= 30 ? "#7c3aed" : apcPct > 0 ? "#ef4444" : "#adb5bd";
+                      return (
+                        <div onClick={function() { setTab("mentor"); setPhase(MP_APC[0].id); }}
+                          style={{ background: isActive ? "#7c3aed12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? "#7c3aed" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                          <div style={{ fontSize: 11, color: isActive ? "#7c3aed" : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>Mentor: APC</div>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{apcPct}%</div>
+                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>Year 2 · M15–M24</div>
+                          <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
+                            <div style={{ height: "100%", width: apcPct + "%", background: "#7c3aed", borderRadius: 3 }} />
+                          </div>
                         </div>
+                      );
+                    })()}
+                    {/* Culture Integration card */}
+                    <div onClick={function() { setTab("quest"); setPhase("m3"); }}
+                      style={{ background: cultureActive ? "#ec489912" : "white", borderRadius: 10, border: "2px solid " + (cultureActive ? "#ec4899" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                      <div style={{ fontSize: 11, color: cultureActive ? "#ec4899" : "#868e96", marginBottom: 4, fontWeight: cultureActive ? 700 : 400 }}>Culture Integration</div>
+                      <div style={{ fontSize: 24, fontWeight: 700, color: cultureColor }}>{cs.display}</div>
+                      <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>avg / 10 · m3, m6, m12</div>
+                      <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
+                        <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
                       </div>
-                    );
-                  })()}
-                </div>
-              )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* SCORE TREND */}
               {(isDir || isMen) && <ScoreTrend qa={qa} pid={prov.id} />}
 
+              {/* DIR. CURRICULUM — read-only collapsed card for mentors */}
+              {isMen && !isDir && (() => {
+                const mdPct = mdCurriculumPct(checks, prov.id);
+                const allMdItems = Object.values(MD_ITEMS_BY_PHASE).flat() as any[];
+                const doneCount = allMdItems.filter((it: any) => checks[prov.id + ".md." + it.id]).length;
+                return (
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", marginBottom: 14, overflow: "hidden" }}>
+                    <button onClick={() => setMdCurrOpen(o => !o)}
+                      style={{ width: "100%", padding: "11px 16px", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, textAlign: "left" }}>
+                      <span style={{ fontSize: 11, color: "#8b5cf6", transition: "transform 0.2s", display: "inline-block", transform: mdCurrOpen ? "rotate(90deg)" : "rotate(0deg)" }}>▶</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#374151", flex: 1 }}>Director Curriculum</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#8b5cf6" }}>{mdPct}%</span>
+                      <div style={{ width: 72, height: 5, borderRadius: 3, background: "#f1f3f5", overflow: "hidden" }}>
+                        <div style={{ width: mdPct + "%", height: "100%", background: "#8b5cf6", borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 9, color: "#adb5bd", letterSpacing: "0.04em", textTransform: "uppercase" }}>read only</span>
+                    </button>
+                    {mdCurrOpen && (
+                      <div style={{ borderTop: "1px solid #f1f3f5", padding: "8px 16px 14px", maxHeight: 280, overflowY: "auto" }}>
+                        <div style={{ fontSize: 10, color: "#adb5bd", marginBottom: 8 }}>{doneCount} of {allMdItems.length} items completed by Medical Director</div>
+                        {MD_PHASES.map(ph => {
+                          const phItems = MD_ITEMS_BY_PHASE[ph.id] || [];
+                          if (phItems.length === 0) return null;
+                          const phDone = phItems.filter((it: any) => checks[prov.id + ".md." + it.id]).length;
+                          return (
+                            <div key={ph.id} style={{ marginBottom: 10 }}>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>
+                                {ph.label} — {phDone}/{phItems.length}
+                              </div>
+                              {phItems.map((it: any) => {
+                                const done = !!checks[prov.id + ".md." + it.id];
+                                return (
+                                  <div key={it.id} style={{ display: "flex", alignItems: "flex-start", gap: 7, padding: "3px 0" }}>
+                                    <span style={{ fontSize: 13, color: done ? "#22c55e" : "#d1d5db", flexShrink: 0, marginTop: 1 }}>{done ? "✓" : "○"}</span>
+                                    <span style={{ fontSize: 11, color: done ? "#374151" : "#9ca3af", lineHeight: 1.4 }}>{it.text}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* NEXT MENTOR TOUCHPOINT — prompt for mentors */}
+              {isMen && !isDir && (() => {
+                const curMPh = MP.find(x => x.id === phase);
+                if (!curMPh) return null;
+                const nextIdx = curMPh.items.findIndex((_, i) => !checks[prov.id + "." + phase + "." + i]);
+                if (nextIdx < 0) return (
+                  <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 8, padding: "9px 14px", marginBottom: 14, fontSize: 12, color: "#166534" }}>
+                    ✓ All {curMPh.items.length} items complete for {curMPh.label}
+                  </div>
+                );
+                return (
+                  <div style={{ background: "#f0fdfe", border: "1px solid #67e8f9", borderRadius: 8, padding: "9px 14px", marginBottom: 14 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#0891b2", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 3 }}>Up next · {curMPh.label}</div>
+                    <div style={{ fontSize: 12, color: "#0f172a" }}>{curMPh.items[nextIdx]}</div>
+                  </div>
+                );
+              })()}
+
               {/* PHASE SELECTOR */}
-              <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
-                {phaseList.map(ph => {
+              {(() => {
+                const accent = isOps ? "#0ea5e9" : isQ ? "#eab308" : isMd ? "#8b5cf6" : "#028090";
+
+                const renderPhBtn = (ph) => {
                   const isAct = phase === ph.id;
                   const isCur = tab === "mentor" && ph.id === prov.phase;
-                  const accent = isOps ? "#0ea5e9" : isQ ? "#eab308" : isMd ? "#8b5cf6" : "#028090";
                   let cc = null;
                   if (isMd) {
                     const items = MD_ITEMS_BY_PHASE[ph.id] || [];
@@ -1581,10 +2865,7 @@ export default function App() {
                     const op = OP.find(p => p.id === ph.id);
                     if (op) {
                       const total = op.qs.length;
-                      const done = op.qs.filter(q => {
-                        const v = qa[prov.id + "." + ph.id + "." + q.qid];
-                        return v !== undefined && v !== "";
-                      }).length;
+                      const done = op.qs.filter(q => { const v = qa[prov.id + "." + ph.id + "." + q.qid]; return v !== undefined && v !== ""; }).length;
                       cc = { done, total };
                     }
                   } else if (!isQ) {
@@ -1598,8 +2879,51 @@ export default function App() {
                       {isCur && !isAct && <div style={{ fontSize: 8, color: "#028090", fontWeight: 700 }}>CURRENT</div>}
                     </button>
                   );
-                })}
-              </div>
+                };
+
+                // OP (4 phases) and QP (6 phases) stay flat — no group labels needed
+                if (isOps || isQ) {
+                  return (
+                    <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
+                      {phaseList.map(renderPhBtn)}
+                    </div>
+                  );
+                }
+
+                // Group phases into labelled rows
+                const getGroupLabel = (id) => {
+                  if (isMd) {
+                    if (id === "pre0" || id === "pre1") return "Pre-Start";
+                    if (["w1","w2","w3","w4"].includes(id)) return "Wks 1–4";
+                    if (["w5","w6","w7","w8"].includes(id)) return "Wks 5–8";
+                    return "Months";
+                  }
+                  if (["w0","w1","w2","w3","m1","w5","w6","w7","w8","m2"].includes(id)) return "Wk 0–Mo 2";
+                  if (["m15","m18","m24"].includes(id)) return "Mo 15–24";
+                  return "Mo 3–12";
+                };
+
+                const groups = [];
+                const seenGroups = {};
+                phaseList.forEach(ph => {
+                  const g = getGroupLabel(ph.id);
+                  if (!seenGroups[g]) { seenGroups[g] = true; groups.push({ label: g, phases: [] }); }
+                  groups.find(x => x.label === g).phases.push(ph);
+                });
+
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 16 }}>
+                    {groups.map(({ label, phases }) => (
+                      <div key={label} style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#adb5bd", minWidth: 56, paddingTop: 9, flexShrink: 0 }}>{label}</span>
+                        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                          {phases.map(renderPhBtn)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {/* MEDICAL DIRECTOR CURRICULUM CHECKLIST */}
               {isMd && curMdItems && (
@@ -1720,7 +3044,7 @@ export default function App() {
                       <div key={q.qid} style={{ padding: "16px 20px", borderBottom: "1px solid " + (isCulture ? "#fce7f3" : "#dee2e6"), background: isCulture ? "#fdf2f8" : "transparent" }}>
                         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, color: isCulture ? "#9d174d" : "#0f1b2d" }}>{(i + 1) + ". " + q.text}</div>
                         {q.ty === "s" ? (
-                          <ScaleInput value={val} onChange={function(v) { setAnswer(prov.id, phase, q.qid, v); }} />
+                          <ScaleInput value={val} onChange={function(v) { setAnswer(prov.id, phase, q.qid, v); }} anchorLow={q.anchor_low} anchorHigh={q.anchor_high} />
                         ) : (
                           <textarea value={val} onChange={function(e) { setAnswer(prov.id, phase, q.qid, e.target.value); }}
                             placeholder="Type response..." style={{ padding: "10px 12px", borderRadius: 6, border: "1px solid #dee2e6", fontSize: 14, width: "100%", height: 80, boxSizing: "border-box", resize: "vertical", outline: "none", fontFamily: "inherit" }} />
@@ -1782,6 +3106,142 @@ export default function App() {
                 <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>{it.done}/{it.total} done</span>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Remove Provider modal */}
+      {confirmRemove && (
+        <div onClick={() => setConfirmRemove(null)}
+          style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: "white", borderRadius: 14, padding: "28px 32px", maxWidth: 380, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d", marginBottom: 8 }}>Remove provider?</div>
+            <div style={{ fontSize: 14, color: "#868e96", marginBottom: 20 }}>
+              {(provs.find(x => x.id === confirmRemove) || {}).name || "This provider"} will be removed along with all their check data, scores, and notes.
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => {
+                setProvs(prev => prev.filter(x => x.id !== confirmRemove));
+                if (selId === confirmRemove) setSelId(null);
+                setConfirmRemove(null);
+              }} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", background: "#ef4444", color: "white", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>
+                Remove
+              </button>
+              <button onClick={() => setConfirmRemove(null)}
+                style={{ flex: 1, padding: "10px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", fontSize: 14 }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Reset modal */}
+      {confirmReset && (
+        <div onClick={() => setConfirmReset(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: "white", borderRadius: 14, padding: "28px 32px", maxWidth: 400, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d", marginBottom: 6 }}>Reset session data</div>
+            <div style={{ fontSize: 13, color: "#868e96", marginBottom: 20 }}>Choose what to reset:</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+              <button onClick={() => {
+                setChecks(makeSeedChecks()); setQa(makeSeedQA()); setNotes({});
+                setConfirmReset(false);
+              }} style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d" }}>Clear checks, scores &amp; notes</div>
+                <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Keep your provider list · reset all checkoffs, questionnaire answers, and notes to seed data</div>
+              </button>
+              <button onClick={() => {
+                setProvs(SEED_PROVS); setChecks(makeSeedChecks()); setQa(makeSeedQA()); setNotes({});
+                if (selId && !SEED_PROVS.find(x => x.id === selId)) setSelId(null);
+                setConfirmReset(false);
+              }} style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d" }}>Reset everything</div>
+                <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Restore original 5 providers and clear all data</div>
+              </button>
+            </div>
+            <button onClick={() => setConfirmReset(false)}
+              style={{ width: "100%", padding: "10px", borderRadius: 8, border: "1px solid #dee2e6", background: "none", cursor: "pointer", color: "#868e96", fontSize: 13 }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Add Provider modal */}
+      {addProvModal && (
+        <div onClick={() => setAddProvModal(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: "white", borderRadius: 14, padding: "28px 32px", maxWidth: 420, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d", marginBottom: 20 }}>Add Provider</div>
+            {[
+              { label: "Full name", field: "name", type: "text", placeholder: "Dr. Smith" },
+            ].map(({ label, field, type, placeholder }) => (
+              <div key={field} style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>{label}</div>
+                <input type={type} value={addProvForm[field]} placeholder={placeholder}
+                  onChange={e => setAddProvForm(prev => ({ ...prev, [field]: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              </div>
+            ))}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>Role</div>
+                <select value={addProvForm.role} onChange={e => setAddProvForm(prev => ({ ...prev, role: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", background: "white", fontFamily: "inherit" }}>
+                  <option value="MD">MD</option>
+                  <option value="DO">DO</option>
+                  <option value="NP">NP</option>
+                  <option value="PA">PA</option>
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>Mentor</div>
+                <select value={addProvForm.mentor} onChange={e => setAddProvForm(prev => ({ ...prev, mentor: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", background: "white", fontFamily: "inherit" }}>
+                  {USERS.filter(u => u.role === "mentor").map(u => (
+                    <option key={u.id} value={u.id}>{u.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>Starting Phase</div>
+                <select value={addProvForm.phase} onChange={e => setAddProvForm(prev => ({ ...prev, phase: e.target.value }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", background: "white", fontFamily: "inherit" }}>
+                  {(["NP","PA"].includes(addProvForm.role) ? MP : MP_PHYS).map(ph => (
+                    <option key={ph.id} value={ph.id}>{ph.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 5, textTransform: "uppercase" }}>Days in Practice</div>
+                <input type="number" min="0" value={addProvForm.days}
+                  onChange={e => setAddProvForm(prev => ({ ...prev, days: parseInt(e.target.value, 10) || 0 }))}
+                  style={{ width: "100%", padding: "9px 12px", borderRadius: 7, border: "1px solid #dee2e6", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                disabled={!addProvForm.name.trim()}
+                onClick={() => {
+                  if (!addProvForm.name.trim()) return;
+                  const newProv = { id: "p" + Date.now(), name: addProvForm.name.trim(), role: addProvForm.role, mentor: addProvForm.mentor, phase: addProvForm.phase, days: addProvForm.days };
+                  setProvs(prev => [...prev, newProv]);
+                  setAddProvModal(false);
+                }}
+                style={{ flex: 1, padding: "11px", borderRadius: 8, border: "none", background: addProvForm.name.trim() ? "#028090" : "#dee2e6", color: "white", cursor: addProvForm.name.trim() ? "pointer" : "default", fontWeight: 700, fontSize: 14 }}>
+                Add Provider
+              </button>
+              <button onClick={() => setAddProvModal(false)}
+                style={{ flex: 1, padding: "11px", borderRadius: 8, border: "1px solid #dee2e6", background: "white", cursor: "pointer", fontSize: 14 }}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
