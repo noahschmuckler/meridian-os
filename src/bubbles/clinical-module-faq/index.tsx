@@ -7,7 +7,7 @@
 
 import type { JSX } from 'preact';
 import { useState } from 'preact/hooks';
-import type { BubbleInstance, GlossaryEntry, ModuleData, ModuleFaqEntry } from '../../types';
+import type { BubbleInstance, GlossaryEntry, ModuleData, ModuleFaqEntry, ModuleSmartPhrase } from '../../types';
 import type { SeedDict } from '../../data/seedResolver';
 import { moduleFocusSignal } from '../../data/moduleFocus';
 import { userModulesSignal } from '../../data/userModules';
@@ -173,7 +173,7 @@ function FocusedFaq({ entry, module }: { entry: ModuleFaqEntry; module: ModuleDa
         {entry.title}
       </h3>
       {isTwoTier ? (
-        <TwoTierBody entry={entry} decorate={decorate} />
+        <TwoTierBody entry={entry} decorate={decorate} module={module} />
       ) : (
         <LegacyItemsBody items={entry.items ?? []} decorate={decorate} />
       )}
@@ -194,7 +194,7 @@ function FocusedFaq({ entry, module }: { entry: ModuleFaqEntry; module: ModuleDa
   );
 }
 
-function TwoTierBody({ entry, decorate }: { entry: ModuleFaqEntry; decorate: (html: string) => string }): JSX.Element {
+function TwoTierBody({ entry, decorate, module }: { entry: ModuleFaqEntry; decorate: (html: string) => string; module: ModuleData }): JSX.Element {
   const subQuestions = entry.sub_questions ?? [];
   return (
     <div>
@@ -204,12 +204,10 @@ function TwoTierBody({ entry, decorate }: { entry: ModuleFaqEntry; decorate: (ht
         style={{ fontSize: 12.5, lineHeight: 1.5 }}
         dangerouslySetInnerHTML={{ __html: decorate(entry.first_layer_html ?? '') }}
       />
-      {/* SmartPhrase note pill */}
+      {/* SmartPhrase note pill — expands to the full phrase text when the
+          note references a phrase in the module registry. */}
       {entry.smartphrase_note && (
-        <div class="cm-faq__sp-note" style={{ margin: '10px 0 0' }}>
-          <span class="cm-faq__sp-pill">SmartPhrase</span>
-          <span style={{ fontSize: 12, opacity: 0.85 }}>{entry.smartphrase_note}</span>
-        </div>
+        <SmartPhraseNotePill note={entry.smartphrase_note} module={module} />
       )}
       {/* Consult decision point pill */}
       {entry.consult_decision_point && (
@@ -323,6 +321,85 @@ function ConsultDecisionPointPill({ point }: { point: NonNullable<ModuleFaqEntry
       {open && (
         <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(124, 58, 237, 0.05)', borderRadius: 6, fontSize: 12, lineHeight: 1.5, fontStyle: 'italic' }}>
           {point.prefill_text}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// SmartPhrase note. If the note references a phrase in the module registry
+// (by its `.TRIGGER` token), render an expandable pill that reveals the full
+// phrase text with copy-to-clipboard; otherwise render the plain note.
+function SmartPhraseNotePill({ note, module }: { note: string; module: ModuleData }): JSX.Element {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const triggerMatch = note.match(/(\.[A-Z0-9-]+)/);
+  const trigger = triggerMatch ? triggerMatch[1] : null;
+  const phrase: ModuleSmartPhrase | undefined = trigger
+    ? module.smartphrases?.find((s) => s.id === trigger)
+    : undefined;
+
+  if (!phrase || !phrase.text) {
+    return (
+      <div class="cm-faq__sp-note" style={{ margin: '10px 0 0' }}>
+        <span class="cm-faq__sp-pill">SmartPhrase</span>
+        <span style={{ fontSize: 12, opacity: 0.85 }}>{note}</span>
+      </div>
+    );
+  }
+
+  async function copy(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(phrase!.text!);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1100);
+    } catch {
+      /* clipboard denied */
+    }
+  }
+
+  return (
+    <div class="cm-faq__sp-note" style={{ margin: '10px 0 0', display: 'block' }}>
+      <button
+        type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        aria-expanded={open}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 4px 3px 0',
+          border: 'none', background: 'transparent', cursor: 'pointer', font: 'inherit',
+        }}
+      >
+        <span class="cm-faq__sp-pill">SmartPhrase</span>
+        <code style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--type-color)' }}>{phrase.id}</code>
+        {phrase.status === 'future' && (
+          <span style={{ fontSize: 9.5, opacity: 0.55, padding: '1px 6px', background: 'rgba(0,0,0,0.06)', borderRadius: 999 }}>future</span>
+        )}
+        <span style={{ fontSize: 9, opacity: 0.55, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}>▾</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 8 }}>
+          <div
+            style={{
+              padding: '10px 12px', fontSize: 11.5, lineHeight: 1.5,
+              background: 'rgba(255,255,255,0.85)', border: '1px solid rgba(0,0,0,0.1)',
+              borderRadius: 5, whiteSpace: 'pre-wrap', maxHeight: '32vh', overflowY: 'auto', userSelect: 'text',
+            }}
+          >
+            {phrase.text}
+          </div>
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); copy(); }}
+            style={{
+              marginTop: 8, border: '1.5px solid var(--type-color)',
+              background: copied ? 'var(--type-color)' : 'transparent', color: copied ? '#fff' : 'inherit',
+              padding: '6px 12px', borderRadius: 4, cursor: 'pointer', font: 'inherit', fontSize: 11.5, fontWeight: 600,
+            }}
+          >
+            {copied ? 'Copied' : 'Copy SmartPhrase'}
+          </button>
         </div>
       )}
     </div>

@@ -1229,32 +1229,44 @@
           {
             "id": ".CSADHD-CONT",
             "status": "confirmed",
-            "text": "Pt presents for continuation of stimulant medication (previously prescribed). PDMP reviewed today — no concerning pattern identified (no overlapping prescribers, no multi-pharmacy fills without explanation, no dose-quantity discrepancy). No active substance use disorder; [SUD history noted and considered / no SUD history]. Medication reported effective with documented functional benefit; no recent requests for dose escalation. No early fill pattern identified on PDMP review. Escalation criteria reviewed and not met at this visit. Continuing [medication, dose, frequency] as prescribed. Follow-up in [interval]. Patient counseled on medication use, storage, and Schedule II regulations."
+            "text": "Pt presents for continuation of stimulant medication (previously prescribed by [prior provider / prior practice / unknown prior prescriber]). PDMP reviewed today — no concerning pattern identified (no overlapping prescribers, no multi-pharmacy fills without explanation, no dose-quantity discrepancy). No active substance use disorder; [SUD history noted and considered with monitoring plan documented / no SUD history]. Medication reported effective with documented functional benefit; no recent requests for dose escalation. No early fill pattern identified on PDMP review. Escalation criteria reviewed and not met at this visit. Continuing [medication name, dose, frequency] as prescribed. Follow-up in [interval]. Patient counseled on medication use, safe storage, and Schedule II regulations.",
+            "decision_point": "Green zone — all four checklist items confirmed, escalation criteria reviewed and not met.",
+            "anchor": "green-zone"
           },
           {
             "id": ".CSADHD-SUD-AWARE",
             "status": "future",
-            "description": "Continuation with active SUD history documented, monitoring plan specified"
+            "text": "Pt presents for continuation of stimulant medication with documented [past / active] substance use disorder history. Continuation decision consistent with ASAM/AAAP 2024 guidance: SUD is a risk factor for enhanced monitoring, not an automatic contraindication. Benefits of continued treatment weighed against risks; determination is that benefits outweigh risks at this time given [functional benefit documented / controlled SUD / specialist co-management]. Formulation: [extended-release / prodrug — Vyvanse / Adderall XR / Concerta — selected to reduce misuse risk]. Monitoring plan: PDMP review per NY I-STOP / NJ quarterly requirement; urine drug screening every [interval]; pill counts at [random intervals / each visit]; visit frequency [monthly / every 3 months]. [Specialist co-management: addiction medicine / addiction psychiatry involved — see coordination note.] Continuing [medication name, dose, frequency]. Follow-up in [interval].",
+            "decision_point": "Continuation with active or past SUD history — enhanced monitoring plan in place per ASAM/AAAP 2024 framework.",
+            "anchor": "sud"
           },
           {
             "id": ".CSADHD-PDMP-HOLD",
             "status": "future",
-            "description": "Prescription withheld pending PDMP clarification; documents what was found and what was discussed"
+            "text": "Pt presents for stimulant continuation. PDMP reviewed today — concerning pattern identified: [overlapping prescriber without documented coordination / multi-pharmacy fills without explanation / dose-quantity discrepancy — describe finding]. Direct, non-accusatory conversation with patient conducted. Patient provided the following explanation: [patient's stated explanation]. Clinical assessment of explanation: [plausible — follow-up steps planned / not fully explanatory — additional clarification needed]. Prescription not issued at this visit. Steps taken: [contact with other prescriber initiated / urine drug screen ordered / repeat PDMP review scheduled / psychiatry consult requested]. Patient counseled on my obligation to clarify before prescribing and that this is a protective step, not a punitive one. Follow-up scheduled in [interval] to address finding.",
+            "decision_point": "PDMP review revealed concerning pattern — prescription withheld at this visit pending clarification. Documents what was found and what was discussed.",
+            "anchor": "pdmp"
           },
           {
             "id": ".CSADHD-EARLYFILL-DISCUSS",
             "status": "future",
-            "description": "Early fill pattern documented; patient conversation noted"
+            "text": "Pt presents for stimulant continuation. Early fill pattern identified on PDMP review: [describe pattern — number of early fills, interval, dates]. Direct conversation conducted with patient. Patient provided the following explanation: [patient's stated explanation — travel / dose adjustment / shortage-related partial fill / other]. Clinical assessment: [single early fill — documented, consistent with benign explanation / pattern warrants enhanced monitoring / pattern requires further assessment]. No numeric threshold in US guidelines specifies a clinical cutoff for stimulant early fills; assessment is individualized. [Prescription issued at this visit with enhanced monitoring plan. / Prescription held pending further clarification.] PDMP to be reviewed at next visit regardless of regulatory cadence (NY: per-prescription; NJ: at minimum quarterly). Follow-up in [interval].",
+            "decision_point": "Early fill pattern documented — patient conversation conducted, pattern assessed in clinical context.",
+            "anchor": "early-fills"
           },
           {
             "id": ".CSADHD-CEILING-CONT",
             "status": "future",
-            "description": "Continuation at ceiling dose with documented clinical rationale"
+            "text": "Pt on stimulant therapy at [medication name, dose] — at or near FDA-labeled maximum daily dose ([FDA ceiling for this agent]). Clinical rationale for continuation at current dose: [functional status — describe; prior titration history — dose arrived at over what period; specialist involvement — yes/no; response to prior dose reductions if attempted]. Dose-response evidence reviewed: for amphetamines, symptom-reduction curve plateaus at approximately 30–35 mg/day; for methylphenidate, doses above 60 mg/day carry approximately doubled adverse-event-driven dropout without additional symptom benefit. Continuation at current dose reflects individualized clinical judgment weighing documented benefit against risk at this level. [Specialist co-management in place — see coordination note. / Psychiatry / addiction medicine consult requested given ceiling-dose continuation without specialist involvement.] Follow-up in [interval] with reassessment of dose appropriateness.",
+            "decision_point": "Continuation at or near FDA ceiling dose — documented clinical rationale for maintaining current dose.",
+            "anchor": "ceiling-dose"
           },
           {
             "id": ".CSADHD-CONSULT",
             "status": "future",
-            "description": "Escalation to psychiatry; consult question pre-filled from module interaction"
+            "text": "Consult to psychiatry requested at this visit. Reason for consult: [select applicable trigger]:\n  [dx-vibes] Patient on inherited stimulant prescription requesting continuation. No formal ADHD workup documented in available records — no validated rating scale, no structured clinical interview, no collateral information. Please evaluate and advise on whether to continue, modify dose, or obtain formal diagnostic evaluation before continuation.\n  [ceiling-dose] Patient on [medication name] at maximum labeled dose ([dose]) without documented clinical rationale for ceiling-dose prescribing. Please review current plan and advise whether to maintain, taper, or restructure regimen.\n  [functional] Patient on stimulant therapy presenting with [new or worsening symptom — describe]. Requesting evaluation for [comorbidity — bipolar disorder / anxiety / PTSD / other] and guidance on whether to continue, modify, or discontinue current regimen.\n  [combo-stim] Patient requesting addition of [agent] to current stimulant regimen of [current medication, dose]. Requesting specialist input on appropriateness, cumulative dose management, and monitoring.\nRelevant clinical context: PDMP [clean / concerning — describe]. SUD history: [none / past / active]. Functional status: [describe]. Prior specialist involvement: [yes — specify / none documented]. Preferred response format: [written note / phone contact / co-management].",
+            "decision_point": "Escalation to psychiatry — consult question pre-filled from module escalation interaction.",
+            "anchor": "dx-vibes"
           }
         ],
         "references": [
@@ -1780,7 +1792,8 @@
             "consult_decision_point": {
               "trigger_label": "SUD — addiction medicine co-management",
               "prefill_text": "Patient with co-occurring ADHD and [active / recent] SUD; requesting addiction-medicine input on monitoring plan and formulation choice. Continuation otherwise within PCP scope."
-            }
+            },
+            "smartphrase_note": ".CSADHD-SUD-AWARE — Continuation with active or past SUD history — enhanced monitoring plan in place per ASAM/AAAP 2024 framework (future)"
           },
           {
             "faq_id": "efficacy",
@@ -2674,32 +2687,51 @@
           {
             "id": ".OPIATES-CONT",
             "status": "confirmed",
-            "text": "Pt presents for continuation of chronic opiate regimen (previously prescribed). PDMP reviewed today — single prescriber, single pharmacy, consistent quantities, no overlapping controlled-substance prescriptions of concern. Controlled substance agreement on file [or completed at this visit — patient verbalized understanding of monitoring expectations]. Baseline urine drug screen obtained; results [confirmed prescribed agent / reviewed — see note]. Current MME calculated: [X] MME/day [below 50 MME guidepost / at or above 50 MME guidepost — clinical rationale documented below]. Escalation criteria reviewed and not triggered at this visit. Naloxone [prescribed / previously on file / offered and declined — patient counseled]. Continuing [medication, dose, frequency] as prescribed. Follow-up in [1–3 months / sooner if concerns emerge]. Patient counseled on medication use, storage, and federal Schedule II regulations. For doses ≥50 MME/day, add clinical rationale for continuation at current dose: [functional status, pain indication, duration of stable therapy, prior taper history, treatment goals discussed]."
+            "text": "Pt presents for continuation of chronic opiate regimen (previously prescribed by [prior provider / prior practice / unknown prior prescriber]). PDMP reviewed today — single prescriber, single pharmacy, consistent quantities, no overlapping controlled-substance prescriptions of concern. Controlled substance agreement [on file from prior provider — reviewed and new agreement completed at this visit / completed at this visit — patient verbalized understanding of monitoring expectations and signed]. Baseline urine drug screen obtained; results: [confirmed prescribed agent / unexpected positive — see separate note / unexpected negative — see separate note / confirmatory send-out testing ordered]. Current MME calculated: [X] MME/day ([medication, dose, frequency × conversion factor]); [below 50 MME guidepost — standard monitoring / at or above 50 MME guidepost — clinical rationale documented below and naloxone offered]. Escalation criteria reviewed and not triggered at this visit. Naloxone [prescribed with household education / previously on file — education refreshed / offered and declined — patient counseled; refusal documented]. Continuing [medication name, dose, frequency] as prescribed. Follow-up in [1–3 months / 2–4 weeks — higher-risk interval selected given: describe reason]. Patient counseled on medication use, safe storage, and Schedule II regulations.\n\n[For doses ≥50 MME/day, add:] Clinical rationale for continuation at current dose: functional status [describe — PEG scores if available], pain indication [describe], duration of stable therapy [X months / years], prior taper history [none / attempted — describe], treatment goals discussed [functional improvement targets: describe].",
+            "decision_point": "Green zone — PDMP reviewed, CS agreement in place, baseline UDS obtained, MME documented. Continuation with structured monitoring.",
+            "anchor": "green-zone"
           },
           {
-            "id": ".CSAGREE",
+            "id": ".OPIATES-HIGHDOSE-BRIDGE",
             "status": "future",
-            "description": "Populates the standard institutional controlled-substance agreement template at prescriber-of-record transfer"
-          },
-          {
-            "id": ".OPIATES-PDMP-HOLD",
-            "status": "future",
-            "description": "Prescription withheld pending PDMP clarification; documents what was found, what was asked, and what was discussed"
-          },
-          {
-            "id": ".OPIATES-NALOXONE",
-            "status": "future",
-            "description": "Naloxone offered or prescribed; administration counseling and household access documented"
+            "text": "Pt on inherited opiate regimen at [medication name, dose] = [X] MME/day — above CDC 2022 50 MME reassessment guidepost. Acute safety signals assessed and absent at this visit: no sedation, no respiratory compromise, no slurred speech, no evidence of active diversion. Continuity of established regimen maintained at this visit per CDC 2022 Recommendation 5; abrupt reduction or discontinuation not initiated — FDA warning acknowledged regarding hazards of rapid taper in physically dependent patients (acute withdrawal, pain exacerbation, serious psychological distress, suicidal ideation). Continuity is a bridge, not an endpoint. Complete first-visit framework (11 elements): [completed / partially completed — remaining elements: list, plan to complete]. Specialist consult requested: pain management / addiction medicine. Consult framing: \"Patient inherited on [X] MME/day of [agent] for [indication]. Prior pain-management documentation: [present / limited / absent]. PDMP: [finding]. UDS: [confirms prescribed agent / finding]. Functional status: [PEG scores / brief description]. Concurrent benzodiazepine: [yes — dose, indication / no]. Treatment goals documented. Please advise: (1) whether dose is appropriate for indication, (2) whether structured gradual taper is indicated and at what rate, (3) whether ongoing co-management is appropriate.\" Follow-up in [2–4 weeks — short interval given high-dose situation].",
+            "decision_point": "High-dose inherited opiate regimen — continuity maintained at this visit while specialist consultation is arranged. Acute safety signals absent.",
+            "anchor": "opiates-highdose"
           },
           {
             "id": ".OPIATES-UDS-UNEXPECTED",
             "status": "future",
-            "description": "Unexpected UDS result confirmed; non-punitive safety response, OUD assessment, and continuation rationale documented"
+            "text": "Unexpected UDS result at this visit: [positive for non-prescribed substance — specify / unexpectedly negative for prescribed opioid — specify assay ordered and note that standard opiate immunoassay does not detect oxycodone, fentanyl, methadone, or buprenorphine; assay limitations reviewed before clinical conclusions drawn]. Operational response sequence followed per CDC 2022: (1) Confirmatory LC-MS/MS testing ordered — results will be reviewed before any clinical decisions are made. (2) Direct, non-punitive safety conversation conducted: \"I'm concerned about your safety. Tell me what's been going on.\" Patient's explanation: [describe]. (3) Structured SUD assessment: [TAPS / DAST-10 / NIDA Quick Screen] administered; result: [score, interpretation]. DSM-5 OUD criteria formally applied: [number of criteria met — none / 2-3 mild / 4-5 moderate / ≥6 severe / pending confirmatory result]. (4) Naloxone [prescribed and household educated / previously prescribed — education refreshed]. Fentanyl test strip education provided given drug supply contamination context. (5) MOUD discussion: [OUD criteria not met — MOUD not indicated at this time / OUD criteria met — MOUD discussion initiated; buprenorphine induction discussed / addiction medicine consult for MOUD transition placed]. Prescription at this visit: [continued at current dose with enhanced monitoring — rationale: CDC 2022 non-punitive framework, confirmation pending / held pending confirmatory result and further assessment — bridge plan: describe]. Patient not dismissed from care. Follow-up in [interval — short, specify].",
+            "decision_point": "Unexpected UDS result — confirmatory testing ordered, non-punitive conversation conducted, safety response initiated. Documents CDC 2022-compliant approach.",
+            "anchor": "opiates-uds-fail"
           },
           {
-            "id": ".OPIATES-OUD-TRANSITION",
+            "id": ".OPIATES-PDMP-CONCERN",
             "status": "future",
-            "description": "OUD identified; MOUD discussion and addiction-medicine transition documented, opioid continued pending evaluation"
+            "text": "PDMP reviewed today — concerning pattern identified: [multiple prescribers — specify names/dates / multiple pharmacies — specify number, locations, dates / overlapping fills — specify / cash-pay pattern at multiple locations / other — describe]. Pattern assessed as: [warrants clarification — explanation sought / significant concern — prescription withheld pending further investigation]. Direct, non-assumptive conversation with patient conducted — CDC 2022 framing applied (PDMP findings are not grounds for dismissal from care). Patient's explanation: [describe]. Clinical assessment of explanation: [plausible with benign explanation — vacation / pharmacy closure / care transition / partial fill / other / not fully explanatory / inconsistent with other information]. Actions taken: [other prescriber(s) contacted directly to coordinate — NY I-STOP permits inter-prescriber contact without patient permission / UDS ordered to confirm adherence / prescriber contact documented — coordination plan: describe / prescription withheld at this visit — patient given non-opioid bridge and follow-up within 1–2 weeks]. Prescription status at this visit: [issued — documentation provides protection / held — follow-up plan documented]. Follow-up in [interval].",
+            "decision_point": "Concerning PDMP pattern requiring clarification — documents findings, patient conversation, prescriber coordination, and clinical response.",
+            "anchor": "opiates-pdmp-concern"
+          },
+          {
+            "id": ".OPIATES-OUD-EVAL",
+            "status": "future",
+            "text": "Clinical concern for opioid use disorder raised at this visit based on: [aberrant behaviors — describe / unexpected UDS — describe / patient self-disclosure / pattern of early fills and escalating contact / other]. DSM-5 OUD 11-criterion formal assessment completed: [criteria met — list each with \"yes/no\": larger amounts or longer than intended / persistent desire or unsuccessful efforts to cut down / excessive time obtaining or using / craving / role obligation failures / continued use despite social problems / given up activities / use in hazardous situations / continued use despite physical or psychological harm / tolerance / withdrawal]. Note: tolerance and withdrawal do not count toward OUD diagnosis when occurring solely in context of opioids taken as prescribed. Criteria met: [number] — [none / mild 2-3 / moderate 4-5 / severe ≥6]. Chronic pain and OUD assessed as: [mutually exclusive — OUD criteria not met / co-occurring — both present]. MOUD discussion: [criteria not met — MOUD not indicated / criteria met — buprenorphine induction discussed and [patient agrees — initiation planned / patient declines — refusal documented, will revisit / addiction medicine consult placed for MOUD transition per CDC 2022 / patient consented to referral]]. Prescribed opioid continued at current dose while OUD evaluation is completed and MOUD transition is arranged, per CDC 2022 and Kennedy 2022 — abrupt discontinuation not initiated given evidence of elevated overdose risk with opioid discontinuation in this population without agonist therapy (AHR 3.18 in Kennedy 2022). Person-first language used throughout. Follow-up in [interval — short, within 2 weeks].",
+            "decision_point": "Opioid use disorder evaluation initiated — DSM-5 criteria formally applied, MOUD discussion documented, continuity maintained per Kennedy 2022 framework.",
+            "anchor": "opiates-oud"
+          },
+          {
+            "id": ".OPIATES-BENZO-COMBO",
+            "status": "future",
+            "text": "Pt on concurrent opiate regimen ([medication, dose, MME/day]) and benzodiazepine ([medication, dose, diazepam equivalent]). FDA boxed warning acknowledged. CDC 2022 Recommendation 11 applied: particular caution warranted; however, abrupt discontinuation of either medication at handoff visit is not appropriate given: benzodiazepine discontinuation risk (withdrawal seizure); opioid discontinuation risk (pain crisis, withdrawal, elevated overdose risk from tolerance loss). Both medications continued at current doses at this visit. Critical carve-out confirmed: [buprenorphine / methadone for OUD — not withheld per FDA clarification / does not apply — both analgesic opioid and separate benzodiazepine]. Safety plan implemented: (1) Naloxone prescribed with household education — ASAM/ACMT 2025 strong recommendation. (2) Combination risk counseled — patient understands combination carries 2–5× overdose risk; long-term stable concurrent use carries lower risk than new-start. (3) Follow-up in 2–4 weeks rather than standard 3-month interval. (4) Specialist referral initiated: [addiction medicine / addiction psychiatry for benzodiazepine; pain medicine for opioid]. Taper sequence planning: tapers to be kept separate — no concurrent opioid and benzodiazepine taper per current guidelines. [OUD present: MOUD stabilization to precede benzodiazepine taper per ASAM/ACMT 2025.] Benefit-risk reassessment every 3 months or every encounter minimum.",
+            "decision_point": "Concurrent opiate + benzodiazepine — parallel to benzo module. Documents safety protocol, naloxone, and specialist referral per CDC 2022 and ASAM/ACMT 2025.",
+            "anchor": "opiates-combo"
+          },
+          {
+            "id": ".OPIATES-CSAGREE",
+            "status": "future",
+            "text": "Controlled substance agreement [completed for the first time at this visit — new prescriber-of-record transfer / updated at this visit — prior agreement was with previous provider]. Agreement content reviewed with patient: single prescriber (this practice), single pharmacy ([pharmacy name]), use as prescribed only, no sharing or diversion (federal felony — 21 USC §841), safe storage obligations, PDMP consent ([NY I-STOP — per-prescription review / NJ — initial plus quarterly]), urine drug screening at [standard: 6-12 months / enhanced: every 3 months / high-risk: every visit] intervals, no early refills except documented travel, no replacement for lost or stolen medications (institutional policy), functional improvement as primary treatment goal (PEG scale baseline: [pain score / enjoyment score / general activity score]). Patient verbalized understanding of all terms. Patient signature obtained. Agreement in chart [specify location]. Next agreement review: [12 months / 6 months — enhanced / 3 months — high-risk] or sooner if clinical picture changes.",
+            "decision_point": "Controlled substance agreement completed or updated at this visit. Documents content reviewed and patient understanding confirmed.",
+            "anchor": "opiates-agreement"
           }
         ],
         "references": [
@@ -3198,7 +3230,7 @@
                 "answer_html": "<p>Ask why before responding — literacy barriers, language, prior negative experiences, and simply needing time to read are all common reasons. You are not obligated to prescribe without a signed agreement, and the institutional framework supports that position. However, CDC 2022 explicitly warns against patient abandonment: “Clinicians should avoid dismissing patients from care and should ensure appropriate care for patients with pain.”[ref:cdc-2022]</p>\n<p>Document a four-element pattern: (1) the agreement was offered and explained with appropriate accommodations; (2) the patient declined, with their stated reason; (3) alternatives were offered — non-opioid pain management, pain-specialist referral, bridge prescription with short-interval follow-up; (4) the rationale for not prescribing the chronic opioid without the agreement.</p>"
               }
             ],
-            "smartphrase_note": ".CSAGREE populates the standard institutional CS-agreement template (future)"
+            "smartphrase_note": ".OPIATES-CSAGREE — Controlled substance agreement completed or updated at this visit (future)"
           },
           {
             "faq_id": "opiates-uds",
@@ -3270,7 +3302,8 @@
               "trigger_label": "High dose — pain management",
               "prefill_text": "Patient inherited on [X] MME/day of [agent] for [indication]. Prior pain-management documentation [present/limited/absent]. PDMP and UDS reviewed; functional status [PEG]; concurrent benzodiazepine [yes/no]. Please advise whether the dose is appropriate, whether a structured gradual taper is indicated and at what rate, and whether ongoing co-management is appropriate.",
               "consult_id": "pain-medicine"
-            }
+            },
+            "smartphrase_note": ".OPIATES-HIGHDOSE-BRIDGE — High-dose inherited opiate regimen — continuity maintained at this visit while specialist consultation is arranged (future)"
           },
           {
             "faq_id": "opiates-combo",
@@ -3290,7 +3323,8 @@
               "trigger_label": "Concurrent benzo — specialist referral",
               "prefill_text": "Patient on stable concurrent opioid + benzodiazepine regimen ([agents/doses/indications]). Naloxone prescribed. Requesting input on benefit–risk of the combination and, if tapering is indicated, on sequencing — opioid held stable through any benzodiazepine reduction. If OUD is present, advise on MOUD stabilization before benzodiazepine taper.",
               "consult_id": "pain-medicine"
-            }
+            },
+            "smartphrase_note": ".OPIATES-BENZO-COMBO — Concurrent opiate + benzodiazepine — parallel to benzo module (future)"
           },
           {
             "faq_id": "opiates-uds-fail",
@@ -3314,7 +3348,8 @@
               "trigger_label": "Unexpected UDS — addiction medicine",
               "prefill_text": "Confirmed unexpected UDS finding ([substance]) in a patient on long-term opioid therapy. Naloxone prescribed; structured OUD assessment [results]. Requesting addiction-medicine input on MOUD candidacy and a safety-oriented monitoring plan; prescribed opioid continued with enhanced monitoring pending evaluation.",
               "consult_id": "addiction-medicine-opiate"
-            }
+            },
+            "smartphrase_note": ".OPIATES-UDS-UNEXPECTED — Unexpected UDS result — confirmatory testing ordered, non-punitive conversation conducted, safety response initiated (future)"
           },
           {
             "faq_id": "opiates-pdmp-concern",
@@ -3329,7 +3364,8 @@
                 "question": "I see fills from three different pharmacies. Is that diversion?",
                 "answer_html": "<p>It is a pattern that warrants clarification, not a confirmed finding. Published research uses ≥4 pharmacies in 90 days as a risk-behavior threshold; three is a reasonable clinical heuristic, not a validated cutoff. A cash-pay pattern at multiple locations without explanation is more concerning — but cash-pay alone is not the signal, as pharmacies report all dispensed controlled substances to the PDMP regardless of payment method.[ref:perry-add-2022]</p>"
               }
-            ]
+            ],
+            "smartphrase_note": ".OPIATES-PDMP-CONCERN — Concerning PDMP pattern requiring clarification — documents findings, patient conversation, prescriber coordination, and clinical response (future)"
           },
           {
             "faq_id": "opiates-behavior",
@@ -3376,7 +3412,8 @@
               "trigger_label": "OUD suspected — addiction medicine",
               "prefill_text": "Patient with chronic pain and possible OUD ([DSM-5 criteria met]). Please advise on MOUD candidacy and transition plan. Prescribed opioid continued with close monitoring and naloxone provided pending evaluation, per CDC 2022 Recommendation 5.",
               "consult_id": "addiction-medicine-opiate"
-            }
+            },
+            "smartphrase_note": ".OPIATES-OUD-EVAL — Opioid use disorder evaluation initiated — DSM-5 criteria formally applied, MOUD discussion documented, continuity maintained per Kennedy 2022 framework (future)"
           }
         ]
       },
@@ -3567,32 +3604,44 @@
           {
             "id": ".BENZO-CONT",
             "status": "confirmed",
-            "text": "Pt presents for continuation of chronic benzodiazepine regimen (previously prescribed). PDMP reviewed today — single prescriber, single pharmacy, consistent quantities, no concurrent opiate or CNS depressant prescriptions of concern. Documented indication: [anxiety disorder / panic disorder / seizure disorder / alcohol withdrawal / other — specify]. Duration of use: [X months/years]; prescribing context: [short-term initiation / long-term chronic use]. Functional status assessed: [preserved — employed/engaged in daily activity, no falls in past 12 months, no significant cognitive complaints / impaired — specify]. Escalation criteria reviewed and not triggered at this visit. Continuing [medication, dose, frequency] as prescribed. Long-term goal of lowest effective dose discussed with patient. Follow-up in [interval]. Patient counseled on medication use, storage, and federal Schedule IV regulations."
+            "text": "Pt presents for continuation of chronic benzodiazepine regimen (previously prescribed by [prior provider / prior practice / unknown prior prescriber]). PDMP reviewed today — single prescriber, single pharmacy, consistent quantities, no concurrent opiate or CNS depressant prescriptions of concern. Documented indication: [anxiety disorder / panic disorder / seizure disorder / alcohol withdrawal history / other — specify]. Duration of use: [X months / years]; prescribing context: [short-term initiation that became long-term / established long-term chronic use / unclear — inherited without full prior documentation]. Functional status assessed: [preserved — employed / engaged in meaningful daily activity, no falls in past 12 months, no significant cognitive complaints / impaired — describe]. Escalation criteria reviewed and not triggered at this visit. Continuing [medication name, dose, frequency] as prescribed. Long-term goal of lowest effective dose discussed with patient; not a taper conversation at this visit — foundation assessment only. Follow-up in [interval]. Patient counseled on medication use, safe storage, and Schedule IV regulations.",
+            "decision_point": "Foundation visit — green zone, all four checklist items confirmed, escalation criteria not triggered. Not a taper visit.",
+            "anchor": "green-zone"
           },
           {
             "id": ".BENZO-NOINDICATION-BRIDGE",
             "status": "future",
-            "description": "No indication established yet: documents inherited regimen + planned diagnostic assessment + short-term continuation rationale to avoid precipitating withdrawal"
+            "text": "Pt presents for continuation of chronic benzodiazepine regimen. Clinical assessment completed at this visit: no documentable psychiatric or neurological indication for [medication name] identified [from available records / after structured evaluation — GAD-7 score: [score] / PHQ-9 score: [score] / sleep history: [describe]]. Bridge supply issued to prevent precipitated withdrawal pending full diagnostic assessment. Continuation beyond this visit requires an established indication. Bridge rationale: patient on daily benzodiazepine for [X months / years] — abrupt discontinuation carries risk of withdrawal seizure and is not appropriate at a handoff visit. Clinical assessment to formally establish or rule out indication planned within [N] visits. If no indication is established at that time, taper plan will be initiated. [Specialist consult requested: addiction medicine / addiction psychiatry / medical toxicology — framing: \"Patient on chronic benzodiazepine with no documentable psychiatric or neurological indication. Please advise on taper planning and alternative management.\"] Continuing [medication name, dose, frequency] as bridge. Follow-up in [interval — not to exceed N visits before indication reassessment].",
+            "decision_point": "No documentable psychiatric or neurological indication identified at this visit — bridge supply issued to prevent precipitated withdrawal while full assessment is pending.",
+            "anchor": "benzos-no-indication"
           },
           {
             "id": ".BENZO-HIGHDOSE-BRIDGE",
             "status": "future",
-            "description": "High-dose continuation pending specialist input: documents dose-threshold awareness, risk–benefit assessment, and bridge rationale"
+            "text": "Pt on [medication name, dose] = approximately [calculated value] mg diazepam equivalent/day. ASAM/ACMT 2025 dose-tier assessment: [low ≤10 mg DE / moderate 10–15 mg DE / high >15 mg DE / ≥40 mg DE — DSM-5-TR severe-withdrawal-risk tier / ≥100 mg DE — inpatient withdrawal management threshold per Soyka]. Bridge prescription issued at current dose to prevent precipitated withdrawal while specialist consultation is arranged. Dose reduction or discontinuation not initiated at this visit per ASAM/ACMT 2025 guidance; abrupt change at high dose carries risk of withdrawal seizure and delirium. Specialist consult requested: [addiction medicine / addiction psychiatry / medical toxicology]. Consult framing: \"Patient on [medication, dose] = approximately [X] mg diazepam equivalent/day. No current specialist involvement. Requesting guidance on safe continuation, taper planning, and whether inpatient withdrawal management should be considered.\" Risk-benefit assessment documented: benefit of bridge [preventing withdrawal seizure, maintaining therapeutic relationship] outweighs risk of one-month continuation at current dose in context of active consult. Follow-up in [interval — within 4 weeks / sooner if consult response received].",
+            "decision_point": "High-dose benzodiazepine (above ASAM/ACMT 2025 threshold of 15 mg diazepam equivalent/day) — bridge prescription issued at current dose while specialist consult is arranged. Documents dose-tier awareness and active workup.",
+            "anchor": "benzos-highdose"
           },
           {
-            "id": ".BENZO-COMBO-OPIATE",
+            "id": ".BENZO-OPIATE-COMBO",
             "status": "future",
-            "description": "Concurrent opiate + benzodiazepine: naloxone provided, specialist consult initiated, reassessment cadence documented"
+            "text": "Pt on concurrent [opioid — medication, dose, MME/day] and [benzodiazepine — medication, dose, diazepam equivalent]. This combination carries elevated overdose risk; FDA boxed warning acknowledged. Critical carve-out confirmed: [buprenorphine/methadone for OUD is not withheld due to benzodiazepine use per FDA clarification / does not apply — opioid is analgesic, not OAT]. First-visit protocol completed: both medications continued at current doses to prevent concurrent withdrawal syndromes; abrupt change to either not initiated per CDC 2022 and ASAM/ACMT 2025. Indication assessment: [opioid indication: describe; benzodiazepine indication: describe]. Naloxone prescribed [or previously on file] — household education provided on administration. Follow-up interval: 2–4 weeks (shorter than standard given combination risk). Specialist consult requested: [addiction medicine / addiction psychiatry for benzodiazepine; pain medicine for opioid]. Consult framing: \"Patient on concurrent [opioid, dose] and [benzodiazepine, dose]. Requesting specialist input on risk stratification, which medication to taper first, and safe prescribing plan going forward.\" Benefit-risk reassessment to occur at every visit, minimum every 3 months per ASAM/ACMT 2025.",
+            "decision_point": "Concurrent opiate + benzodiazepine identified — high-priority co-prescribing flag. Safety plan documented, naloxone prescribed, specialist consult initiated.",
+            "anchor": "benzos-combo-opiate"
           },
           {
-            "id": ".BENZO-TAPER-PLAN",
+            "id": ".BENZO-TAPER-SEED",
             "status": "future",
-            "description": "Structured taper plan documented with rate, agent, and shared-decision-making conversation"
+            "text": "Taper discussion initiated at this visit. Patient on [medication name, dose] for [X months / years]. Patient's current openness to dose optimization: [open to gradual reduction / ambivalent — willing to discuss / not currently willing — documented]. Prior taper attempts: [none / yes — describe outcome and why discontinued]. Patient language used: \"My goal over time is to make sure you're on the lowest effective dose that keeps you functional and safe. We're not changing anything today — I want to understand your history with this medication first, and then we can talk about what a gradual, comfortable reduction might look like when you're ready.\" No dose change made at this visit. Baseline documented for future taper conversations: current dose, duration of use, functional status, patient understanding of benzodiazepine use, and openness to optimization. Taper plan to be formalized at [next visit / after specialist input]. Follow-up in [interval].",
+            "decision_point": "First taper conversation documented — patient not yet ready or taper not yet initiated, but shared direction established and baseline recorded.",
+            "anchor": "benzos-duration"
           },
           {
-            "id": ".BENZO-COGNITIVE-CONT",
+            "id": ".BENZO-COGNITIVE-RISK",
             "status": "future",
-            "description": "Continuation in an older adult with Beers acknowledged, taper/continuation risks weighed, and shared decision-making + annual reassessment documented"
+            "text": "Pt age [age], on [medication name, dose] for [X months / years]. AGS Beers Criteria 2023 reviewed and acknowledged: benzodiazepines listed as potentially inappropriate in adults ≥65 due to fall, fracture, and cognitive risk. Applicable exceptions assessed: [seizure disorder / REM sleep behavior disorder / catatonia / severe treatment-resistant GAD / palliative care — specify if applicable / no exception applies — continuation based on individualized risk-benefit]. Fall history: [no falls in past 12 months / fall history — describe]. Cognitive status: [no cognitive complaints beyond baseline / MCI documented / cognitive concern — describe]. Pharmacokinetic consideration: [medication name] is [oxidatively metabolized — prolonged half-life with aging; consider switching to lorazepam or oxazepam / glucuronide-conjugated — oxazepam or lorazepam preferred; pharmacokinetic advantage noted but pharmacodynamic CNS sensitivity persists]. Shared decision-making: risks of continuation (falls, fractures, cognitive effects) and risks of taper (withdrawal, rebound anxiety, rare serious events) discussed with patient [and family if applicable]. Patient's decision: [continue with enhanced monitoring / proceed with taper planning — see taper note]. Individualized rationale for current plan: [describe]. Annual reassessment plan documented. Follow-up in [interval].",
+            "decision_point": "Age ≥65 or cognitive concerns documented — AGS Beers Criteria acknowledged, shared decision-making documented, individualized continuation rationale recorded.",
+            "anchor": "benzos-cognitive"
           }
         ],
         "references": [
@@ -4124,7 +4173,8 @@
                 "question": "Should I convert the patient to diazepam for easier taper management?",
                 "answer_html": "<p>Diazepam conversion is one taper strategy, not the default. The theoretical advantage is a long half-life allowing smoother reduction with less interdose withdrawal — but VA/DoD 2021 notes switching “may not improve outcomes,” Soyka NEJM concludes conversion is “not associated with a better outcome,” JAMA IM 2026 calls the evidence “limited,” and Canadian guidelines recommend continuing the same agent through taper.[ref:vadod-sud-2021][ref:soyka-nejm-2017][ref:shuey-jamaim-2026]</p>\n<p>Diazepam is contraindicated in hepatic impairment and problematic in older adults due to active metabolites and reduced clearance; for the older inherited-patient population, lorazepam or oxazepam are pharmacokinetically preferable when continuation through taper is necessary. Do not make agent changes at the handoff visit regardless of which approach is chosen — defer to a follow-up with the full assessment complete.[ref:ags-beers-2023-jgs]</p>"
               }
-            ]
+            ],
+            "smartphrase_note": ".BENZO-TAPER-SEED — First taper conversation documented — patient not yet ready or taper not yet initiated, but shared direction established and baseline recorded (future)"
           },
           {
             "faq_id": "benzos-function",
@@ -4167,7 +4217,8 @@
               "trigger_label": "Concurrent opiate + benzo — specialist input",
               "prefill_text": "Patient on concurrent [opioid, dose] and [benzodiazepine, dose]. Naloxone prescribed. Requesting specialist input on risk stratification, which medication to taper first, and a safe prescribing plan going forward. If OUD is present, advise on MOUD stabilization before benzodiazepine taper.",
               "consult_id": "addiction-medicine-benzo"
-            }
+            },
+            "smartphrase_note": ".BENZO-OPIATE-COMBO — Concurrent opiate + benzodiazepine identified — high-priority co-prescribing flag (future)"
           },
           {
             "faq_id": "benzos-highdose",
@@ -4222,7 +4273,8 @@
                 "question": "Can continuing \"no-indication\" benzos ever be justified?",
                 "answer_html": "<p>In the short term, yes — bridge prescribing to avoid precipitated withdrawal while a clinical assessment is completed is both safe and appropriate. As a long-term position, no — “no indication” is not documentable as a basis for ongoing Schedule IV prescribing. The clinical pathway must lead to either an established indication with documented rationale, a taper plan, or specialist-guided management.</p>"
               }
-            ]
+            ],
+            "smartphrase_note": ".BENZO-NOINDICATION-BRIDGE — No documentable psychiatric or neurological indication identified at this visit — bridge supply issued to prevent precipitated withdrawal while full assessment is pending (future)"
           },
           {
             "faq_id": "benzos-cognitive",
@@ -4241,7 +4293,8 @@
                 "question": "A patient with mild cognitive impairment is on a benzodiazepine. Should I be worried about causality?",
                 "answer_html": "<p>Acute cognitive impairment from benzodiazepines is well-established and reversible. The long-term causal relationship between benzodiazepine use and accelerated cognitive decline or dementia is genuinely controversial — not settled. Chronic benzodiazepine use can reasonably be considered a modifiable risk factor in the cognitive workup of an MCI patient; AAN's 2018 MCI Practice Guideline gives a Level B recommendation to “wean patients from medications that can contribute to cognitive impairment.”[ref:aan-petersen-2018]</p>\n<div class=\"cm-callout\"><p>Do not promise cognitive improvement to MCI patients or families. Reversibility after discontinuation is partial and domain-specific: verbal memory and verbal fluency may improve within 6 months; processing speed, working memory, visuospatial function, and sustained attention deficits can persist even after prolonged abstinence, and protracted withdrawal cognitive symptoms persist ≥1 year in &gt;50% of cases. Frame the benefit as preventing further decline and reducing fall and accident risk — not reliable cognitive restoration.[ref:crowe-acn-2018][ref:ritvo-plosone-2023]</p></div>\n<p>Involve neurology or geriatrics if the cognitive picture is complex, and document that the association has been considered.</p>"
               }
-            ]
+            ],
+            "smartphrase_note": ".BENZO-COGNITIVE-RISK — Age ≥65 or cognitive concerns documented — AGS Beers Criteria acknowledged, shared decision-making documented, individualized continuation rationale recorded (future)"
           },
           {
             "faq_id": "benzos-escalation",

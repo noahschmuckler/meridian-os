@@ -1515,6 +1515,7 @@ export function BspWorkspace({ workspace, seeds, onBackToHome }: Props): JSX.Ele
             }
           : inst.type === 'consult-builder'
             || inst.type === 'contract-builder'
+            || inst.type === 'smartphrase-selector'
           ? {
               workspaceId: workspace.id,
               selfBubbleId: leaf.bubbleId,

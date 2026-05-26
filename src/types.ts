@@ -50,6 +50,7 @@ export type BubblePrimitiveType =
   | 'glossary-browser'
   | 'consult-builder'
   | 'contract-builder'
+  | 'smartphrase-selector'
   | 'placeholder';
 
 export type SizeKey = 'xs' | 's' | 'm' | 'l' | 'xl';
@@ -228,10 +229,12 @@ export interface ModuleConsultDecisionPoint {
 // Without this registry, the "future" phrases referenced in per-entry
 // `smartphrase_note` fields would have no addressable home.
 export interface ModuleSmartPhrase {
-  id: string;
-  status: 'confirmed' | 'future';
-  text?: string;
-  description?: string;
+  id: string;                  // trigger string incl. leading dot, e.g. ".CSADHD-CONT"
+  status: 'confirmed' | 'future';  // confirmed = ship/Active in Epic; future = Draft
+  text?: string;               // full HPI-compatible phrase text with [bracketed] fill-ins
+  description?: string;        // legacy short description (back-compat for entries without text)
+  decision_point?: string;     // clinical decision point the phrase documents (spec)
+  anchor?: string;             // module anchor — checklist / escalation / faq id (spec)
 }
 
 // schema 1.3.0 added the two-tier "Simplified/Stratified Pass" FAQ shape:

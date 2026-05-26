@@ -158,6 +158,20 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
       }]
     : [];
 
+  // SmartPhrase selector card — shown when the active module declares a
+  // smartphrases[] registry. (Primary module-mode entry is the green-zone
+  // "All SmartPhrases" affordance; this is the gallery-mode re-spawn path.)
+  const smartphraseCount = activeModule?.smartphrases?.length ?? 0;
+  const smartphraseCards: ToolCard[] = smartphraseCount > 0
+    ? [{
+        id: 'smartphrase-selector',
+        title: 'SmartPhrases',
+        blurb: `${smartphraseCount} documentation phrase${smartphraseCount === 1 ? '' : 's'} · expand → copy`,
+        glyph: '📝',
+        spawn: { type: 'smartphrase-selector', title: 'SmartPhrases' },
+      }]
+    : [];
+
   function pickFile(): void {
     setStatus({ kind: 'idle' });
     fileInputRef.current?.click();
@@ -298,6 +312,22 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
             <SectionLabel style={{ marginTop: consultCards.length > 0 ? 14 : 6 }}>Contracts</SectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {contractCards.map((t) => (
+                <SpawnCard
+                  key={t.id}
+                  tool={t}
+                  onSpawn={() => onSpawnBubble?.(t.spawn)}
+                  spawnEnabled={!!onSpawnBubble}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {smartphraseCards.length > 0 && (
+          <>
+            <SectionLabel style={{ marginTop: 14 }}>SmartPhrases</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {smartphraseCards.map((t) => (
                 <SpawnCard
                   key={t.id}
                   tool={t}
