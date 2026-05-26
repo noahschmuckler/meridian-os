@@ -1,5 +1,31 @@
 # Benzodiazepine Module — OpenEvidence Verification Tracker
 
+> **STATUS: SIMPLIFIED/STRATIFIED PASS COMPLETE — 2026-05-25.** Module bumped schema 1.2.0 → 1.3.0. The evidence-confirmation tracker (8 bundles + 114 rows) is preserved below unchanged; this header records the simplification pass that ran on top of it. **Pipeline location:** Evidence-confirmation → **Simplified/Stratified Pass** (this commit) → Provider-ready.
+>
+> **Content source:** `~/Downloads/Benzos-Inherited-v2.docx` (canonical v2 draft, Claude-chat authored to Standards v1, handed in 2026-05-25). Implemented via the surgical-splice script `/tmp/build_benzos_v13.py`. Standards doc: `/home/noahs/incoming_noah/meridian-module-simplification-standards.pdf`. Template precedent: `verification/adhd.md` + `verification/opiates.md` (opiates ran the same day).
+>
+> **Structural changes this pass:**
+> - All 10 FAQ topics converted from flat `items[]` → two-tier `first_layer_html` + `sub_questions[]`.
+> - **New 11th topic `benzos-taper-primer`** ("Taper Planning Primer" — rate / agent / sequencing / inpatient threshold) added as a standalone reference topic (`referenced_by: []`). This is the Section 5 topic-split for this module (the CV-monitoring analog): taper mechanics are referenced from multiple topics (duration, high-dose, combo-opiate) and are independently important, so they get their own entry rather than being duplicated.
+> - Footer trimmed to 2 sentences; the benzo-specific "never discontinue without a structured taper plan absent imminent safety risk" caveat folded into the advisory sentence (it is a safety advisory, not framework justification, so it stays in the footer). Framework rationale + nomenclature + jurisdiction live in `context_strip`.
+> - Module-level `smartphrases[]` registry created: **1 confirmed** (`.BENZO-CONT`, full green-zone text) + **5 future**. DOCX named `.BENZO-CONT` + the two bridge phrases (`.BENZO-NOINDICATION-BRIDGE`, `.BENZO-HIGHDOSE-BRIDGE`); the other three (`.BENZO-COMBO-OPIATE`, `.BENZO-TAPER-PLAN`, `.BENZO-COGNITIVE-CONT`) are Claude-proposed per Standards §6 — **Noah to confirm.** **Typo fix:** the DOCX wrote `.BENZO-NOINDICAION-BRIDGE`; corrected to `.BENZO-NOINDICATION-BRIDGE` (it is a not-yet-real future ID, so fixing the obvious typo avoids propagating a malformed command).
+> - **4 consult decision points** (DOCX-derived prefill) wired to `addiction-medicine-benzo` (benzos-indication, combo-opiate, highdose, escalation); geriatric-psychiatry noted in the prefill framing for older adults. The existing two consults (`addiction-medicine-benzo`, `geriatric-psychiatry`) are unchanged.
+> - `references[]` preserved verbatim at the **93-entry superset** (all 42 DOCX-cited refs ⊆ existing 93, using the module's existing ref_id conventions; merge was a no-op). 39 unique refs cited inline; 0 undeclared markers; 54 declared-but-unused adjacency refs (expected).
+>
+> **§8 6-step checklist (this commit's stamp):**
+> - [x] **Step 1 — Read and inventory.** v2 DOCX extracted end-to-end; mapped to schema; taper-primer topic-split identified.
+> - [x] **Step 2 — Surface layer.** 4 checklist + 6 escalation items each a single statement; green-zone narrative ends on the institutional-support sentence; footer = 2 sentences; context absorbed framework + nomenclature + jurisdiction.
+> - [x] **Step 3 — Detail layer, first-layer FAQ.** Each topic's `first_layer_html` uses table / bullets / prose / callout per §3; answer-first; callouts reserved for guideline tension + caveats (OAT carve-out, "always taper benzo first" disproved, no-fabricated-diagnosis, paradoxical agitation, MCI cognitive-reversibility reframe).
+> - [x] **Step 4 — Detail layer, sub-questions.** Each `sub_questions[]` entry is a first-person provider question (distinct scenario / edge case), no first-layer duplication.
+> - [x] **Step 5 — SmartPhrase + consult decision points.** Registry populated; 4 FAQ entries carry `consult_decision_point`; 2 carry `smartphrase_note`.
+> - [x] **Step 6 — Final review.** No revision-artifact language; footer 2 sentences; all 11 topics have first-layer + ≥1 sub-question; references intact at 93; `npm run build` clean; HTML tag-balance + faq_ref link integrity verified.
+>
+> **Carried-forward evidence corrections** (from the 2026-05-03 evidence-confirmation pass, preserved in the v2 prose): temazepam equivalency (10 mg ≈ diazepam 5 mg / >30 mg high-dose), ASAM tier framework (≤10 / 10–15 / >15 mg DE) replacing the old 40 mg threshold, "always taper benzo first" disproved, "boxed warning" + OUD-OAT carve-out, partial/domain-specific cognitive reversibility (decline-prevention not restoration), Beers as a general rule with 5 named exceptions.
+>
+> **Follow-up (deferred):** (a) Noah confirms the 3 Claude-proposed future SmartPhrase IDs + the `.BENZO-NOINDICATION-BRIDGE` typo fix. (b) When the Consult Builder gains an external-prefill API, wire each `consult_decision_point.consult_id`. With this pass, **all three controlled-substance modules (adhd, opiates, benzos) are at 1.3.0.**
+
+---
+
 Working document for evidence-reviewing the `benzos` module in `src/data/seed/clinical-modules.json` (lines 1606–1900) before finalization. Not read by the app. See plan at `~/.claude/plans/breezy-bubbling-lerdorf.md` for context.
 
 **Status: VERIFICATION COMPLETE — 2026-05-03.** All 8 bundles + meta-pass + regulatory cross-pass + 2 deep-dives processed. 114 of 114 tracker rows resolved with ~85 unique citations staged. Raw OE responses captured at `verification/benzo1-4.md` (Bundles 1–4) and `verification/benzo5-8.md` (Bundles 5–8 + DD1 + DD2). **Ready to hand off to module-rewrite phase** (apply ADHD v1.1.0 pipeline: bump `schema_version` → 1.1.0, add top-level `references[]`, insert inline `[ref:X]` markers, apply per-row corrections, then run Phase 3 UI rendering per CLAUDE.md).

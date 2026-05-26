@@ -20,9 +20,18 @@ import { addUserModule, removeUserModule, userModulesSignal } from '../../data/u
 import { moduleFocusSignal } from '../../data/moduleFocus';
 import { CALCULATORS } from '../_calculators/registry';
 import clinicalModulesSeed from '../../data/seed/clinical-modules.json';
+import csContractsSeed from '../../data/seed/controlled-substances-contracts.json';
+import type { CsSubstanceClass } from '../../types';
 
 const SEED_MODULES: ModuleData[] = (
   ((clinicalModulesSeed as { clinical?: { modules?: ModuleData[] } }).clinical?.modules) ?? []
+);
+
+// Maps a controlled-substance module_id to the contract-builder substance
+// class so the Contracts card can pre-select it (adhd→stimulant, opiates→
+// opioid, benzos→benzo). Modules not in the map don't surface the card.
+const CONTRACT_CLASS_MAP: Record<string, CsSubstanceClass> = (
+  (csContractsSeed as { module_class_map?: Record<string, CsSubstanceClass> }).module_class_map ?? {}
 );
 
 // Peek at the DOCX-derived HTML to find the Heading-1 title without doing
@@ -133,6 +142,33 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
         blurb: `${consultCount} path${consultCount === 1 ? '' : 's'} · yes/no triage → pre-filled message`,
         glyph: '📨',
         spawn: { type: 'consult-builder', title: 'Consult builder' },
+      }]
+    : [];
+
+  // Contract builder card — shown for controlled-substance modules; spawns
+  // the builder pre-selected to the module's substance class.
+  const contractClass = activeModule ? CONTRACT_CLASS_MAP[activeModule.module_id] : undefined;
+  const contractCards: ToolCard[] = contractClass
+    ? [{
+        id: 'contract-builder',
+        title: 'CS agreement builder',
+        blurb: 'NY/NJ · flags → risk tier → assembled agreement + SmartPhrase',
+        glyph: '📋',
+        spawn: { type: 'contract-builder', title: 'CS contract builder', props: { initialClass: contractClass } },
+      }]
+    : [];
+
+  // SmartPhrase selector card — shown when the active module declares a
+  // smartphrases[] registry. (Primary module-mode entry is the green-zone
+  // "All SmartPhrases" affordance; this is the gallery-mode re-spawn path.)
+  const smartphraseCount = activeModule?.smartphrases?.length ?? 0;
+  const smartphraseCards: ToolCard[] = smartphraseCount > 0
+    ? [{
+        id: 'smartphrase-selector',
+        title: 'SmartPhrases',
+        blurb: `${smartphraseCount} documentation phrase${smartphraseCount === 1 ? '' : 's'} · expand → copy`,
+        glyph: '📝',
+        spawn: { type: 'smartphrase-selector', title: 'SmartPhrases' },
       }]
     : [];
 
@@ -260,6 +296,38 @@ export function ClinicalTools({ instance, onSpawnBubble }: Props): JSX.Element {
             <SectionLabel>Consults</SectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {consultCards.map((t) => (
+                <SpawnCard
+                  key={t.id}
+                  tool={t}
+                  onSpawn={() => onSpawnBubble?.(t.spawn)}
+                  spawnEnabled={!!onSpawnBubble}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {contractCards.length > 0 && (
+          <>
+            <SectionLabel style={{ marginTop: consultCards.length > 0 ? 14 : 6 }}>Contracts</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {contractCards.map((t) => (
+                <SpawnCard
+                  key={t.id}
+                  tool={t}
+                  onSpawn={() => onSpawnBubble?.(t.spawn)}
+                  spawnEnabled={!!onSpawnBubble}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {smartphraseCards.length > 0 && (
+          <>
+            <SectionLabel style={{ marginTop: 14 }}>SmartPhrases</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {smartphraseCards.map((t) => (
                 <SpawnCard
                   key={t.id}
                   tool={t}

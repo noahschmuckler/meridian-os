@@ -58,6 +58,18 @@ export function Launcher(): JSX.Element {
           </div>
           <div class="launcher__app-caption">Briefing</div>
         </button>
+
+        <button
+          type="button"
+          class="launcher__app"
+          onClick={() => setLauncherApp('dashboard')}
+          aria-label="Open Dashboard"
+        >
+          <div class="launcher__app-icon launcher__app-icon--dashboard">
+            <span class="launcher__app-glyph" aria-hidden="true">📊</span>
+          </div>
+          <div class="launcher__app-caption">Dashboard</div>
+        </button>
       </div>
     </div>
   );

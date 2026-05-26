@@ -198,9 +198,7 @@ export function ClinicalModuleChecklist({ instance, workspaceId, selfBubbleId, o
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--type-color)', marginBottom: 4 }}>
                   ✓ {selected.green_zone.zone_label}
                   {selected.green_zone.smartphrase && (
-                    <code style={{ marginLeft: 8, fontSize: 10, padding: '1px 6px', background: 'rgba(0,0,0,0.06)', borderRadius: 4 }}>
-                      {selected.green_zone.smartphrase}
-                    </code>
+                    <GreenZoneSmartphrase module={selected} workspaceId={workspaceId} nearBubbleId={selfBubbleId} />
                   )}
                 </div>
                 {selected.context_strip && (
@@ -221,5 +219,73 @@ export function ClinicalModuleChecklist({ instance, workspaceId, selfBubbleId, o
         })()}
       </div>
     </div>
+  );
+}
+
+// Green-zone SmartPhrase affordance: the continuation phrase trigger as a
+// click-to-copy chip (copies the full registry text), plus a "View all
+// SmartPhrases" launch that spawns the smartphrase-selector for this module.
+function GreenZoneSmartphrase({ module, workspaceId, nearBubbleId }: {
+  module: ModuleData; workspaceId: string; nearBubbleId?: string;
+}): JSX.Element {
+  const [copied, setCopied] = useState(false);
+  const trigger = module.green_zone.smartphrase;
+  const phrase = module.smartphrases?.find((s) => s.id === trigger);
+
+  async function copyPhrase(): Promise<void> {
+    if (!phrase?.text) return;
+    try {
+      await navigator.clipboard.writeText(phrase.text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1100);
+    } catch {
+      /* clipboard denied */
+    }
+  }
+
+  function openSelector(): void {
+    window.dispatchEvent(new CustomEvent('meridian:spawn-bubble', {
+      detail: {
+        workspaceId,
+        spec: {
+          type: 'smartphrase-selector',
+          title: 'SmartPhrases',
+          props: { initialPhraseId: trigger },
+          nearBubbleId,
+        },
+      },
+    }));
+  }
+
+  return (
+    <span style={{ marginLeft: 8, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <button
+        type="button"
+        title={phrase?.text ? 'Copy SmartPhrase text' : trigger}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); copyPhrase(); }}
+        disabled={!phrase?.text}
+        style={{
+          fontSize: 10, padding: '1px 6px', borderRadius: 4,
+          border: '1px solid rgba(0,0,0,0.12)',
+          background: copied ? 'var(--type-color)' : 'rgba(0,0,0,0.06)',
+          color: copied ? '#fff' : 'inherit',
+          cursor: phrase?.text ? 'pointer' : 'default', font: 'inherit', fontFamily: 'monospace',
+        }}
+      >
+        {copied ? 'Copied' : trigger}
+      </button>
+      <button
+        type="button"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); openSelector(); }}
+        style={{
+          fontSize: 10, fontWeight: 600, border: 'none', background: 'transparent',
+          color: 'var(--type-color)', cursor: 'pointer', font: 'inherit', padding: 0, opacity: 0.85,
+        }}
+      >
+        All SmartPhrases →
+      </button>
+    </span>
   );
 }
