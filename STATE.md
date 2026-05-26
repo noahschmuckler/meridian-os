@@ -11,7 +11,9 @@ Detailed in-flight work, historical record of shipped phases/tracks, and pending
 
 ---
 
-## Current state (last updated 2026-05-22)
+## Current state (last updated 2026-05-25)
+
+**CS-module track COMPLETE — shipped to main 2026-05-25 via PR #11 (squash-merge, admin override).** Opiates + benzos at schema 1.3.0 (Simplified/Stratified Pass), the NY/NJ controlled-substances contract builder (Track 4d), and all 19 SmartPhrases (Track 4c) landed together in one PR. **All three controlled-substance modules (adhd/opiates/benzos) are now at 1.3.0, and the QOL roadmap (Tracks 1–4) is complete.** Full detail + file/script pointers in the Shipped milestone below. **Remaining clinical-module work:** lipid (1.1.0) is the only Simplification-Pass candidate left; ckd / anemia / abd-pain still at 1.0.x. **Open follow-ups for Noah:** (a) contract-builder tier auto-suggest uses boolean inputs that can't express the schema's “significantly above” / “2+” magnitude wording (provider override covers it; finer inputs = schema v1.1); (b) consult + contract both auto-spawn on CS-module entry (the smartphrase selector is launch-only) — flag if the module view feels crowded and I'll switch the contract one to a launch affordance.
 
 **Dashboard app + Briefing app — both shipped 2026-05-22 (Noah).** Full milestones for each under "Shipped milestones" below. **Latest commit on main:** Dashboard PR #9 squash-merge (this entry will be bumped to the exact hash post-merge). Dashboard sits to the right of Briefing on the launcher; Briefing was the visual-language template. Both share the `--crh-*` palette tokens (DM Sans + DM Serif Display, parchment, scoped color-tinted "brief cards"). Five total launcher apps now live: Mondrian GUI · Mentorship Tracker · Epic Quick Reference · Briefing · Dashboard.
 
@@ -35,6 +37,18 @@ Detailed in-flight work, historical record of shipped phases/tracks, and pending
 ---
 
 ## Shipped milestones (chronological, newest first)
+
+### CS modules 1.3.0 + CS contract builder + SmartPhrases (2026-05-25, Noah, PR #11)
+
+Squash-merged to main via PR #11 (branch `noah/opiates-benzos-v13-simplification`, admin override). Three pieces shipped together; completes the QOL roadmap (Tracks 1–4). The earlier separate PR #12 (contract builder off main) was closed and folded into this branch.
+
+**Opiates + Benzos → schema 1.3.0 (Simplified/Stratified Pass).** Both bumped 1.2.0 → 1.3.0 from Claude-chat-authored v2 DOCX (`~/Downloads/Opiates-Inherited-v2.docx`, `~/Downloads/Benzos-Inherited-v2.docx`) via surgical-splice scripts `/tmp/build_opiates_v13.py` + `/tmp/build_benzos_v13.py`. Each: 10 FAQ topics → two-tier `first_layer_html` + `sub_questions[]`; a new 11th standalone §5-split topic (`opiates-first-visit` 11-element framework; `benzos-taper-primer`); footer → 2 sentences; `consult_decision_point`s wired to existing consults; references preserved at the evidence superset (opiates 92, benzos 93; 0 undeclared markers). Section 8 stamps in `verification/opiates.md` + `verification/benzos.md`. All three CS modules now at 1.3.0.
+
+**Contract builder (Track 4d).** New `contract-builder` bubble (purple) + `src/data/seed/controlled-substances-contracts.json` (v1.0.0 schema, 5 sections / 36 clauses, NY/NJ variants, declarative `condition` objects; `/tmp/build_cs_contracts.py`). Inputs (class / state / flags) → auto-suggested risk tier (Section-2 logic, override logged) → assembled clauses + `.CSAGREE-[CLASS]-[STATE]-[TIER]` trigger. Class-driven. Surfaced via `ContractAutoSpawn` (auto-spawn on CS-module entry; the clinical-tools card can't appear in module mode). v1 export = copy-to-clipboard; DOCX/PDF + Section-5 per-class subsections + agreement-mention decorator deferred.
+
+**SmartPhrases (Track 4c).** All 19 phrases from `~/Downloads/smartphrase-implementation-spec.md` populated into the 3 CS module `smartphrases[]` registries (ADHD 6 / benzos 6 / opiates 7; full text + decision_point + anchor; built by parsing the spec's fenced blocks via `/tmp/build_smartphrases.py`). Spec confirmed the future-phrase IDs (several renamed); corrected `.BENZO-NOINDICATION-BRIDGE` spelling. Three surfaces: `smartphrase-selector` bubble (expand→copy), expandable FAQ `smartphrase_note` pills, and a green-zone click-to-copy chip + "All SmartPhrases →" launch. No auto-spawn (avoids a 3rd auto-spawned bubble). `ModuleSmartPhrase` gained `decision_point` + `anchor`. Inline `decorateSmartphraseMentions` decorator + Epic Admin entry out of scope.
+
+**Open follow-ups for Noah:** (a) contract tier auto-suggest can't express magnitude/count wording from booleans (override is the safety valve; finer inputs = schema v1.1); (b) consult + contract both auto-spawn on CS-module entry — switch contract to a launch affordance if crowded.
 
 ### Dashboard app — 6-tile provider dashboard with per-patient drill-in (2026-05-22, Noah, PR #9)
 
@@ -218,8 +232,8 @@ All three legs landed: (a) Epic Quick Reference ported as third launcher app —
 
 ### Track 4a–4b sub-tracks remaining
 
-- **Track 4c — Smartphrase selector + hyperlink wiring.** Bumps `green_zone.smartphrase` (single string) to `smartphrases?: SmartPhrase[]` with a back-compat shim. New `smartphrase-selector` bubble + `decorateSmartphraseMentions` wraps `.command-name` strings in anchors.
-- **Track 4d — NJ/NY Controlled Substances Contract builder.** Top-level `src/data/seed/controlled-substances-contracts.json` registry; `contract-builder` bubble assembles clauses by jurisdiction + variation tags + patient-info fields; export as DOCX / PDF / markdown.
+- **Track 4c — SmartPhrase selector. SHIPPED 2026-05-25 (on PR #11's branch).** 19 phrases from `~/Downloads/smartphrase-implementation-spec.md` populated into the 3 CS module registries (full text + decision_point + anchor). Surfaced three ways: `smartphrase-selector` bubble (expand→copy, grouped Ship-ready/Future), expandable FAQ `smartphrase_note` pills (resolve `.TRIGGER`→registry), and a green-zone click-to-copy chip + "All SmartPhrases →" launch. Corrected `.BENZO-NOINDICATION-BRIDGE` spelling. Deferred: `decorateSmartphraseMentions` inline-anchor decorator (the pills + selector + green-zone cover surfacing); Epic-side Admin entry is out of scope.
+- **Track 4d — NJ/NY Controlled Substances Contract builder. SHIPPED 2026-05-25 (on PR #11's branch).** Implemented to the v1.0.0 schema (`~/Downloads/cs-contract-builder-schema.md`): `src/data/seed/controlled-substances-contracts.json` clause library (5 sections, 36 clauses, NY/NJ variants, structured conditions); `contract-builder` bubble collects substance-class/state/flags → auto-suggests risk tier (Section 2, provider-override) → assembles clauses → agreement text + `.CSAGREE-[CLASS]-[STATE]-[TIER]` trigger. Surfaced via `ContractAutoSpawn` (auto-spawn on CS-module entry, mirrors ConsultAutoSpawn — the clinical-tools Contracts card can't show in module mode). v1 export = copy-to-clipboard; DOCX/PDF + Section-5 per-class subsections + agreement-mention decorator deferred.
 
 ### Major systems landed since 2026-04-27
 
@@ -293,7 +307,7 @@ All three legs landed: (a) Epic Quick Reference ported as third launcher app —
 
 ### QOL roadmap remaining
 
-Active scoping plan: `~/.claude/plans/i-love-the-work-whimsical-porcupine.md`. Tracks 1, 2, 3, 4a, 4b shipped. Remaining: Track 4c (smartphrase selector) + Track 4d (controlled substances contract builder) — descriptions in "Track 4a–4b sub-tracks remaining" above.
+Active scoping plan: `~/.claude/plans/i-love-the-work-whimsical-porcupine.md`. **ALL tracks shipped (1, 2, 3, 4a, 4b, 4c, 4d).** The QOL roadmap is complete; remaining smartphrase polish (inline `decorateSmartphraseMentions` anchor decorator) is optional and noted in "Track 4a–4b sub-tracks remaining" above.
 
 ### Next candidates (no immediate-next locked)
 
