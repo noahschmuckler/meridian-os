@@ -1317,9 +1317,10 @@ export default function App() {
   // ── DEPARTMENT PICKER ──────────────────────────────────────────────────────
   if (!dept) {
     const depts = [
-      { key: "pc",   label: "Primary Care", icon: "🩺", available: true },
-      { key: "peds", label: "Pediatrics",   icon: "👶", available: false },
-      { key: "spec", label: "Specialty",    icon: "🏥", available: false },
+      { key: "pc",   label: "Primary Care", icon: "🩺", available: true  },
+      { key: "peds", label: "Pediatrics",   icon: "👶", available: true  },
+      { key: "spec", label: "Specialty",    icon: "🏥", available: true  },
+      { key: "uc",   label: "Urgent Care",  icon: "⚡", available: true  },
     ];
     return (
       <div style={gradBg}>
@@ -1328,22 +1329,141 @@ export default function App() {
           <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", padding: "28px 24px" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>Select your department</div>
             {depts.map(d => (
-              <div key={d.key} onClick={() => d.available && setDept(d.key)}
-                style={{ padding: "14px 16px", borderRadius: 10, cursor: d.available ? "pointer" : "default", display: "flex", alignItems: "center", gap: 14, marginBottom: 8, border: "1.5px solid #e9ecef", opacity: d.available ? 1 : 0.5, transition: "border-color 0.15s, background 0.15s" }}
-                onMouseEnter={e => { if (d.available) { e.currentTarget.style.borderColor = "#028090"; e.currentTarget.style.background = "rgba(2,128,144,0.04)"; }}}
+              <div key={d.key} onClick={() => setDept(d.key)}
+                style={{ padding: "14px 16px", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, marginBottom: 8, border: "1.5px solid #e9ecef", transition: "border-color 0.15s, background 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = "#028090"; e.currentTarget.style.background = "rgba(2,128,144,0.04)"; }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = "#e9ecef"; e.currentTarget.style.background = "transparent"; }}>
                 <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(2,128,144,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>{d.icon}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 15, fontWeight: 600, color: "#0f1b2d" }}>{d.label}</div>
-                  {!d.available && <div style={{ fontSize: 11, color: "#adb5bd", marginTop: 1 }}>Coming soon</div>}
                 </div>
-                {d.available ? (
-                  <span style={{ fontSize: 16, color: "#028090" }}>›</span>
-                ) : (
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: "#f1f3f5", color: "#adb5bd" }}>Soon</span>
-                )}
+                <span style={{ fontSize: 16, color: "#028090" }}>›</span>
               </div>
             ))}
+          </div>
+        </CardPanel>
+      </div>
+    );
+  }
+
+  // ── COMING SOON — Pediatrics / Specialty / Urgent Care ────────────────────
+  if (dept !== "pc") {
+    const deptMeta = {
+      peds: {
+        label: "Pediatrics",
+        icon: "👶",
+        accent: "#059669",
+        accentLight: "#d1fae5",
+        director: "Dr. Sarah Chen",
+        directorTitle: "Pediatric Medical Director",
+        tagline: "Building confident, family-centered pediatric providers from day one.",
+        description: "Structured onboarding for new pediatric providers — covering the full well-child visit schedule, developmental screening, vaccine administration, behavioral health integration, and family communication.",
+        features: [
+          { icon: "📋", label: "Well-Child Curriculum", sub: "Birth → 18 years, visit by visit" },
+          { icon: "🧠", label: "Developmental Milestones Tracker", sub: "M-CHAT, ASQ, ADHD screening workflows" },
+          { icon: "💉", label: "Vaccine Schedule Reference", sub: "ACIP schedule + catch-up logic" },
+          { icon: "👨‍👩‍👧", label: "Family Communication Coaching", sub: "Vaccine hesitancy, behavioral concerns" },
+        ],
+      },
+      spec: {
+        label: "Specialty",
+        icon: "🏥",
+        accent: "#7c3aed",
+        accentLight: "#ede9fe",
+        director: "Dr. Michael Torres",
+        directorTitle: "Specialty Medical Director",
+        tagline: "Equipping specialist providers with the systems, workflows, and referral standards that define great consultative care.",
+        description: "Onboarding curriculum for specialty providers — covering consultative note standards, referral integration with primary care, Epic specialty workflows, and the communication norms that keep the care team aligned.",
+        features: [
+          { icon: "📋", label: "Consultative Standards Curriculum", sub: "Note structure, decision transparency, follow-up" },
+          { icon: "🔄", label: "Referral Integration Workflows", sub: "Inbound triage, turnaround expectations, Epic routing" },
+          { icon: "⚕️", label: "Epic Specialty Module", sub: "Order sets, preference lists, specialty SmartPhrases" },
+          { icon: "🤝", label: "Primary Care Partnership", sub: "Co-management protocols, curbside etiquette" },
+        ],
+      },
+      uc: {
+        label: "Urgent Care",
+        icon: "⚡",
+        accent: "#dc2626",
+        accentLight: "#fee2e2",
+        director: "Dr. Rachel Kim",
+        directorTitle: "Urgent Care Medical Director",
+        tagline: "Preparing urgent care providers for high-volume, high-stakes acute visits — every shift, from day one.",
+        description: "Onboarding program for urgent care providers — covering acute visit workflow efficiency, triage decision frameworks, Epic rapid-documentation tools, escalation and transfer protocols, and managing patient expectations in a walk-in environment.",
+        features: [
+          { icon: "📋", label: "Acute Visit Curriculum", sub: "Chief complaint protocols, decision points, disposition" },
+          { icon: "🚨", label: "Escalation & Transfer Protocols", sub: "When to escalate, how to hand off, documentation" },
+          { icon: "⚡", label: "Epic Efficiency Tools", sub: "Rapid-fire orders, dot phrases, encounter closure" },
+          { icon: "🏃", label: "High-Volume Flow Training", sub: "Managing pace, minimizing bottlenecks, team communication" },
+        ],
+      },
+    }[dept] || { label: dept, icon: "🏥", accent: "#028090", accentLight: "#e0f9fb", director: "Medical Director", directorTitle: "Medical Director", tagline: "", description: "", features: [] };
+
+    return (
+      <div style={gradBg}>
+        <BrandPanel />
+        <CardPanel>
+          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", overflow: "hidden" }}>
+
+            {/* Department header */}
+            <div style={{ background: `linear-gradient(135deg, #0f1b2d 0%, #1e3a5f 100%)`, padding: "22px 24px 20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: deptMeta.accentLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+                  {deptMeta.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "white", lineHeight: 1.2 }}>{deptMeta.label}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>Optum NY/NJ — Onboarding Tracker</div>
+                </div>
+                <div style={{ fontSize: 9, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: deptMeta.accent, color: "white", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  Coming Soon
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{deptMeta.tagline}</div>
+            </div>
+
+            {/* Medical Director strip */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 24px", borderBottom: "1px solid #f1f3f5", background: "#fafafa" }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: deptMeta.accent + "20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: deptMeta.accent, flexShrink: 0 }}>
+                {deptMeta.director.replace("Dr. ", "").split(" ").map(w => w[0]).join("").slice(0, 2)}
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{deptMeta.director}</div>
+                <div style={{ fontSize: 11, color: "#868e96" }}>{deptMeta.directorTitle}</div>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div style={{ padding: "16px 24px 12px" }}>
+              <div style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.6 }}>{deptMeta.description}</div>
+            </div>
+
+            {/* Feature preview tiles */}
+            <div style={{ padding: "0 24px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Program preview</div>
+              {deptMeta.features.map((f, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8, background: "#f8f9fa", border: "1px solid #e9ecef", opacity: 0.7 }}>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{f.icon}</span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>{f.label}</div>
+                    <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 1 }}>{f.sub}</div>
+                  </div>
+                  <div style={{ marginLeft: "auto", fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: "#e9ecef", color: "#adb5bd" }}>Soon</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Back */}
+          <div onClick={() => setDept(null)}
+            style={{ marginTop: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 12, padding: "14px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.16)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}>
+            <span style={{ fontSize: 22, color: "white", lineHeight: 1 }}>←</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "white" }}>Back to Department Selection</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Choose a different department</div>
+            </div>
           </div>
         </CardPanel>
       </div>
