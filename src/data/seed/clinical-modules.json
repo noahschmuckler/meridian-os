@@ -2,13 +2,13 @@
   "clinical": {
     "modules": [
       {
-        "schema_version": "1.1.0",
+        "schema_version": "1.3.0",
         "module_id": "lipid-management",
         "default_title": "Lipid Management — CV Risk & Statin Prescribing",
         "recommended_calculators": [
           "prevent-calculator"
         ],
-        "landing_intro": "Clinical decision support for lipid management and cardiovascular risk reduction in primary care. Use this module when initiating statin therapy, reviewing a patient not at LDL goal, or counseling a statin-hesitant patient. Content reflects the 2026 ACC/AHA Multisociety Dyslipidemia Guideline[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc] — which formally adopts AHA PREVENT[ref:khan-circ-2024][ref:khan-circ-2023-aha-statement] for ages 30–79 in place of the Pooled Cohort Equations (PCE)[ref:grundy-2018-cholesterol], lowers risk-tier thresholds to mitigate disproportionate de-eligibility under the old PCE thresholds[ref:diao-jama-2024][ref:anderson-jamaim-2024], and reinstates LDL-C and non-HDL-C as co-primary treatment targets[ref:abbasi-jama-2026]. The 2022 ACC Expert Consensus Decision Pathway[ref:acc-2022-decisionpathway] is retained for nonstatin-therapy operational specifics. Future guideline revisions may collapse the very-high-risk vs non-VHR distinction into a single LDL <55 mg/dL pathway pending VESALIUS-CV results[ref:blumenthal-circ-2026-progress] — see the whats-new FAQ.",
+        "landing_intro": "Clinical decision support for lipid management and cardiovascular risk reduction in primary care. Use this module when initiating statin therapy, reviewing a patient not at LDL goal, or counseling a statin-hesitant patient. Content reflects the 2026 ACC/AHA Multisociety Dyslipidemia Guideline, which formally adopts AHA PREVENT for ages 30–79 in place of the Pooled Cohort Equations, lowers risk-tier thresholds to preserve statin eligibility across diverse populations, and reinstates LDL-C and non-HDL-C as co-primary treatment targets. The 2022 ACC Expert Consensus Decision Pathway is retained for nonstatin-therapy operational specifics.",
         "checklist_section_label": "Before you decide — verify all four",
         "checklist": [
           {
@@ -20,7 +20,7 @@
           {
             "item_id": "statin-indication",
             "position": 2,
-            "statement": "Statin indication addressed and documented (with benefit-risk discussion)",
+            "statement": "Statin indication documented with benefit-risk discussion",
             "faq_ref": "statin-indication"
           },
           {
@@ -38,7 +38,7 @@
         ],
         "green_zone": {
           "zone_label": "Lipid management reviewed — criteria met",
-          "narrative_html": "<p>Risk tier calculated using PREVENT-ASCVD[ref:acc-aha-dys-2026], statin indication addressed with benefit-risk discussion appropriate to risk tier[ref:acc-aha-dys-2026], LDL-C and non-HDL-C goals identified[ref:acc-aha-dys-2026-jacc], and medication plan documented. Patient is either at goal or has an active intensification plan in place. Follow-up: lipid profile 4–12 weeks after initiation/dose change, then every 6–12 months[ref:acc-aha-dys-2026]. Fasting only required when known hypertriglyceridemia[ref:acc-aha-dys-2026-jacc].</p>",
+          "narrative_html": "<p>Risk tier calculated using PREVENT-ASCVD[ref:acc-aha-dys-2026]. Statin indication addressed with benefit-risk discussion appropriate to risk tier[ref:acc-aha-dys-2026]. LDL-C and non-HDL-C goals identified[ref:acc-aha-dys-2026-jacc]; patient is at goal or has an active intensification plan. Follow-up: lipid panel 4–12 weeks after initiation or dose change, then every 6–12 months[ref:acc-aha-dys-2026]. Fasting required only when known hypertriglyceridemia[ref:acc-aha-dys-2026-jacc]. Crystal Run organizational context and SUPD tracking apply — see Context section.</p>",
           "smartphrase": ".lipidreview"
         },
         "escalation_section_label": "Escalate if any apply",
@@ -46,39 +46,39 @@
           {
             "item_id": "ldl-190",
             "position": 1,
-            "statement": "LDL-C ≥190 mg/dL — initiate high-intensity statin and evaluate for FH and secondary causes",
+            "statement": "LDL-C ≥190 mg/dL — initiate high-intensity statin; evaluate for FH",
             "faq_ref": "ldl-190"
           },
           {
             "item_id": "not-at-goal",
             "position": 2,
-            "statement": "Not at LDL/non-HDL goal on maximally tolerated statin (VHR uses <55 as the trigger, non-VHR ASCVD uses <70)",
+            "statement": "Not at LDL-C or non-HDL-C goal on maximally tolerated statin",
             "faq_ref": "not-at-goal"
           },
           {
-            "item_id": "statin-hesitant",
-            "position": 3,
-            "statement": "Borderline/intermediate-risk patient is statin-hesitant — consider CAC",
-            "faq_ref": "statin-hesitant"
-          },
-          {
             "item_id": "very-high-risk",
-            "position": 4,
+            "position": 3,
             "statement": "Patient meets criteria for Very High Risk reclassification",
             "faq_ref": "very-high-risk"
           },
           {
+            "item_id": "statin-hesitant",
+            "position": 4,
+            "statement": "Borderline or intermediate-risk patient is statin-hesitant",
+            "faq_ref": "statin-hesitant"
+          },
+          {
             "item_id": "advanced-markers",
             "position": 5,
-            "statement": "Lp(a) once-in-lifetime due; ApoB indicated for residual-risk evaluation",
+            "statement": "Lp(a) not yet measured; or residual risk warrants ApoB evaluation",
             "faq_ref": "advanced-markers"
           }
         ],
         "context_strip": {
-          "label": "Organizational Standard",
-          "text": "AHA PREVENT-ASCVD is the required risk-stratification tool for statin decisions in primary care, replacing the Pooled Cohort Equations[ref:acc-aha-dys-2026][ref:khan-circ-2024]. PREVENT total-CVD (ASCVD + heart failure) is for blood-pressure decisions per the 2025 BP guideline[ref:acc-aha-bp-2025] — not statin decisions. Until Epic BPA integration is live, calculate at acc.org/PREVENT. SUPD (Statin Use in Persons with Diabetes) tracks pharmacy-claim dispensing for adults age 40–75 with diabetes; the ~90% Crystal Run target is the organizational expectation, not the HEDIS national 90th percentile (~80–85% commercial). Three controlled-substance modules and this lipid module share an evidence-rewrite pipeline; any gap or correction in this module should be reported via the feedback button above.",
-          "text_format": "html"
+          "label": "Organizational and Tool Context",
+          "text": "AHA PREVENT-ASCVD is the required risk-stratification tool for statin decisions in primary care, replacing the Pooled Cohort Equations.[ref:acc-aha-dys-2026][ref:khan-circ-2024] PREVENT total-CVD (ASCVD + heart failure) applies to blood-pressure decisions under the 2025 BP guideline[ref:acc-aha-bp-2025] — not statin decisions. Until Epic BPA integration is live, calculate at acc.org/PREVENT.  Statin Use in Persons with Diabetes (SUPD) tracks pharmacy-claim dispensing for adults age 40–75 with diabetes. The Crystal Run organizational target of ~90% is an internal expectation, not the HEDIS national 90th percentile (~80–85% commercial). The HEDIS measure rewards dispensing — not chart documentation of the benefit-risk discussion — but local practice expectation is that statin therapy be addressed and documented at every diabetic visit, including when the patient declines.  Three controlled-substance modules and this lipid module share an evidence-rewrite pipeline. Any gap or correction should be reported via the feedback button."
         },
+        "footer_note": "Lipid module v1.3.0 (2026-05-26). Not a substitute for clinical judgment; apply these recommendations using professional discretion based on individual patient context. Content reflects US ACC/AHA guidelines; jurisdiction-specific regulatory requirements may apply. Use the feedback button to flag any error or gap.",
         "faqs": [
           {
             "faq_id": "risk-tier",
@@ -87,26 +87,23 @@
             "referenced_by": [
               "risk-tier"
             ],
-            "items": [
+            "first_layer_html": "<p>The 2026 ACC/AHA Dyslipidemia Guideline formally adopts AHA PREVENT-ASCVD as the primary risk estimator for ages 30–79, replacing the Pooled Cohort Equations (PCE).[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc] The four risk tiers:</p>\n<table><tr><td><p><strong>Tier</strong></p></td><td><p><strong>10-yr PREVENT</strong></p></td><td><p><strong>Recommendation</strong></p></td><td><p><strong>COR</strong></p></td></tr><tr><td><p>Low</p></td><td><p>&lt;3%</p></td><td><p>No statin indicated</p></td><td><p>—</p></td></tr><tr><td><p>Borderline</p></td><td><p>3% to &lt;5%</p></td><td><p>Benefit-risk discussion; risk enhancers support initiation</p></td><td><p>COR 2a</p></td></tr><tr><td><p>Intermediate</p></td><td><p>5% to &lt;10%</p></td><td><p>Moderate-intensity statin</p></td><td><p>COR 1</p></td></tr><tr><td><p>High</p></td><td><p>≥10%</p></td><td><p>High-intensity statin (target ≥50% LDL-C reduction)[ref:acc-aha-dys-2026]</p></td><td><p>COR 1</p></td></tr></table>\n<div class=\"cm-callout\">Thresholds were lowered from the legacy PCE tiers[ref:michos-nejm-2019] specifically so PREVENT identifies approximately the same number of statin-eligible adults (~25–26 million)[ref:diao-jama-2024]. Applying PREVENT to old PCE thresholds would have de-eligibilized ~14–17 million adults, disproportionately Black adults.[ref:diao-jama-2024][ref:anderson-jamaim-2024]</div>",
+            "sub_questions": [
               {
-                "question": "Why has PREVENT replaced the Pooled Cohort Equations?",
-                "answer_html": "<p>PREVENT incorporates kidney function (eGFR) and metabolic context (diabetes status, optionally HbA1c and UACR for CKD/DM), removes race as an input, and is calibrated for ages 30–79 (vs PCE's 40–75)[ref:khan-circ-2024][ref:khan-circ-2023-aha-statement]. The 2026 ACC/AHA Dyslipidemia Guideline formally adopts PREVENT for statin decisions[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]; the 2025 BP guideline adopts PREVENT total-CVD for BP-treatment thresholds[ref:acc-aha-bp-2025]. PCE was found to broadly miscalibrate in contemporary populations — the largest absolute risk-estimate difference between PCE and PREVENT was in Black adults (10.9% PCE vs 5.1% PREVENT)[ref:anderson-jamaim-2024].</p><p><strong>Base PREVENT-ASCVD predictors:</strong> age, sex, total cholesterol, HDL-C, SBP, eGFR, diabetes status, smoking, statin use, antihypertensive use. HbA1c and UACR are optional add-ons in CKD or DM. <strong>BMI is in the PREVENT-HF equation only</strong> — not PREVENT-ASCVD[ref:acc-aha-dys-2026].</p>"
+                "question": "Why did PREVENT replace the Pooled Cohort Equations?",
+                "answer_html": "<p>PREVENT incorporates kidney function (eGFR) and metabolic context (diabetes, optionally HbA1c and UACR), removes race as an input, and is calibrated for ages 30–79 vs PCE's 40–75[ref:khan-circ-2024][ref:khan-circ-2023-aha-statement]. The PCE was found to broadly miscalibrate in contemporary populations — the largest absolute difference between PCE and PREVENT was in Black adults (10.9% PCE vs 5.1% PREVENT)[ref:anderson-jamaim-2024]. Base predictors: age, sex, total cholesterol, HDL-C, SBP, eGFR, diabetes, smoking, statin use, antihypertensive use. BMI is in the PREVENT-HF equation only — not PREVENT-ASCVD[ref:acc-aha-dys-2026].</p>"
               },
               {
-                "question": "What are the four PREVENT-ASCVD risk tiers?",
-                "answer_html": "<p><strong>Low: </strong>&lt;3% 10-year — no statin indicated. <strong>Borderline: </strong>3% to &lt;5% — benefit-risk discussion; risk-enhancing factors support initiation (COR 2a). <strong>Intermediate: </strong>5% to &lt;10% — moderate-intensity statin (COR 1)[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. <strong>High: </strong>≥10% — high-intensity statin to achieve ≥50% LDL-C reduction (COR 1)[ref:acc-aha-dys-2026].</p><p>These thresholds were lowered from the legacy PCE tiers (&lt;5/5–7.5/7.5–20/&gt;20%)[ref:michos-nejm-2019] specifically so PREVENT identifies approximately the same number of statin-eligible adults as the old PCE thresholds did (~25–26 million)[ref:diao-jama-2024]. Applying PREVENT to the old PCE thresholds would have de-eligibilized ~14–17 million adults — disproportionately Black adults — which the 2026 recalibration was designed to mitigate[ref:diao-jama-2024][ref:anderson-jamaim-2024]. PREVENT validation in MESA and diverse health-care cohorts confirms better cross-race calibration than PCE[ref:cho-jacc-2025][ref:murphy-jacc-adv-2025]; Asian/NHPI subgroup performance has been pressure-tested separately[ref:au-jamano-2026].</p>"
+                "question": "What are the 2026 risk-enhancing factors?",
+                "answer_html": "<p>Risk enhancers support statin initiation in borderline-risk patients (COR 2a)[ref:acc-aha-dys-2026]. The 2026 list includes:</p>\n<ul><li>Family history of premature ASCVD</li><li>Higher-risk ancestry (South Asian, Filipino)</li><li>High polygenic risk score (when measured)</li><li>Chronic inflammatory disease (SLE, RA, advanced psoriasis)</li><li>Lp(a) ≥125 nmol/L (or ≥50 mg/dL)</li><li>hsCRP ≥2 mg/L on &gt;1 occasion — 2 successive occasions in borderline tier specifically supports high-intensity statin (COR 2a, LOE B-R)[ref:acc-aha-dys-2026]</li><li>Triglycerides persistently ≥175 mg/dL nonfasting or ≥150 mg/dL fasting</li><li>CKM (cardiovascular-kidney-metabolic) syndrome</li><li>LDL-C persistently 160–189, non-HDL-C 190–219, or ApoB ≥120 mg/dL</li><li>Reproductive markers: premature menopause, preeclampsia, gestational diabetes, gestational HTN, preterm delivery, early menarche</li></ul>\n<p>Note: ABI &lt;0.9 is no longer a standalone risk enhancer — symptomatic PAD with ABI &lt;0.85 is now captured under VHR major events[ref:acc-aha-dys-2026-jacc]. The 2018 prerequisite of LDL ≥70 mg/dL at borderline is also removed.</p>"
               },
               {
-                "question": "What are the 2026 risk-enhancing factors (Table 13)?",
-                "answer_html": "<p>Risk enhancers formally support statin initiation in <strong>borderline-tier</strong> primary prevention (COR 2a)[ref:acc-aha-dys-2026]. The 2026 list (departures from 2018[ref:grundy-2018-cholesterol] in italics):</p><ul><li>Family history of premature ASCVD</li><li><em>Higher-risk ancestry (e.g., South Asian, Filipino)</em></li><li><em>High polygenic risk score (when measured)</em></li><li>Chronic inflammatory disease (SLE, RA, advanced psoriasis, inflammatory arthritis)</li><li>Lp(a) ≥125 nmol/L (or ≥50 mg/dL)</li><li>hsCRP ≥2 mg/L on &gt;1 occasion — and on 2 successive occasions in the borderline tier specifically supports <em>high-intensity</em> statin (COR 2a, LOE B-R)[ref:acc-aha-dys-2026]</li><li>Triglycerides persistently ≥175 mg/dL nonfasting or ≥150 mg/dL fasting</li><li><em>CKM (cardiovascular-kidney-metabolic) syndrome</em></li><li>LDL-C persistently 160–189, non-HDL-C 190–219, or <em>ApoB ≥120 mg/dL</em> (lowered from 2018's ≥130)</li><li><em>Reproductive risk markers</em>: premature menopause, preeclampsia, gestational diabetes, gestational HTN, preterm delivery, early menarche</li></ul><p><strong>ABI &lt;0.9 has been dropped</strong> as a standalone risk enhancer — symptomatic PAD with ABI &lt;0.85 is now captured under VHR major events instead[ref:acc-aha-dys-2026-jacc]. The 2018 prerequisite of LDL ≥70 mg/dL at borderline is also gone.</p>"
+                "question": "My patient is 30–59 with low 10-year risk. Can I use PREVENT differently?",
+                "answer_html": "<p>Yes. Adults 30–59 with 10-year PREVENT &lt;3% and 30-year PREVENT ≥10% may reasonably initiate a moderate-intensity statin (COR 2a, LOE C-LD)[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. LOE is limited — no RCTs in this specific cohort — and the guideline emphasizes a trial of health-behavior optimization first. For adults under 30 or over 79, PREVENT is not calibrated; use clinical judgment with risk-enhancing factors[ref:acc-aha-dys-2026][ref:khan-circ-2024].</p>"
               },
               {
-                "question": "Does PREVENT cover younger adults at low 10-year but high lifetime risk?",
-                "answer_html": "<p>Yes. The 2026 guideline adds a new pathway: in adults <strong>30–59 with low 10-year risk (&lt;3%)</strong>, a 30-year PREVENT-ASCVD ≥10% supports moderate-intensity statin initiation (COR 2a, LOE C-LD)[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. LOE is C-LD (limited data) — no RCTs exist in this specific cohort — and the guideline emphasizes a <strong>trial of health-behavior optimization</strong> first. Krishnan 2025 provides percentile distributions of 30-year PREVENT risk across age and sex[ref:krishnan-jacc-2025].</p><p>For adults &lt;30 or &gt;79, use clinical judgment plus risk-enhancing factors — PREVENT is not calibrated for those age bands[ref:acc-aha-dys-2026][ref:khan-circ-2024]. For primary prevention &gt;79, statin therapy can be considered alongside lifestyle interventions with comorbidity and life-expectancy weighing.</p>"
-              },
-              {
-                "question": "What if a long-term statin patient now reclassifies to a lower tier under PREVENT?",
-                "answer_html": "<p><strong>Do not unilaterally de-escalate.</strong> Under the old PCE thresholds applied to PREVENT, ~4 million currently-treated adults would have lost statin eligibility[ref:anderson-jamaim-2024]. The 2026 ≥3% threshold was specifically designed to narrow that gap. Both the 2026 ACC/AHA guideline[ref:acc-aha-dys-2026] and the 2026 VA/DoD Lipid CPG[ref:va-dod-lipid-2026] frame discontinuation as a benefit-risk discussion between the patient and the provider — not an automatic consequence of reclassification. Document tier change, consider risk enhancers + CAC, and engage shared decision-making before any de-escalation.</p>"
+                "question": "A long-term statin patient now reclassifies lower under PREVENT. Do I de-escalate?",
+                "answer_html": "<p>Do not unilaterally de-escalate. Under the old PCE thresholds applied to PREVENT, ~4 million currently-treated adults would have lost statin eligibility[ref:anderson-jamaim-2024]. The 2026 ≥3% threshold was specifically designed to narrow that gap. The 2026 ACC/AHA guideline and the 2026 VA/DoD Lipid CPG both frame any de-escalation as a benefit-risk discussion[ref:acc-aha-dys-2026][ref:va-dod-lipid-2026] — not an automatic consequence of reclassification. Document the tier change, consider risk enhancers and CAC, and engage shared decision-making.</p>"
               }
             ]
           },
@@ -117,40 +114,38 @@
             "referenced_by": [
               "statin-indication"
             ],
-            "items": [
+            "first_layer_html": "<p>Three COR 1 indications for statin initiation in 2026[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]:</p>\n<ul><li>PREVENT-ASCVD ≥10% — high-intensity statin, targeting ≥50% LDL-C reduction</li><li>LDL-C ≥190 mg/dL — high-intensity statin regardless of risk score; evaluate for FH (see [ldl-190])</li><li>Diabetes, age 40–75 — at minimum moderate-intensity statin[ref:ada-2026-cv]</li></ul>\n<p>For all indications — including COR 1 — statin initiation is a benefit-risk discussion. COR 1 means \"should be done\"; it does not mean \"without conversation.\" Document the discussion, patient preference, and clinical factors that drove the decision.</p>",
+            "sub_questions": [
               {
-                "question": "What are the COR 1 statin-initiation indications?",
-                "answer_html": "<p><strong>Three COR 1 statin-initiation indications</strong> in the 2026 guideline[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]:</p><ol><li><strong>PREVENT-ASCVD ≥10%</strong> — high-intensity statin to achieve ≥50% LDL-C reduction.</li><li><strong>LDL-C ≥190 mg/dL</strong> — high-intensity statin regardless of risk score; evaluate for FH and exclude secondary causes (see <em>ldl-190</em>).</li><li><strong>Diabetes age 40–75</strong> — at minimum moderate-intensity statin[ref:ada-2026-cv].</li></ol><p>The 2026 guideline explicitly frames statin initiation as a <strong>benefit-risk discussion</strong> across all risk levels — including COR 1 indications. COR 1 means &quot;should be done&quot;; it does <em>not</em> mean &quot;without discussion.&quot; Document the conversation, the patient's preference, and any clinical factors that drove the decision.</p>"
+                "question": "When is a statin reasonable but not COR 1?",
+                "answer_html": "<p>Intermediate risk (5–&lt;10%) is COR 1 in 2026 — a meaningful upgrade from prior guidelines where it was COR 2a[ref:acc-aha-dys-2026]. COR 2a indications include: borderline-risk (3–&lt;5%) with risk enhancers; 30-year PREVENT ≥10% in adults 30–59 with low 10-year risk; CAC ≥1 in any tier (LOE B-NR); high-intensity statin in intermediate-risk patients with hsCRP ≥2 mg/L on 2 successive occasions (COR 2a, LOE B-R)[ref:acc-aha-dys-2026].</p>"
               },
               {
-                "question": "When else might a statin be reasonable (COR 2a)?",
-                "answer_html": "<p><strong>Intermediate risk (5% to &lt;10%)</strong> is COR 1 in 2026 — moderate-intensity statin recommended[ref:acc-aha-dys-2026]. This is a meaningful change from earlier framing of intermediate as COR 2a.</p><p>COR 2a indications include: <strong>borderline-risk (3% to &lt;5%) with risk enhancers</strong>[ref:acc-aha-dys-2026]; <strong>30-year PREVENT ≥10% in adults 30–59 with low 10-yr risk</strong>; <strong>CAC ≥1 in any tier</strong> (LOE B-NR — see <em>statin-hesitant</em>); and <strong>high-intensity statin in intermediate-risk patients with hsCRP ≥2 mg/L on 2 successive occasions</strong> (COR 2a, LOE B-R).</p>"
-              },
-              {
-                "question": "What is the SUPD HEDIS measure for diabetes patients?",
-                "answer_html": "<p>SUPD (Statin Use in Persons with Diabetes) is a HEDIS measure tracked via <strong>pharmacy-claim dispensing</strong> for adults age 40–75 with diabetes[ref:ada-2026-cv]. The HEDIS national 90th percentile has historically been ~80–85% for commercial plans (lower for Medicaid). The Crystal Run organizational target of ~90% is an internal expectation, <strong>not the HEDIS national benchmark</strong>. The HEDIS measure rewards dispensing — not chart documentation of the discussion — but local practice expectation is that statin therapy be addressed and documented at every diabetic visit even when the patient declines.</p><p>This aligns with the 2026 guideline's COR 1 recommendation for at-least-moderate-intensity statin in adults 40–75 with diabetes[ref:acc-aha-dys-2026].</p>"
+                "question": "What's the SUPD HEDIS expectation for my diabetes patients?",
+                "answer_html": "<p>See Context section for the Crystal Run organizational SUPD target (~90% pharmacy-claim dispensing) vs the HEDIS national benchmark (~80–85% commercial)[ref:ada-2026-cv]. Local practice expectation: statin therapy addressed and documented at every diabetic visit, including when the patient declines. This aligns with the 2026 guideline's COR 1 recommendation for at-minimum moderate-intensity statin in adults 40–75 with diabetes[ref:acc-aha-dys-2026].</p>"
               }
             ]
           },
           {
             "faq_id": "ldl-target",
             "topic": "LDL Targets",
-            "title": "LDL-C goals by risk tier",
+            "title": "LDL-C and non-HDL-C goals by risk tier",
             "referenced_by": [
               "ldl-target"
             ],
-            "items": [
+            "first_layer_html": "<table><tr><td><p><strong>Tier</strong></p></td><td><p><strong>LDL-C goal</strong></p></td><td><p><strong>Non-HDL-C goal</strong></p></td><td><p><strong>COR</strong></p></td></tr><tr><td><p>VHR (secondary prevention)</p></td><td><p>&lt;55 mg/dL</p></td><td><p>&lt;85 mg/dL</p></td><td><p>COR 1</p></td></tr><tr><td><p>Non-VHR ASCVD</p></td><td><p>&lt;70 mg/dL (or &lt;55, COR 2a)</p></td><td><p>&lt;100 mg/dL</p></td><td><p>COR 1</p></td></tr><tr><td><p>High-risk primary prevention (PREVENT ≥10%)</p></td><td><p>&lt;70 mg/dL</p></td><td><p>&lt;100 mg/dL</p></td><td><p>COR 2a</p></td></tr><tr><td><p>Borderline/intermediate PP (3–&lt;10%) on statin</p></td><td><p>&lt;100 mg/dL</p></td><td><p>&lt;130 mg/dL</p></td><td><p>—</p></td></tr><tr><td><p>Severe primary hypercholesterolemia (LDL ≥190, no ASCVD)</p></td><td><p>3-tier — see [ldl-190]</p></td><td><p>&lt;130 mg/dL (Tier 1)</p></td><td><p>COR 1</p></td></tr></table>\n<div class=\"cm-callout\">The trigger for nonstatin add-on therapy is failure to reach the goal — not a fixed ≥70 mg/dL threshold. A VHR patient at LDL-C 60 on maximally tolerated statin is already a candidate[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc] for ezetimibe, PCSK9 mAb, or bempedoic acid.</div>",
+            "sub_questions": [
               {
-                "question": "What are the LDL-C goals by tier in 2026?",
-                "answer_html": "<p>The 2026 guideline reinstates explicit numeric LDL-C goals (a departure from the 2018 percentage-reduction-only framing[ref:grundy-2018-cholesterol]) and pairs each with a non-HDL-C co-primary target — see the <em>co-primary-targets</em> FAQ for the full table[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc].</p><p><strong>Secondary prevention</strong></p><ul><li><strong>Very High Risk (VHR): </strong>LDL-C &lt;55 mg/dL (COR 1, LOE A) — supported directly by Ez-PAVE, the first head-to-head RCT of &lt;55 vs &lt;70 (HR 0.67, 95% CI 0.52–0.86 for 3-year major CV events)[ref:lee-nejm-2026], and by IMPROVE-IT[ref:cannon-nejm-2015], FOURIER[ref:fourier-2017], and ODYSSEY OUTCOMES[ref:odyssey-outcomes-2018].</li><li><strong>Non-VHR ASCVD: </strong>LDL-C &lt;70 mg/dL (COR 1) standard, with a <strong>COR 2a option to intensify to &lt;55 mg/dL</strong> based on Ez-PAVE.</li></ul><p><strong>Primary prevention</strong></p><ul><li><strong>High risk (PREVENT ≥10%): </strong>LDL-C &lt;70 mg/dL (COR 2a)[ref:abbasi-jama-2026].</li><li><strong>Borderline/intermediate (PREVENT 3% to &lt;10%) on statin: </strong>LDL-C &lt;100 mg/dL.</li><li><strong>Severe primary hypercholesterolemia (LDL ≥190, no ASCVD): </strong>3-tier — see <em>ldl-190</em>.</li></ul><p>The trigger for nonstatin add-on therapy is failure to achieve the goal, <strong>not</strong> a fixed ≥70 threshold. A VHR patient at LDL-C 60 on maximally tolerated statin is already a candidate for ezetimibe / PCSK9 mAb / bempedoic acid escalation.</p>"
-              },
-              {
-                "question": "What defines Very High Risk (VHR)?",
-                "answer_html": "<p>VHR per the 2022 ACC ECDP[ref:acc-2022-decisionpathway], reaffirmed by the 2023 AHA/ACC chronic-coronary-disease guideline[ref:aha-acc-ccd-2023] and the 2026 ACC/AHA Dyslipidemia Guideline[ref:acc-aha-dys-2026]:</p><p><strong>≥2 major ASCVD events:</strong> recent ACS within 12 months, prior MI, ischemic stroke, or symptomatic PAD with ABI &lt;0.85 or prior revascularization/amputation.</p><p><strong>OR 1 major ASCVD event + ≥2 high-risk conditions</strong> (the count threshold is 2, not 1 — the older &quot;1 + 1&quot; framing under-classifies)[ref:aha-acc-ccd-2023]:</p><ul><li>Age ≥65</li><li>Heterozygous familial hypercholesterolemia (HeFH)</li><li>Prior CABG or PCI outside the index event</li><li>Diabetes mellitus</li><li>Hypertension (no &quot;poorly controlled&quot; modifier — guideline uses unqualified &quot;hypertension&quot;)</li><li>Current smoking</li><li>LDL-C ≥100 mg/dL despite maximally tolerated statin <strong>and ezetimibe</strong></li><li>History of congestive heart failure</li></ul><p><strong>CKD note:</strong> The 2026 ACC/AHA Dyslipidemia Guideline (Section 2.1) <em>omits CKD</em> from the VHR high-risk features list — a change from the 2022 ECDP and 2023 CCD[ref:acc-aha-dys-2026]. CKD + ASCVD patients still receive aggressive LDL-C goals (typically &lt;55 mg/dL) via the CKD-specific pathway in Section 4.2.8; CKD is no longer itself a VHR-escalator alongside the seven conditions above.</p><p>For VHR patients ≥75 in secondary prevention, high-intensity statin is appropriate at any age — the 2026 guideline removed the prior age ≤75 restriction[ref:acc-aha-dys-2026]. Don't de-escalate based on very-low achieved LDL alone.</p>"
+                "question": "What are the VHR criteria?",
+                "answer_html": "<p>VHR = ≥2 major ASCVD events, OR 1 major ASCVD event + ≥2 high-risk conditions (the count is 2, not 1 — a \"1 + 1\" count under-classifies[ref:aha-acc-ccd-2023]).</p>\n<p>Major ASCVD events: recent ACS within 12 months, prior MI, ischemic stroke, symptomatic PAD[ref:acc-2022-decisionpathway][ref:aha-acc-ccd-2023] with ABI &lt;0.85 or prior revascularization/amputation.</p>\n<p>High-risk conditions: age ≥65; HeFH; prior CABG or PCI outside the index event; diabetes mellitus; hypertension; current smoking; LDL-C ≥100 despite max statin + ezetimibe; history of CHF.</p>\n<div class=\"cm-callout\">CKD note (2026 change): The 2026 ACC/AHA Dyslipidemia Guideline removes CKD from the VHR high-risk features list[ref:acc-aha-dys-2026] — a change from the 2022 ECDP and 2023 CCD. CKD + ASCVD patients still receive aggressive LDL-C goals (&lt;55 mg/dL) via the CKD-specific pathway (Section 4.2.8); CKD no longer itself escalates VHR classification alongside the eight conditions above.</div>\n<p>For VHR patients ≥75, high-intensity statin is appropriate at any age — the 2026 guideline removed the prior age ≤75 restriction[ref:acc-aha-dys-2026]. Don't de-escalate based on very-low achieved LDL alone.</p>"
               },
               {
                 "question": "Does the VHR vs non-VHR distinction still matter?",
-                "answer_html": "<p>For now, yes — but the writing committee has signaled that future guideline revisions may collapse VHR vs non-VHR ASCVD into a single &lt;55 mg/dL pathway pending VESALIUS-CV trial results[ref:blumenthal-circ-2026-progress]. The 2026 COR 2a option to intensify non-VHR ASCVD to &lt;55 is an early step in that direction. Module structure stays VHR-vs-non-VHR for now; see <em>whats-new-2023-2024</em> for the forward-looking framing.</p>"
+                "answer_html": "<p>For now, yes — but the 2026 writing committee has signaled that future revisions may collapse VHR vs non-VHR ASCVD into a single &lt;55 mg/dL pathway, pending VESALIUS-CV trial results[ref:blumenthal-circ-2026-progress]. The 2026 COR 2a option to intensify non-VHR ASCVD to &lt;55 is an early step. Module structure stays VHR-vs-non-VHR for now.</p>"
+              },
+              {
+                "question": "Is the <55 mg/dL target safe at very low achieved LDL-C?",
+                "answer_html": "<p>Yes. FOURIER prespecified secondary analysis showed no excess adverse events at LDL &lt;0.5 mmol/L (~19 mg/dL)[ref:giugliano-lancet-2017]. EBBINGHAUS found no neurocognitive impairment with PCSK9 mAb at very low LDL[ref:rosenson-jacc-2018]. The AHA Statin Safety Scientific Statement found no association between aggressive LDL-C lowering and dementia, cognitive impairment, or hemorrhagic stroke[ref:newman-atvb-2019]. Median achieved LDL: FOURIER ~30 mg/dL; ODYSSEY OUTCOMES ~40 mg/dL; IMPROVE-IT ezetimibe arm ~53 mg/dL[ref:cannon-nejm-2015][ref:sabatine-jamacardio-2018].</p>"
               }
             ]
           },
@@ -158,34 +153,24 @@
             "faq_id": "co-primary-targets",
             "topic": "Co-Primary Targets",
             "title": "LDL-C, non-HDL-C, ApoB, and Lp(a)",
-            "referenced_by": [
-              "ldl-target",
-              "advanced-markers"
-            ],
-            "items": [
-              {
-                "question": "Why is non-HDL-C now a co-primary target alongside LDL-C?",
-                "answer_html": "<p>The 2026 ACC/AHA guideline reinstates LDL-C and non-HDL-C as <strong>co-primary treatment goals across every risk tier</strong>[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc] — a departure from the 2018 percentage-reduction-only framing for primary prevention. Non-HDL-C is calculated as total cholesterol minus HDL-C — available on every standard panel, no fasting needed[ref:raja-atherosclerosis-2023]. It captures all atherogenic apoB-containing lipoproteins (LDL + VLDL + IDL + Lp(a) + chylomicron remnants), so it doesn't miss TG-rich remnants.</p><p>Non-HDL-C is also more reliable than calculated LDL-C when triglycerides are elevated. Friedewald-calculated LDL-C is <em>progressively</em> less accurate as TG rises (rather than abruptly inaccurate at any one threshold)[ref:sajja-jamano-2021], and is not reported at TG ≥400. Martin/Hopkins or Sampson/NIH equations outperform Friedewald in all patients (COR 1, LOE B-NR)[ref:sajja-jacc-2022][ref:sampson-jamacardio-2020] and are the recommended LDL-C estimation methods.</p>"
-              },
-              {
-                "question": "What are the per-tier LDL-C and non-HDL-C goals?",
-                "answer_html": "<p>Goals from 2026 ACC/AHA[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]:</p><table class=\"target-tiers\"><thead><tr><th>Tier</th><th>LDL-C goal</th><th>Non-HDL-C goal</th></tr></thead><tbody><tr><td>VHR (secondary prevention)</td><td>&lt;55 mg/dL (COR 1)</td><td>&lt;85 mg/dL</td></tr><tr><td>Non-VHR ASCVD</td><td>&lt;70 mg/dL (COR 1) — or &lt;55 (COR 2a)</td><td>&lt;100 mg/dL</td></tr><tr><td>High-risk PP (PREVENT ≥10%)</td><td>&lt;70 mg/dL (COR 2a)</td><td>&lt;100 mg/dL</td></tr><tr><td>Borderline/intermediate PP (3% to &lt;10%) on statin</td><td>&lt;100 mg/dL</td><td>&lt;130 mg/dL</td></tr><tr><td>Severe primary hyperchol (LDL ≥190 no ASCVD)</td><td>3-tier (see <em>ldl-190</em>)</td><td>&lt;130 mg/dL (Tier 1)</td></tr></tbody></table>"
-              },
+            "referenced_by": [],
+            "first_layer_html": "<p>The 2026 ACC/AHA guideline reinstates LDL-C and non-HDL-C as co-primary treatment targets across every risk tier[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. Non-HDL-C (= total cholesterol − HDL-C) is available on every standard panel without fasting, captures all atherogenic apoB-containing lipoproteins[ref:raja-atherosclerosis-2023], and is more reliable than calculated LDL-C when triglycerides are elevated. For LDL-C estimation, Martin/Hopkins or Sampson/NIH equations outperform Friedewald in all patients (COR 1, LOE B-NR)[ref:sajja-jacc-2022][ref:sampson-jamacardio-2020] and should be used preferentially — particularly when TG is elevated.</p>",
+            "sub_questions": [
               {
                 "question": "When should I order ApoB?",
-                "answer_html": "<p>The 2026 guideline gives ApoB <strong>two recommendations</strong>[ref:acc-aha-dys-2026]:</p><ul><li><strong>COR 2a in adults on lipid-lowering therapy</strong>, particularly with ASCVD, CKM syndrome, type 2 diabetes, or elevated triglycerides — to guide further intensification once LDL-C and/or non-HDL-C goals are achieved.</li><li><strong>COR 2b in untreated adults</strong> — to enhance risk assessment or characterize inherited lipid disorders, particularly with family history of premature ASCVD, severe hypercholesterolemia, or suspected FH.</li></ul><p><strong>The 2026 ACC/AHA does not specify a universal numeric ApoB target.</strong> The only ACC/AHA-specified ApoB numeric is &lt;55 mg/dL for severe hypercholesterolemia + ASCVD (Section 4.2.4.3). The widely-cited ApoB &lt;65 mg/dL VHR target derives from <strong>ESC/EAS 2019</strong>[ref:fegers-wustrow-jacc-2022] — frequently confused source. Outside the severe-FH+ASCVD context, &quot;elevated ApoB&quot; under 2026 ACC/AHA means intensifying therapy until LDL-C and non-HDL-C goals are achieved, rather than chasing a specific ApoB number.</p><p><strong>Discordance triggers</strong> where ApoB clarifies atherogenic burden: TG ≥150 mg/dL (the 2026 ApoB-section threshold), insulin resistance / metabolic syndrome / T2D, CKM syndrome, familial combined hyperlipidemia. Note the risk-enhancer-table TG threshold is different (≥175 nonfasting / ≥150 fasting) — don't conflate the two contexts.</p>"
+                "answer_html": "<p>ApoB is most useful once LDL-C and non-HDL-C goals are at or near target, to assess residual atherogenic burden. The 2026 recommendations:</p>\n<ul><li>COR 2a on lipid-lowering therapy — particularly with ASCVD, CKM syndrome, T2D, or TG ≥150 mg/dL — to guide further intensification after LDL-C/non-HDL-C goals are achieved[ref:acc-aha-dys-2026]</li><li>COR 2b in untreated adults — to enhance risk assessment or characterize inherited lipid disorders, especially with FH suspicion or premature ASCVD family history</li></ul>\n<p>The 2026 ACC/AHA does not specify a universal numeric ApoB target. The only ACC/AHA-specified ApoB numeric is &lt;55 mg/dL for severe hypercholesterolemia + ASCVD (Section 4.2.4.3). The widely-cited ApoB &lt;65 mg/dL derives from ESC/EAS 2019, not 2026 ACC/AHA[ref:fegers-wustrow-jacc-2022] — do not attribute to these guidelines.</p>"
               },
               {
                 "question": "When should I order Lp(a) and how do I interpret it?",
-                "answer_html": "<p><strong>Lp(a) measurement is COR 1 — once in every adult — for ASCVD risk assessment</strong>[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. This is a major upgrade from 2018, where elevated Lp(a) was a risk-enhancing factor only.</p><p><strong>2026 Table 4 thresholds:</strong> 75–124 nmol/L = 1.2× risk; ≥125 (or ≥50 mg/dL) = 1.4×; ≥250 (or ≥100 mg/dL) = 2×; ≥350 = 3×; ≥430 = 4×. Operationally, &quot;≥125 elevated / ≥250 confers ≥2-fold risk&quot; is a reasonable simplification consistent with most US lab reporting. The often-cited &quot;≥175 nmol/L very-high&quot; threshold is from the EAS consensus, not 2026 ACC/AHA — use the actual Table 4 schema or the simpler framing.</p><p><strong>Single measurement is sufficient</strong> in most patients — Lp(a) is predominantly genetically determined and stable. Document in the lifetime problem list / family history section. Secondary causes that could shift Lp(a) include kidney/liver/thyroid disease, pregnancy, menopause, some medications, and inflammation (which can either increase or decrease Lp(a))[ref:acc-aha-dys-2026]. Lab reports use mg/dL or nmol/L — mg/dL × ~2.5 ≈ nmol/L is approximate, not exact, because particle apo(a) isoform size varies.</p>"
+                "answer_html": "<p>Lp(a) is COR 1 once-in-lifetime in every adult — a major upgrade from 2018, where elevated Lp(a) was a risk enhancer only[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc].</p>\n<p>2026 risk thresholds (Table 4):</p>\n<ul><li>75–124 nmol/L: ~1.2× risk</li><li>≥125 nmol/L (≥50 mg/dL): ~1.4× risk</li><li>≥250 nmol/L (≥100 mg/dL): ≥2× risk</li><li>≥350 nmol/L: ~3× risk; ≥430 nmol/L: ~4× risk</li></ul>\n<p>Single measurement is sufficient in most patients — Lp(a) is predominantly genetically determined and stable. Document in the lifetime problem list. Note: the often-cited ≥175 nmol/L \"very-high\" threshold is from the EAS consensus, not 2026 ACC/AHA. Note also: mg/dL × ~2.5 ≈ nmol/L is approximate, not exact, due to apo(a) isoform size variation[ref:acc-aha-dys-2026].</p>"
               },
               {
-                "question": "How do current and emerging therapies affect Lp(a)?",
-                "answer_html": "<p>Statins do <strong>not</strong> meaningfully lower Lp(a) — Xie 2025 meta-analysis (147 RCTs, 145,314 subjects) found a mean +1.1 mg/dL absolute change with no significant clinical effect[ref:xie-atherosclerosis-2025]. The often-cited &quot;statins raise Lp(a) 10–15%&quot; figure is not supported.</p><p><strong>PCSK9 mAbs reduce Lp(a) ~26% pooled</strong> (15–30% range)[ref:xie-atherosclerosis-2025][ref:qiao-drugs-2026]; <strong>inclisiran ~22%</strong> — directionally lower but not statistically significantly different from PCSK9 mAbs per Mulligan JCL 2026 (inclisiran vs evolocumab +4.9%, P=0.18)[ref:mulligan-jcl-2026]. Niacin reduces Lp(a) ~37% but is deprecated for ASCVD prevention given AIM-HIGH and HPS2-THRIVE outcomes[ref:albers-jacc-2013][ref:tsimikas-jacc-2017].</p><p><strong>For ASCVD patients with elevated Lp(a) not at LDL-C goal, the 2026 guideline directs toward a PCSK9 mAb with proven CV benefit (evolocumab, alirocumab) over inclisiran</strong> — the rationale is the CV-outcomes evidence base (FOURIER, ODYSSEY OUTCOMES) rather than the small Lp(a)-magnitude differential. ORION-4 and VICTORION-2P CVOTs for inclisiran are pending.</p><p>No FDA-approved Lp(a)-specific therapy is currently available. Investigational antisense and siRNA agents reduce Lp(a) up to 80–98% in Phase 2 (pelacarsen ~80%, olpasiran/zerlasiran/lepodisiran up to 98%); muvalaplin (oral, ~65%) is the first oral candidate[ref:nordestgaard-lancet-2024][ref:malick-jacc-2023]. Phase 3 outcomes trials (Lp(a)HORIZON, OCEAN(a), ALPACA) are pending.</p>"
+                "question": "How do current therapies affect Lp(a)?",
+                "answer_html": "<p>Statins do not meaningfully lower Lp(a) — Xie 2025 meta-analysis (147 RCTs, 145,314 subjects) found a mean +1.1 mg/dL absolute change with no significant clinical effect[ref:xie-atherosclerosis-2025]. The often-cited \"statins raise Lp(a) 10–15%\" figure is not supported.</p>\n<p>PCSK9 mAbs reduce Lp(a) ~26% pooled; inclisiran ~22%[ref:xie-atherosclerosis-2025][ref:qiao-drugs-2026]. For ASCVD patients with elevated Lp(a) not at LDL-C goal, the 2026 guideline directs toward a PCSK9 mAb with proven CV benefit (evolocumab, alirocumab) — driven by FOURIER/ODYSSEY outcomes evidence, not by the Lp(a) magnitude differential, which is directional but not statistically significant (Mulligan JCL 2026)[ref:mulligan-jcl-2026].</p>\n<p>No FDA-approved Lp(a)-specific therapy is currently available. Investigational agents (pelacarsen, olpasiran, zerlasiran, lepodisiran, muvalaplin[ref:nordestgaard-lancet-2024][ref:malick-jacc-2023]) are in Phase 2–3 trials. Phase 3 outcomes trials (Lp(a)HORIZON, OCEAN(a), ALPACA) are pending.</p>"
               },
               {
-                "question": "Operationally, who orders what at the visit?",
-                "answer_html": "<p>For adults who haven't had Lp(a) measured, order it once with the next routine lipid draw and document in the lifetime problem list. ApoB is most useful for patients on lipid-lowering therapy with ASCVD, CKM syndrome, T2D, or TG ≥150 mg/dL — once LDL-C and non-HDL-C goals are at or near target, ApoB guides whether further intensification is warranted. Both are standard lab tests covered by most commercial and Medicare plans without prior authorization (some plans require a diagnosis code such as E78.5 for Lp(a)). OOP cost is typically $20–60 for ApoB and $30–80 for Lp(a) when uncovered. Both must be ordered specifically — neither is auto-included in routine cholesterol panels.</p>"
+                "question": "Operationally, when and how do I order ApoB and Lp(a) at a visit?",
+                "answer_html": "<p>For adults without a prior Lp(a): order it once with the next routine lipid draw and document in the lifetime problem list. ApoB: most useful in patients on lipid-lowering therapy with ASCVD, CKM, T2D, or TG ≥150 mg/dL, once LDL-C and non-HDL-C goals are near target. Both tests are covered by most commercial and Medicare plans without prior authorization (some plans require a diagnosis code for Lp(a), e.g., E78.5). Out-of-pocket cost when uncovered: ~$20–60 ApoB / ~$30–80 Lp(a). Neither is auto-included in routine lipid panels — order specifically.</p>"
               }
             ]
           },
@@ -196,62 +181,11 @@
             "referenced_by": [
               "med-plan"
             ],
-            "items": [
+            "first_layer_html": "<p>Documentation must include: statin name and intensity (low/moderate/high), whether the patient is at LDL-C and non-HDL-C goals, next step if not at goal, and follow-up interval. Order a lipid panel 4–12 weeks after initiation or any dose change, then every 6–12 months (COR 1, LOE A)[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. Fasting is not required in most cases — nonfasting is the default unless the patient has known hypertriglyceridemia.</p>\n<table><tr><td><p><strong>Intensity</strong></p></td><td><p><strong>Preferred agents</strong></p></td><td><p><strong>Other agents</strong></p></td><td><p><strong>LDL-C ↓</strong></p></td></tr><tr><td><p>High</p></td><td><p>Atorvastatin 40–80 mg; Rosuvastatin 20–40 mg</p></td><td><p>—</p></td><td><p>≥50%</p></td></tr><tr><td><p>Moderate</p></td><td><p>Atorvastatin 10–20 mg; Rosuvastatin 5–10 mg</p></td><td><p>Simvastatin 20–40; Pravastatin 40–80; Lovastatin 40 (80); Fluvastatin XL 80 or 40 BID; Pitavastatin 1–4</p></td><td><p>30–49%</p></td></tr><tr><td><p>Low</p></td><td><p>—</p></td><td><p>Simvastatin 10; Pravastatin 10–20; Lovastatin 20; Fluvastatin 20–40</p></td><td><p>&lt;30%</p></td></tr></table>\n<div class=\"cm-callout\">Simvastatin 80 mg: FDA wording is \"not recommended\" for new initiation or titration (myopathy/rhabdomyolysis risk) — practical effect is equivalent to a contraindication[ref:acc-aha-dys-2026]. Default to a preferred agent (atorvastatin or rosuvastatin) for new statin initiation and for post-intolerance rechallenge.</div>",
+            "sub_questions": [
               {
-                "question": "What must be in the medication plan documentation?",
-                "answer_html": "<p>Current statin name and intensity (low / moderate / high), whether the patient is at LDL-C and non-HDL-C goals, next step if not at goal (intensify statin, add ezetimibe / PCSK9 mAb / bempedoic acid — see <em>not-at-goal</em> and <em>escalation-options</em>), and planned follow-up interval. <strong>Lipid panel at 4–12 weeks after initiation or any dose change, then every 6–12 months thereafter</strong> (COR 1, LOE A)[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc].</p><p><strong>Fasting is not required</strong> in most cases — order a nonfasting lipid panel unless the patient has known hypertriglyceridemia. Epic order sets for routine repeat lipids can default to nonfasting.</p>"
-              },
-              {
-                "question": "What are the 2026 statin intensity tiers?",
-                "answer_html": "<p>Per 2026 Table 6[ref:acc-aha-dys-2026]:</p><table class=\"statin-intensity\"><thead><tr><th>Intensity</th><th>Preferred</th><th>Other</th></tr></thead><tbody><tr><td>High (≥50% LDL-C reduction)</td><td>Atorvastatin 40–80, Rosuvastatin 20–40</td><td>—</td></tr><tr><td>Moderate (30–49%)</td><td>Atorvastatin 10–20, Rosuvastatin 5–10</td><td>Simvastatin 20–40, Pravastatin 40–80, Lovastatin 40 (80), Fluvastatin XL 80 or 40 BID, Pitavastatin 1–4</td></tr><tr><td>Low (&lt;30%)</td><td>—</td><td>Simvastatin 10, Pravastatin 10–20, Lovastatin 20, Fluvastatin 20–40</td></tr></tbody></table><p>2026 distinguishes <strong>Preferred Statins</strong> (atorvastatin, rosuvastatin) from <strong>Other Statins</strong> within each tier. Default to a preferred agent for statin-naïve initiation and for post-intolerance rechallenge.</p><p><strong>Simvastatin 80 mg = FDA &quot;not recommended&quot;</strong> for new initiation or titration (myopathy/rhabdomyolysis risk) — practical effect identical to contraindication, but the FDA wording is &quot;not recommended.&quot;</p>"
-              },
-              {
-                "question": "Should I monitor liver enzymes or CK on statin therapy?",
-                "answer_html": "<p><strong>Routine ALT (hepatic function) monitoring on stable statin therapy is COR 3 No Benefit (LOE B-NR)</strong>[ref:acc-aha-dys-2026]. The 2026 follow-up COR 1 LOE A recommendation specifies a <strong>lipid profile only</strong> at 4–12 weeks and 6–12 months — not ALT. Drop the routine ALT cadence; check ALT only when there are severe symptoms suggestive of hepatotoxicity.</p><p><strong>Routine CK monitoring is also COR 3 No Benefit (LOE A)</strong>. Discontinuation thresholds (ALT &gt;3× ULN with symptoms; CK &gt;10× ULN with symptoms) come from FDA labeling and clinical practice — they are not formally restated as 2026 recommendations. See <em>statin-intolerance</em> for the symptomatic-rechallenge pathway.</p>"
-              }
-            ]
-          },
-          {
-            "faq_id": "very-high-risk",
-            "topic": "Very High Risk",
-            "title": "Identifying and managing VHR patients",
-            "referenced_by": [
-              "very-high-risk"
-            ],
-            "items": [
-              {
-                "question": "What triggers Very High Risk reclassification?",
-                "answer_html": "<p>See <em>ldl-target</em> Q2 for the full criteria. In brief: ≥2 major ASCVD events, OR 1 major ASCVD event + ≥2 high-risk conditions[ref:acc-2022-decisionpathway][ref:aha-acc-ccd-2023][ref:acc-aha-dys-2026]. Reclassification changes the LDL-C goal from &lt;70 to <strong>&lt;55 mg/dL</strong> (and non-HDL-C from &lt;100 to &lt;85)[ref:acc-aha-dys-2026].</p>"
-              },
-              {
-                "question": "Is cardiology referral required for VHR patients?",
-                "answer_html": "<p>Not automatically. PCPs can manage VHR patients on maximally tolerated statin + ezetimibe + (where appropriate) bempedoic acid within scope[ref:acc-aha-dys-2026][ref:acc-2022-decisionpathway]. <strong>Refer to cardiology</strong> when LDL-C remains &gt;55 mg/dL despite max statin + ezetimibe and PCSK9 mAb initiation is being considered, or when the patient has complex/recent ACS, advanced HF, or device-related cardiac issues. The consult builder for cardiology is in the spawn menu.</p>"
-              },
-              {
-                "question": "Is the &lt;55 mg/dL target safe at very low achieved LDL-C levels?",
-                "answer_html": "<p>Yes. The 2018 JAMA Cardiology meta-analysis of IMPROVE-IT, FOURIER, and REVEAL[ref:sabatine-jamacardio-2018] found no safety signal across six prespecified outcomes at very-low achieved LDL-C. The FOURIER prespecified secondary analysis showed no excess adverse events at LDL &lt;0.5 mmol/L (~19 mg/dL)[ref:giugliano-lancet-2017]; EBBINGHAUS found no neurocognitive impairment with PCSK9 mAb at very low LDL[ref:rosenson-jacc-2018]; the AHA Statin Safety Scientific Statement found no association between aggressive LDL-C lowering and dementia, cognitive impairment, or hemorrhagic stroke[ref:newman-atvb-2019]. ODYSSEY OUTCOMES median achieved LDL was ~40 mg/dL, FOURIER ~30 mg/dL, IMPROVE-IT ezetimibe arm ~53 mg/dL.</p>"
-              }
-            ]
-          },
-          {
-            "faq_id": "advanced-markers",
-            "topic": "Advanced Lipid Markers",
-            "title": "Lp(a) and ApoB ordering and interpretation",
-            "referenced_by": [
-              "advanced-markers"
-            ],
-            "items": [
-              {
-                "question": "Lp(a) — when, how, and what to do with the result",
-                "answer_html": "<p>See <em>co-primary-targets</em> Q4 for the full Lp(a) framework. Operational summary: COR 1 once-in-lifetime in all adults; ≥125 nmol/L (or ≥50 mg/dL) elevated; ≥250 nmol/L (or ≥100 mg/dL) confers ≥2-fold risk; single measurement is sufficient; document in the lifetime problem list[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. Note: 2026 only states &quot;elevated Lp(a) favors initiating or intensifying lipid-lowering therapy&quot; — the &quot;very high Lp(a) → tighter LDL target&quot; framing is clinical judgment, not a guideline-attributed recommendation.</p>"
-              },
-              {
-                "question": "ApoB — when, how, and what to do with the result",
-                "answer_html": "<p>See <em>co-primary-targets</em> Q3 for full framework. Summary: COR 2a on LLT (residual-risk evaluation, particularly ASCVD/CKM/T2D/elevated TG); COR 2b in untreated adults (risk assessment, FH characterization); the only ACC/AHA-specified numeric target is &lt;55 mg/dL for severe hyperchol + ASCVD[ref:acc-aha-dys-2026]. ApoB &lt;65 is from ESC/EAS 2019 — don't attribute to 2026 ACC/AHA[ref:fegers-wustrow-jacc-2022].</p>"
-              },
-              {
-                "question": "Are ApoB and Lp(a) covered by insurance?",
-                "answer_html": "<p>Both are standard lab tests covered by most commercial and Medicare plans without prior authorization. Some plans require a diagnosis code for Lp(a) (e.g., E78.5 mixed hyperlipidemia, Z83.42 family history of disorder of lipoprotein metabolism). OOP cost when uncovered: ~$20–60 ApoB / ~$30–80 Lp(a). Neither is auto-included in routine lipid panels — order specifically. Both can be embedded in order sets / SmartSets.</p>"
+                "question": "Should I order liver enzymes or CK on routine statin monitoring?",
+                "answer_html": "<p>Routine ALT monitoring on stable statin therapy is COR 3 No Benefit (LOE B-NR)[ref:acc-aha-dys-2026]. The 2026 follow-up recommendation specifies a lipid profile only at 4–12 weeks and 6–12 months — not ALT. Check ALT only when symptoms suggest hepatotoxicity. Routine CK monitoring is also COR 3 No Benefit (LOE A). Clinical thresholds: ALT &gt;3× ULN with symptoms and CK &gt;10× ULN with symptoms warrant discontinuation (FDA labeling). See [statin-intolerance] for the symptomatic-rechallenge pathway.</p>"
               }
             ]
           },
@@ -262,93 +196,75 @@
             "referenced_by": [
               "ldl-190"
             ],
-            "items": [
+            "first_layer_html": "<p>Initiate high-intensity statin at the visit LDL ≥190 is confirmed, regardless of risk score (COR 1).[ref:acc-aha-dys-2026] A confirmatory repeat lipid panel before starting is reasonable practice but not required — do not delay statin initiation while awaiting confirmation.</p>\n<p>Concurrently:</p>\n<ul><li>Exclude secondary causes (Table 15): hypothyroidism, nephrotic syndrome, obstructive/cholestatic liver disease, CKD, ketogenic or very-low-carb diets, glucocorticoids, estrogens, cyclosporine, atypical antipsychotics, high-dose thiazides, androgens, menopause (NLA 2026)[ref:acc-aha-dys-2026][ref:nla-fh-2026]. Order TSH, urine protein-creatinine, hepatic panel, and a dietary/medication history.</li><li>Evaluate for FH — see [fh-management].</li></ul>\n<p>LDL-C goals in severe primary hypercholesterolemia (LDL ≥190, no ASCVD) — 3-tier per 2026 Section 4.2.4.3:</p>\n<table><tr><td><p><strong>Tier</strong></p></td><td><p><strong>Trigger</strong></p></td><td><p><strong>LDL-C goal</strong></p></td><td><p><strong>COR</strong></p></td></tr><tr><td><p>1</p></td><td><p>No HeFH, no CAC, no additional major risk factors</p></td><td><p>&lt;100 mg/dL</p></td><td><p>COR 1</p></td></tr><tr><td><p>2</p></td><td><p>HeFH OR documented coronary calcification (CAC) OR any additional major risk factor</p></td><td><p>&lt;70 mg/dL</p></td><td><p>COR 1</p></td></tr><tr><td><p>3</p></td><td><p>Clinical ASCVD present</p></td><td><p>&lt;55 mg/dL</p></td><td><p>COR 1</p></td></tr></table>\n<div class=\"cm-callout\">Tier 2 trigger is \"documented coronary calcification (CAC)\" — not the broader \"coronary atherosclerosis.\" Clinical ASCVD belongs in Tier 3, not Tier 2. For Tier 3 once LDL-C and non-HDL-C goals are met, ApoB &lt;55 mg/dL is the named ApoB target[ref:acc-aha-dys-2026] (the only ACC/AHA-specified ApoB numeric).</div>",
+            "sub_questions": [
               {
-                "question": "What action is required for LDL-C ≥190 mg/dL?",
-                "answer_html": "<p><strong>Initiate high-intensity statin</strong> at the visit LDL ≥190 is confirmed, regardless of risk score (COR 1)[ref:acc-aha-dys-2026]. The 2026 guideline frames this directively — shared decision-making is good practice but not a gating requirement at LDL ≥190 (in contrast to the primary-prevention pathway for LDL 70–189). Concurrently:</p><ul><li><strong>Exclude secondary causes</strong> (Table 15)[ref:acc-aha-dys-2026]: hypothyroidism, nephrotic syndrome, obstructive liver / cholestatic disease, CKD, ketogenic / very-low-carb diets, glucocorticoids, estrogens, cyclosporine, atypical antipsychotics, high-dose thiazides, androgens. NLA 2026 also lists menopause as a contributor[ref:nla-fh-2026]. Order TSH, urine protein-creatinine, hepatic panel, and a dietary/medication history concurrent with statin initiation.</li><li><strong>Evaluate for FH</strong> — see <em>fh-management</em>.</li></ul><p>A confirmatory repeat lipid panel before starting therapy is reasonable practice but not gating per 2026[ref:acc-aha-dys-2026][ref:nla-fh-2026]. Don't delay statin initiation while awaiting confirmation.</p>"
-              },
-              {
-                "question": "What is the LDL-C goal in severe primary hypercholesterolemia (LDL ≥190, no ASCVD)?",
-                "answer_html": "<p>The 2026 guideline (Section 4.2.4.3) gives a 3-tier goal[ref:acc-aha-dys-2026]:</p><ul><li><strong>Tier 1 — no HeFH, no documented coronary calcification, no additional major risk factors:</strong> LDL-C &lt;100 mg/dL (COR 1).</li><li><strong>Tier 2 — HeFH OR documented coronary calcification (CAC) OR additional major risk factors</strong> (any one triggers — OR logic): LDL-C &lt;70 mg/dL (COR 1). Note: the trigger is &quot;documented coronary calcification&quot; (CAC), <em>not</em> the broader &quot;coronary atherosclerosis&quot; — clinical ASCVD belongs in Tier 3.</li><li><strong>Tier 3 — with clinical ASCVD:</strong> LDL-C &lt;55 mg/dL (COR 1).</li></ul><p>Non-HDL-C goal is &lt;130 mg/dL in Tier 1; ApoB &lt;55 mg/dL is the named ApoB target for Tier 3 once LDL-C and non-HDL-C goals are met.</p>"
-              },
-              {
-                "question": "Should I initiate combination therapy (statin + ezetimibe / PCSK9 mAb) up front in severe hyperchol + ASCVD?",
-                "answer_html": "<p>For severe hyperchol + ASCVD specifically, yes — the 2026 guideline's &quot;and/or&quot; language for nonstatin add-ons supports upfront combination at first visit, and these patients &quot;almost always require aggressive combination therapy&quot;[ref:acc-aha-dys-2026]. For typical (non-severe-hyperchol) ASCVD patients, the 2026 guideline does not explicitly call for combination initiation as COR 1 — secondary-prevention recommendations still reference maximally tolerated statin therapy as the prerequisite before adding nonstatins. ACS in-hospital PCSK9 initiation (EVOPACS, EPIC-STEMI) is emerging evidence without a specific 2026 COR recommendation[ref:bergmark-lancet-2022].</p>"
+                "question": "Should I initiate combination therapy upfront for severe hyperchol + ASCVD?",
+                "answer_html": "<p>For severe hypercholesterolemia + ASCVD specifically: yes — the 2026 guideline's \"and/or\" language for nonstatin add-ons supports upfront combination at the first visit, and these patients \"almost always require aggressive combination therapy.\"[ref:acc-aha-dys-2026] For typical (non-severe-hyperchol) ASCVD patients, the 2026 guideline does not explicitly call for upfront combination as COR 1 — secondary-prevention recommendations still reference maximally tolerated statin as the prerequisite before adding nonstatins[ref:bergmark-lancet-2022].</p>"
               }
-            ]
+            ],
+            "smartphrase_note": "Severe-LDL workup documented — .LIPLIPID-LDL190 (future)"
           },
           {
             "faq_id": "fh-management",
             "topic": "FH Management",
             "title": "Familial hypercholesterolemia — diagnosis, genetic testing, cascade, pediatric",
-            "referenced_by": [
-              "ldl-190"
-            ],
-            "items": [
+            "referenced_by": [],
+            "first_layer_html": "<p>Suspect FH in any adult with LDL-C ≥190 mg/dL after secondary causes are excluded. The 2026 ACC/AHA guideline emphasizes genetic testing as the primary diagnostic approach — three clinical scoring systems exist (Dutch Lipid Clinic Network, Simon Broome, MEDPED) as adjuncts when genetic testing is unavailable, but no single framework is formally endorsed as primary[ref:acc-aha-dys-2026]. Physical findings (tendinous xanthomata, corneal arcus before age 45) are highly specific but not sensitive — absence does not rule out FH.[ref:singh-jacc-2019][ref:qureshi-cochrane-2021]</p>",
+            "sub_questions": [
               {
-                "question": "How is FH diagnosed in adults?",
-                "answer_html": "<p>The 2026 ACC/AHA guideline emphasizes <strong>genetic testing as the primary diagnostic approach</strong> for FH and does not formally endorse any specific clinical scoring system as &quot;the&quot; framework[ref:acc-aha-dys-2026]. Three clinical scoring systems are in international use:</p><ul><li><strong>Dutch Lipid Clinic Network (DLCN)</strong> — combines family history, LDL levels, tendinous xanthomata, and corneal arcus before age 45. DLCN ≥6 = probable, &gt;8 = definite[ref:sturm-jacc-2018]. A reasonable clinical tool when genetic testing is unavailable, but the 2026 ACC/AHA does not name it the primary framework.</li><li><strong>Simon Broome</strong> — same diagnostic features as DLCN.</li><li><strong>MEDPED</strong> — uses age-specific total-cholesterol thresholds <em>only</em>, no family history or physical findings.</li></ul><p>For FH-focused contemporary review and counseling, see Santos et al. <em>Lancet Diabetes Endocrinol</em> 2025[ref:santos-ldne-2025] and the 2026 NLA Expert Clinical Consensus[ref:nla-fh-2026]. The 2015 AHA Scientific Statement frames the FH agenda (cascade screening, pediatric initiation, diagnostic frameworks)[ref:gidding-circ-2015]. <strong>Tendinous xanthomata and corneal arcus before 45 are highly specific but not sensitive</strong> — absence does not rule out FH[ref:singh-jacc-2019][ref:qureshi-cochrane-2021]. Don't require physical findings to pursue an FH workup at LDL ≥190.</p>"
+                "question": "When is genetic testing indicated?",
+                "answer_html": "<p>The 2026 ACC/AHA stratifies genetic testing by FH suspicion:</p>\n<ul><li>COR 1 (LOE B-NR): adults with possible/probable/definite clinical FH — significant upgrade from prior guidelines[ref:acc-aha-dys-2026][ref:sturm-jacc-2018]</li><li>COR 2a (LOE B-NR): LDL-C ≥190 mg/dL without identifiable secondary cause</li><li>COR 2b (LOE B-NR): LDL-C 160–189 mg/dL without secondary cause</li></ul>\n<p>The 4-gene FH panel covers LDLR, APOB, PCSK9, LDLRAP1. Clinically definite cases lack an identifiable pathogenic variant in ~20–40% — a negative gene panel does not rule out FH[ref:schunkert-nejm-2026]; clinical management proceeds on the same pathway.</p>"
               },
               {
-                "question": "When is genetic testing for FH indicated?",
-                "answer_html": "<p>The 2026 ACC/AHA guideline stratifies genetic testing recommendations by clinical FH suspicion[ref:acc-aha-dys-2026][ref:sturm-jacc-2018]:</p><ul><li><strong>COR 1 (LOE B-NR)</strong> — adults with possible / probable / definite clinical FH (significant upgrade from prior guidelines).</li><li><strong>COR 2a (LOE B-NR)</strong> — adults with LDL-C ≥190 mg/dL without identifiable secondary cause.</li><li><strong>COR 2b (LOE B-NR)</strong> — adults with LDL-C 160–189 mg/dL without secondary cause.</li></ul><p>The 4-gene FH panel covers <strong>LDLR, APOB, PCSK9, LDLRAP1</strong>. Clinically definite DLCN cases lack an identifiable pathogenic variant in ~20–40%[ref:sturm-jacc-2018] — the polygenic contribution to severe hyperchol is real and clinically meaningful[ref:schunkert-nejm-2026]. A negative gene panel does not rule out FH; clinical management proceeds on the same pathway.</p>"
+                "question": "How do I approach cascade screening?",
+                "answer_html": "<p>Cascade lipid screening for first- and second-degree relatives of patients with premature ASCVD, severe hypercholesterolemia, or FH is COR 2a (a downgrade from earlier COR 1 framings[ref:acc-aha-dys-2026]). Operationally: index patient → first-degree relatives age ≥2 → extend to second-degree if positives identified. PCP-initiated cascade conversations are appropriate clinical practice.</p>\n<div class=\"cm-callout\">FH and elevated Lp(a) are independent inherited risk factors[ref:trinder-jacc-2020][ref:ellis-jacc-2019] — FH does not cause elevated Lp(a). Both can co-occur in the same family. Order Lp(a) per the universal COR 1 once-in-lifetime recommendation regardless of FH status.</div>"
               },
               {
-                "question": "How is cascade screening done in FH families?",
-                "answer_html": "<p>Cascade lipid screening for first- and second-degree relatives of patients with premature ASCVD, severe hypercholesterolemia, or FH is <strong>COR 2a</strong> in the 2026 guideline (a downgrade from earlier framings of &quot;COR 1&quot;)[ref:acc-aha-dys-2026]. Operationally: index patient → first-degree relatives age ≥2 → extend to second-degree if positives identified. PCP-initiated cascade conversations are reasonable clinical practice, especially when the index patient has a confirmed pathogenic variant.</p><p>The 2015 AHA FH Scientific Statement[ref:gidding-circ-2015] and the 2026 NLA FH Expert Consensus[ref:nla-fh-2026] both anchor cascade screening as a core operational element of FH management. <strong>FH does not cause elevated Lp(a)</strong> — they are independent inherited risk factors that can co-occur in the same families[ref:trinder-jacc-2020][ref:ellis-jacc-2019]. Lp(a) cascade testing as a separate COR-1 recommendation could not be verified in the 2026 guideline; the universal once-in-lifetime Lp(a) testing applies regardless of FH status.</p>"
+                "question": "What about pediatric FH — when to screen and start a statin?",
+                "answer_html": "<p>Universal pediatric lipid screening: age 9–11 (COR 1, LOE B-NR)[ref:acc-aha-dys-2026]. The \"second screening at 17–21\" comes from the 2011 NHLBI Expert Panel / AAP endorsement — not from the 2026 ACC/AHA guideline. Cascade screening from age 2 is supported in known-FH families[ref:gidding-circ-2015].</p>\n<p>For children with HeFH: statin can be initiated at age 8–10, targeting LDL-C &lt;130 mg/dL or ≥50% reduction[ref:gidding-circ-2015][ref:acc-aha-dys-2026]. Specialty (pediatric lipid) involvement is recommended for HoFH, where lomitapide, evinacumab, or lipoprotein apheresis may be indicated[ref:raal-atherosclerosis-2018].</p>"
               },
               {
-                "question": "What about pediatric screening and statin initiation in children with FH?",
-                "answer_html": "<p>The 2026 ACC/AHA guideline endorses <strong>universal pediatric lipid screening at age 9–11</strong> (COR 1, LOE B-NR)[ref:acc-aha-dys-2026]. The often-cited &quot;second screening at 17–21&quot; comes from the 2011 NHLBI Expert Panel and AAP endorsement — <strong>not from the 2026 ACC/AHA guideline</strong>. Cite the 2011 NHLBI panel for that recommendation. Cascade screening from age 2 is supported in known-FH families[ref:gidding-circ-2015].</p><p>For children with HeFH, statin therapy can be initiated at <strong>age 8–10</strong> with goal LDL-C &lt;130 mg/dL or ≥50% reduction[ref:gidding-circ-2015][ref:acc-aha-dys-2026]. Specialty (pediatric lipid) involvement is recommended for HoFH, where lomitapide, evinacumab, or lipoprotein apheresis may be indicated[ref:raal-atherosclerosis-2018].</p>"
-              },
-              {
-                "question": "FH management is lifelong — what's the counseling frame?",
-                "answer_html": "<p>FH is a lifelong condition with cumulative LDL-C burden driving CV risk[ref:schunkert-nejm-2026]. The 2026 ACC/AHA guideline and the NLA 2026 FH Consensus[ref:nla-fh-2026] frame management as a multi-decade plan: aggressive LDL-C reduction starting in childhood (when diagnosed early) or at the FH-confirmation visit (when diagnosed in adulthood), tight monitoring, and family counseling. The benefit-risk equation strongly favors continued statin therapy across the lifespan despite the small statin-induced T2D risk (see <em>statin-T2D</em>) — ASCVD prevention benefit far outweighs T2D risk per COR 1 in this population.</p>"
+                "question": "What's the counseling frame for FH?",
+                "answer_html": "<p>FH is a lifelong condition with cumulative LDL-C burden driving CV risk[ref:schunkert-nejm-2026][ref:nla-fh-2026]. Management is a multi-decade plan: aggressive LDL-C reduction from the FH-confirmation visit (or childhood when diagnosed early), tight monitoring, and family counseling. The benefit-risk equation strongly favors continued statin therapy across the lifespan — ASCVD prevention benefit far outweighs statin-induced T2D risk per COR 1 in this population (see [statin-T2D]).</p>"
               }
-            ]
+            ],
+            "smartphrase_note": "FH cascade conversation documented — .LIPLIPID-FH-CASCADE (future)"
           },
           {
             "faq_id": "not-at-goal",
             "topic": "Not at LDL Goal",
-            "title": "Escalation when LDL-C is not at goal",
+            "title": "Escalation when LDL-C or non-HDL-C is not at goal",
             "referenced_by": [
               "not-at-goal"
             ],
-            "items": [
+            "first_layer_html": "<p>Step 1: Confirm adherence and titrate to maximally tolerated statin (preferred: atorvastatin or rosuvastatin).[ref:acc-aha-dys-2026]</p>\n<p>Step 2: Add a nonstatin agent. The 2026 guideline removes the requirement that ezetimibe must precede a PCSK9 mAb — choice may now be based on degree of LDL-C lowering needed and patient preference.[ref:acc-aha-dys-2026]</p>\n<p>Escalation trigger: failure to achieve the tier-specific goal. VHR uses LDL-C &lt;55 as the trigger; non-VHR ASCVD uses &lt;70 (with COR 2a option to intensify to &lt;55). A VHR patient at LDL-C 60 on max statin is already a candidate for nonstatin add-on.</p>\n<table><tr><td><p><strong>Agent</strong></p></td><td><p><strong>LDL-C ↓</strong></p></td><td><p><strong>Key evidence</strong></p></td><td><p><strong>COR / notes</strong></p></td></tr><tr><td><p>Ezetimibe</p></td><td><p>18% mono; ~25% add-on</p></td><td><p>IMPROVE-IT: ~2% ARR overall; NNT ~16 in highest-risk subgroup[ref:cannon-nejm-2015]</p></td><td><p>COR 1 (VHR); COR 2a (non-VHR ASCVD)</p></td></tr><tr><td><p>PCSK9 mAbs (evolocumab, alirocumab)</p></td><td><p>45–64%</p></td><td><p>FOURIER, ODYSSEY OUTCOMES: ~15% RRR MACE[ref:fourier-2017][ref:odyssey-outcomes-2018]</p></td><td><p>No longer requires prior ezetimibe trial per 2026 guideline; payer PAs may still require it</p></td></tr><tr><td><p>Bempedoic acid</p></td><td><p>21–24% mono; 17–18% add-on</p></td><td><p>CLEAR Outcomes: 13% RRR MACE (HR 0.87)[ref:clear-outcomes-2023][ref:nicholls-jamacardio-2024]</p></td><td><p>COR 2a; FDA CVOT indication restricted to statin-intolerant. DDI: avoid with simvastatin &gt;20 mg/d or pravastatin 40 mg/d.</p></td></tr><tr><td><p>Inclisiran</p></td><td><p>~50%</p></td><td><p>ORION-4, VICTORION-2P CVOTs pending[ref:acc-aha-dys-2026]</p></td><td><p>Second-line to PCSK9 mAbs pending outcomes data. Part B buy-and-bill (in-office) vs Part D (PCSK9 mAbs).</p></td></tr></table>",
+            "sub_questions": [
               {
-                "question": "What is the escalation pathway?",
-                "answer_html": "<p><strong>Step 1: </strong>Confirm adherence and titrate to maximally tolerated statin (preferred: atorvastatin or rosuvastatin)[ref:acc-aha-dys-2026].</p><p><strong>Step 2: </strong>Add a nonstatin agent. The 2026 guideline <strong>explicitly removes the requirement that ezetimibe must precede a PCSK9 mAb</strong> — choice may now be based on degree of LDL-C lowering needed and patient preference[ref:acc-aha-dys-2026]. See <em>escalation-options</em> for ezetimibe vs PCSK9 mAb vs bempedoic acid vs IPE detail.</p><p><strong>Trigger for escalation</strong> is failure to achieve the goal — VHR uses LDL-C &lt;55 as the trigger; non-VHR ASCVD uses &lt;70 (with COR 2a option to intensify to &lt;55). A VHR patient at LDL-C 60 on max statin is already a candidate for nonstatin add-on — don't wait for ≥70.</p><p><strong>Ezetimibe COR levels:</strong> COR 1 (LOE A) only for VHR ASCVD; COR 2a for non-VHR ASCVD[ref:acc-aha-dys-2026]. Bempedoic acid mirrors that scope — COR 2a alongside ezetimibe / PCSK9 mAb in non-VHR ASCVD.</p>"
-              },
-              {
-                "question": "What are the LDL-C reductions and CV-benefit data for the named agents?",
-                "answer_html": "<p><strong>Ezetimibe:</strong> 18% as monotherapy / 25% incremental when added to statin[ref:acc-aha-dys-2026][ref:cannon-nejm-2015]. IMPROVE-IT (mean 6-year follow-up): ~2% absolute risk reduction overall (NNT ~50); <strong>NNT ~16 in the ≥3-risk-indicators subgroup</strong> (6.3% ARR) — supports targeting ezetimibe to highest-risk patients.</p><p><strong>PCSK9 mAbs (evolocumab, alirocumab):</strong> 45–64% LDL-C reduction[ref:acc-aha-dys-2026][ref:fourier-2017][ref:odyssey-outcomes-2018]. ~15% RRR MACE in FOURIER and ODYSSEY OUTCOMES. <strong>Alirocumab mortality benefit in ODYSSEY OUTCOMES is a post-hoc subgroup finding</strong> in patients with high baseline LDL — overall trial primary analysis did not show statistically significant mortality benefit. Don't promote as headline. Both alirocumab and evolocumab also have HoFH FDA approval. Median achieved LDL: FOURIER ~30 mg/dL, ODYSSEY ~40 mg/dL.</p><p><strong>Bempedoic acid (Nexletol):</strong> 21–24% LDL-C reduction as monotherapy in statin-intolerant patients; 17–18% incremental when added to maximally tolerated statin[ref:acc-aha-dys-2026][ref:fda-nexletol-2026]. CLEAR Outcomes (n=13,970): 13% RRR MACE (HR 0.87, 95% CI 0.79–0.96)[ref:clear-outcomes-2023]. Adverse events: gout 3.1% vs 2.1% placebo; tendon rupture ~0.5%. <strong>CLEAR Outcomes did not enrich for hsCRP-elevated patients</strong> — hsCRP was not an enrollment criterion. The prespecified total-events analysis confirms benefit on repeat events[ref:nicholls-jamacardio-2024].</p><p><strong>Inclisiran (Leqvio):</strong> twice-yearly siRNA. 2026 positions as <strong>second-line to PCSK9 mAbs</strong> — for patients who can't tolerate or access evolocumab/alirocumab or have a strong preference for less-frequent dosing[ref:acc-aha-dys-2026]. CV outcomes trials (ORION-4, VICTORION-2P) pending. <strong>FDA indication is for hypercholesterolemia broadly (including HeFH), not ASCVD-specific</strong>; payer PAs that gate on ASCVD-specific FDA indication may deny inclisiran on that basis. Inclisiran is administered in-office and billed under Medicare Part B (buy-and-bill) — operationally simpler than PCSK9 mAbs (Part D).</p>"
-              },
-              {
-                "question": "What's the PA / coverage reality for nonstatin add-ons?",
-                "answer_html": "<p><strong>PCSK9 mAbs and inclisiran</strong> universally require PA on commercial and Medicare. Typical PA gates: documented maximally tolerated statin therapy + LDL-C above threshold (typically ≥70 mg/dL for ASCVD; ≥100 for FH); ezetimibe trial often requested even though the 2026 guideline no longer mandates it clinically. Earlier framing of &quot;documented statin intolerance or failure&quot; is too narrow — most payers accept &quot;maximally tolerated statin therapy&quot;[ref:acc-2022-decisionpathway][ref:acc-aha-dys-2026].</p><p><strong>Bempedoic acid</strong> generally requires PA on commercial (Medicare Part D coverage varies by formulary). Note the FDA Nexletol label[ref:fda-nexletol-2026]: the LDL-C lowering indication is broad (including HeFH adjunctive use), but the <strong>CV-risk-reduction outcome indication is restricted to adults &quot;unable to take recommended statin therapy&quot;</strong> — i.e., statin-intolerant. PCSK9 mAb and inclisiran trial enrollment was not restricted to statin-intolerant populations, so the contrast is real and PA-relevant.</p><p><strong>DDI alert:</strong> bempedoic acid + simvastatin &gt;20 mg/day or pravastatin 40 mg/day → ~2-fold increase in statin plasma levels — avoid the combination[ref:fda-nexletol-2026][ref:aha-acc-ccd-2023]. Switch to atorvastatin or rosuvastatin before adding bempedoic acid, or use ezetimibe instead.</p>"
+                "question": "What's the PA and coverage reality for nonstatin agents?",
+                "answer_html": "<p>PCSK9 mAbs and inclisiran require PA on commercial and Medicare. Typical PA gates: documented maximally tolerated statin + LDL-C above threshold (usually ≥70 mg/dL for ASCVD, ≥100 for FH); ezetimibe trial often required even though the 2026 guideline no longer mandates it clinically. \"Maximally tolerated statin therapy\" is broader than \"statin intolerance or failure\"[ref:acc-2022-decisionpathway][ref:acc-aha-dys-2026] — use the former in PA language.</p>\n<p>Bempedoic acid generally requires PA. DDI alert: bempedoic acid + simvastatin &gt;20 mg/day or pravastatin 40 mg/day → ~2-fold increase in statin plasma levels[ref:fda-nexletol-2026][ref:aha-acc-ccd-2023]. Switch to atorvastatin or rosuvastatin before adding bempedoic acid, or use ezetimibe instead.</p>"
               }
-            ]
+            ],
+            "smartphrase_note": "Nonstatin escalation documented — .LIPLIPID-NOTGOAL (future)"
           },
           {
             "faq_id": "escalation-options",
             "topic": "Escalation Options",
             "title": "IPE, bempedoic acid, inclisiran — when each fits",
-            "referenced_by": [
-              "not-at-goal"
-            ],
-            "items": [
+            "referenced_by": [],
+            "first_layer_html": "<p>This entry provides decision support for the three nonstatin add-ons with nuanced placement. For the LDL-lowering escalation pathway (ezetimibe / PCSK9 mAb / bempedoic acid / inclisiran), see [not-at-goal].</p>",
+            "sub_questions": [
               {
                 "question": "When is icosapent ethyl (IPE) appropriate?",
-                "answer_html": "<p>IPE (high-purity EPA) is <strong>COR 2b (&quot;may be reasonable&quot;)</strong> in the 2026 guideline for adults ≥50 years with ASCVD or DM + ≥1 additional risk factor, on statin therapy with managed LDL-C goal, and TG <strong>150–499 mg/dL</strong>[ref:acc-aha-dys-2026]. Note: 2026 uses the ≥150 threshold; the 135 mg/dL figure was REDUCE-IT's enrollment cutoff[ref:reduce-it-2019][ref:bhatt-jacc-2019], not the guideline-recommended threshold.</p><p>REDUCE-IT showed 25% RRR MACE with IPE 2 g BID, with benefit visible across all baseline TG tertiles (including TG &lt;200). The COR 2b — rather than COR 2a — reflects the <strong>mineral-oil placebo controversy</strong>: biomarker subanalysis showed the IPE arm had no significant change in atherogenic lipids/lipoproteins/inflammatory markers, while the mineral-oil placebo arm experienced <em>deleterious</em> changes — likely exaggerating the observed treatment effect[ref:acc-aha-dys-2026][ref:dixon-amjmed-2020]. STRENGTH (mixed EPA/DHA OTC, corn-oil placebo) was a negative CVOT for the same indication[ref:goldberg-dca-2020].</p><p>Operational: a non-VHR ASCVD patient on statin with TG 200 + diabetes is an IPE candidate — not a fibrate candidate. <strong>Non-prescription OTC omega-3 / fish oil products are not equivalent</strong> and are not recommended for CV risk reduction.</p>"
+                "answer_html": "<p>IPE (high-purity EPA, 2 g BID) is COR 2b for adults ≥50 with ASCVD or DM + ≥1 additional risk factor, on statin with managed LDL-C goal, and TG 150–499 mg/dL[ref:acc-aha-dys-2026].</p>\n<p>REDUCE-IT showed 25% RRR MACE[ref:reduce-it-2019][ref:bhatt-jacc-2019], with benefit visible across all baseline TG tertiles (including TG &lt;200). The COR 2b — rather than COR 2a — reflects the mineral-oil placebo controversy: biomarker analysis suggests the placebo arm experienced deleterious changes, likely exaggerating the observed effect[ref:dixon-amjmed-2020]. STRENGTH (mixed EPA/DHA, corn-oil placebo) was negative[ref:goldberg-dca-2020] for the same indication. OTC omega-3/fish oil products are not equivalent and are not recommended for CV risk reduction.</p>\n<div class=\"cm-callout\">Use the 2026 TG ≥150 mg/dL threshold for IPE, not the REDUCE-IT enrollment cutoff of 135 mg/dL[ref:acc-aha-dys-2026].</div>"
               },
               {
-                "question": "Bempedoic acid — operational placement",
-                "answer_html": "<p>Bempedoic acid is <strong>COR 2a in the 2026 guideline</strong> as a general add-on to statin and/or ezetimibe and/or PCSK9 mAb in patients not at LDL-C goal[ref:acc-aha-dys-2026]. The FDA label has two distinct indications[ref:fda-nexletol-2026]:</p><ul><li><strong>LDL-C reduction in primary hyperlipidemia (including HeFH)</strong> — broad adjunctive scope, not restricted to statin-intolerant.</li><li><strong>CV risk reduction in adults unable to take recommended statin therapy</strong> — limited to statin-intolerant per CLEAR Outcomes enrollment.</li></ul><p>The two scopes diverge — payers may follow the FDA outcome indication (statin-intolerant) for CV-risk-reduction PAs even though ACC/AHA recommends broader use[ref:acc-aha-dys-2026][ref:clear-outcomes-2023]. <strong>DDI alert:</strong> avoid bempedoic acid with simvastatin &gt;20 mg/day or pravastatin 40 mg/day (~2-fold ↑ statin plasma levels)[ref:fda-nexletol-2026][ref:aha-acc-ccd-2023]. Switch to atorvastatin or rosuvastatin first if combination is needed.</p>"
+                "question": "Bempedoic acid — where does it fit?",
+                "answer_html": "<p>Bempedoic acid is COR 2a as a general add-on to statin and/or ezetimibe and/or PCSK9 mAb in patients not at LDL-C goal[ref:acc-aha-dys-2026]. The FDA label has two distinct indications:</p>\n<ul><li>LDL-C reduction in primary hyperlipidemia including HeFH — broad adjunctive scope, not restricted to statin-intolerant</li><li>CV risk reduction in adults unable to take recommended statin therapy — limited to statin-intolerant per CLEAR Outcomes enrollment[ref:fda-nexletol-2026][ref:clear-outcomes-2023]</li></ul>\n<p>These diverge: payers may follow the FDA CV-risk-reduction indication (statin-intolerant only) for PA even though the ACC/AHA recommends broader use.</p>"
               },
               {
-                "question": "Inclisiran — second-line to PCSK9 mAbs, but for which patients?",
-                "answer_high": "Why second-line? Why not first-line?",
-                "answer_html": "<p>The 2026 guideline positions inclisiran <strong>second-line to PCSK9 mAbs</strong> for ASCVD patients pending CV-outcomes evidence (ORION-4, VICTORION-2P)[ref:acc-aha-dys-2026]. Reserve inclisiran for: patients who can't tolerate evolocumab / alirocumab; can't access them (insurance / pharmacy fulfillment); demonstrate poor adherence to self-injected PCSK9 mAbs; or strongly prefer the twice-yearly dosing cadence.</p><p><strong>For ASCVD patients with elevated Lp(a) not at LDL-C goal, prefer evolocumab or alirocumab over inclisiran</strong> — the rationale is the CV-outcomes evidence base. The Lp(a) reduction differential between PCSK9 mAbs (~26%) and inclisiran (~22%) is directional but not statistically significant per Mulligan JCL 2026[ref:mulligan-jcl-2026], so the preferential ordering is driven by CV-benefit evidence rather than Lp(a) magnitude.</p><p><strong>Inclisiran's FDA indication is hypercholesterolemia broadly (including HeFH), not ASCVD-specific</strong>[ref:acc-aha-dys-2026]. PA framing must distinguish FDA indication scope from clinical use case — payers gating on ASCVD-specific FDA indication may deny solely on indication. Inclisiran is administered in-office (Medicare Part B buy-and-bill) — operationally simpler access than PCSK9 mAbs (Part D self-administered).</p>"
+                "question": "When does inclisiran fit better than a PCSK9 mAb?",
+                "answer_html": "<p>Reserve inclisiran for patients who: cannot tolerate evolocumab or alirocumab; cannot access them (insurance/pharmacy); show poor adherence to self-injected PCSK9 mAbs; or strongly prefer twice-yearly dosing. Inclisiran is administered in-office (Medicare Part B buy-and-bill) — simpler access than PCSK9 mAbs (Part D, self-administered)[ref:acc-aha-dys-2026]. PA framing: inclisiran's FDA indication is hypercholesterolemia broadly (including HeFH), not ASCVD-specific — payers gating on ASCVD-specific FDA indication may deny[ref:mulligan-jcl-2026].</p>"
               }
             ]
           },
@@ -359,50 +275,39 @@
             "referenced_by": [
               "statin-hesitant"
             ],
-            "items": [
+            "first_layer_html": "<p>CAC scoring is COR 1 (LOE B-NR) for risk reclassification in intermediate-risk and select borderline-risk adults — upgraded from COR 2a in the 2018 guideline[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. Eligible: men ≥40, women ≥45.</p>\n<table><tr><td><p><strong>CAC Score</strong></p></td><td><p><strong>Interpretation</strong></p></td><td><p><strong>Action</strong></p></td></tr><tr><td><p>= 0</p></td><td><p>Defer statin; reassess in 3–7 years</p></td><td><p>Deferral appropriate only if no higher-risk conditions (FH, LDL ≥190, diabetes &gt;40, current smoking, strong family history)</p></td></tr><tr><td><p>&gt; 0</p></td><td><p>COR 1 LLT initiation trigger</p></td><td><p>CAC ≥100 or ≥75th %ile for age/sex = strongest indication</p></td></tr><tr><td><p>300–999</p></td><td><p>LDL-C goal &lt;70 mg/dL (COR 1); COR 2a option to push to &lt;55</p></td><td><p>Do not assign COR 2a &lt;55 directly — the COR 1 target is &lt;70</p></td></tr><tr><td><p>≥1000</p></td><td><p>LDL-C &lt;55 mg/dL even in primary prevention (COR 1, LOE B-NR)[ref:acc-aha-dys-2026]</p></td><td><p>Treat as VHR equivalent</p></td></tr></table>\n<p>OOP cost: typically $50–250 (coverage is variable — verify with the local Medicare Administrative Contractor or commercial payer before counseling on cost).</p>",
+            "sub_questions": [
               {
-                "question": "When is CAC scoring appropriate, and how do I interpret it?",
-                "answer_html": "<p>CAC is <strong>COR 1 (LOE B-NR) for risk reclassification</strong> in intermediate-risk and select borderline-risk adults — an upgrade from COR 2a in the 2018 guideline[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. Eligible age: <strong>men ≥40, women ≥45</strong> (note: the &quot;40–75&quot; band in older modules is dated). Interpretation:</p><ul><li><strong>CAC = 0 — defer with reassessment in 3–7 years</strong> (the older &quot;5–7 years&quot; framing has been tightened). Deferral is appropriate <em>only</em> when there are no higher-risk conditions present (FH, LDL-C ≥190, diabetes age &gt;40, current smoking, strong family history of premature ASCVD)[ref:acc-aha-dys-2026].</li><li><strong>Any CAC &gt; 0 → COR 1 LLT initiation trigger</strong> (LOE B-NR). Within COR 1, CAC ≥100 or ≥75th percentile for age/sex is the strongest indication.</li><li><strong>CAC 300–999 → LDL-C goal &lt;70 mg/dL (COR 1, LOE B-R)</strong>; <strong>COR 2a option to intensify to &lt;55</strong>. Don't conflate the two tiers — a CAC 500 patient gets a COR 1 &lt;70 target with a COR 2a option to push to &lt;55, not a COR 2a &lt;55 target outright.</li><li><strong>CAC ≥1000 → LDL-C &lt;55 mg/dL</strong> (COR 1, LOE B-NR) even in primary prevention.</li></ul><p>OOP cost typically $50–250 (broader than the older $75–150 range). Coverage is variable — verify with the local Medicare Administrative Contractor or commercial payer before counseling on cost. Specific CY 2024 CMS expansion claims should be verified locally rather than asserted in the chart.</p>"
-              },
-              {
-                "question": "What does the statin benefit-risk discussion cover?",
-                "answer_html": "<p>Per the AHA Statin Safety Scientific Statement[ref:newman-atvb-2019] and the CTT Collaboration meta-analyses[ref:ctt-collaboration-2012][ref:collins-lancet-2016][ref:silverman-jama-2016]:</p><ul><li><strong>Benefit:</strong> ~20–21% proportional reduction in major vascular events per 1 mmol/L (~38.7 mg/dL) LDL-C reduction (24% after the first year of treatment)[ref:ctt-collaboration-2012]. Approximate NNT 50–100 over 5 years for intermediate-to-high-risk primary prevention; lower NNT in higher-risk patients. CTT 2012: 11 fewer major vascular events per 1000 treated over 5 years per 1 mmol/L LDL-C reduction in low-risk populations[ref:ctt-collaboration-2012]. Silverman 2016: ~23% per mmol/L for LDL-receptor-upregulating therapies — a class-of-mechanism effect[ref:silverman-jama-2016].</li><li><strong>No causal association</strong> with cancer, dementia, cognitive impairment, or hemorrhagic stroke per the AHA Statin Safety Scientific Statement[ref:newman-atvb-2019]. True statin myopathy is rare (1–10 per 10,000 person-years); rhabdomyolysis is very rare (1–3 per 100,000)[ref:newman-atvb-2019].</li><li><strong>Statin-induced T2D</strong> is real but small — see <em>statin-T2D</em>.</li><li><strong>Reassurance for MCI patients and families:</strong> the AHA Statin Safety Statement, FOURIER prespecified secondary[ref:giugliano-lancet-2017], EBBINGHAUS[ref:rosenson-jacc-2018], and the Sabatine 2018 JAMA Cardiology meta of IMPROVE-IT/FOURIER/REVEAL[ref:sabatine-jamacardio-2018] all show no neurocognitive harm at very low achieved LDL-C.</li></ul>"
+                "question": "What does the benefit-risk discussion cover?",
+                "answer_html": "<p>Per the AHA Statin Safety Scientific Statement and CTT Collaboration meta-analyses[ref:newman-atvb-2019][ref:ctt-collaboration-2012][ref:collins-lancet-2016][ref:silverman-jama-2016]:</p>\n<ul><li>Benefit: ~21% proportional reduction in major vascular events per 1 mmol/L (~38.7 mg/dL) LDL-C reduction (24% after the first year). CTT 2012: 11 fewer major vascular events per 1,000 treated over 5 years per 1 mmol/L reduction in low-risk populations[ref:ctt-collaboration-2012][ref:silverman-jama-2016].</li><li>Safety: No causal association with cancer, dementia, cognitive impairment, or hemorrhagic stroke. True statin myopathy: 1–10 per 10,000 person-years; rhabdomyolysis: 1–3 per 100,000[ref:newman-atvb-2019].</li><li>Statin-induced T2D: real but small — see [statin-T2D].</li></ul>\n<p>For MCI patients and families: FOURIER prespecified secondary, EBBINGHAUS, and the Sabatine 2018 JAMA Cardiology meta-analysis of IMPROVE-IT/FOURIER/REVEAL all show no neurocognitive harm[ref:giugliano-lancet-2017][ref:rosenson-jacc-2018][ref:sabatine-jamacardio-2018] at very low achieved LDL-C.</p>"
               }
-            ]
+            ],
+            "smartphrase_note": "CAC decision documented — .LIPLIPID-CAC (future)"
           },
           {
             "faq_id": "statin-intolerance",
             "topic": "Statin Intolerance",
             "title": "Identifying intolerance, nocebo, and rechallenge",
-            "referenced_by": [
-              "statin-hesitant"
-            ],
-            "items": [
-              {
-                "question": "What's the role of the nocebo effect?",
-                "answer_html": "<p>SAMSON (Howard et al. <em>JACC</em> 2021 — note: published in <strong>JACC</strong>, not NEJM) showed that ~90% of statin-attributed symptoms were nocebo-driven in a crossover design[ref:samson-jacc-2021]. Mean symptom scores: 16.3 statin / 15.4 placebo / 8.0 no tablet (P=0.388 statin vs placebo); 50% of participants successfully restarted statin therapy after the trial.</p><p><strong>Generalizability caveat:</strong> the NLA Clinical Perspective on SAMS (Warden 2023)[ref:warden-jcl-2023] notes SAMSON and StatinWISE results &quot;cannot be generalized to all patients&quot; given the small, self-selected populations enrolled. Use the nocebo data to guide rechallenge counseling, not to dismiss patient experience.</p>"
-              },
+            "referenced_by": [],
+            "first_layer_html": "<p>The nocebo effect accounts for most statin-attributed symptoms. SAMSON (Howard et al. JACC 2021) showed ~90% of statin-attributed symptoms were nocebo-driven in a crossover design[ref:samson-jacc-2021]: mean symptom scores 16.3 statin / 15.4 placebo / 8.0 no tablet (P=0.388 statin vs placebo). 50% of participants successfully restarted statin therapy after the trial.</p>\n<div class=\"cm-callout\">Generalizability caveat: the NLA Clinical Perspective on SAMS (Warden 2023) notes SAMSON and StatinWISE results cannot be generalized to all patients given the small, self-selected enrolled populations[ref:warden-jcl-2023]. Use nocebo data to guide rechallenge counseling, not to dismiss patient experience.</div>",
+            "sub_questions": [
               {
                 "question": "What is the rechallenge protocol?",
-                "answer_html": "<p>The 2022 ACC ECDP recommends &quot;at least 2 (and preferably 3) statins, including a trial of 1 attempt at the lowest approved daily dose or using alternative statin dosing&quot; before declaring intolerance[ref:acc-2022-decisionpathway]. <strong>The 2026 ACC/AHA Dyslipidemia Guideline does not specify a numeric trial count</strong>[ref:acc-aha-dys-2026] — payer requirements for ≥2 trials are payer-driven, not guideline-mandated. Attribute the &quot;≥2 (preferably 3) trials&quot; framing to 2022 ECDP, not 2026.</p><p><strong>Rechallenge tactics</strong>[ref:warden-jcl-2023][ref:newman-atvb-2019]:</p><ul><li>Start low-dose atorvastatin or rosuvastatin (preferred agents).</li><li>Try alternative dosing — every-other-day or 3×/week atorvastatin or rosuvastatin (long half-lives support intermittent dosing).</li><li>Pause for 2–4 weeks, then rechallenge — symptom-attribution often shifts on the second pass.</li><li>If true myopathy is suspected, check CK; CK &gt;10× ULN with symptoms warrants discontinuation per FDA labeling.</li></ul><p>If two-statin failure is genuine, bempedoic acid (FDA CVOT-indicated for statin-intolerant) and ezetimibe become first-line LDL-C–lowering options.</p>"
+                "answer_html": "<p>The 2022 ACC ECDP recommends at least 2 (preferably 3) statins, including at least 1 attempt at the lowest approved daily dose or alternative dosing, before declaring intolerance.[ref:acc-2022-decisionpathway] The 2026 ACC/AHA does not specify a numeric trial count[ref:acc-aha-dys-2026] — the \"≥2 (preferably 3) trials\" framing belongs to the 2022 ECDP, not 2026.</p>\n<p>Rechallenge tactics:</p>\n<ul><li>Start low-dose atorvastatin or rosuvastatin (preferred agents)</li><li>Try every-other-day or 3×/week dosing — long half-lives support intermittent dosing</li><li>Pause 2–4 weeks, then rechallenge — symptom attribution often shifts on the second pass[ref:warden-jcl-2023][ref:newman-atvb-2019]</li><li>If true myopathy is suspected: check CK. CK &gt;10× ULN with symptoms warrants discontinuation (FDA labeling).</li><li>If two-statin failure is genuine: bempedoic acid (FDA CV-risk indication in statin-intolerant) and ezetimibe become first-line LDL-C–lowering options.</li></ul>"
               }
-            ]
+            ],
+            "smartphrase_note": "Rechallenge plan documented — .LIPLIPID-INTOL-RECHALLENGE (future)"
           },
           {
             "faq_id": "statin-T2D",
             "topic": "Statin and T2D Risk",
             "title": "Statin-induced T2D, intensity dependence, and FH cohort",
-            "referenced_by": [
-              "statin-hesitant"
-            ],
-            "items": [
+            "referenced_by": [],
+            "first_layer_html": "<p>Statin-induced T2D is real but should not drive discontinuation or down-titration. The ASCVD prevention benefit clearly outweighs T2D risk per COR 1 in 2026[ref:acc-aha-dys-2026]. Continue statin in patients who develop T2D on therapy.</p>\n<p>The CTT Collaboration 2024 individual-patient-data meta-analysis found an intensity-dependent effect[ref:ctt-collaboration-2024]:</p>\n<ul><li>Moderate-intensity: RR 1.10 (10% relative risk increase)</li><li>High-intensity: RR 1.36 (36% relative risk increase)</li></ul>\n<p>The earlier \"9–12% RRI\" intensity-flat figure is not supported. 62% of new-onset T2D diagnoses occur in patients already in the top quartile of baseline glycemia — most diagnoses are accelerated, not created[ref:ctt-collaboration-2024].</p>",
+            "sub_questions": [
               {
-                "question": "How big is the statin-induced T2D risk?",
-                "answer_html": "<p>The CTT Collaboration 2024 individual-patient-data meta-analysis showed an <strong>intensity-dependent</strong> effect[ref:ctt-collaboration-2024]:</p><ul><li><strong>Moderate-intensity statin: 10% RRI</strong> (RR 1.10, 95% CI 1.04–1.16) for new-onset T2D.</li><li><strong>High-intensity statin: 36% RRI</strong> (RR 1.36, 95% CI 1.25–1.48).</li></ul><p>The earlier &quot;9–12% RRI&quot; figure (intensity-flat) is not supported. ADA 2026 cites the original Sattar Lancet 2010 OR 1.09 — 1 case per 255 patients × 4 years preventing 5.4 vascular events[ref:ada-2026-cv]. AHA 2019 Statin Safety estimates absolute risk ~0.2% per year[ref:newman-atvb-2019]. <strong>62% of new-onset T2D diagnoses occur in patients already in the top quartile of baseline glycemia</strong>[ref:ctt-collaboration-2024] — the diagnoses are mostly accelerated rather than created.</p><p><strong>Operational rule: continue statin in patients who develop T2D on therapy.</strong> The ASCVD-prevention benefit clearly outweighs T2D risk; this is consistent with COR 1 in 2026[ref:acc-aha-dys-2026]. Don't withhold or down-titrate intensity due to T2D risk alone.</p>"
-              },
-              {
-                "question": "Does statin-induced T2D risk apply to FH patients?",
-                "answer_html": "<p>The CTT 2024 IPD intensity-dependence (10% / 36% RRI for moderate / high) is derived from broad CTT populations[ref:ctt-collaboration-2024]. <strong>FH-specific cohort data on statin-induced T2D are not robustly captured in the retrieved literature</strong> from EAS-FHSC, SAFEHEART, or CASCADE FH registries that would modify the magnitude or benefit-risk framing for HeFH. The 2026 ACC/AHA does not provide FH-specific guidance on statin-induced T2D[ref:acc-aha-dys-2026].</p><p>The general principle holds: ASCVD prevention benefit far outweighs T2D risk per COR 1 in HeFH, given the lifelong elevated LDL-C burden[ref:nla-fh-2026]. Don't withhold or reduce statin intensity in FH patients because of T2D risk; monitor HbA1c / fasting glucose per standard. Counsel without minimizing — the risk is real but small relative to the FH-driven CV risk.</p>"
+                "question": "Does this T2D risk apply differently to FH patients?",
+                "answer_html": "<p>FH-specific cohort data on statin-induced T2D are not robustly available in the retrieved literature (EAS-FHSC, SAFEHEART, or CASCADE FH registries). The 2026 ACC/AHA does not provide FH-specific guidance.[ref:acc-aha-dys-2026] The general principle holds: ASCVD prevention benefit far outweighs T2D risk in HeFH given lifelong elevated LDL-C burden[ref:nla-fh-2026]. Do not reduce statin intensity in FH patients due to T2D risk; monitor HbA1c/fasting glucose per standard. Counsel without minimizing — the risk is real but small relative to FH-driven CV risk.</p>"
               }
             ]
           },
@@ -410,56 +315,113 @@
             "faq_id": "pregnancy-vs-lactation",
             "topic": "Pregnancy and Lactation",
             "title": "Statin therapy in pregnancy vs lactation",
+            "referenced_by": [],
+            "first_layer_html": "<p>Pregnancy and lactation require different assessments — do not conflate the two.</p>\n<ul><li>Pregnancy: The July 2021 FDA labeling update removed the blanket contraindication for most statins. For VHR ASCVD or FH patients with additional risk factors, statin therapy \"may be considered\" per the 2026 ACC/AHA[ref:acc-aha-dys-2026]. For most pregnant patients, \"it seems prudent to avoid statin therapy.\" Individualized benefit-risk discussion per the 2022 ACC ECDP and 2024 NLA Consensus on dyslipidemia in women of reproductive potential[ref:acc-2022-decisionpathway][ref:agarwala-jcl-2024].</li><li>Lactation: The contraindication remains in place per FDA labeling. The 2021 FDA change applied to pregnancy only.[ref:kovacic-circ-2026] Do not restart or initiate statins in patients who are breastfeeding.</li></ul>"
+          },
+          {
+            "faq_id": "very-high-risk",
+            "topic": "Very High Risk",
+            "title": "Identifying and managing VHR patients",
             "referenced_by": [
-              "statin-indication"
+              "very-high-risk"
             ],
-            "items": [
+            "first_layer_html": "<p>VHR reclassification changes the LDL-C goal from &lt;70 to &lt;55 mg/dL and the non-HDL-C goal from &lt;100 to &lt;85 mg/dL[ref:acc-aha-dys-2026]. See [ldl-target] for the full VHR criteria (≥2 major ASCVD events, or 1 major ASCVD event + ≥2 high-risk conditions)[ref:acc-2022-decisionpathway][ref:aha-acc-ccd-2023].</p>",
+            "sub_questions": [
               {
-                "question": "Are statins contraindicated in pregnancy?",
-                "answer_html": "<p>The July 2021 FDA labeling update <strong>removed the contraindication for pregnancy</strong> for most statins. Current framing is case-by-case — for VHR ASCVD patients or FH patients with additional risk factors, statin therapy &quot;may be considered in pregnant persons at very high risk for ASCVD&quot; per the 2026 ACC/AHA guideline[ref:acc-aha-dys-2026]. For most pregnant patients, &quot;it seems prudent to avoid statin therapy during pregnancy.&quot; Both the 2022 ACC ECDP[ref:acc-2022-decisionpathway] and the 2024 NLA Consensus on dyslipidemia in women of reproductive potential[ref:agarwala-jcl-2024] support an individualized benefit-risk discussion.</p>"
-              },
-              {
-                "question": "What about lactation?",
-                "answer_html": "<p><strong>Lactation contraindication remains in place per FDA labeling.</strong> The 2021 FDA change applied to pregnancy only, not lactation[ref:kovacic-circ-2026]. Don't conflate the two — patients who restart or initiate statins postpartum should not be breastfeeding.</p>"
+                "question": "Does VHR reclassification require cardiology referral?",
+                "answer_html": "<p>Not automatically. PCPs can manage VHR patients on maximally tolerated statin + ezetimibe + bempedoic acid (where appropriate) within scope. Refer to cardiology when LDL-C remains &gt;55 mg/dL despite max statin + ezetimibe and PCSK9 mAb initiation is being considered, or when the patient has complex/recent ACS[ref:acc-aha-dys-2026][ref:acc-2022-decisionpathway], advanced HF, or device-related issues. The consult builder for cardiology is in the spawn menu.</p>"
               }
-            ]
+            ],
+            "smartphrase_note": "VHR reclassification documented — .LIPLIPID-VHR (future)"
+          },
+          {
+            "faq_id": "advanced-markers",
+            "topic": "Advanced Lipid Markers",
+            "title": "Lp(a) and ApoB — ordering and interpretation",
+            "referenced_by": [
+              "advanced-markers"
+            ],
+            "first_layer_html": "<p>Lp(a): COR 1 once-in-lifetime in all adults. Order with the next routine lipid draw if not yet measured; document in the lifetime problem list. Key thresholds[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]: ≥125 nmol/L (≥50 mg/dL) = elevated; ≥250 nmol/L (≥100 mg/dL) = ≥2-fold CV risk.</p>\n<p>ApoB: COR 2a on LLT for residual-risk evaluation — most useful in patients with ASCVD, CKM syndrome, T2D, or TG ≥150 mg/dL once LDL-C and non-HDL-C goals are near target.[ref:acc-aha-dys-2026][ref:fegers-wustrow-jacc-2022]</p>\n<p>Full framework for both markers is in [co-primary-targets].</p>",
+            "sub_questions": [
+              {
+                "question": "Are ApoB and Lp(a) covered by insurance?",
+                "answer_html": "<p>Both are covered by most commercial and Medicare plans without prior authorization. Some plans require a diagnosis code for Lp(a) (e.g., E78.5 mixed hyperlipidemia; Z83.42 family history of lipid disorder). Out-of-pocket when uncovered: ~$20–60 ApoB / ~$30–80 Lp(a). Neither is auto-included in routine lipid panels — order specifically. Both can be embedded in Epic order sets / SmartSets.</p>"
+              }
+            ],
+            "smartphrase_note": "Lp(a) result documented — .LIPLIPID-LPA-NEW (future)"
           },
           {
             "faq_id": "whats-new-2023-2024",
             "topic": "What's New",
             "title": "What changed since the 2018 cholesterol guideline",
-            "referenced_by": [
-              "risk-tier"
-            ],
-            "items": [
+            "referenced_by": [],
+            "first_layer_html": "<p>Five changes with direct clinical impact in the 2026 ACC/AHA Multisociety Dyslipidemia Guideline:</p>\n<ul><li>PREVENT replaces PCE as the primary risk estimator — recalibrated tiers (Low &lt;3% / Borderline 3–&lt;5% / Intermediate 5–&lt;10% / High ≥10%), extended age range 30–79, and new 30-year risk pathway for younger adults[ref:khan-circ-2024][ref:acc-aha-dys-2026][ref:krishnan-jacc-2025].</li><li>LDL-C and non-HDL-C are co-primary treatment targets — reinstated explicit numeric goals across all tiers, departing from 2018 percentage-reduction-only framing[ref:acc-aha-dys-2026][ref:abbasi-jama-2026][ref:grundy-2018-cholesterol].</li><li>Lp(a) is COR 1 once-in-lifetime universal screening — upgraded from risk enhancer in selected populations[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc].</li><li>Escalation sequencing is no longer rigid — ezetimibe no longer required before PCSK9 mAb; bempedoic acid and inclisiran now named agents in the toolkit[ref:acc-aha-dys-2026][ref:clear-outcomes-2023].</li><li>Icosapent ethyl (IPE) is COR 2b for residual TG-driven risk — adults ≥50 with ASCVD/DM on statin with TG 150–499 mg/dL[ref:acc-aha-dys-2026][ref:reduce-it-2019]. OTC fish oil not equivalent.</li></ul>",
+            "sub_questions": [
               {
-                "question": "1. PREVENT replaces PCE as the primary risk estimator",
-                "answer_html": "<p>AHA PREVENT[ref:khan-circ-2024] is the primary risk estimator for ages 30–79; PCE is retired for new statin decisions[ref:acc-aha-dys-2026]. Risk tiers are recalibrated (Low &lt;3% / Borderline 3 to &lt;5 / Intermediate 5 to &lt;10 / High ≥10%) — see <em>risk-tier</em>. The expansion to ages 30–79 (vs 40–75 PCE) and the new 30-year risk pathway add the ability to identify younger adults at high lifetime CV risk[ref:krishnan-jacc-2025].</p>"
-              },
-              {
-                "question": "2. LDL-C and non-HDL-C are co-primary treatment targets",
-                "answer_html": "<p>The 2026 guideline reinstates explicit numeric LDL-C and non-HDL-C goals across every risk tier[ref:acc-aha-dys-2026][ref:abbasi-jama-2026], departing from the 2018 percentage-reduction-only framing[ref:grundy-2018-cholesterol]. ApoB is positioned as a residual-risk tool — see <em>co-primary-targets</em>.</p>"
-              },
-              {
-                "question": "3. Lp(a) is COR 1 once-in-lifetime in all adults",
-                "answer_html": "<p>Lp(a) measurement is now COR 1 universal screening, replacing the 2018 framing of &quot;risk-enhancing factor in selected populations&quot;[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]. See <em>co-primary-targets</em> Q4 for thresholds, interpretation, and the operational once-in-lifetime workflow.</p>"
-              },
-              {
-                "question": "4. Escalation sequencing is no longer rigid; bempedoic acid + inclisiran are now in scope",
-                "answer_html": "<p>The 2026 guideline <strong>removes the requirement that ezetimibe must precede a PCSK9 mAb</strong> — choice may now be based on degree of LDL-C lowering needed and patient preference[ref:acc-aha-dys-2026]. Bempedoic acid (CLEAR Outcomes 13% RRR MACE)[ref:clear-outcomes-2023] and inclisiran (twice-yearly siRNA, second-line to PCSK9 mAbs)[ref:acc-aha-dys-2026] are now named agents in the escalation toolkit. See <em>not-at-goal</em> and <em>escalation-options</em>.</p>"
-              },
-              {
-                "question": "5. Icosapent ethyl (IPE) is COR 2b for residual TG-driven risk",
-                "answer_html": "<p>IPE 2 g BID is COR 2b for adults ≥50 with ASCVD or DM + ≥1 risk factor on statin with managed LDL goal and TG 150–499[ref:acc-aha-dys-2026][ref:reduce-it-2019]. The COR 2b (rather than 2a) reflects the mineral-oil placebo controversy in REDUCE-IT — see <em>escalation-options</em> Q1. Adds a new pharmacologic class (high-purity EPA) to the lipid toolkit. <strong>Non-prescription OTC fish oil products are not equivalent</strong> and are not recommended for CV risk reduction.</p>"
-              },
-              {
-                "question": "Forward-looking: will VHR vs non-VHR collapse?",
-                "answer_html": "<p>The 2026 guideline writing committee has signaled that future revisions may collapse the VHR vs non-VHR distinction into a single LDL-C &lt;55 mg/dL pathway for all ASCVD patients, pending VESALIUS-CV trial results[ref:blumenthal-circ-2026-progress]. The 2026 COR 2a option to intensify non-VHR ASCVD to &lt;55 is an early step. Module structure stays VHR-vs-non-VHR for now; expect this to consolidate in the next ACC/AHA dyslipidemia revision.</p>"
+                "question": "Will VHR vs non-VHR collapse in the next guideline?",
+                "answer_html": "<p>The 2026 writing committee has signaled that future revisions may collapse VHR vs non-VHR ASCVD into a single LDL-C &lt;55 mg/dL pathway for all ASCVD patients, pending VESALIUS-CV trial results[ref:blumenthal-circ-2026-progress]. The 2026 COR 2a option to intensify non-VHR ASCVD to &lt;55 is an early step. Module structure stays VHR-vs-non-VHR for now; expect this to consolidate in the next ACC/AHA dyslipidemia revision.</p>"
               }
             ]
           }
         ],
-        "footer_note": "Lipid module v1.1.0 (2026-05-06). Primary references: 2026 ACC/AHA Multisociety Dyslipidemia Guideline[ref:acc-aha-dys-2026][ref:acc-aha-dys-2026-jacc]; 2022 ACC Expert Consensus Decision Pathway[ref:acc-2022-decisionpathway]; AHA PREVENT validation[ref:khan-circ-2024]. Not a substitute for clinical judgment. Use the feedback button to flag any error or gap.",
+        "smartphrases": [
+          {
+            "id": ".lipidreview",
+            "status": "confirmed",
+            "anchor": "green-zone",
+            "decision_point": "Green zone — all four checklist items verified; escalation criteria reviewed and not met",
+            "text": "Lipid management reviewed using the Meridian Lipid Management module (2026 ACC/AHA Multisociety Dyslipidemia Guideline). ASCVD risk tier calculated using AHA PREVENT-ASCVD: [TIER] risk ([SCORE]% 10-year estimate). Statin indication addressed with benefit-risk discussion; patient [accepts / declines / is currently on] statin therapy. LDL-C [VALUE] mg/dL (goal [VALUE] mg/dL); non-HDL-C [VALUE] mg/dL (goal [VALUE] mg/dL) — [at goal / active intensification plan in place: PLAN]. Medication plan: [AGENT] [DOSE]. Follow-up lipid panel ordered for [DATE / 4–12 weeks / 6–12 months]."
+          },
+          {
+            "id": ".LIPLIPID-VHR",
+            "status": "future",
+            "anchor": "very-high-risk",
+            "decision_point": "VHR criteria met; LDL-C goal reclassified to <55 mg/dL",
+            "text": "Patient meets criteria for Very High Risk (VHR) ASCVD reclassification per 2026 ACC/AHA Dyslipidemia Guideline. Qualifying basis: [FINDING — e.g., \"≥2 major ASCVD events: prior MI (YEAR) and ischemic stroke (YEAR)\" OR \"1 major ASCVD event + ≥2 high-risk conditions: [list conditions]\"]. LDL-C goal updated to <55 mg/dL (non-HDL-C goal <85 mg/dL). Current LDL-C [VALUE] mg/dL on [AGENT] [DOSE]. [At goal — no change to regimen. / Not at goal — intensification plan: PLAN.]"
+          },
+          {
+            "id": ".LIPLIPID-NOTGOAL",
+            "status": "future",
+            "anchor": "not-at-goal",
+            "decision_point": "Not at goal on maximally tolerated statin; nonstatin add-on considered or initiated",
+            "text": "Patient not at LDL-C goal despite maximally tolerated statin therapy. Current regimen: [AGENT] [DOSE] (maximally tolerated per [adherence confirmed / intolerance history: FINDING]). LDL-C [VALUE] mg/dL; goal [VALUE] mg/dL per [VHR / non-VHR ASCVD / high-risk primary prevention] tier. Nonstatin escalation discussed: [ezetimibe / PCSK9 mAb / bempedoic acid / inclisiran] [selected / considered — REASON]. [PA submitted. / Prescription placed. / Patient to consider and follow up.] Plan: [PLAN]."
+          },
+          {
+            "id": ".LIPLIPID-LDL190",
+            "status": "future",
+            "anchor": "ldl-190",
+            "decision_point": "LDL-C ≥190 confirmed; high-intensity statin initiated; secondary-cause + FH workup underway",
+            "text": "LDL-C [VALUE] mg/dL on [DATE] — meets threshold for high-intensity statin initiation regardless of calculated risk score (COR 1, 2026 ACC/AHA). High-intensity statin initiated: [AGENT] [DOSE]. Secondary causes assessed: [TSH ordered / TSH [VALUE] — normal / urine protein-creatinine ordered / hepatic panel reviewed / dietary and medication history reviewed — FINDING]. FH evaluation: [genetic testing ordered / DLCN score [SCORE] — [possible/probable/definite] / referred to lipid specialist]. Follow-up lipid panel: [DATE / 4–12 weeks]. Patient counseled on indication, monitoring, and follow-up."
+          },
+          {
+            "id": ".LIPLIPID-FH-CASCADE",
+            "status": "future",
+            "anchor": "fh-management",
+            "decision_point": "FH confirmed or probable; cascade screening conversation initiated",
+            "text": "Familial hypercholesterolemia [confirmed / probable / possible] per [genetic testing: FINDING / clinical criteria: DLCN score SCORE]. Patient counseled on autosomal dominant inheritance and importance of cascade screening for first-degree relatives. [Patient agrees to contact relatives. / Patient declines at this time — REASON.] Relatives at risk: [first-degree relatives identified: FINDING]. Lp(a) ordered separately per COR 1 universal screening recommendation — [result: VALUE nmol/L / pending]. LDL-C goal per FH tier: [<100 / <70 / <55] mg/dL. Current LDL-C [VALUE] mg/dL on [AGENT] [DOSE]."
+          },
+          {
+            "id": ".LIPLIPID-CAC",
+            "status": "future",
+            "anchor": "statin-hesitant",
+            "decision_point": "Statin-hesitant borderline/intermediate patient; CAC used as a decision aid",
+            "text": "Patient in [borderline / intermediate] ASCVD risk tier (PREVENT-ASCVD [SCORE]%); expressed hesitancy regarding statin therapy. CAC scoring discussed as a decision aid (COR 1, LOE B-NR per 2026 ACC/AHA). [CAC ordered — patient to schedule. / CAC result: [VALUE] Agatston units ([percentile]th percentile for age/sex).] Interpretation: [CAC = 0 — statin deferred; reassess in 3–7 years, with caveats discussed (no FH, LDL <190, no diabetes, nonsmoker, no strong family history). / CAC > 0 — statin initiation recommended (COR 1); [AGENT] [DOSE] initiated. / CAC ≥1000 — LDL-C goal <55 mg/dL; high-intensity statin initiated.] Benefit-risk discussion documented: [brief summary or refer to AVS]."
+          },
+          {
+            "id": ".LIPLIPID-INTOL-RECHALLENGE",
+            "status": "future",
+            "anchor": "statin-intolerance",
+            "decision_point": "Statin-attributed symptoms evaluated; rechallenge pathway initiated",
+            "text": "Patient reports [FINDING — e.g., \"myalgia bilateral lower extremities\"] attributed to statin therapy. Current / prior regimen: [AGENT] [DOSE]. Nocebo effect discussed — majority of statin-attributed symptoms are nocebo-driven per SAMSON crossover data; patient [acknowledges / remains concerned]. CK: [VALUE — normal / elevated: VALUE × ULN — management: PLAN]. Rechallenge plan: [low-dose [AGENT] [DOSE] / every-other-day dosing / pause [DURATION] then rechallenge / switch to [AGENT]]. [If two-statin failure confirmed: bempedoic acid and/or ezetimibe discussed as alternative LDL-C–lowering options.] Follow-up: [DATE / 4–12 weeks]."
+          },
+          {
+            "id": ".LIPLIPID-LPA-NEW",
+            "status": "future",
+            "anchor": "advanced-markers",
+            "decision_point": "Lp(a) resulted for the first time; interpreted and documented in lifetime problem list",
+            "text": "Lp(a) measured per 2026 ACC/AHA COR 1 once-in-lifetime recommendation. Result: [VALUE] nmol/L ([VALUE] mg/dL) — [within normal range (<75 nmol/L) / elevated (75–124 nmol/L: ~1.2× risk) / elevated (≥125 nmol/L / ≥50 mg/dL: ~1.4× risk) / high (≥250 nmol/L / ≥100 mg/dL: ≥2× risk)]. Result documented in lifetime problem list. [No change to current lipid regimen indicated. / Lp(a) elevation noted as additional factor supporting [statin initiation / LDL-C intensification / PCSK9 mAb preference over inclisiran]: PLAN.] No FDA-approved Lp(a)-specific therapy currently available; investigational trials ongoing. Single measurement is sufficient — repeat not indicated in absence of secondary cause."
+          }
+        ],
         "references": [
           {
             "ref_id": "acc-aha-dys-2026",
