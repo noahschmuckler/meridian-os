@@ -1407,20 +1407,21 @@ export default function App() {
           <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.35)", overflow: "hidden", marginBottom: 12 }}>
 
             {/* Header */}
-            <div style={{ background: `linear-gradient(135deg, #0f1b2d 0%, #1e3a5f 100%)`, padding: "18px 20px 16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: deptMeta.accentLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
+            <div style={{ background: `linear-gradient(135deg, #101c2e 0%, #1e3a5f 100%)`, padding: "18px 20px 16px" }}>
+              {/* Top row: icon + name + badge — all on one line, badge never clips */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: deptMeta.accentLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>
                   {deptMeta.icon}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "white", lineHeight: 1.2 }}>{deptMeta.label}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 1 }}>Optum NY/NJ — Onboarding Tracker</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "white", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{deptMeta.label}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", marginTop: 2, whiteSpace: "nowrap" }}>Optum NY/NJ · Onboarding Tracker</div>
                 </div>
-                <div style={{ fontSize: 8, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: deptMeta.accent, color: "white", letterSpacing: "0.06em", textTransform: "uppercase", flexShrink: 0 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: deptMeta.accent, color: "white", letterSpacing: "0.05em", textTransform: "uppercase", flexShrink: 0, whiteSpace: "nowrap" }}>
                   Coming Soon
                 </div>
               </div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", lineHeight: 1.4 }}>{deptMeta.tagline}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", lineHeight: 1.45 }}>{deptMeta.tagline}</div>
             </div>
 
             {/* Medical Director strip */}
