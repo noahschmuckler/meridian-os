@@ -1400,72 +1400,66 @@ export default function App() {
     }[dept] || { label: dept, icon: "🏥", accent: "#028090", accentLight: "#e0f9fb", director: "Medical Director", directorTitle: "Medical Director", tagline: "", description: "", features: [] };
 
     return (
-      <div style={gradBg}>
-        <BrandPanel />
-        <CardPanel>
-          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.3)", overflow: "hidden" }}>
+      <div style={{ ...gradBg, alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: "100%", maxWidth: 400, padding: "24px 20px" }}>
 
-            {/* Department header */}
-            <div style={{ background: `linear-gradient(135deg, #0f1b2d 0%, #1e3a5f 100%)`, padding: "22px 24px 20px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: deptMeta.accentLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+          {/* Card */}
+          <div style={{ background: "white", borderRadius: 16, boxShadow: "0 24px 48px rgba(0,0,0,0.35)", overflow: "hidden", marginBottom: 12 }}>
+
+            {/* Header */}
+            <div style={{ background: `linear-gradient(135deg, #0f1b2d 0%, #1e3a5f 100%)`, padding: "18px 20px 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: deptMeta.accentLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
                   {deptMeta.icon}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: "white", lineHeight: 1.2 }}>{deptMeta.label}</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>Optum NY/NJ — Onboarding Tracker</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "white", lineHeight: 1.2 }}>{deptMeta.label}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 1 }}>Optum NY/NJ — Onboarding Tracker</div>
                 </div>
-                <div style={{ fontSize: 9, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: deptMeta.accent, color: "white", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                <div style={{ fontSize: 8, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: deptMeta.accent, color: "white", letterSpacing: "0.06em", textTransform: "uppercase", flexShrink: 0 }}>
                   Coming Soon
                 </div>
               </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{deptMeta.tagline}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", lineHeight: 1.4 }}>{deptMeta.tagline}</div>
             </div>
 
             {/* Medical Director strip */}
-            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 24px", borderBottom: "1px solid #f1f3f5", background: "#fafafa" }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: deptMeta.accent + "20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: deptMeta.accent, flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 20px", borderBottom: "1px solid #f1f3f5", background: "#fafafa" }}>
+              <div style={{ width: 30, height: 30, borderRadius: "50%", background: deptMeta.accent + "20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: deptMeta.accent, flexShrink: 0 }}>
                 {deptMeta.director.replace("Dr. ", "").split(" ").map(w => w[0]).join("").slice(0, 2)}
               </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{deptMeta.director}</div>
-                <div style={{ fontSize: 11, color: "#868e96" }}>{deptMeta.directorTitle}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>{deptMeta.director}</div>
+                <div style={{ fontSize: 10, color: "#868e96" }}>{deptMeta.directorTitle}</div>
               </div>
             </div>
 
-            {/* Description */}
-            <div style={{ padding: "16px 24px 12px" }}>
-              <div style={{ fontSize: 11, color: "#6b7280", lineHeight: 1.6 }}>{deptMeta.description}</div>
-            </div>
-
-            {/* Feature preview tiles */}
-            <div style={{ padding: "0 24px 20px", display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Program preview</div>
-              {deptMeta.features.map((f, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 8, background: "#f8f9fa", border: "1px solid #e9ecef", opacity: 0.7 }}>
-                  <span style={{ fontSize: 16, flexShrink: 0 }}>{f.icon}</span>
-                  <div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>{f.label}</div>
-                    <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 1 }}>{f.sub}</div>
+            {/* Feature tiles — 2×2 grid */}
+            <div style={{ padding: "14px 20px 16px" }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Program preview</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                {deptMeta.features.map((f, i) => (
+                  <div key={i} style={{ padding: "10px", borderRadius: 8, background: "#f8f9fa", border: "1px solid #e9ecef", opacity: 0.75 }}>
+                    <div style={{ fontSize: 16, marginBottom: 4 }}>{f.icon}</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#374151", lineHeight: 1.3 }}>{f.label}</div>
+                    <div style={{ fontSize: 9, color: "#9ca3af", marginTop: 3, lineHeight: 1.3 }}>{f.sub}</div>
+                    <div style={{ marginTop: 6, fontSize: 8, fontWeight: 700, padding: "1px 6px", borderRadius: 6, background: "#e9ecef", color: "#adb5bd", display: "inline-block" }}>Soon</div>
                   </div>
-                  <div style={{ marginLeft: "auto", fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 8, background: "#e9ecef", color: "#adb5bd" }}>Soon</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Back */}
           <div onClick={() => setDept(null)}
-            style={{ marginTop: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 12, padding: "14px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14 }}
+            style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 12, padding: "12px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.16)"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}>
-            <span style={{ fontSize: 22, color: "white", lineHeight: 1 }}>←</span>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "white" }}>Back to Department Selection</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Choose a different department</div>
-            </div>
+            <span style={{ fontSize: 18, color: "white", lineHeight: 1 }}>←</span>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>Back to Department Selection</div>
           </div>
-        </CardPanel>
+
+        </div>
       </div>
     );
   }
