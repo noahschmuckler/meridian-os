@@ -1931,7 +1931,7 @@ export default function App() {
         <div style={{ width: 330, background: "white", borderRight: "1px solid #dee2e6", overflowY: "auto", flexShrink: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ padding: "16px 16px 8px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{isDir ? "All Providers" : "My Mentees"}</h2>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>{isDir ? "New Primary Care Providers" : "My Mentees"}</h2>
               {sidebarFilter && (
                 <button onClick={() => setSidebarFilter(null)}
                   style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, border: "none", cursor: "pointer", background: sidebarFilter === "ok" ? "#dcfce7" : "#fee2e2", color: sidebarFilter === "ok" ? "#166534" : "#991b1b" }}>
@@ -2659,7 +2659,7 @@ export default function App() {
                     })()}
 
                     {/* Mentor panel cards */}
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#adb5bd", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Mentor Panels</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: "#0f1b2d", letterSpacing: "-0.2px", marginBottom: 14, paddingBottom: 10, borderBottom: "2px solid #e9ecef" }}>Mentor Panels</div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
                       {mentors.map(mentor => {
                         const panel = PROVS.filter(p => p.mentor === mentor.id);
