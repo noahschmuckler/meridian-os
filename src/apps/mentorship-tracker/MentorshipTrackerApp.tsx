@@ -509,7 +509,7 @@ function exportJSON(data) {
 }
 
 /* ─── DOCX Export (one document, all providers) ─── */
-async function exportDocx(provs, checks, qa, notes) {
+async function exportDocx(provs, checks, qa, notes, meetings) {
   const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
   const children = [];
   for (const p of provs) {
@@ -565,6 +565,26 @@ async function exportDocx(provs, checks, qa, notes) {
         children.push(new Paragraph({ children: [new TextRun("  [" + n.phase + "] " + n.by + " — " + n.at + ": " + n.text)] }));
       });
       children.push(new Paragraph({}));
+    }
+
+    const allMeetings = [];
+    Object.entries(meetings || {}).forEach(function([key, arr]) {
+      if (!key.startsWith(p.id + ".")) return;
+      const phId = key.split(".")[1];
+      const ph = MP.find(function(x) { return x.id === phId; }) || OP.find(function(x) { return x.id === phId; });
+      arr.forEach(function(m) { allMeetings.push({ phase: ph ? ph.label : phId, ...m }); });
+    });
+    allMeetings.sort(function(a, b) { return a.date > b.date ? 1 : -1; });
+    if (allMeetings.length > 0) {
+      children.push(new Paragraph({ children: [new TextRun({ text: "Meeting Log", bold: true })], heading: HeadingLevel.HEADING_2 }));
+      allMeetings.forEach(function(m) {
+        children.push(new Paragraph({ children: [new TextRun({ text: "  [" + m.phase + "] " + m.date + " — " + m.by, bold: true })] }));
+        if (m.discussion) children.push(new Paragraph({ children: [new TextRun("  " + m.discussion)] }));
+        (m.actions || []).forEach(function(a) {
+          children.push(new Paragraph({ children: [new TextRun("    " + (a.done ? "☑" : "☐") + " " + a.text)] }));
+        });
+        children.push(new Paragraph({}));
+      });
     }
 
     children.push(new Paragraph({ children: [new TextRun({ text: "─".repeat(60), color: "AAAAAA" })] }));
@@ -1181,6 +1201,159 @@ function MdViewAllModal({ open, onClose, prov, checks, setChecks, isDir, isMen, 
   );
 }
 
+/* ─── Meeting Card ─── */
+function MeetingCard({ meeting, canEdit, onToggleAction }) {
+  const [expanded, setExpanded] = useState(false);
+  const doneCount = (meeting.actions || []).filter(function(a) { return a.done; }).length;
+  const total = (meeting.actions || []).length;
+  return (
+    <div style={{ background: "white", borderRadius: 7, border: "1px solid #bae6fd", marginBottom: 6 }}>
+      <div onClick={function() { setExpanded(function(v) { return !v; }); }}
+        style={{ padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#0f1b2d" }}>📅 {meeting.date}</div>
+          {meeting.discussion && !expanded && (
+            <div style={{ fontSize: 11, color: "#868e96", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 320 }}>
+              {meeting.discussion}
+            </div>
+          )}
+        </div>
+        {total > 0 && (
+          <div style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: doneCount === total ? "#dcfce7" : "#fef9c3", color: doneCount === total ? "#16a34a" : "#854d0e" }}>
+            {doneCount}/{total} actions
+          </div>
+        )}
+        <div style={{ fontSize: 11, color: "#adb5bd" }}>{expanded ? "▲" : "▼"}</div>
+      </div>
+      {expanded && (
+        <div style={{ padding: "0 12px 12px", borderTop: "1px solid #e0f2fe" }}>
+          {meeting.discussion && (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#0369a1", marginBottom: 4 }}>DISCUSSION</div>
+              <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{meeting.discussion}</div>
+            </div>
+          )}
+          {total > 0 && (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#0369a1", marginBottom: 6 }}>ACTION ITEMS</div>
+              {(meeting.actions || []).map(function(a, i) {
+                return (
+                  <div key={i} onClick={canEdit ? function() { onToggleAction(i); } : undefined}
+                    style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "4px 0", cursor: canEdit ? "pointer" : "default" }}>
+                    <div style={{ width: 16, height: 16, borderRadius: 4, border: "2px solid " + (a.done ? "#22c55e" : "#dee2e6"), background: a.done ? "#22c55e" : "white", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                      {a.done && <span style={{ color: "white", fontSize: 9, fontWeight: 700 }}>✓</span>}
+                    </div>
+                    <div style={{ fontSize: 13, color: a.done ? "#adb5bd" : "#1c2b3a", textDecoration: a.done ? "line-through" : "none" }}>{a.text}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div style={{ marginTop: 8, fontSize: 9, color: "#adb5bd" }}>Logged by {meeting.by}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Meeting Log Section ─── */
+function MeetingLogSection({ pid, phid, canEdit, meetings, onAdd, onToggleAction }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [formOpen, setFormOpen] = useState(false);
+  const [date, setDate] = useState(today);
+  const [discussion, setDiscussion] = useState("");
+  const [actions, setActions] = useState([]);
+  const [actionInput, setActionInput] = useState("");
+
+  const entries = (meetings[pid + "." + phid] || []).slice().reverse();
+
+  function addActionLocal() {
+    if (!actionInput.trim()) return;
+    setActions(function(prev) { return [...prev, { text: actionInput.trim(), done: false }]; });
+    setActionInput("");
+  }
+
+  function save() {
+    if (!discussion.trim() && actions.length === 0) return;
+    onAdd(pid, phid, { date, discussion: discussion.trim(), actions });
+    setFormOpen(false);
+    setDate(today);
+    setDiscussion("");
+    setActions([]);
+    setActionInput("");
+  }
+
+  return (
+    <div style={{ padding: "14px 20px", background: "#f0f9ff", borderTop: "2px solid #bae6fd" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: (entries.length > 0 || formOpen) ? 10 : 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#0369a1" }}>
+          MEETING LOG{entries.length > 0 ? " · " + entries.length + " entr" + (entries.length === 1 ? "y" : "ies") : ""}
+        </div>
+        {canEdit && !formOpen && (
+          <button onClick={function() { setFormOpen(true); }}
+            style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, border: "1px solid #bae6fd", background: "white", color: "#0369a1", cursor: "pointer" }}>
+            + Log meeting
+          </button>
+        )}
+      </div>
+
+      {entries.map(function(m) {
+        return (
+          <MeetingCard
+            key={m.id}
+            meeting={m}
+            canEdit={canEdit}
+            onToggleAction={function(ai) { onToggleAction(pid, phid, m.id, ai); }}
+          />
+        );
+      })}
+
+      {formOpen && (
+        <div style={{ background: "white", borderRadius: 8, border: "1px solid #bae6fd", padding: 14, marginTop: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#0369a1", flexShrink: 0 }}>DATE</div>
+            <input type="date" value={date} onChange={function(e) { setDate(e.target.value); }}
+              style={{ padding: "5px 8px", borderRadius: 5, border: "1px solid #dee2e6", fontSize: 13, fontFamily: "inherit" }} />
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#0369a1", marginBottom: 5 }}>DISCUSSION NOTES</div>
+            <textarea value={discussion} onChange={function(e) { setDiscussion(e.target.value); }}
+              placeholder="What was covered, decisions made, observations..."
+              style={{ padding: "8px 10px", borderRadius: 6, border: "1px solid #dee2e6", fontSize: 13, width: "100%", height: 80, boxSizing: "border-box", resize: "vertical", outline: "none", fontFamily: "inherit" }} />
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#0369a1", marginBottom: 5 }}>ACTION ITEMS</div>
+            {actions.map(function(a, i) {
+              return (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
+                  <div style={{ width: 14, height: 14, borderRadius: 3, border: "1px solid #dee2e6", background: "#f8f9fb", flexShrink: 0 }} />
+                  <div style={{ fontSize: 13, flex: 1 }}>{a.text}</div>
+                  <button onClick={function() { setActions(function(prev) { return prev.filter(function(_, j) { return j !== i; }); }); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#adb5bd", fontSize: 14, lineHeight: 1, padding: "0 2px" }}>×</button>
+                </div>
+              );
+            })}
+            <div style={{ display: "flex", gap: 6 }}>
+              <input value={actionInput} onChange={function(e) { setActionInput(e.target.value); }}
+                onKeyDown={function(e) { if (e.key === "Enter") addActionLocal(); }}
+                placeholder="Add action item and press Enter..."
+                style={{ flex: 1, padding: "6px 10px", borderRadius: 5, border: "1px solid #dee2e6", fontSize: 12, outline: "none", fontFamily: "inherit" }} />
+              <button onClick={addActionLocal}
+                style={{ padding: "6px 10px", borderRadius: 5, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#0369a1" }}>+</button>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            <button onClick={function() { setFormOpen(false); setDate(today); setDiscussion(""); setActions([]); setActionInput(""); }}
+              style={{ padding: "7px 14px", borderRadius: 6, border: "1px solid #dee2e6", background: "white", cursor: "pointer", fontSize: 12, color: "#868e96" }}>Cancel</button>
+            <button onClick={save}
+              style={{ padding: "7px 14px", borderRadius: 6, border: "none", background: "#0f1b2d", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Save Meeting</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Main App ─── */
 export default function App() {
   const [dept, setDept] = useState(null); // null = picker, "pc" | "peds" | "spec"
@@ -1217,18 +1390,19 @@ export default function App() {
   const [qa, setQa] = useState(() => _init?.qa || makeSeedQA());
   const [noteIn, setNoteIn] = useState("");
   const [notes, setNotes] = useState(() => _init?.notes || {});
+  const [meetings, setMeetings] = useState(() => _init?.meetings || {});
 
   // Keep module-level PROVS in sync so helper functions see current state
   PROVS = provs;
 
   // Autosave whenever data changes; flash confirmation on user-driven saves
   useEffect(() => {
-    saveMT({ provs, checks, qa, notes, savedAt: new Date().toISOString() });
+    saveMT({ provs, checks, qa, notes, meetings, savedAt: new Date().toISOString() });
     if (firstSaveRef.current) { firstSaveRef.current = false; return; }
     setSaveFlash(true);
     const t = setTimeout(() => setSaveFlash(false), 2000);
     return () => clearTimeout(t);
-  }, [provs, checks, qa, notes]);
+  }, [provs, checks, qa, notes, meetings]);
 
   const user = USERS.find(u => u.id === uid);
   const isDir = user && user.role === "director";
@@ -1269,6 +1443,19 @@ export default function App() {
   const removeNote = (pid, phid, idx) => {
     const k = pid + "." + phid;
     setNotes(prev => ({ ...prev, [k]: (prev[k] || []).filter((_, i) => i !== idx) }));
+  };
+  const addMeeting = (pid, phid, { date, discussion, actions }) => {
+    const k = pid + "." + phid;
+    setMeetings(prev => ({ ...prev, [k]: [...(prev[k] || []), { id: Date.now().toString(), date, discussion, actions, by: user.name }] }));
+  };
+  const toggleMeetingAction = (pid, phid, meetingId, actionIdx) => {
+    const k = pid + "." + phid;
+    setMeetings(prev => ({
+      ...prev,
+      [k]: (prev[k] || []).map(function(m) {
+        return m.id === meetingId ? { ...m, actions: m.actions.map(function(a, i) { return i === actionIdx ? { ...a, done: !a.done } : a; }) } : m;
+      }),
+    }));
   };
 
   // Gather recent notes
@@ -1473,10 +1660,10 @@ export default function App() {
       const freshChecks = makeSeedChecks();
       const freshQa = makeSeedQA();
       const freshProvs = keepProvs ? provs : SEED_PROVS;
-      setChecks(freshChecks); setQa(freshQa); setNotes({});
+      setChecks(freshChecks); setQa(freshQa); setNotes({}); setMeetings({});
       if (!keepProvs) setProvs(SEED_PROVS);
       setFreshOpts(false);
-      saveMT({ provs: freshProvs, checks: freshChecks, qa: freshQa, notes: {}, savedAt: new Date().toISOString() });
+      saveMT({ provs: freshProvs, checks: freshChecks, qa: freshQa, notes: {}, meetings: {}, savedAt: new Date().toISOString() });
     };
     return (
       <div style={gradBg}>
@@ -1636,13 +1823,13 @@ export default function App() {
                   <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 1500 }} />
                   <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 1501, background: "white", borderRadius: 10, border: "1px solid #dee2e6", boxShadow: "0 8px 24px rgba(0,0,0,0.14)", minWidth: 180, overflow: "hidden" }}>
                     <div style={{ padding: "6px 0" }}>
-                      <button onClick={() => { exportJSON({ provs, checks, qa, notes, savedAt: new Date().toISOString() }); setMenuOpen(false); }}
+                      <button onClick={() => { exportJSON({ provs, checks, qa, notes, meetings, savedAt: new Date().toISOString() }); setMenuOpen(false); }}
                         style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#1c2b3a", textAlign: "left" }}
                         onMouseEnter={e => e.currentTarget.style.background = "#f8f9fb"}
                         onMouseLeave={e => e.currentTarget.style.background = "none"}>
                         <span style={{ fontSize: 15 }}>⬇</span> Export JSON
                       </button>
-                      <button onClick={async () => { setMenuOpen(false); setExportingDocx(true); try { await exportDocx(provs, checks, qa, notes); } finally { setExportingDocx(false); } }}
+                      <button onClick={async () => { setMenuOpen(false); setExportingDocx(true); try { await exportDocx(provs, checks, qa, notes, meetings); } finally { setExportingDocx(false); } }}
                         disabled={exportingDocx}
                         style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#1c2b3a", textAlign: "left", opacity: exportingDocx ? 0.5 : 1 }}
                         onMouseEnter={e => { if (!exportingDocx) e.currentTarget.style.background = "#f8f9fb"; }}
@@ -2965,6 +3152,7 @@ export default function App() {
                   {curChecklist.items.map((item, i) => (
                     <CheckItem key={i} text={item} checked={!!checks[prov.id + "." + phase + "." + i]} canEdit={canChk} onToggle={() => toggle(prov.id, phase, i)} />
                   ))}
+                  <MeetingLogSection pid={prov.id} phid={phase} canEdit={canChk} meetings={meetings} onAdd={addMeeting} onToggleAction={toggleMeetingAction} />
                   <div style={{ padding: "14px 20px", background: "#f8f9fb", borderTop: "1px solid #dee2e6" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 6 }}>NOTES</div>
                     {curNotes.map((n, i) => (
@@ -3053,6 +3241,7 @@ export default function App() {
                     );
                     return items;
                   })}
+                  <MeetingLogSection pid={prov.id} phid={phase} canEdit={canChk} meetings={meetings} onAdd={addMeeting} onToggleAction={toggleMeetingAction} />
                   <div style={{ padding: "14px 20px", background: "#f8f9fb", borderTop: "1px solid #dee2e6" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#868e96", marginBottom: 6 }}>NOTES</div>
                     {curNotes.map((n, i) => (
@@ -3147,14 +3336,14 @@ export default function App() {
             <div style={{ fontSize: 13, color: "#868e96", marginBottom: 20 }}>Choose what to reset:</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
               <button onClick={() => {
-                setChecks(makeSeedChecks()); setQa(makeSeedQA()); setNotes({});
+                setChecks(makeSeedChecks()); setQa(makeSeedQA()); setNotes({}); setMeetings({});
                 setConfirmReset(false);
               }} style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "#0f1b2d" }}>Clear checks, scores &amp; notes</div>
-                <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Keep your provider list · reset all checkoffs, questionnaire answers, and notes to seed data</div>
+                <div style={{ fontSize: 12, color: "#868e96", marginTop: 3 }}>Keep your provider list · reset all checkoffs, questionnaire answers, notes, and meeting logs to seed data</div>
               </button>
               <button onClick={() => {
-                setProvs(SEED_PROVS); setChecks(makeSeedChecks()); setQa(makeSeedQA()); setNotes({});
+                setProvs(SEED_PROVS); setChecks(makeSeedChecks()); setQa(makeSeedQA()); setNotes({}); setMeetings({});
                 if (selId && !SEED_PROVS.find(x => x.id === selId)) setSelId(null);
                 setConfirmReset(false);
               }} style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid #dee2e6", background: "#f8f9fb", cursor: "pointer", textAlign: "left" }}>
