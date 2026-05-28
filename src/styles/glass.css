@@ -2016,6 +2016,10 @@
   background: linear-gradient(160deg, #4a1d6e 0%, #d4a017 100%);
 }
 
+.launcher__app-icon--lab-quickreply {
+  background: linear-gradient(160deg, #047857 0%, #0f4c5c 100%);
+}
+
 /* Floating back-to-patient-brief chevron — only rendered when the user
    followed a hard-stop module link from the Dashboard. Always fully
    opaque (no proximity-reveal) because the user explicitly navigated
