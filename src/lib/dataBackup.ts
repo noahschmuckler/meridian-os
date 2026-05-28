@@ -137,6 +137,10 @@ export function clearAllData(): void {
   for (const key of BACKUP_KEYS) {
     localStorage.removeItem(key);
   }
+  // filesystem.ts calls seedIfEmpty() at module-level and will re-seed demo
+  // content whenever the key is absent. Write an explicit empty sentinel so
+  // the guard in seedIfEmpty() sees a present key and skips the seed.
+  localStorage.setItem('meridian-os.filesystem', JSON.stringify({ files: [] }));
 }
 
 export function formatBytes(bytes: number): string {
