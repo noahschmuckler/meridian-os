@@ -30,11 +30,14 @@
   box-sizing: border-box;
 }
 
-.lab-quickreply button {
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-}
+/* No `.lab-quickreply button { color: inherit }` scoped reset here —
+   reset.css already applies `button { font: inherit; color: inherit;
+   cursor: pointer }` globally, and a scoped descendant rule (specificity
+   0,1,1) would outrank single-class button color overrides like
+   `.lab-quickreply__copy-btn { color: #fff }` (0,1,0), causing the copy
+   button's text + currentColor SVG stroke to silently fall back to the
+   `.lab-quickreply { color: #0f172a }` default. Same trap would hit
+   `.lab-quickreply__edit-btn` on the dark preview header. */
 
 .lab-quickreply__page {
   max-width: 48rem;
