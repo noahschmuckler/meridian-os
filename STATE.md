@@ -11,7 +11,9 @@ Detailed in-flight work, historical record of shipped phases/tracks, and pending
 
 ---
 
-## Current state (last updated 2026-05-26)
+## Current state (last updated 2026-05-28)
+
+**Data export/import system — shipped 2026-05-28 (Noah, branch `claude/stoic-rubin-4QC5k`, commit `4133746`).** Adds portable data storage so all app data can be downloaded as a JSON file, restored from one, or cleared. New files: `src/lib/dataBackup.ts` (knows all 14 localStorage keys; `exportAll`/`downloadBackup`/`importBackup`/`clearAllData`/`getStorageStats`/`formatBytes`), `src/shell/DataPanel.tsx` (modal with storage stats, Export, Restore-with-confirm, Clear-with-confirm). Launcher gets a fixed bottom-right gear button that opens the panel. Export format designed to double as the D1 migration payload when the app moves to a real backend. PR not yet opened — branch live, awaiting PR + merge to main. **Resume recipe:** nothing more to do unless Noah wants to open a PR from this branch.
 
 **CS-module track COMPLETE — shipped to main 2026-05-25 via PR #11 (squash-merge, admin override).** Opiates + benzos at schema 1.3.0 (Simplified/Stratified Pass), the NY/NJ controlled-substances contract builder (Track 4d), and all 19 SmartPhrases (Track 4c) landed together in one PR. **All three controlled-substance modules (adhd/opiates/benzos) are now at 1.3.0, and the QOL roadmap (Tracks 1–4) is complete.** Full detail + file/script pointers in the Shipped milestone below. **Remaining clinical-module work:** lipid completed its Simplification Pass 2026-05-26 (now 1.3.0 — see current-state bullet + Shipped milestone); ckd / anemia / abd-pain still at 1.0.x are the only candidates left. **Open follow-ups for Noah:** (a) contract-builder tier auto-suggest uses boolean inputs that can't express the schema's “significantly above” / “2+” magnitude wording (provider override covers it; finer inputs = schema v1.1); (b) consult + contract both auto-spawn on CS-module entry (the smartphrase selector is launch-only) — flag if the module view feels crowded and I'll switch the contract one to a launch affordance.
 
