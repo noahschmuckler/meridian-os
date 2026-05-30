@@ -4,6 +4,7 @@ import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
 import ProductivityPanel, { hasProductivity, prodSummary } from "./ProductivityPanel";
+import CulturePanel from "./CulturePanel";
 
 /* ─── Medical Director Curriculum (62 items from master checklist, see analysis/) ─── */
 const MD_PHASES = masterChecklist.phases;
@@ -384,6 +385,10 @@ const QP = [
     {qid:"b",text:"How strongly do you feel that your organization supports growth?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
     {qid:"c",text:"How efficient do you feel with documentation?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
     {qid:"d",text:"What have you found to be the biggest difference that is needed?",ty:"t"},
+    {qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},
+    {qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},
+    {qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},
+    {qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true},
   ]},
   {id:"m12",label:"Month 12",qs:[
     {qid:"a",text:"How motivated do you feel in your current role?",ty:"s",anchor_low:"not at all motivated",anchor_high:"extremely motivated"},
@@ -479,9 +484,15 @@ function makeSeedQA() {
     "p1.m12.ci1":"9","p1.m12.ci2":"8","p1.m12.ci3":"9","p1.m12.ci4":"8",
     "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",
     "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",
+    // p1 m9 — recovering trend after m6 dip
+    "p1.m9.ci1":"7","p1.m9.ci2":"7","p1.m9.ci3":"8","p1.m9.ci4":"7",
     "p5.m3.ci1":"8","p5.m3.ci2":"8","p5.m3.ci3":"9","p5.m3.ci4":"8",
     "p5.m6.ci1":"8","p5.m6.ci2":"9","p5.m6.ci3":"8","p5.m6.ci4":"8",
+    "p5.m9.ci1":"9","p5.m9.ci2":"8","p5.m9.ci3":"9","p5.m9.ci4":"9",
     "p5.m12.ci1":"9","p5.m12.ci2":"9","p5.m12.ci3":"9","p5.m12.ci4":"8",
+    // p5 APC extended phases — consistently high integration
+    "p5.m15.ci1":"9","p5.m15.ci2":"9","p5.m15.ci3":"8","p5.m15.ci4":"9",
+    "p5.m18.ci1":"9","p5.m18.ci2":"9","p5.m18.ci3":"9","p5.m18.ci4":"8",
   };
   Object.assign(qa, ciiScores);
   return qa;
@@ -701,7 +712,8 @@ function avgScore(qa, pid, phid) {
 }
 
 /* Culture Integration Index helpers */
-const CULTURE_PHASES = ["m3", "m6", "m12"];
+const CULTURE_PHASES = ["m3", "m6", "m9", "m12"];
+const CULTURE_PHASES_APC_EXT = ["m15", "m18", "m21", "m24"];
 const CULTURE_QIDS = ["ci1", "ci2", "ci3", "ci4"];
 
 /* Per-phase culture score (avg of 4 questions, null if none answered) */
@@ -715,15 +727,16 @@ function culturePhaseScore(qa, pid, phid) {
 }
 
 /* Overall culture score across all answered culture phases */
-function cultureScore(qa, pid) {
+function cultureScore(qa, pid, apcFlag) {
+  const phases = apcFlag ? [...CULTURE_PHASES, ...CULTURE_PHASES_APC_EXT] : CULTURE_PHASES;
   let sum = 0, cnt = 0;
-  CULTURE_PHASES.forEach(function(phid) {
+  phases.forEach(function(phid) {
     CULTURE_QIDS.forEach(function(qid) {
       const v = qa[pid + "." + phid + "." + qid];
       if (v !== undefined && v !== "") { sum += Number(v); cnt++; }
     });
   });
-  if (cnt === 0) return { avg: null, pct: 0, display: "—" };
+  if (cnt === 0) return { avg: null, pct: 0, display: "Future-Scheduled" };
   const avg = sum / cnt;
   return { avg: avg, pct: Math.round(avg * 10), display: avg.toFixed(1) };
 }
@@ -1760,9 +1773,10 @@ export default function App() {
   const isQ = tab === "quest";
   const isMd = tab === "md";
   const isProd = tab === "prod";
+  const isCulture = tab === "culture";
   const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : (tab === "mentor" && prov && !isAPC(prov) ? MP_PHYS : MP);
   const curOpQuest = isOps && phase ? OP.find(x => x.id === phase) : null;
-  const curChecklist = phase && !isQ && !isMd && !isOps && !isProd ? MP.find(x => x.id === phase) : null;
+  const curChecklist = phase && !isQ && !isMd && !isOps && !isProd && !isCulture ? MP.find(x => x.id === phase) : null;
   const curQuest = isQ && phase ? QP.find(x => x.id === phase) : null;
   const curMdItems = isMd && phase ? (MD_ITEMS_BY_PHASE[phase] || []) : null;
   const pc = curChecklist && prov ? countChecks(checks, prov.id, phase) : null;
@@ -2306,29 +2320,31 @@ export default function App() {
                   </div>
 
                   {/* Culture Integration Trend */}
-                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #fce7f3", overflow: "hidden", marginBottom: 16 }}>
-                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #fce7f3", background: "#fdf2f8" }}>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: "#9d174d" }}>Culture Integration Trend</div>
-                      <div style={{ fontSize: 12, color: "#be185d", marginTop: 3 }}>Avg of 4 culture questions per phase &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 thriving</span> &nbsp;<span style={{ color: "#ec4899", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 at risk</span></div>
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #fef3c7", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #fef3c7", background: "#fffbeb" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#78350f" }}>Culture Integration Trend</div>
+                      <div style={{ fontSize: 12, color: "#92400e", marginTop: 3 }}>Avg of 4 culture questions per phase &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 thriving</span> &nbsp;<span style={{ color: "#eab308", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 at risk</span></div>
                     </div>
                     {PROVS.map(function(p) {
-                      const scores = CULTURE_PHASES.map(function(phid, i) {
-                        return { phid: phid, label: phid === "m3" ? "Month 3" : phid === "m6" ? "Month 6" : "Month 12", avg: culturePhaseScore(qa, p.id, phid), i: i };
+                      const cPhases = isAPC(p) ? [...CULTURE_PHASES, ...CULTURE_PHASES_APC_EXT] : CULTURE_PHASES;
+                      const cLabels = {m3:"Mo 3",m6:"Mo 6",m9:"Mo 9",m12:"Mo 12",m15:"Mo 15",m18:"Mo 18",m21:"Mo 21",m24:"Mo 24"};
+                      const scores = cPhases.map(function(phid, i) {
+                        return { phid: phid, label: cLabels[phid] || phid, avg: culturePhaseScore(qa, p.id, phid), i: i };
                       });
                       const answered = scores.filter(function(x) { return x.avg !== null; });
                       const W = 480, H = 120;
                       const PL = 32, PR = 16, PT = 20, PB = 24;
                       const cw = W - PL - PR, ch = H - PT - PB;
-                      const xOfC = function(i) { return PL + (CULTURE_PHASES.length > 1 ? (i / (CULTURE_PHASES.length - 1)) : 0.5) * cw; };
+                      const xOfC = function(i) { return PL + (cPhases.length > 1 ? (i / (cPhases.length - 1)) : 0.5) * cw; };
                       const yOfC = function(v) { return PT + (1 - v / 10) * ch; };
                       const polyPts = answered.map(function(x) { return xOfC(x.i) + "," + yOfC(x.avg); }).join(" ");
-                      const cs = cultureScore(qa, p.id);
-                      const summaryColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                      const cs = cultureScore(qa, p.id, isAPC(p));
+                      const summaryColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#eab308" : "#ef4444";
                       return (
-                        <div key={p.id} style={{ padding: "12px 20px", borderBottom: "1px solid #fce7f3" }}>
+                        <div key={p.id} style={{ padding: "12px 20px", borderBottom: "1px solid #fef3c7" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                             <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: summaryColor }}>{cs.display !== "—" ? cs.display + " / 10" : "No data yet"}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: summaryColor }}>{cs.avg !== null ? cs.display + " / 10" : "Future-Scheduled"}</div>
                           </div>
                           <div style={{ overflowX: "auto" }}>
                             <svg viewBox={"0 0 " + W + " " + H} width="100%" style={{ display: "block" }}>
@@ -2336,15 +2352,15 @@ export default function App() {
                                 const y = yOfC(v);
                                 return (
                                   <g key={v}>
-                                    <line x1={PL} y1={y} x2={W - PR} y2={y} stroke="#fce7f3" strokeWidth={1} />
-                                    <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="#be185d">{v}</text>
+                                    <line x1={PL} y1={y} x2={W - PR} y2={y} stroke="#fef3c7" strokeWidth={1} />
+                                    <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="#92400e">{v}</text>
                                   </g>
                                 );
                               })}
-                              {answered.length >= 2 && <polyline points={polyPts} fill="none" stroke="#ec4899" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+                              {answered.length >= 2 && <polyline points={polyPts} fill="none" stroke="#22c55e" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
                               {scores.map(function(s) {
                                 const cx = xOfC(s.i);
-                                const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#ec4899" : "#ef4444";
+                                const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#eab308" : "#ef4444";
                                 return (
                                   <g key={s.label} onClick={s.avg !== null ? function() { setDotModal({ pid: p.id, phaseId: s.phid, type: "cii" }); } : undefined} style={{ cursor: s.avg !== null ? "pointer" : "default" }}>
                                     {s.avg !== null && (
@@ -2387,9 +2403,9 @@ export default function App() {
                       phaseLabel = ph ? ph.label : dotModal.phaseId;
                       qs = ph ? ph.qs.filter(function(q) { return q.culture === true; }) : [];
                       typeLabel = "Culture Integration Index";
-                      accentColor = "#ec4899";
-                      borderColor = "#fce7f3";
-                      bgColor = "#fdf2f8";
+                      accentColor = "#92400e";
+                      borderColor = "#fef3c7";
+                      bgColor = "#fffbeb";
                     }
                     return (
                       <div onClick={function() { setDotModal(null); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
@@ -2407,7 +2423,7 @@ export default function App() {
                             ) : qs.map(function(q, qi) {
                               const val = qa[dotModal.pid + "." + dotModal.phaseId + "." + q.qid] || "";
                               const score = q.ty === "s" && val !== "" ? Number(val) : null;
-                              const scoreColor = score === null ? "#adb5bd" : score >= 7 ? "#22c55e" : score >= 5 ? (dotModal.type === "cii" ? "#ec4899" : "#eab308") : "#ef4444";
+                              const scoreColor = score === null ? "#adb5bd" : score >= 7 ? "#22c55e" : score >= 5 ? "#eab308" : "#ef4444";
                               const isLast = qi === qs.length - 1;
                               return (
                                 <div key={q.qid} style={{ marginBottom: isLast ? 0 : 20, paddingBottom: isLast ? 0 : 20, borderBottom: isLast ? "none" : "1px solid #f3f4f6" }}>
@@ -2467,7 +2483,7 @@ export default function App() {
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor: Physician</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>OM Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Medical Director Touchpoints</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#ec4899", borderBottom: "2px solid #dee2e6" }}>Culture</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#92400e", borderBottom: "2px solid #dee2e6" }}>Culture</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Status</th>
                       </tr>
                     </thead>
@@ -2492,8 +2508,8 @@ export default function App() {
                           }
                           return items;
                         };
-                        const cs = cultureScore(qa, p.id);
-                        const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                        const cs = cultureScore(qa, p.id, isAPC(p));
+                        const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#eab308" : "#ef4444";
                         return (
                           <tr key={p.id} style={{ borderBottom: "1px solid #dee2e6" }}>
                             <td style={{ padding: "12px 16px", fontWeight: 600 }}>
@@ -2924,9 +2940,9 @@ export default function App() {
                   { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
                   { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
                 ];
-                const cs = cultureScore(qa, prov.id);
-                const cultureActive = tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1;
-                const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                const cs = cultureScore(qa, prov.id, apc);
+                const cultureActive = tab === "culture" || (tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1);
+                const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#eab308" : "#ef4444";
                 return (
                   <div style={{ display: "grid", gridTemplateColumns: cols, gap: 10, marginBottom: 16 }}>
                     {cards.map((m) => {
@@ -2960,13 +2976,13 @@ export default function App() {
                       );
                     })()}
                     {/* Culture Integration card */}
-                    <div onClick={function() { setTab("quest"); setPhase("m3"); }}
-                      style={{ background: cultureActive ? "#ec489912" : "white", borderRadius: 10, border: "2px solid " + (cultureActive ? "#ec4899" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
-                      <div style={{ fontSize: 11, color: cultureActive ? "#ec4899" : "#868e96", marginBottom: 4, fontWeight: cultureActive ? 700 : 400 }}>Culture Integration</div>
-                      <div style={{ fontSize: 24, fontWeight: 700, color: cultureColor }}>{cs.display}</div>
-                      <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>avg / 10 · m3, m6, m12</div>
+                    <div onClick={function() { setTab("culture"); }}
+                      style={{ background: cultureActive ? "#78350f12" : "white", borderRadius: 10, border: "2px solid " + (cultureActive ? "#92400e" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                      <div style={{ fontSize: 11, color: cultureActive ? "#78350f" : "#868e96", marginBottom: 4, fontWeight: cultureActive ? 700 : 400 }}>Culture Integration</div>
+                      <div style={{ fontSize: cs.avg === null ? 13 : 24, fontWeight: 700, color: cultureColor, marginTop: cs.avg === null ? 5 : 0 }}>{cs.display}</div>
+                      <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>{apc ? "avg / 10 · m3–m24" : "avg / 10 · m3, m6, m9, m12"}</div>
                       <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
-                        <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
+                        <div style={{ height: "100%", width: cs.pct + "%", background: cultureColor, borderRadius: 3 }} />
                       </div>
                     </div>
                     {/* Productivity card — only when Epic data is piped in */}
@@ -3062,8 +3078,11 @@ export default function App() {
               {/* PRODUCTIVITY — Epic metrics (replaces phase selector + checklist) */}
               {tab === "prod" && <ProductivityPanel prov={prov} />}
 
+              {/* CULTURE — CII panel (replaces phase selector + checklist) */}
+              {tab === "culture" && <CulturePanel prov={prov} qa={qa} apc={apc} />}
+
               {/* PHASE SELECTOR */}
-              {tab !== "prod" && (() => {
+              {!isProd && !isCulture && (() => {
                 const accent = isOps ? "#0ea5e9" : isQ ? "#eab308" : isMd ? "#8b5cf6" : "#028090";
 
                 const renderPhBtn = (ph) => {
@@ -3249,8 +3268,8 @@ export default function App() {
                     if (isFirstCulture) {
                       items.push(
                         <div key="culture-header" style={{ padding: "12px 20px 10px", background: "#fdf2f8", borderTop: "2px solid #fce7f3", borderBottom: "1px solid #fce7f3" }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: "#ec4899", textTransform: "uppercase", letterSpacing: "0.06em" }}>Culture Integration Index</div>
-                          <div style={{ fontSize: 11, color: "#9d4073", marginTop: 3 }}>Provider self-assessment · belonging, safety, connection, advocacy</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#78350f", textTransform: "uppercase", letterSpacing: "0.06em" }}>Culture Integration Index</div>
+                          <div style={{ fontSize: 11, color: "#92400e", marginTop: 3 }}>Provider self-assessment · belonging, safety, connection, advocacy</div>
                         </div>
                       );
                     }
