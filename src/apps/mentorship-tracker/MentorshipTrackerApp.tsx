@@ -652,6 +652,20 @@ function mentorApcPct(checks, pid) {
   return t > 0 ? Math.round(d / t * 100) : 0;
 }
 
+/* Full APC mentor curriculum — year-1 onboarding (MP_PHYS) + year-2 APC phases,
+   counted up to the provider's current phase. APCs run the same year-1 curriculum
+   as physicians, so their single "Mentor: APC" tile spans the whole MP track. */
+function mentorFullPct(checks, pid) {
+  const prov = PROVS.find(x => x.id === pid);
+  const max = MP.findIndex(ph => ph.id === prov.phase);
+  let t = 0, d = 0;
+  MP.forEach((ph, i) => {
+    if (max >= 0 && i > max) return;
+    ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; });
+  });
+  return t > 0 ? Math.round(d / t * 100) : 0;
+}
+
 function mentorPct(checks, pid) {
   return mentorPhysPct(checks, pid);
 }
@@ -2929,14 +2943,18 @@ export default function App() {
               {isDir && (function() {
                 const apc = isAPC(prov);
                 const hasProd = hasProductivity(prov.id);
-                // base cards + (apc card?) + culture card + (productivity card?)
-                const colCount = 4 + (apc ? 1 : 0) + 1 + (hasProd ? 1 : 0);
+                // base cards (incl. single mentor tile) + culture card + (productivity card?)
+                const colCount = 4 + 1 + (hasProd ? 1 : 0);
                 const cols = "repeat(" + colCount + ", 1fr)";
-                const physPct = mentorPhysPct(checks, prov.id);
-                const apcPct = mentorApcPct(checks, prov.id);
+                // APCs run the same year-1 curriculum as physicians, then continue into
+                // year-2 APC phases — so they get ONE comprehensive "Mentor: APC" tile
+                // spanning the whole MP track, not a separate physician + APC pair.
+                const mentorCard = apc
+                  ? { label: "Mentor: APC", pct: mentorFullPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase }
+                  : { label: "Mentor: Physician", pct: mentorPhysPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase };
                 const cards = [
                   { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
-                  { label: "Mentor: Physician", pct: physPct, color: "#028090", key: "mentor", def: prov.phase },
+                  mentorCard,
                   { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
                   { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
                 ];
@@ -2959,22 +2977,6 @@ export default function App() {
                         </div>
                       );
                     })}
-                    {/* APC mentor card — only shown for NP/PA providers */}
-                    {apc && (function() {
-                      const isActive = tab === "mentor" && MP_APC.some(p => p.id === phase);
-                      const dc = apcPct >= 70 ? "#22c55e" : apcPct >= 30 ? "#7c3aed" : apcPct > 0 ? "#ef4444" : "#adb5bd";
-                      return (
-                        <div onClick={function() { setTab("mentor"); setPhase(MP_APC[0].id); }}
-                          style={{ background: isActive ? "#7c3aed12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? "#7c3aed" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
-                          <div style={{ fontSize: 11, color: isActive ? "#7c3aed" : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>Mentor: APC</div>
-                          <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{apcPct}%</div>
-                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>Year 2 · M15–M24</div>
-                          <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
-                            <div style={{ height: "100%", width: apcPct + "%", background: "#7c3aed", borderRadius: 3 }} />
-                          </div>
-                        </div>
-                      );
-                    })()}
                     {/* Culture Integration card */}
                     <div onClick={function() { setTab("culture"); }}
                       style={{ background: cultureActive ? "#78350f12" : "white", borderRadius: 10, border: "2px solid " + (cultureActive ? "#92400e" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
@@ -3079,7 +3081,7 @@ export default function App() {
               {tab === "prod" && <ProductivityPanel prov={prov} />}
 
               {/* CULTURE — CII panel (replaces phase selector + checklist) */}
-              {tab === "culture" && <CulturePanel prov={prov} qa={qa} apc={apc} />}
+              {tab === "culture" && <CulturePanel prov={prov} qa={qa} apc={isAPC(prov)} />}
 
               {/* PHASE SELECTOR */}
               {!isProd && !isCulture && (() => {
