@@ -1447,14 +1447,29 @@ export default function App() {
     if ('phase' in changes) setPhase(changes.phase);
     if ('mainTab' in changes) setMainTab(changes.mainTab);
   };
+  // True when the current view is "deeper" than the director/mentor landing
+  // (a provider profile is open, or a director sub-tab other than the roster
+  // is showing). Used as a fallback so the back affordance is never missing
+  // in a view that logically has a parent, even if some navigation path did
+  // not record history.
+  const canGoBack = navHistory.length > 0 || selId !== null || (isDir && mainTab !== "roster");
   const goBack = () => {
-    setNavHistory(prev => {
-      if (!prev.length) return prev;
-      const next = [...prev];
-      const s = next.pop();
-      setUid(s.uid); setSelId(s.selId); setTab(s.tab); setPhase(s.phase); setMainTab(s.mainTab);
-      return next;
-    });
+    // Prefer real history when we have it.
+    if (navHistory.length) {
+      setNavHistory(prev => {
+        const next = [...prev];
+        const s = next.pop();
+        setUid(s.uid); setSelId(s.selId); setTab(s.tab); setPhase(s.phase); setMainTab(s.mainTab);
+        return next;
+      });
+      return;
+    }
+    // No recorded history — step up one logical level instead of stranding.
+    if (selId !== null) {
+      setSelId(null); setTab("mentor"); setPhase(null);
+    } else if (isDir && mainTab !== "roster") {
+      setMainTab("roster");
+    }
   };
 
   const toggle = (pid, phid, i) => {
@@ -1807,7 +1822,7 @@ export default function App() {
     <div style={{ background: "#f1f3f5", minHeight: "100vh", fontFamily: "system-ui, sans-serif", color: "#1c2b3a", display: "flex", flexDirection: "column" }}>
 
       {/* Go Back pill — fixed below the "meridian" launcher chevron */}
-      {navHistory.length > 0 && (
+      {canGoBack && (
         <button
           onClick={goBack}
           style={{ position: "fixed", top: 62, left: 22, zIndex: 1000, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px 6px 10px", border: "1px solid rgba(15,30,22,0.12)", borderRadius: 999, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: 14, fontWeight: 500, letterSpacing: "0.08em", textTransform: "lowercase", background: "rgba(255,255,255,0.92)", color: "#1c2b3a", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: "0 1px 2px rgba(0,0,0,0.10), 0 6px 18px rgba(0,0,0,0.12), 0 16px 36px rgba(0,0,0,0.10)", transition: "background 120ms ease-out, transform 120ms ease-out" }}
@@ -1900,7 +1915,7 @@ export default function App() {
       {isDir && !selId && (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
           {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison Grid" }, { k: "trends", l: "Score Trends" }, { k: "notes", l: "Recent Notes" }].map(t => (
-            <button key={t.k} onClick={() => setMainTab(t.k)}
+            <button key={t.k} onClick={() => { if (t.k !== mainTab) navigate({ mainTab: t.k }); }}
               style={{ padding: "12px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: mainTab === t.k ? 700 : 400, color: mainTab === t.k ? "#0f1b2d" : "#868e96", borderBottom: mainTab === t.k ? "3px solid #028090" : "3px solid transparent" }}>
               {t.l}
             </button>
@@ -2550,12 +2565,12 @@ export default function App() {
                                   onClick={(e) => {
                                     const items = getDueItems();
                                     if (items.length === 1) {
-                                      setSelId(p.id); setTab("mentor"); setPhase(items[0].phase.id);
+                                      navigate({ selId: p.id, tab: "mentor", phase: items[0].phase.id });
                                     } else if (items.length > 1) {
                                       const rect = e.currentTarget.getBoundingClientRect();
                                       setDueMenu({ pid: p.id, items, x: rect.left, y: rect.bottom + 6 });
                                     } else {
-                                      setSelId(p.id); setTab("mentor"); setPhase(p.phase);
+                                      navigate({ selId: p.id, tab: "mentor", phase: p.phase });
                                     }
                                   }}
                                   style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 8, border: "none", cursor: "pointer", background: st === "overdue" ? "#fef2f2" : "#fefce8", color: st === "overdue" ? "#ef4444" : "#92400e" }}>
@@ -2651,7 +2666,7 @@ export default function App() {
                           accent: "#8b5cf6",
                           bg: "linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%)",
                           filterId: "compare",
-                          onClick: () => setMainTab("compare"),
+                          onClick: () => navigate({ mainTab: "compare" }),
                         },
                       ];
                       return (
@@ -3336,7 +3351,7 @@ export default function App() {
             </div>
             {dueMenu.items.map(it => (
               <button key={it.phase.id}
-                onClick={() => { setSelId(dueMenu.pid); setTab("mentor"); setPhase(it.phase.id); setDueMenu(null); }}
+                onClick={() => { navigate({ selId: dueMenu.pid, tab: "mentor", phase: it.phase.id }); setDueMenu(null); }}
                 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px 14px", background: "none", border: "none", borderBottom: "1px solid #f1f3f5", cursor: "pointer", textAlign: "left" }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#0f1b2d" }}>{it.phase.label}</span>
                 <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>{it.done}/{it.total} done</span>
