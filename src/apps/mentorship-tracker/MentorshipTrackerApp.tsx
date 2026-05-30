@@ -1759,9 +1759,10 @@ export default function App() {
   const isOps = tab === "ops";
   const isQ = tab === "quest";
   const isMd = tab === "md";
+  const isProd = tab === "prod";
   const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : (tab === "mentor" && prov && !isAPC(prov) ? MP_PHYS : MP);
   const curOpQuest = isOps && phase ? OP.find(x => x.id === phase) : null;
-  const curChecklist = phase && !isQ && !isMd && !isOps ? MP.find(x => x.id === phase) : null;
+  const curChecklist = phase && !isQ && !isMd && !isOps && !isProd ? MP.find(x => x.id === phase) : null;
   const curQuest = isQ && phase ? QP.find(x => x.id === phase) : null;
   const curMdItems = isMd && phase ? (MD_ITEMS_BY_PHASE[phase] || []) : null;
   const pc = curChecklist && prov ? countChecks(checks, prov.id, phase) : null;
