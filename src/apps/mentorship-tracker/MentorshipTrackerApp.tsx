@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
-import ProductivityPanel, { hasProductivity } from "./ProductivityPanel";
+import ProductivityPanel, { hasProductivity, prodSummary } from "./ProductivityPanel";
 
 /* ─── Medical Director Curriculum (62 items from master checklist, see analysis/) ─── */
 const MD_PHASES = masterChecklist.phases;
@@ -2911,7 +2911,10 @@ export default function App() {
               {/* METRIC CARDS — clickable tab selectors (director only) */}
               {isDir && (function() {
                 const apc = isAPC(prov);
-                const cols = apc ? "repeat(6, 1fr)" : "repeat(5, 1fr)";
+                const hasProd = hasProductivity(prov.id);
+                // base cards + (apc card?) + culture card + (productivity card?)
+                const colCount = 4 + (apc ? 1 : 0) + 1 + (hasProd ? 1 : 0);
+                const cols = "repeat(" + colCount + ", 1fr)";
                 const physPct = mentorPhysPct(checks, prov.id);
                 const apcPct = mentorApcPct(checks, prov.id);
                 const cards = [
@@ -2965,6 +2968,24 @@ export default function App() {
                         <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
                       </div>
                     </div>
+                    {/* Productivity card — only when Epic data is piped in */}
+                    {hasProd && (function() {
+                      const prodActive = tab === "prod";
+                      const ps = prodSummary(prov.id);
+                      const pColor = "#0d9488";
+                      const dc = ps.total > 0 && ps.good === ps.total ? "#22c55e" : ps.good > 0 ? pColor : "#ef4444";
+                      return (
+                        <div onClick={function() { setTab("prod"); }}
+                          style={{ background: prodActive ? pColor + "12" : "white", borderRadius: 10, border: "2px solid " + (prodActive ? pColor : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                          <div style={{ fontSize: 11, color: prodActive ? pColor : "#868e96", marginBottom: 4, fontWeight: prodActive ? 700 : 400 }}>Productivity</div>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{ps.good}/{ps.total}</div>
+                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>on track · Epic</div>
+                          <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
+                            <div style={{ height: "100%", width: (ps.total > 0 ? ps.good / ps.total * 100 : 0) + "%", background: pColor, borderRadius: 3 }} />
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })()}
@@ -3037,8 +3058,11 @@ export default function App() {
                 );
               })()}
 
+              {/* PRODUCTIVITY — Epic metrics (replaces phase selector + checklist) */}
+              {tab === "prod" && <ProductivityPanel prov={prov} />}
+
               {/* PHASE SELECTOR */}
-              {(() => {
+              {tab !== "prod" && (() => {
                 const accent = isOps ? "#0ea5e9" : isQ ? "#eab308" : isMd ? "#8b5cf6" : "#028090";
 
                 const renderPhBtn = (ph) => {

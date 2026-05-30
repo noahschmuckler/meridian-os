@@ -69,6 +69,21 @@ export function hasProductivity(pid) {
   return !!PROD_SERIES[pid] && PROD_METRICS.some((m) => PROD_SERIES[pid][m.key]);
 }
 
+/* Summary for the profile metric card: how many metrics are on a good track
+   (near goal or moving toward it) out of the total piped in. */
+export function prodSummary(pid) {
+  const series = PROD_SERIES[pid];
+  if (!series) return { good: 0, total: 0 };
+  let good = 0, total = 0;
+  PROD_METRICS.forEach((m) => {
+    if (!series[m.key]) return;
+    total++;
+    const a = analyzeProd(series[m.key], m);
+    if (a.color === "green") good++;
+  });
+  return { good, total };
+}
+
 /* ─── Status palette — green = good, amber = variable, red = wrong direction ─ */
 const STATUS = {
   green: { bg:"#dcfce7", fg:"#15803d", line:"#16a34a", fill:"#22c55e", soft:"#f0fdf4", border:"#bbf7d0" },
