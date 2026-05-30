@@ -163,6 +163,9 @@ function jsonClone<T>(v: T): T {
 // memory` is a sample paragraph the trainer might have left for next time.
 export function seedIfEmpty(): void {
   if (filesById.size > 0) return;
+  // If the key already exists (even as {"files":[]}) the user has been here
+  // before — don't stomp their empty state with demo content.
+  if (typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY) !== null) return;
   createFile({
     name: 'Patel scratch pad',
     type: 'markdown',

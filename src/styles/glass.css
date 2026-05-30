@@ -3008,3 +3008,218 @@
 @media print {
   .font-size-controls { display: none !important; }
 }
+
+/* ===========================================================================
+   Launcher settings gear — bottom-right corner of the launcher screen.
+   =========================================================================== */
+
+.launcher__settings-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: color var(--duration-1) var(--ease-out),
+              background var(--duration-1) var(--ease-out),
+              transform var(--duration-1) var(--ease-out);
+  z-index: 10;
+}
+.launcher__settings-btn:hover {
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.80);
+  transform: rotate(30deg);
+}
+.launcher__settings-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ===========================================================================
+   Data & Backup panel — modal accessible from the launcher gear button.
+   =========================================================================== */
+
+.data-panel-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: data-panel-scrim-in 160ms ease-out;
+}
+@keyframes data-panel-scrim-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.data-panel {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: var(--shadow-2);
+  display: flex;
+  flex-direction: column;
+  padding: 22px 24px 20px;
+  gap: 0;
+  animation: data-panel-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes data-panel-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.data-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.data-panel__title {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+}
+.data-panel__close {
+  font-size: 22px;
+  line-height: 1;
+  padding: 0 4px;
+  color: var(--ink-faint);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.data-panel__close:hover { color: var(--ink); }
+
+.data-panel__section {
+  border-top: 1px solid var(--border);
+  padding: 16px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.data-panel__section:last-child { padding-bottom: 0; }
+
+.data-panel__section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 2px;
+}
+
+.data-panel__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.data-panel__stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.data-panel__stat-row--empty { opacity: 0.45; }
+.data-panel__stat-name { color: var(--ink-soft); }
+.data-panel__stat-size {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink);
+}
+
+.data-panel__total {
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  text-align: right;
+}
+
+.data-panel__desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.data-panel__desc--warn {
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.data-panel__desc--ok {
+  color: #065f46;
+  background: #d1fae5;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.data-panel__row {
+  display: flex;
+  gap: 8px;
+}
+
+.data-panel__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  background: var(--surface-strong);
+  color: var(--ink-soft);
+  transition: background var(--duration-1) var(--ease-out),
+              color var(--duration-1) var(--ease-out);
+  align-self: flex-start;
+}
+.data-panel__btn:hover {
+  background: var(--bg-deep);
+  color: var(--ink);
+}
+.data-panel__btn--primary {
+  background: var(--accent);
+  color: white;
+  border-color: transparent;
+}
+.data-panel__btn--primary:hover {
+  background: #0a5535;
+  color: white;
+}
+.data-panel__btn--danger {
+  background: transparent;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+.data-panel__btn--danger:hover {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.data-panel__section--danger-zone { margin-top: 4px; }
+
+@media print {
+  .data-panel-scrim,
+  .launcher__settings-btn { display: none !important; }
+}

@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
+import ProductivityPanel, { hasProductivity, prodSummary } from "./ProductivityPanel";
+import CulturePanel from "./CulturePanel";
 
 /* ─── Medical Director Curriculum (62 items from master checklist, see analysis/) ─── */
 const MD_PHASES = masterChecklist.phases;
@@ -383,6 +385,10 @@ const QP = [
     {qid:"b",text:"How strongly do you feel that your organization supports growth?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
     {qid:"c",text:"How efficient do you feel with documentation?",ty:"s",anchor_low:"not supported at all",anchor_high:"fully supported"},
     {qid:"d",text:"What have you found to be the biggest difference that is needed?",ty:"t"},
+    {qid:"ci1",text:"Do you feel like a valued member of the team?",ty:"s",culture:true},
+    {qid:"ci2",text:"Do you have at least one colleague you would consider a friend or close ally here?",ty:"s",culture:true},
+    {qid:"ci3",text:"Do you feel comfortable asking for help when you need it?",ty:"s",culture:true},
+    {qid:"ci4",text:"Would you recommend this organization to a colleague considering a similar role?",ty:"s",culture:true},
   ]},
   {id:"m12",label:"Month 12",qs:[
     {qid:"a",text:"How motivated do you feel in your current role?",ty:"s",anchor_low:"not at all motivated",anchor_high:"extremely motivated"},
@@ -478,9 +484,15 @@ function makeSeedQA() {
     "p1.m12.ci1":"9","p1.m12.ci2":"8","p1.m12.ci3":"9","p1.m12.ci4":"8",
     "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",
     "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",
+    // p1 m9 — recovering trend after m6 dip
+    "p1.m9.ci1":"7","p1.m9.ci2":"7","p1.m9.ci3":"8","p1.m9.ci4":"7",
     "p5.m3.ci1":"8","p5.m3.ci2":"8","p5.m3.ci3":"9","p5.m3.ci4":"8",
     "p5.m6.ci1":"8","p5.m6.ci2":"9","p5.m6.ci3":"8","p5.m6.ci4":"8",
+    "p5.m9.ci1":"9","p5.m9.ci2":"8","p5.m9.ci3":"9","p5.m9.ci4":"9",
     "p5.m12.ci1":"9","p5.m12.ci2":"9","p5.m12.ci3":"9","p5.m12.ci4":"8",
+    // p5 APC extended phases — consistently high integration
+    "p5.m15.ci1":"9","p5.m15.ci2":"9","p5.m15.ci3":"8","p5.m15.ci4":"9",
+    "p5.m18.ci1":"9","p5.m18.ci2":"9","p5.m18.ci3":"9","p5.m18.ci4":"8",
   };
   Object.assign(qa, ciiScores);
   return qa;
@@ -640,6 +652,20 @@ function mentorApcPct(checks, pid) {
   return t > 0 ? Math.round(d / t * 100) : 0;
 }
 
+/* Full APC mentor curriculum — year-1 onboarding (MP_PHYS) + year-2 APC phases,
+   counted up to the provider's current phase. APCs run the same year-1 curriculum
+   as physicians, so their single "Mentor: APC" tile spans the whole MP track. */
+function mentorFullPct(checks, pid) {
+  const prov = PROVS.find(x => x.id === pid);
+  const max = MP.findIndex(ph => ph.id === prov.phase);
+  let t = 0, d = 0;
+  MP.forEach((ph, i) => {
+    if (max >= 0 && i > max) return;
+    ph.items.forEach((_, j) => { t++; if (checks[pid + "." + ph.id + "." + j]) d++; });
+  });
+  return t > 0 ? Math.round(d / t * 100) : 0;
+}
+
 function mentorPct(checks, pid) {
   return mentorPhysPct(checks, pid);
 }
@@ -700,7 +726,8 @@ function avgScore(qa, pid, phid) {
 }
 
 /* Culture Integration Index helpers */
-const CULTURE_PHASES = ["m3", "m6", "m12"];
+const CULTURE_PHASES = ["m3", "m6", "m9", "m12"];
+const CULTURE_PHASES_APC_EXT = ["m15", "m18", "m21", "m24"];
 const CULTURE_QIDS = ["ci1", "ci2", "ci3", "ci4"];
 
 /* Per-phase culture score (avg of 4 questions, null if none answered) */
@@ -714,15 +741,16 @@ function culturePhaseScore(qa, pid, phid) {
 }
 
 /* Overall culture score across all answered culture phases */
-function cultureScore(qa, pid) {
+function cultureScore(qa, pid, apcFlag) {
+  const phases = apcFlag ? [...CULTURE_PHASES, ...CULTURE_PHASES_APC_EXT] : CULTURE_PHASES;
   let sum = 0, cnt = 0;
-  CULTURE_PHASES.forEach(function(phid) {
+  phases.forEach(function(phid) {
     CULTURE_QIDS.forEach(function(qid) {
       const v = qa[pid + "." + phid + "." + qid];
       if (v !== undefined && v !== "") { sum += Number(v); cnt++; }
     });
   });
-  if (cnt === 0) return { avg: null, pct: 0, display: "—" };
+  if (cnt === 0) return { avg: null, pct: 0, display: "Future-Scheduled" };
   const avg = sum / cnt;
   return { avg: avg, pct: Math.round(avg * 10), display: avg.toFixed(1) };
 }
@@ -1419,14 +1447,29 @@ export default function App() {
     if ('phase' in changes) setPhase(changes.phase);
     if ('mainTab' in changes) setMainTab(changes.mainTab);
   };
+  // True when the current view is "deeper" than the director/mentor landing
+  // (a provider profile is open, or a director sub-tab other than the roster
+  // is showing). Used as a fallback so the back affordance is never missing
+  // in a view that logically has a parent, even if some navigation path did
+  // not record history.
+  const canGoBack = navHistory.length > 0 || selId !== null || (isDir && mainTab !== "roster");
   const goBack = () => {
-    setNavHistory(prev => {
-      if (!prev.length) return prev;
-      const next = [...prev];
-      const s = next.pop();
-      setUid(s.uid); setSelId(s.selId); setTab(s.tab); setPhase(s.phase); setMainTab(s.mainTab);
-      return next;
-    });
+    // Prefer real history when we have it.
+    if (navHistory.length) {
+      setNavHistory(prev => {
+        const next = [...prev];
+        const s = next.pop();
+        setUid(s.uid); setSelId(s.selId); setTab(s.tab); setPhase(s.phase); setMainTab(s.mainTab);
+        return next;
+      });
+      return;
+    }
+    // No recorded history — step up one logical level instead of stranding.
+    if (selId !== null) {
+      setSelId(null); setTab("mentor"); setPhase(null);
+    } else if (isDir && mainTab !== "roster") {
+      setMainTab("roster");
+    }
   };
 
   const toggle = (pid, phid, i) => {
@@ -1758,9 +1801,11 @@ export default function App() {
   const isOps = tab === "ops";
   const isQ = tab === "quest";
   const isMd = tab === "md";
+  const isProd = tab === "prod";
+  const isCulture = tab === "culture";
   const phaseList = isOps ? OP : isQ ? QP : isMd ? MD_PHASES : (tab === "mentor" && prov && !isAPC(prov) ? MP_PHYS : MP);
   const curOpQuest = isOps && phase ? OP.find(x => x.id === phase) : null;
-  const curChecklist = phase && !isQ && !isMd && !isOps ? MP.find(x => x.id === phase) : null;
+  const curChecklist = phase && !isQ && !isMd && !isOps && !isProd && !isCulture ? MP.find(x => x.id === phase) : null;
   const curQuest = isQ && phase ? QP.find(x => x.id === phase) : null;
   const curMdItems = isMd && phase ? (MD_ITEMS_BY_PHASE[phase] || []) : null;
   const pc = curChecklist && prov ? countChecks(checks, prov.id, phase) : null;
@@ -1777,7 +1822,7 @@ export default function App() {
     <div style={{ background: "#f1f3f5", minHeight: "100vh", fontFamily: "system-ui, sans-serif", color: "#1c2b3a", display: "flex", flexDirection: "column" }}>
 
       {/* Go Back pill — fixed below the "meridian" launcher chevron */}
-      {navHistory.length > 0 && (
+      {canGoBack && (
         <button
           onClick={goBack}
           style={{ position: "fixed", top: 62, left: 22, zIndex: 1000, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px 6px 10px", border: "1px solid rgba(15,30,22,0.12)", borderRadius: 999, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: 14, fontWeight: 500, letterSpacing: "0.08em", textTransform: "lowercase", background: "rgba(255,255,255,0.92)", color: "#1c2b3a", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: "0 1px 2px rgba(0,0,0,0.10), 0 6px 18px rgba(0,0,0,0.12), 0 16px 36px rgba(0,0,0,0.10)", transition: "background 120ms ease-out, transform 120ms ease-out" }}
@@ -1870,7 +1915,7 @@ export default function App() {
       {isDir && !selId && (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
           {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison Grid" }, { k: "trends", l: "Score Trends" }, { k: "notes", l: "Recent Notes" }].map(t => (
-            <button key={t.k} onClick={() => setMainTab(t.k)}
+            <button key={t.k} onClick={() => { if (t.k !== mainTab) navigate({ mainTab: t.k }); }}
               style={{ padding: "12px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: mainTab === t.k ? 700 : 400, color: mainTab === t.k ? "#0f1b2d" : "#868e96", borderBottom: mainTab === t.k ? "3px solid #028090" : "3px solid transparent" }}>
               {t.l}
             </button>
@@ -2304,29 +2349,31 @@ export default function App() {
                   </div>
 
                   {/* Culture Integration Trend */}
-                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #fce7f3", overflow: "hidden", marginBottom: 16 }}>
-                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #fce7f3", background: "#fdf2f8" }}>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: "#9d174d" }}>Culture Integration Trend</div>
-                      <div style={{ fontSize: 12, color: "#be185d", marginTop: 3 }}>Avg of 4 culture questions per phase &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 thriving</span> &nbsp;<span style={{ color: "#ec4899", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 at risk</span></div>
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #fef3c7", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #fef3c7", background: "#fffbeb" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#78350f" }}>Culture Integration Trend</div>
+                      <div style={{ fontSize: 12, color: "#92400e", marginTop: 3 }}>Avg of 4 culture questions per phase &nbsp;·&nbsp; <span style={{ color: "#22c55e", fontWeight: 700 }}>● ≥7 thriving</span> &nbsp;<span style={{ color: "#eab308", fontWeight: 700 }}>● 5–6 watch</span> &nbsp;<span style={{ color: "#ef4444", fontWeight: 700 }}>● &lt;5 at risk</span></div>
                     </div>
                     {PROVS.map(function(p) {
-                      const scores = CULTURE_PHASES.map(function(phid, i) {
-                        return { phid: phid, label: phid === "m3" ? "Month 3" : phid === "m6" ? "Month 6" : "Month 12", avg: culturePhaseScore(qa, p.id, phid), i: i };
+                      const cPhases = isAPC(p) ? [...CULTURE_PHASES, ...CULTURE_PHASES_APC_EXT] : CULTURE_PHASES;
+                      const cLabels = {m3:"Mo 3",m6:"Mo 6",m9:"Mo 9",m12:"Mo 12",m15:"Mo 15",m18:"Mo 18",m21:"Mo 21",m24:"Mo 24"};
+                      const scores = cPhases.map(function(phid, i) {
+                        return { phid: phid, label: cLabels[phid] || phid, avg: culturePhaseScore(qa, p.id, phid), i: i };
                       });
                       const answered = scores.filter(function(x) { return x.avg !== null; });
                       const W = 480, H = 120;
                       const PL = 32, PR = 16, PT = 20, PB = 24;
                       const cw = W - PL - PR, ch = H - PT - PB;
-                      const xOfC = function(i) { return PL + (CULTURE_PHASES.length > 1 ? (i / (CULTURE_PHASES.length - 1)) : 0.5) * cw; };
+                      const xOfC = function(i) { return PL + (cPhases.length > 1 ? (i / (cPhases.length - 1)) : 0.5) * cw; };
                       const yOfC = function(v) { return PT + (1 - v / 10) * ch; };
                       const polyPts = answered.map(function(x) { return xOfC(x.i) + "," + yOfC(x.avg); }).join(" ");
-                      const cs = cultureScore(qa, p.id);
-                      const summaryColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                      const cs = cultureScore(qa, p.id, isAPC(p));
+                      const summaryColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#eab308" : "#ef4444";
                       return (
-                        <div key={p.id} style={{ padding: "12px 20px", borderBottom: "1px solid #fce7f3" }}>
+                        <div key={p.id} style={{ padding: "12px 20px", borderBottom: "1px solid #fef3c7" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                             <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: summaryColor }}>{cs.display !== "—" ? cs.display + " / 10" : "No data yet"}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: summaryColor }}>{cs.avg !== null ? cs.display + " / 10" : "Future-Scheduled"}</div>
                           </div>
                           <div style={{ overflowX: "auto" }}>
                             <svg viewBox={"0 0 " + W + " " + H} width="100%" style={{ display: "block" }}>
@@ -2334,15 +2381,15 @@ export default function App() {
                                 const y = yOfC(v);
                                 return (
                                   <g key={v}>
-                                    <line x1={PL} y1={y} x2={W - PR} y2={y} stroke="#fce7f3" strokeWidth={1} />
-                                    <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="#be185d">{v}</text>
+                                    <line x1={PL} y1={y} x2={W - PR} y2={y} stroke="#fef3c7" strokeWidth={1} />
+                                    <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="#92400e">{v}</text>
                                   </g>
                                 );
                               })}
-                              {answered.length >= 2 && <polyline points={polyPts} fill="none" stroke="#ec4899" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+                              {answered.length >= 2 && <polyline points={polyPts} fill="none" stroke="#22c55e" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
                               {scores.map(function(s) {
                                 const cx = xOfC(s.i);
-                                const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#ec4899" : "#ef4444";
+                                const dc = s.avg === null ? null : s.avg >= 7 ? "#22c55e" : s.avg >= 5 ? "#eab308" : "#ef4444";
                                 return (
                                   <g key={s.label} onClick={s.avg !== null ? function() { setDotModal({ pid: p.id, phaseId: s.phid, type: "cii" }); } : undefined} style={{ cursor: s.avg !== null ? "pointer" : "default" }}>
                                     {s.avg !== null && (
@@ -2385,9 +2432,9 @@ export default function App() {
                       phaseLabel = ph ? ph.label : dotModal.phaseId;
                       qs = ph ? ph.qs.filter(function(q) { return q.culture === true; }) : [];
                       typeLabel = "Culture Integration Index";
-                      accentColor = "#ec4899";
-                      borderColor = "#fce7f3";
-                      bgColor = "#fdf2f8";
+                      accentColor = "#92400e";
+                      borderColor = "#fef3c7";
+                      bgColor = "#fffbeb";
                     }
                     return (
                       <div onClick={function() { setDotModal(null); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
@@ -2405,7 +2452,7 @@ export default function App() {
                             ) : qs.map(function(q, qi) {
                               const val = qa[dotModal.pid + "." + dotModal.phaseId + "." + q.qid] || "";
                               const score = q.ty === "s" && val !== "" ? Number(val) : null;
-                              const scoreColor = score === null ? "#adb5bd" : score >= 7 ? "#22c55e" : score >= 5 ? (dotModal.type === "cii" ? "#ec4899" : "#eab308") : "#ef4444";
+                              const scoreColor = score === null ? "#adb5bd" : score >= 7 ? "#22c55e" : score >= 5 ? "#eab308" : "#ef4444";
                               const isLast = qi === qs.length - 1;
                               return (
                                 <div key={q.qid} style={{ marginBottom: isLast ? 0 : 20, paddingBottom: isLast ? 0 : 20, borderBottom: isLast ? "none" : "1px solid #f3f4f6" }}>
@@ -2465,7 +2512,7 @@ export default function App() {
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#028090", borderBottom: "2px solid #dee2e6" }}>Mentor: Physician</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#0ea5e9", borderBottom: "2px solid #dee2e6" }}>OM Touchpoints</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#eab308", borderBottom: "2px solid #dee2e6" }}>Medical Director Touchpoints</th>
-                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#ec4899", borderBottom: "2px solid #dee2e6" }}>Culture</th>
+                        <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, color: "#92400e", borderBottom: "2px solid #dee2e6" }}>Culture</th>
                         <th style={{ padding: "10px 12px", textAlign: "center", fontWeight: 600, borderBottom: "2px solid #dee2e6" }}>Status</th>
                       </tr>
                     </thead>
@@ -2490,8 +2537,8 @@ export default function App() {
                           }
                           return items;
                         };
-                        const cs = cultureScore(qa, p.id);
-                        const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                        const cs = cultureScore(qa, p.id, isAPC(p));
+                        const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#eab308" : "#ef4444";
                         return (
                           <tr key={p.id} style={{ borderBottom: "1px solid #dee2e6" }}>
                             <td style={{ padding: "12px 16px", fontWeight: 600 }}>
@@ -2518,12 +2565,12 @@ export default function App() {
                                   onClick={(e) => {
                                     const items = getDueItems();
                                     if (items.length === 1) {
-                                      setSelId(p.id); setTab("mentor"); setPhase(items[0].phase.id);
+                                      navigate({ selId: p.id, tab: "mentor", phase: items[0].phase.id });
                                     } else if (items.length > 1) {
                                       const rect = e.currentTarget.getBoundingClientRect();
                                       setDueMenu({ pid: p.id, items, x: rect.left, y: rect.bottom + 6 });
                                     } else {
-                                      setSelId(p.id); setTab("mentor"); setPhase(p.phase);
+                                      navigate({ selId: p.id, tab: "mentor", phase: p.phase });
                                     }
                                   }}
                                   style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 8, border: "none", cursor: "pointer", background: st === "overdue" ? "#fef2f2" : "#fefce8", color: st === "overdue" ? "#ef4444" : "#92400e" }}>
@@ -2619,7 +2666,7 @@ export default function App() {
                           accent: "#8b5cf6",
                           bg: "linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%)",
                           filterId: "compare",
-                          onClick: () => setMainTab("compare"),
+                          onClick: () => navigate({ mainTab: "compare" }),
                         },
                       ];
                       return (
@@ -2910,18 +2957,25 @@ export default function App() {
               {/* METRIC CARDS — clickable tab selectors (director only) */}
               {isDir && (function() {
                 const apc = isAPC(prov);
-                const cols = apc ? "repeat(6, 1fr)" : "repeat(5, 1fr)";
-                const physPct = mentorPhysPct(checks, prov.id);
-                const apcPct = mentorApcPct(checks, prov.id);
+                const hasProd = hasProductivity(prov.id);
+                // base cards (incl. single mentor tile) + culture card + (productivity card?)
+                const colCount = 4 + 1 + (hasProd ? 1 : 0);
+                const cols = "repeat(" + colCount + ", 1fr)";
+                // APCs run the same year-1 curriculum as physicians, then continue into
+                // year-2 APC phases — so they get ONE comprehensive "Mentor: APC" tile
+                // spanning the whole MP track, not a separate physician + APC pair.
+                const mentorCard = apc
+                  ? { label: "Mentor: APC", pct: mentorFullPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase }
+                  : { label: "Mentor: Physician", pct: mentorPhysPct(checks, prov.id), color: "#028090", key: "mentor", def: prov.phase };
                 const cards = [
                   { label: "Medical Director Curriculum", pct: mdCurriculumPct(checks, prov.id), color: "#8b5cf6", key: "md", def: "pre0" },
-                  { label: "Mentor: Physician", pct: physPct, color: "#028090", key: "mentor", def: prov.phase },
+                  mentorCard,
                   { label: "Office Manager Touchpoints", pct: opsPct(qa, prov.id), color: "#0ea5e9", key: "ops", def: "om1" },
                   { label: "Medical Director Touchpoints", pct: questPct(qa, prov.id), color: "#eab308", key: "quest", def: "w1" },
                 ];
-                const cs = cultureScore(qa, prov.id);
-                const cultureActive = tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1;
-                const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#ec4899" : "#ef4444";
+                const cs = cultureScore(qa, prov.id, apc);
+                const cultureActive = tab === "culture" || (tab === "quest" && CULTURE_PHASES.indexOf(phase) !== -1);
+                const cultureColor = cs.avg === null ? "#adb5bd" : cs.avg >= 7 ? "#22c55e" : cs.avg >= 5 ? "#eab308" : "#ef4444";
                 return (
                   <div style={{ display: "grid", gridTemplateColumns: cols, gap: 10, marginBottom: 16 }}>
                     {cards.map((m) => {
@@ -2938,32 +2992,34 @@ export default function App() {
                         </div>
                       );
                     })}
-                    {/* APC mentor card — only shown for NP/PA providers */}
-                    {apc && (function() {
-                      const isActive = tab === "mentor" && MP_APC.some(p => p.id === phase);
-                      const dc = apcPct >= 70 ? "#22c55e" : apcPct >= 30 ? "#7c3aed" : apcPct > 0 ? "#ef4444" : "#adb5bd";
+                    {/* Culture Integration card */}
+                    <div onClick={function() { setTab("culture"); }}
+                      style={{ background: cultureActive ? "#78350f12" : "white", borderRadius: 10, border: "2px solid " + (cultureActive ? "#92400e" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                      <div style={{ fontSize: 11, color: cultureActive ? "#78350f" : "#868e96", marginBottom: 4, fontWeight: cultureActive ? 700 : 400 }}>Culture Integration</div>
+                      <div style={{ fontSize: cs.avg === null ? 13 : 24, fontWeight: 700, color: cultureColor, marginTop: cs.avg === null ? 5 : 0 }}>{cs.display}</div>
+                      <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>{apc ? "avg / 10 · m3–m24" : "avg / 10 · m3, m6, m9, m12"}</div>
+                      <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
+                        <div style={{ height: "100%", width: cs.pct + "%", background: cultureColor, borderRadius: 3 }} />
+                      </div>
+                    </div>
+                    {/* Productivity card — only when Epic data is piped in */}
+                    {hasProd && (function() {
+                      const prodActive = tab === "prod";
+                      const ps = prodSummary(prov.id);
+                      const pColor = "#0d9488";
+                      const dc = ps.total > 0 && ps.good === ps.total ? "#22c55e" : ps.good > 0 ? pColor : "#ef4444";
                       return (
-                        <div onClick={function() { setTab("mentor"); setPhase(MP_APC[0].id); }}
-                          style={{ background: isActive ? "#7c3aed12" : "white", borderRadius: 10, border: "2px solid " + (isActive ? "#7c3aed" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
-                          <div style={{ fontSize: 11, color: isActive ? "#7c3aed" : "#868e96", marginBottom: 4, fontWeight: isActive ? 700 : 400 }}>Mentor: APC</div>
-                          <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{apcPct}%</div>
-                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>Year 2 · M15–M24</div>
+                        <div onClick={function() { setTab("prod"); }}
+                          style={{ background: prodActive ? pColor + "12" : "white", borderRadius: 10, border: "2px solid " + (prodActive ? pColor : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
+                          <div style={{ fontSize: 11, color: prodActive ? pColor : "#868e96", marginBottom: 4, fontWeight: prodActive ? 700 : 400 }}>Productivity</div>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{ps.good}/{ps.total}</div>
+                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>on track · Epic</div>
                           <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
-                            <div style={{ height: "100%", width: apcPct + "%", background: "#7c3aed", borderRadius: 3 }} />
+                            <div style={{ height: "100%", width: (ps.total > 0 ? ps.good / ps.total * 100 : 0) + "%", background: pColor, borderRadius: 3 }} />
                           </div>
                         </div>
                       );
                     })()}
-                    {/* Culture Integration card */}
-                    <div onClick={function() { setTab("quest"); setPhase("m3"); }}
-                      style={{ background: cultureActive ? "#ec489912" : "white", borderRadius: 10, border: "2px solid " + (cultureActive ? "#ec4899" : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
-                      <div style={{ fontSize: 11, color: cultureActive ? "#ec4899" : "#868e96", marginBottom: 4, fontWeight: cultureActive ? 700 : 400 }}>Culture Integration</div>
-                      <div style={{ fontSize: 24, fontWeight: 700, color: cultureColor }}>{cs.display}</div>
-                      <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>avg / 10 · m3, m6, m12</div>
-                      <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
-                        <div style={{ height: "100%", width: cs.pct + "%", background: "#ec4899", borderRadius: 3 }} />
-                      </div>
-                    </div>
                   </div>
                 );
               })()}
@@ -3036,8 +3092,14 @@ export default function App() {
                 );
               })()}
 
+              {/* PRODUCTIVITY — Epic metrics (replaces phase selector + checklist) */}
+              {tab === "prod" && <ProductivityPanel prov={prov} />}
+
+              {/* CULTURE — CII panel (replaces phase selector + checklist) */}
+              {tab === "culture" && <CulturePanel prov={prov} qa={qa} apc={isAPC(prov)} />}
+
               {/* PHASE SELECTOR */}
-              {(() => {
+              {!isProd && !isCulture && (() => {
                 const accent = isOps ? "#0ea5e9" : isQ ? "#eab308" : isMd ? "#8b5cf6" : "#028090";
 
                 const renderPhBtn = (ph) => {
@@ -3223,8 +3285,8 @@ export default function App() {
                     if (isFirstCulture) {
                       items.push(
                         <div key="culture-header" style={{ padding: "12px 20px 10px", background: "#fdf2f8", borderTop: "2px solid #fce7f3", borderBottom: "1px solid #fce7f3" }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: "#ec4899", textTransform: "uppercase", letterSpacing: "0.06em" }}>Culture Integration Index</div>
-                          <div style={{ fontSize: 11, color: "#9d4073", marginTop: 3 }}>Provider self-assessment · belonging, safety, connection, advocacy</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "#78350f", textTransform: "uppercase", letterSpacing: "0.06em" }}>Culture Integration Index</div>
+                          <div style={{ fontSize: 11, color: "#92400e", marginTop: 3 }}>Provider self-assessment · belonging, safety, connection, advocacy</div>
                         </div>
                       );
                     }
@@ -3289,7 +3351,7 @@ export default function App() {
             </div>
             {dueMenu.items.map(it => (
               <button key={it.phase.id}
-                onClick={() => { setSelId(dueMenu.pid); setTab("mentor"); setPhase(it.phase.id); setDueMenu(null); }}
+                onClick={() => { navigate({ selId: dueMenu.pid, tab: "mentor", phase: it.phase.id }); setDueMenu(null); }}
                 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "10px 14px", background: "none", border: "none", borderBottom: "1px solid #f1f3f5", cursor: "pointer", textAlign: "left" }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#0f1b2d" }}>{it.phase.label}</span>
                 <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>{it.done}/{it.total} done</span>
