@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: system-ui, -apple-system, sans-serif; }
+  body { width:1280px; background:#f1f3f5; }
+  .screen { width:1280px; min-height:900px; display:flex; flex-direction:column; }
+
+  /* Top bar */
+  .topbar { background:#0f1b2d; padding:12px 24px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+  .topbar .title { font-size:18px;font-weight:700;color:#fff; }
+  .topbar .sub { font-size:12px;color:#868e96;margin-top:1px; }
+  .tb-actions { display:flex;gap:8px;align-items:center; }
+  .pill { padding:7px 13px;border-radius:8px;font-size:12px;font-weight:700; }
+  .pill.alert { background:#eab308;color:#78350f; }
+  .pill.dim { background:none;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);font-weight:500; }
+
+  /* Layout */
+  .layout { display:flex;flex:1;overflow:hidden; }
+
+  /* Sidebar */
+  .sidebar { width:272px;background:#fff;border-right:1px solid #dee2e6;display:flex;flex-direction:column;flex-shrink:0; }
+  .sb-head { padding:14px 16px 12px;border-bottom:1px solid #eef0f2; }
+  .sb-kicker { font-size:10px;font-weight:700;color:#adb5bd;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px; }
+  .sb-count { font-size:24px;font-weight:800;color:#0f1b2d;line-height:1; }
+  .sb-sub { font-size:10.5px;color:#868e96;margin-top:4px; }
+  .sb-list { overflow-y:auto;flex:1; }
+
+  /* Provider cards */
+  .pc { padding:10px 14px;border-bottom:1px solid #f4f5f7;cursor:pointer;border-left:3px solid transparent; }
+  .pc.ok   { border-left-color:#22c55e; }
+  .pc.warn { border-left-color:#eab308; }
+  .pc.bad  { border-left-color:#ef4444; }
+  .pc-top { display:flex;align-items:center;gap:9px;margin-bottom:7px; }
+  .pc-av { width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:#02809018;color:#028090; }
+  .pc-info { flex:1;min-width:0; }
+  .pc-name { font-size:12.5px;font-weight:700;color:#0f1b2d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .pc-role { font-size:10px;color:#adb5bd;margin-top:1px; }
+  .pc-badge { font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:8px;background:#eef2ff;color:#4f46e5;white-space:nowrap;flex-shrink:0; }
+  .pc-bar-wrap { background:#f1f3f5;border-radius:3px;height:4px;overflow:hidden; }
+  .pc-bar { height:100%;border-radius:3px;background:#028090; }
+  .pc-bar.warn { background:#eab308; }
+  .pc-bar.bad  { background:#ef4444; }
+  .pc-meta { display:flex;justify-content:space-between;margin-top:4px; }
+  .pc-meta span { font-size:10px;color:#868e96; }
+  .pc-meta .pct { font-weight:700;color:#0f1b2d; }
+  .pc-stats { display:flex;justify-content:space-between;align-items:center;margin-top:5px; }
+  /* CII chips — sidebar */
+  .cii-chip { font-size:8.5px;font-weight:700;padding:2px 5px;border-radius:5px;white-space:nowrap; }
+  .cii-chip.thriving   { background:#dcfce7;color:#15803d; }
+  .cii-chip.developing { background:#fef9c3;color:#854d0e; }
+  .cii-chip.atrisk     { background:#fee2e2;color:#b91c1c; }
+  .cii-chip.sched      { background:#f1f3f5;color:#868e96; }
+  .cii-chip.overdue    { background:#fef9c3;color:#854d0e; }
+  /* Prod chips — sidebar */
+  .prod-chip { font-size:8.5px;font-weight:700;padding:2px 5px;border-radius:5px; }
+  .prod-chip.good { background:#dcfce7;color:#15803d; }
+  .prod-chip.warn { background:#fef9c3;color:#854d0e; }
+  .prod-chip.bad  { background:#fee2e2;color:#b91c1c; }
+
+  /* Main */
+  .main { flex:1;overflow-y:auto;padding:20px 22px 32px; }
+
+  /* KPIs */
+  .kpi-row { display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-bottom:18px; }
+  .kpi { background:#fff;border:1px solid #e9ecef;border-radius:11px;padding:15px 16px;position:relative; }
+  .kpi .kv { font-size:28px;font-weight:800;color:#0f1b2d;line-height:1; }
+  .kpi .kl { font-size:10.5px;color:#868e96;margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:.04em; }
+  .kpi .kt { font-size:10px;margin-top:5px;font-weight:700; }
+  .kpi .kt.up   { color:#16a34a; }
+  .kpi .kt.warn { color:#d97706; }
+  .kpi .kt.bad  { color:#dc2626; }
+  .kpi.teal   .kv { color:#028090; }
+  .kpi.green  .kv { color:#16a34a; }
+  .kpi.amber  .kv { color:#d97706; }
+  .kpi.red    .kv { color:#dc2626; }
+  /* Culture CII tile */
+  .kpi.culture { border-top:3px solid #92400e; }
+  .kpi.culture .kv { font-size:17px;color:#78350f;font-weight:800;line-height:1.3; }
+  .kpi-cii-row { display:flex;gap:4px;flex-wrap:wrap;margin-top:7px; }
+  .kci { font-size:8.5px;font-weight:700;padding:2px 6px;border-radius:5px;white-space:nowrap; }
+  .kci.t { background:#dcfce7;color:#15803d; }
+  .kci.d { background:#fef9c3;color:#854d0e; }
+  .kci.a { background:#fee2e2;color:#b91c1c; }
+  .kci.s { background:#f1f3f5;color:#868e96; }
+
+  /* Content rows */
+  .row3 { display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:12px;margin-bottom:12px; }
+  .row2 { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+
+  /* Panel */
+  .panel { background:#fff;border:1px solid #e9ecef;border-radius:11px;overflow:hidden; }
+  .ph { padding:12px 15px;border-bottom:1px solid #f0f1f3;display:flex;align-items:center;gap:8px; }
+  .ph-ic { font-size:14px; }
+  .ph-ttl { font-size:12.5px;font-weight:700;color:#0f1b2d; }
+  .ph-sub { font-size:10.5px;color:#adb5bd;margin-left:auto; }
+  .pb { padding:13px 15px; }
+
+  /* Stage bars */
+  .stage-list { display:flex;flex-direction:column;gap:7px; }
+  .stage-row  { display:flex;align-items:center;gap:9px; }
+  .stage-label { font-size:11px;font-weight:600;color:#495057;width:88px;flex-shrink:0; }
+  .stage-bw   { flex:1;background:#f1f3f5;border-radius:4px;height:10px;overflow:hidden; }
+  .stage-b    { height:100%;border-radius:4px; }
+  .stage-n    { font-size:11px;font-weight:700;color:#0f1b2d;width:14px;text-align:right;flex-shrink:0; }
+
+  /* Attention */
+  .attn-list { display:flex;flex-direction:column;gap:8px; }
+  .attn-item { display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:8px; }
+  .attn-item.red  { background:#fff5f5;border:1px solid #fca5a5; }
+  .attn-item.warn { background:#fffbeb;border:1px solid #fde68a; }
+  .attn-av   { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;background:#02809018;color:#028090;flex-shrink:0; }
+  .attn-body { flex:1;min-width:0; }
+  .attn-name { font-size:11.5px;font-weight:700;color:#0f1b2d; }
+  .attn-reason { font-size:10.5px;color:#78350f;margin-top:2px; }
+  .attn-item.red .attn-reason { color:#991b1b; }
+  .attn-tag  { margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;flex-shrink:0; }
+
+  /* Culture CII panel */
+  .cult-list { display:flex;flex-direction:column;gap:5px; }
+  .cult-row  { display:flex;align-items:center;gap:7px; }
+  .cult-name { font-size:11px;font-weight:600;color:#0f1b2d;width:108px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .cult-band { font-size:8.5px;font-weight:700;padding:2px 5px;border-radius:5px;flex-shrink:0;white-space:nowrap; }
+  .cult-band.t { background:#dcfce7;color:#15803d; }
+  .cult-band.d { background:#fef9c3;color:#854d0e; }
+  .cult-band.a { background:#fee2e2;color:#b91c1c; }
+  .cult-band.s { background:#f1f3f5;color:#adb5bd;font-style:italic; }
+  .cult-band.o { background:#fef9c3;color:#854d0e; }
+  .cult-bw   { flex:1;background:#f1f3f5;border-radius:3px;height:5px;overflow:hidden; }
+  .cult-b    { height:100%;border-radius:3px; }
+  .cult-score { font-size:12px;font-weight:800;width:32px;text-align:right;flex-shrink:0; }
+  .cult-trend { font-size:12px;width:14px;text-align:center;flex-shrink:0; }
+  .hi  { color:#16a34a; } .hib { background:#22c55e; }
+  .mid { color:#d97706; } .midb{ background:#eab308; }
+  .lo  { color:#dc2626; } .lob { background:#ef4444; }
+  .muted { color:#adb5bd; }
+
+  /* Touchpoints summary boxes */
+  .tp-boxes { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px; }
+  .tpb  { border-radius:8px;padding:9px 11px;text-align:center; }
+  .tpb .n  { font-size:22px;font-weight:800;line-height:1; }
+  .tpb .lbl{ font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:3px; }
+  .tpb.due  { background:#fef9c3;border:1px solid #fde68a; } .tpb.due  .n { color:#854d0e; } .tpb.due  .lbl { color:#92400e; }
+  .tpb.over { background:#fee2e2;border:1px solid #fca5a5; } .tpb.over .n { color:#b91c1c; } .tpb.over .lbl { color:#991b1b; }
+  .tpb.comp { background:#dcfce7;border:1px solid #86efac; } .tpb.comp .n { color:#15803d; } .tpb.comp .lbl { color:#166534; }
+
+  /* TP list */
+  .tp-list { display:flex;flex-direction:column; }
+  .tp-row  { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f4f5f7; }
+  .tp-row:last-child { border-bottom:none; }
+  .tp-av   { width:26px;height:26px;border-radius:50%;background:#02809018;color:#028090;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;flex-shrink:0; }
+  .tp-info { flex:1; }
+  .tp-name { font-size:11.5px;font-weight:600;color:#0f1b2d; }
+  .tp-type { font-size:10px;color:#868e96;margin-top:1px; }
+  .tp-stat { font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px; }
+  .tp-stat.due  { background:#fef9c3;color:#854d0e; }
+  .tp-stat.over { background:#fee2e2;color:#b91c1c; }
+
+  /* Productivity table */
+  .prod-head { display:flex;align-items:center;padding:0 0 7px;border-bottom:1.5px solid #e9ecef;margin-bottom:2px; }
+  .prod-hname { flex:1;font-size:9.5px;font-weight:700;color:#868e96;text-transform:uppercase;letter-spacing:.04em; }
+  .prod-hmet  { width:20px;text-align:center;font-size:9px;font-weight:700;color:#adb5bd;flex-shrink:0; }
+  .prod-htot  { width:30px;text-align:right;font-size:9px;font-weight:700;color:#868e96;flex-shrink:0; }
+  .prod-row { display:flex;align-items:center;padding:5px 0;border-bottom:1px solid #f4f5f7; }
+  .prod-row:last-of-type { border-bottom:none; }
+  .prod-row.flag { background:#fff5f5;border-radius:6px;padding:5px 5px;border:1px solid #fca5a5;margin:2px 0; }
+  .prod-av { width:22px;height:22px;border-radius:50%;background:#02809018;color:#028090;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;flex-shrink:0;margin-right:7px; }
+  .prod-av.red { background:#fee2e224;color:#dc2626; }
+  .prod-name { flex:1;font-size:11px;font-weight:600;color:#0f1b2d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .prod-name.red { color:#b91c1c;font-weight:700; }
+  .prod-dot { width:20px;text-align:center;flex-shrink:0; }
+  .dot { display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle; }
+  .dot.g { background:#22c55e; }
+  .dot.a { background:#eab308; }
+  .dot.r { background:#ef4444; }
+  .prod-pill { width:30px;text-align:right;font-size:10px;font-weight:700;flex-shrink:0; }
+  .g5 { color:#15803d; }
+  .g4 { color:#16a34a; }
+  .pw  { color:#d97706; }
+  .pb2 { color:#dc2626; }
+  .prod-legend { display:flex;gap:12px;margin-top:9px;padding-top:8px;border-top:1px solid #f4f5f7;font-size:9px;color:#868e96;flex-wrap:wrap; }
+  .prod-legend span { display:flex;align-items:center;gap:3px; }
+</style></head>
+<body>
+<div class="screen">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div>
+      <div class="title">Onboarding Tracker</div>
+      <div class="sub">Dr. Rivera — Medical Director · Optum NY/NJ Primary Care</div>
+    </div>
+    <div class="tb-actions">
+      <span class="pill alert">⚠ 3 Need Attention</span>
+      <span class="pill dim">📋 Curriculum</span>
+      <span class="pill dim">Log out</span>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── SIDEBAR ── -->
+    <div class="sidebar">
+      <div class="sb-head">
+        <div class="sb-kicker">Provider Cohort</div>
+        <div class="sb-count">9 Providers</div>
+        <div class="sb-sub">6 on track · 3 need attention</div>
+      </div>
+      <div class="sb-list">
+
+        <!-- Johnson: ok · CII Thriving 7.1 · Prod 4/5 -->
+        <div class="pc ok">
+          <div class="pc-top">
+            <div class="pc-av">DJ</div>
+            <div class="pc-info"><div class="pc-name">Dr. Johnson</div><div class="pc-role">MD · Dr. Smith</div></div>
+            <span class="pc-badge">Week 7</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar" style="width:72%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">72%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip thriving">CII Thriving 7.1 ↑</span>
+            <span class="prod-chip good">Prod 4/5</span>
+          </div>
+        </div>
+
+        <!-- Patel: bad · CII At Risk 3.5 · Prod 5/5 -->
+        <div class="pc bad">
+          <div class="pc-top">
+            <div class="pc-av">DP</div>
+            <div class="pc-info"><div class="pc-name">Dr. Patel</div><div class="pc-role">DO · Dr. Smith</div></div>
+            <span class="pc-badge">Month 3</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar bad" style="width:55%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">55%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip atrisk">CII At Risk 3.5 ↓</span>
+            <span class="prod-chip good">Prod 5/5</span>
+          </div>
+        </div>
+
+        <!-- Williams: ok · CII Developing 5.25 · Prod 5/5 -->
+        <div class="pc ok">
+          <div class="pc-top">
+            <div class="pc-av">DW</div>
+            <div class="pc-info"><div class="pc-name">Dr. Williams</div><div class="pc-role">MD · Dr. Lee</div></div>
+            <span class="pc-badge">Week 7</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar" style="width:68%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">68%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip developing">CII Developing 5.25</span>
+            <span class="prod-chip good">Prod 5/5</span>
+          </div>
+        </div>
+
+        <!-- Hassan: ok · CII Future-Sched'd · Prod 5/5 -->
+        <div class="pc ok">
+          <div class="pc-top">
+            <div class="pc-av">DH</div>
+            <div class="pc-info"><div class="pc-name">Dr. Hassan</div><div class="pc-role">DO · Dr. Smith</div></div>
+            <span class="pc-badge">Week 3</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar" style="width:28%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">28%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip sched">CII Future-Sched'd</span>
+            <span class="prod-chip good">Prod 5/5</span>
+          </div>
+        </div>
+
+        <!-- Garcia: bad · CII Future-Sched'd · Prod 1/5 ⚠ -->
+        <div class="pc bad">
+          <div class="pc-top">
+            <div class="pc-av">DG</div>
+            <div class="pc-info"><div class="pc-name">Dr. Garcia</div><div class="pc-role">DO · Dr. Lee</div></div>
+            <span class="pc-badge">Week 5</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar bad" style="width:38%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">38%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip sched">CII Future-Sched'd</span>
+            <span class="prod-chip bad">Prod 1/5 ⚠</span>
+          </div>
+        </div>
+
+        <!-- A. Martinez NP: ok · CII Thriving 8.6 · Prod 5/5 -->
+        <div class="pc ok">
+          <div class="pc-top">
+            <div class="pc-av">AM</div>
+            <div class="pc-info"><div class="pc-name">A. Martinez, NP</div><div class="pc-role">NP · M. Torres</div></div>
+            <span class="pc-badge">Month 18</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar" style="width:91%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">91%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip thriving">CII Thriving 8.6 →</span>
+            <span class="prod-chip good">Prod 5/5</span>
+          </div>
+        </div>
+
+        <!-- T. Singh NP: warn · CII checkpoint missed · Prod 5/5 -->
+        <div class="pc warn">
+          <div class="pc-top">
+            <div class="pc-av">TS</div>
+            <div class="pc-info"><div class="pc-name">T. Singh, NP</div><div class="pc-role">NP</div></div>
+            <span class="pc-badge">Month 6</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar warn" style="width:52%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">52%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip overdue">CII Mo 3 overdue</span>
+            <span class="prod-chip good">Prod 5/5</span>
+          </div>
+        </div>
+
+        <!-- R. Okafor PA: ok · CII Future-Sched'd · Prod 5/5 -->
+        <div class="pc ok">
+          <div class="pc-top">
+            <div class="pc-av">RO</div>
+            <div class="pc-info"><div class="pc-name">R. Okafor, PA</div><div class="pc-role">PA · M. Torres</div></div>
+            <span class="pc-badge">Week 7</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar" style="width:65%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">65%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip sched">CII Future-Sched'd</span>
+            <span class="prod-chip good">Prod 5/5</span>
+          </div>
+        </div>
+
+        <!-- Dr. Park: ok · CII Future-Sched'd · Prod 5/5 -->
+        <div class="pc ok">
+          <div class="pc-top">
+            <div class="pc-av">DK</div>
+            <div class="pc-info"><div class="pc-name">Dr. Park</div><div class="pc-role">MD · Dr. Lee</div></div>
+            <span class="pc-badge">Week 3</span>
+          </div>
+          <div class="pc-bar-wrap"><div class="pc-bar" style="width:22%"></div></div>
+          <div class="pc-meta"><span>MD Curriculum</span><span class="pct">22%</span></div>
+          <div class="pc-stats">
+            <span class="cii-chip sched">CII Future-Sched'd</span>
+            <span class="prod-chip good">Prod 5/5</span>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /sidebar -->
+
+    <!-- ── MAIN DASHBOARD ── -->
+    <div class="main">
+
+      <!-- KPI row -->
+      <div class="kpi-row">
+
+        <div class="kpi teal">
+          <div class="kv">9</div>
+          <div class="kl">Active Providers</div>
+          <div class="kt up">↑ 2 added this quarter</div>
+        </div>
+
+        <div class="kpi green">
+          <div class="kv">6</div>
+          <div class="kl">On Track</div>
+          <div class="kt up">67% of cohort</div>
+        </div>
+
+        <div class="kpi amber">
+          <div class="kv">3</div>
+          <div class="kl">Need Attention</div>
+          <div class="kt warn">CII flag · Prod flag · checkpoint</div>
+        </div>
+
+        <div class="kpi green">
+          <div class="kv">8<span style="font-size:16px;font-weight:600;color:#868e96;">/9</span></div>
+          <div class="kl">Productivity On Track</div>
+          <div class="kt warn">1 provider flagged — Garcia</div>
+        </div>
+
+        <div class="kpi culture">
+          <div class="kv">Culture CII</div>
+          <div class="kpi-cii-row">
+            <span class="kci t">2 Thriving</span>
+            <span class="kci d">1 Developing</span>
+            <span class="kci a">1 At Risk</span>
+            <span class="kci s">5 Sched'd</span>
+          </div>
+          <div class="kt" style="color:#92400e;margin-top:6px;">m3 · m6 · m9 · m12 cadence</div>
+        </div>
+
+      </div><!-- /kpi-row -->
+
+      <!-- Row 2: Cohort by Stage | Needs Attention | Culture CII -->
+      <div class="row3">
+
+        <!-- Cohort by Stage -->
+        <div class="panel">
+          <div class="ph"><span class="ph-ic">📊</span><span class="ph-ttl">Cohort by Stage</span><span class="ph-sub">Today</span></div>
+          <div class="pb">
+            <div class="stage-list">
+              <div class="stage-row">
+                <span class="stage-label">Weeks 1–4</span>
+                <div class="stage-bw"><div class="stage-b" style="width:22%;background:#c084fc"></div></div>
+                <span class="stage-n">2</span>
+              </div>
+              <div class="stage-row">
+                <span class="stage-label">Weeks 5–12</span>
+                <div class="stage-bw"><div class="stage-b" style="width:44%;background:#028090"></div></div>
+                <span class="stage-n">4</span>
+              </div>
+              <div class="stage-row">
+                <span class="stage-label">Months 3–6</span>
+                <div class="stage-bw"><div class="stage-b" style="width:22%;background:#0284c7"></div></div>
+                <span class="stage-n">2</span>
+              </div>
+              <div class="stage-row">
+                <span class="stage-label">Months 6–12</span>
+                <div class="stage-bw"><div class="stage-b" style="width:0%"></div></div>
+                <span class="stage-n">0</span>
+              </div>
+              <div class="stage-row">
+                <span class="stage-label">Post Month 12</span>
+                <div class="stage-bw"><div class="stage-b" style="width:11%;background:#64748b"></div></div>
+                <span class="stage-n">1</span>
+              </div>
+            </div>
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid #f4f5f7;font-size:10.5px;color:#868e96;">
+              <span style="font-weight:700;color:#0f1b2d;">67%</span> of cohort in first 90 days — highest-intensity supervision period
+            </div>
+          </div>
+        </div>
+
+        <!-- Needs Attention -->
+        <div class="panel">
+          <div class="ph"><span class="ph-ic">⚠️</span><span class="ph-ttl">Needs Attention</span><span class="ph-sub">3 flags</span></div>
+          <div class="pb">
+            <div class="attn-list">
+
+              <!-- Patel: CII At Risk -->
+              <div class="attn-item red">
+                <div class="attn-av">DP</div>
+                <div class="attn-body">
+                  <div class="attn-name">Dr. Patel</div>
+                  <div class="attn-reason">CII 3.5 · At Risk — culture integration score below threshold · trending ↓</div>
+                </div>
+                <span class="attn-tag" style="background:#fee2e2;color:#991b1b;">CII ⚠</span>
+              </div>
+
+              <!-- Garcia: Productivity flagged -->
+              <div class="attn-item red">
+                <div class="attn-av">DG</div>
+                <div class="attn-body">
+                  <div class="attn-name">Dr. Garcia</div>
+                  <div class="attn-reason">Prod 1/5 · In-basket + note time trending ↑ (wrong direction for both)</div>
+                </div>
+                <span class="attn-tag" style="background:#fee2e2;color:#991b1b;">Prod ⚠</span>
+              </div>
+
+              <!-- Singh: Missed Month 3 CII checkpoint -->
+              <div class="attn-item warn">
+                <div class="attn-av">TS</div>
+                <div class="attn-body">
+                  <div class="attn-name">T. Singh, NP</div>
+                  <div class="attn-reason">Month 3 CII checkpoint overdue · questionnaire not yet submitted</div>
+                </div>
+                <span class="attn-tag" style="background:#fef9c3;color:#854d0e;">Overdue</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Culture CII Scores -->
+        <div class="panel">
+          <div class="ph">
+            <span class="ph-ic">🌡️</span>
+            <span class="ph-ttl">Culture CII</span>
+            <span class="ph-sub">Latest per provider</span>
+          </div>
+          <div class="pb">
+            <div class="cult-list">
+
+              <!-- Thriving group -->
+              <div class="cult-row">
+                <span class="cult-name">A. Martinez, NP</span>
+                <span class="cult-band t">Thriving</span>
+                <div class="cult-bw"><div class="cult-b hib" style="width:86%"></div></div>
+                <span class="cult-score hi">8.6</span>
+                <span class="cult-trend hi">→</span>
+              </div>
+              <div class="cult-row">
+                <span class="cult-name">Dr. Johnson</span>
+                <span class="cult-band t">Thriving</span>
+                <div class="cult-bw"><div class="cult-b hib" style="width:71%"></div></div>
+                <span class="cult-score hi">7.1</span>
+                <span class="cult-trend hi">↑</span>
+              </div>
+
+              <!-- Developing -->
+              <div class="cult-row">
+                <span class="cult-name">Dr. Williams</span>
+                <span class="cult-band d">Developing</span>
+                <div class="cult-bw"><div class="cult-b midb" style="width:52.5%"></div></div>
+                <span class="cult-score mid">5.25</span>
+                <span class="cult-trend muted">—</span>
+              </div>
+
+              <!-- At Risk -->
+              <div class="cult-row">
+                <span class="cult-name">Dr. Patel</span>
+                <span class="cult-band a">At Risk</span>
+                <div class="cult-bw"><div class="cult-b lob" style="width:35%"></div></div>
+                <span class="cult-score lo">3.5</span>
+                <span class="cult-trend lo">↓</span>
+              </div>
+
+              <!-- Future-Scheduled -->
+              <div class="cult-row">
+                <span class="cult-name">T. Singh, NP</span>
+                <span class="cult-band o">Mo 3 Overdue</span>
+                <div class="cult-bw"><div class="cult-b" style="width:0%"></div></div>
+                <span class="cult-score muted" style="font-size:9px;">—</span>
+                <span class="cult-trend"></span>
+              </div>
+              <div class="cult-row">
+                <span class="cult-name">Dr. Garcia</span>
+                <span class="cult-band s">Future-Sched'd</span>
+                <div class="cult-bw"><div class="cult-b" style="width:0%"></div></div>
+                <span class="cult-score muted" style="font-size:9px;">—</span>
+                <span class="cult-trend"></span>
+              </div>
+              <div class="cult-row">
+                <span class="cult-name">Dr. Hassan</span>
+                <span class="cult-band s">Future-Sched'd</span>
+                <div class="cult-bw"><div class="cult-b" style="width:0%"></div></div>
+                <span class="cult-score muted" style="font-size:9px;">—</span>
+                <span class="cult-trend"></span>
+              </div>
+              <div class="cult-row">
+                <span class="cult-name">Dr. Park</span>
+                <span class="cult-band s">Future-Sched'd</span>
+                <div class="cult-bw"><div class="cult-b" style="width:0%"></div></div>
+                <span class="cult-score muted" style="font-size:9px;">—</span>
+                <span class="cult-trend"></span>
+              </div>
+              <div class="cult-row">
+                <span class="cult-name">R. Okafor, PA</span>
+                <span class="cult-band s">Future-Sched'd</span>
+                <div class="cult-bw"><div class="cult-b" style="width:0%"></div></div>
+                <span class="cult-score muted" style="font-size:9px;">—</span>
+                <span class="cult-trend"></span>
+              </div>
+
+            </div>
+            <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f4f5f7;font-size:9.5px;color:#868e96;">
+              Bands: Thriving ≥7 · Developing 5–6 · At Risk &lt;5 · scored at m3/m6/m9/m12 (APCs +m15–m24)
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /row3 -->
+
+      <!-- Row 2: Touchpoints | Epic Productivity -->
+      <div class="row2">
+
+        <!-- Touchpoint Summary -->
+        <div class="panel">
+          <div class="ph"><span class="ph-ic">📅</span><span class="ph-ttl">Touchpoint Summary</span><span class="ph-sub">All types · all providers</span></div>
+          <div class="pb">
+            <div class="tp-boxes">
+              <div class="tpb due"><div class="n">5</div><div class="lbl">Due Now</div></div>
+              <div class="tpb over"><div class="n">2</div><div class="lbl">Overdue</div></div>
+              <div class="tpb comp"><div class="n">20</div><div class="lbl">Complete</div></div>
+            </div>
+            <div class="tp-list">
+              <div class="tp-row">
+                <div class="tp-av">DJ</div>
+                <div class="tp-info"><div class="tp-name">Dr. Johnson</div><div class="tp-type">MD Review · Week 8</div></div>
+                <span class="tp-stat due">Due now</span>
+              </div>
+              <div class="tp-row">
+                <div class="tp-av">DP</div>
+                <div class="tp-info"><div class="tp-name">Dr. Patel</div><div class="tp-type">MD Review · Month 3</div></div>
+                <span class="tp-stat over">Overdue 6d</span>
+              </div>
+              <div class="tp-row">
+                <div class="tp-av">TS</div>
+                <div class="tp-info"><div class="tp-name">T. Singh, NP</div><div class="tp-type">Ops Check-in · Month 6 · CII questionnaire</div></div>
+                <span class="tp-stat over">Overdue 11d</span>
+              </div>
+              <div class="tp-row">
+                <div class="tp-av">RO</div>
+                <div class="tp-info"><div class="tp-name">R. Okafor, PA</div><div class="tp-type">Mentor · Week 7</div></div>
+                <span class="tp-stat due">Due now</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Epic Productivity — replaces Recent Activity -->
+        <div class="panel">
+          <div class="ph">
+            <span class="ph-ic">📈</span>
+            <span class="ph-ttl">Epic Productivity</span>
+            <span class="ph-sub">8 / 9 on track</span>
+          </div>
+          <div class="pb">
+
+            <!-- Column headers -->
+            <div class="prod-head">
+              <div style="width:29px;flex-shrink:0;"></div><!-- avatar spacer -->
+              <div class="prod-hname">Provider</div>
+              <div class="prod-hmet" title="Patients per day">V</div>
+              <div class="prod-hmet" title="wRVU per week">R</div>
+              <div class="prod-hmet" title="In-basket time">I</div>
+              <div class="prod-hmet" title="Time per note">N</div>
+              <div class="prod-hmet" title="Rx refill time">Rf</div>
+              <div class="prod-htot">Track</div>
+            </div>
+
+            <!-- Johnson: V=G, R=A(variable), I=G, N=G, Rf=G → 4/5 -->
+            <div class="prod-row">
+              <div class="prod-av">DJ</div>
+              <div class="prod-name">Dr. Johnson</div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot a"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill g4">4/5</div>
+            </div>
+
+            <!-- Patel: V=G, R=G, I=G, N=G, Rf=G → 5/5 -->
+            <div class="prod-row">
+              <div class="prod-av">DP</div>
+              <div class="prod-name">Dr. Patel</div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill g5">5/5</div>
+            </div>
+
+            <!-- Williams: V=G, R=G, I=G, N=G, Rf=G → 5/5 -->
+            <div class="prod-row">
+              <div class="prod-av">DW</div>
+              <div class="prod-name">Dr. Williams</div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill g5">5/5</div>
+            </div>
+
+            <!-- Hassan: V=G, R=G, I=G, N=G, Rf=G → 5/5 -->
+            <div class="prod-row">
+              <div class="prod-av">DH</div>
+              <div class="prod-name">Dr. Hassan</div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill g5">5/5</div>
+            </div>
+
+            <!-- Garcia: V=A, R=A, I=R, N=R, Rf=G → 1/5 ← ONLY FLAG -->
+            <div class="prod-row flag">
+              <div class="prod-av red">DG</div>
+              <div class="prod-name red">Dr. Garcia</div>
+              <div class="prod-dot"><span class="dot a"></span></div>
+              <div class="prod-dot"><span class="dot a"></span></div>
+              <div class="prod-dot"><span class="dot r"></span></div>
+              <div class="prod-dot"><span class="dot r"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill pb2">1/5</div>
+            </div>
+
+            <!-- A. Martinez: V=G, R=G, I=G, N=G, Rf=G → 5/5 (all Near Goal) -->
+            <div class="prod-row">
+              <div class="prod-av">AM</div>
+              <div class="prod-name">A. Martinez, NP</div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill g5">5/5</div>
+            </div>
+
+            <!-- T. Singh: V=G, R=G, I=G, N=G, Rf=G → 5/5 -->
+            <div class="prod-row">
+              <div class="prod-av">TS</div>
+              <div class="prod-name">T. Singh, NP</div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill g5">5/5</div>
+            </div>
+
+            <!-- R. Okafor: V=G, R=G, I=G, N=G, Rf=G → 5/5 -->
+            <div class="prod-row">
+              <div class="prod-av">RO</div>
+              <div class="prod-name">R. Okafor, PA</div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill g5">5/5</div>
+            </div>
+
+            <!-- Dr. Park: V=G, R=G, I=G, N=G, Rf=G → 5/5 -->
+            <div class="prod-row">
+              <div class="prod-av">DK</div>
+              <div class="prod-name">Dr. Park</div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-dot"><span class="dot g"></span></div>
+              <div class="prod-pill g5">5/5</div>
+            </div>
+
+            <!-- Legend -->
+            <div class="prod-legend">
+              <span><span class="dot g"></span>On track</span>
+              <span><span class="dot a"></span>Variable</span>
+              <span><span class="dot r"></span>Needs attention</span>
+              <span style="margin-left:auto;font-style:italic;color:#adb5bd;">V=Volume · R=RVU · I=Inbox · N=Note · Rf=Refill</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /row2 -->
+
+    </div><!-- /main -->
+  </div><!-- /layout -->
+</div><!-- /screen -->
+</body></html>
