@@ -1,0 +1,645 @@
+/* ===========================================================================
+ * Lab QuickReply — plain CSS recreation of the source app's Tailwind look.
+ *
+ * Scope: everything is namespaced under `.lab-quickreply` so it can't bleed
+ * into the meridian-os shell, the other launcher apps, or the bubble
+ * primitive classes (which also use `.bubble`-style selectors).
+ *
+ * Visual language preserves the source artifact's choices:
+ *   - Parchment background (#f5f3ee), Georgia serif body
+ *   - Slate-on-white card surfaces with hard 2px borders
+ *   - Tone-coded "looks" cards (emerald = calm, amber = attention, rose = stop)
+ *   - A bottom-pinned sticky preview card once the message is ready
+ *   - Large hit areas (44px+) — designed for clinic-floor tap targets
+ * ========================================================================= */
+
+.lab-quickreply {
+  /* Reset.css makes html/body overflow:hidden; we own scroll in this app. */
+  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  background: #f5f3ee;
+  color: #0f172a;
+  font-family: Georgia, 'Times New Roman', serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lab-quickreply *,
+.lab-quickreply *::before,
+.lab-quickreply *::after {
+  box-sizing: border-box;
+}
+
+/* No `.lab-quickreply button { color: inherit }` scoped reset here —
+   reset.css already applies `button { font: inherit; color: inherit;
+   cursor: pointer }` globally, and a scoped descendant rule (specificity
+   0,1,1) would outrank single-class button color overrides like
+   `.lab-quickreply__copy-btn { color: #fff }` (0,1,0), causing the copy
+   button's text + currentColor SVG stroke to silently fall back to the
+   `.lab-quickreply { color: #0f172a }` default. Same trap would hit
+   `.lab-quickreply__edit-btn` on the dark preview header. */
+
+.lab-quickreply__page {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+@media (min-width: 640px) {
+  .lab-quickreply__page {
+    padding: 3rem 2rem 4rem;
+  }
+}
+
+/* ---------- Header ------------------------------------------------------- */
+
+.lab-quickreply__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.lab-quickreply__eyebrow {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  font-family: 'DM Sans', system-ui, sans-serif; /* aligns with Briefing/Dashboard eyebrows */
+}
+
+.lab-quickreply__title {
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .lab-quickreply__title {
+    font-size: 2.25rem;
+  }
+}
+
+.lab-quickreply__tagline {
+  color: #475569;
+  margin: 0.5rem 0 0;
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+.lab-quickreply__setup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 1rem;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  transition: background-color 120ms ease;
+  flex-shrink: 0;
+}
+
+.lab-quickreply__setup-btn:hover {
+  background: #e2e8f0;
+}
+
+@media (max-width: 639px) {
+  .lab-quickreply__setup-label {
+    display: none;
+  }
+}
+
+/* ---------- Settings panel ---------------------------------------------- */
+
+.lab-quickreply__settings {
+  position: relative;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.lab-quickreply__settings-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: #94a3b8;
+  background: transparent;
+  border: 0;
+  padding: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lab-quickreply__settings-close:hover {
+  color: #334155;
+}
+
+.lab-quickreply__settings-close .lab-quickreply__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.lab-quickreply__settings-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.lab-quickreply__settings-sub {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0 0 1.25rem;
+}
+
+.lab-quickreply__settings-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .lab-quickreply__settings-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.lab-quickreply__field-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.375rem;
+}
+
+.lab-quickreply__input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  font-family: inherit;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.lab-quickreply__input:focus {
+  outline: none;
+  border-color: #334155;
+}
+
+.lab-quickreply__signoff-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+}
+
+.lab-quickreply__signoff-btn {
+  padding: 0.625rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.lab-quickreply__signoff-btn:hover {
+  border-color: #64748b;
+}
+
+.lab-quickreply__signoff-btn.is-active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* ---------- Patient field ------------------------------------------------ */
+
+.lab-quickreply__field {
+  margin-bottom: 2rem;
+}
+
+.lab-quickreply__patient-label {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.5rem;
+}
+
+.lab-quickreply__optional {
+  font-weight: 400;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* ---------- Step rows ---------------------------------------------------- */
+
+.lab-quickreply__step {
+  margin-bottom: 2rem;
+}
+
+.lab-quickreply__step-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.lab-quickreply__step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.lab-quickreply__step-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* ---------- Looks (Step 1) ---------------------------------------------- */
+
+.lab-quickreply__looks {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .lab-quickreply__looks {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.lab-quickreply__look {
+  text-align: left;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.lab-quickreply__look:hover {
+  border-color: #94a3b8;
+}
+
+.lab-quickreply__look.is-active.tone-calm {
+  border-color: #059669;
+  background: #ecfdf5;
+  color: #064e3b;
+}
+
+.lab-quickreply__look.is-active.tone-attention {
+  border-color: #d97706;
+  background: #fffbeb;
+  color: #78350f;
+}
+
+.lab-quickreply__look.is-active.tone-stop {
+  border-color: #e11d48;
+  background: #fff1f2;
+  color: #881337;
+}
+
+.lab-quickreply__look-label {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.lab-quickreply__look-desc {
+  font-size: 1rem;
+  margin-top: 0.125rem;
+  color: #64748b;
+}
+
+.lab-quickreply__look-desc.is-active {
+  color: inherit;
+}
+
+/* ---------- Stop banner (serious) --------------------------------------- */
+
+.lab-quickreply__stop {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: #fff1f2;
+  border: 2px solid #fb7185;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.lab-quickreply__stop-icon {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+  color: #be123c;
+}
+
+.lab-quickreply__stop-icon .lab-quickreply__icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.lab-quickreply__stop-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #881337;
+  margin: 0 0 0.5rem;
+}
+
+.lab-quickreply__stop-text {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: #9f1239;
+  margin: 0 0 0.75rem;
+}
+
+.lab-quickreply__stop-sub {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #be123c;
+  margin: 0;
+}
+
+/* ---------- Yes / No (Step 2) ------------------------------------------- */
+
+.lab-quickreply__yesno {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.lab-quickreply__yesno-btn {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 1.125rem;
+  font-weight: 700;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+
+.lab-quickreply__yesno-btn:hover {
+  border-color: #94a3b8;
+}
+
+.lab-quickreply__yesno-btn.is-active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* ---------- Interval picker (Step 3) ------------------------------------ */
+
+.lab-quickreply__hint {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.lab-quickreply__hint p {
+  font-size: 1rem;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.lab-quickreply__hint-strong {
+  font-weight: 700;
+}
+
+.lab-quickreply__interval-group {
+  margin-bottom: 1rem;
+}
+
+.lab-quickreply__interval-label {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.lab-quickreply__interval-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
+.lab-quickreply__interval-btn {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 1.125rem;
+  font-weight: 700;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+
+.lab-quickreply__interval-btn:hover {
+  border-color: #94a3b8;
+}
+
+.lab-quickreply__interval-btn.is-active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* ---------- Sticky preview card ----------------------------------------- */
+
+.lab-quickreply__sticky {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 2;
+}
+
+.lab-quickreply__preview {
+  background: #ffffff;
+  border: 2px solid #0f172a;
+  border-radius: 0.75rem;
+  box-shadow: 0 24px 48px -16px rgba(15, 23, 42, 0.35);
+  overflow: hidden;
+}
+
+.lab-quickreply__preview-head {
+  padding: 0.75rem 1.25rem;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lab-quickreply__preview-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.lab-quickreply__edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 1rem;
+  color: #cbd5e1;
+  background: transparent;
+  border: 0;
+  padding: 0.25rem 0.5rem;
+  transition: color 120ms ease;
+}
+
+.lab-quickreply__edit-btn:hover {
+  color: #ffffff;
+}
+
+.lab-quickreply__edit-btn .lab-quickreply__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.lab-quickreply__preview-body {
+  padding: 1.25rem;
+}
+
+.lab-quickreply__message {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: #1e293b;
+  white-space: pre-line;
+}
+
+.lab-quickreply__textarea {
+  width: 100%;
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: #1e293b;
+  border: 2px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  resize: none;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.lab-quickreply__textarea:focus {
+  outline: none;
+  border-color: #334155;
+}
+
+.lab-quickreply__preview-actions {
+  padding: 1rem 1.25rem;
+  border-top: 2px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.lab-quickreply__copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.5rem;
+  background: #0f172a;
+  color: #ffffff;
+  border: 0;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  transition: background-color 120ms ease;
+}
+
+.lab-quickreply__copy-btn:hover {
+  background: #334155;
+}
+
+.lab-quickreply__copy-btn .lab-quickreply__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.lab-quickreply__doneedit-btn {
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: 0;
+  font-size: 1rem;
+  color: #475569;
+  transition: color 120ms ease;
+}
+
+.lab-quickreply__doneedit-btn:hover {
+  color: #0f172a;
+}
+
+.lab-quickreply__reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-left: auto;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: 0;
+  font-size: 1rem;
+  color: #64748b;
+  transition: color 120ms ease;
+}
+
+.lab-quickreply__reset-btn:hover {
+  color: #0f172a;
+}
+
+.lab-quickreply__reset-btn .lab-quickreply__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ---------- Disclaimer + icon sizing ------------------------------------ */
+
+.lab-quickreply__disclaimer {
+  text-align: center;
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 2rem 0 0;
+  line-height: 1.5;
+}
+
+.lab-quickreply__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+}
+
+.lab-quickreply__setup-btn .lab-quickreply__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}

@@ -72,6 +72,18 @@ export function Launcher(): JSX.Element {
           </div>
           <div class="launcher__app-caption">Dashboard</div>
         </button>
+
+        <button
+          type="button"
+          class="launcher__app"
+          onClick={() => setLauncherApp('lab-quickreply')}
+          aria-label="Open Lab QuickReply"
+        >
+          <div class="launcher__app-icon launcher__app-icon--lab-quickreply">
+            <span class="launcher__app-glyph" aria-hidden="true">🧪</span>
+          </div>
+          <div class="launcher__app-caption">Lab QuickReply</div>
+        </button>
       </div>
 
       <button

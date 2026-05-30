@@ -1,13 +1,22 @@
 import { signal } from '@preact/signals';
 
-export type LauncherApp = 'launcher' | 'mondrian' | 'mentorship' | 'epic-reference' | 'briefing' | 'dashboard';
+export type LauncherApp = 'launcher' | 'mondrian' | 'mentorship' | 'epic-reference' | 'briefing' | 'dashboard' | 'lab-quickreply';
 
 const STORAGE_KEY = 'meridian-os.launcherApp.v1';
 
 function hydrate(): LauncherApp {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw === 'mondrian' || raw === 'mentorship' || raw === 'epic-reference' || raw === 'briefing' || raw === 'dashboard') return raw;
+    if (
+      raw === 'mondrian' ||
+      raw === 'mentorship' ||
+      raw === 'epic-reference' ||
+      raw === 'briefing' ||
+      raw === 'dashboard' ||
+      raw === 'lab-quickreply'
+    ) {
+      return raw;
+    }
   } catch {
     /* ignore — SSR or storage disabled */
   }

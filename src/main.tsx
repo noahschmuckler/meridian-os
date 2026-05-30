@@ -14,6 +14,7 @@ import { MentorshipTrackerShell } from './shell/MentorshipTrackerShell';
 import { EpicQuickReferenceShell } from './shell/EpicQuickReferenceShell';
 import { BriefingShell } from './shell/BriefingShell';
 import { DashboardShell } from './shell/DashboardShell';
+import { LabQuickReplyShell } from './shell/LabQuickReplyShell';
 import { dashboardReturnSignal, returnFromModuleToDashboard } from './apps/dashboard/DashboardApp';
 import { FeedbackModal } from './shell/FeedbackModal';
 import { SelectionMenu } from './shell/SelectionMenu';
@@ -120,6 +121,10 @@ function App(): JSX.Element {
 
   if (app === 'dashboard') {
     return <DashboardShell />;
+  }
+
+  if (app === 'lab-quickreply') {
+    return <LabQuickReplyShell />;
   }
 
   // Mentorship Tracker and Epic Quick Reference share a "deep-link round-
