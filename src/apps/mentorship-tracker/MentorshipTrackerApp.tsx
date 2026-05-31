@@ -2084,7 +2084,7 @@ export default function App() {
                         <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
                           <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                             background: overdueCII ? "#fef9c3" : band.bg, color: overdueCII ? "#854d0e" : band.fg }}>
-                            {overdueCII ? "CII overdue" : cs.avg === null ? "CII Future-Sched'd" : "CII " + band.label + " " + cs.display + (tr.arrow ? " " + tr.arrow : "")}
+                            {overdueCII ? "C.I.I. overdue" : cs.avg === null ? "C.I.I. Future-Sched'd" : "C.I.I. " + band.label + " " + cs.display + (tr.arrow ? " " + tr.arrow : "")}
                           </span>
                           {ps.total > 0 && (
                             <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, whiteSpace: "nowrap", flexShrink: 0, background: prodCol.bg, color: prodCol.fg }}>
@@ -2679,7 +2679,7 @@ export default function App() {
                 const flags = [];
                 cultureData.forEach(c => {
                   if (c.cs.avg !== null && c.cs.avg < 5)
-                    flags.push({ pid: c.p.id, name: c.p.name, tag: "CII ⚠", tone: "red", reason: "CII " + c.cs.display + " · At Risk — culture integration score below threshold" + (c.tr.dir === "down" ? " · trending ↓" : ""), go: () => navigate({ selId: c.p.id, tab: "culture", phase: c.p.phase }) });
+                    flags.push({ pid: c.p.id, name: c.p.name, tag: "C.I.I. ⚠", tone: "red", reason: "C.I.I. " + c.cs.display + " · At Risk — culture integration score below threshold" + (c.tr.dir === "down" ? " · trending ↓" : ""), go: () => navigate({ selId: c.p.id, tab: "culture", phase: c.p.phase }) });
                 });
                 prodFlagged.forEach(x => {
                   const bad = x.dots.filter(d => d.color === "red").map(d => d.short.toLowerCase());
@@ -2757,7 +2757,7 @@ export default function App() {
                         style={{ background: "white", border: sidebarFilter === "behind" ? "2px solid #d97706" : "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
                         <div style={{ fontSize: 28, fontWeight: 800, color: "#d97706", lineHeight: 1 }}>{flags.length}</div>
                         <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Need Attention</div>
-                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>CII · Prod · checkpoint flags</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>C.I.I. · Prod · checkpoint flags</div>
                       </div>
                       {/* Productivity On Track */}
                       <div style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px" }}>
@@ -2767,7 +2767,8 @@ export default function App() {
                       </div>
                       {/* Culture CII */}
                       <div style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #92400e", borderRadius: 11, padding: "15px 16px" }}>
-                        <div style={{ fontSize: 17, fontWeight: 800, color: "#78350f", lineHeight: 1.3 }}>Culture CII</div>
+                        <div style={{ fontSize: 17, fontWeight: 800, color: "#78350f", lineHeight: 1.2 }}>C.I.I.</div>
+                        <div style={{ fontSize: 9.5, fontWeight: 600, color: "#92400e", marginTop: 2, letterSpacing: "0.02em" }}>Culture Integration Index</div>
                         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 7 }}>
                           {bandCount.thriving > 0 && <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "#dcfce7", color: "#15803d" }}>{bandCount.thriving} Thriving</span>}
                           {bandCount.developing > 0 && <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "#fef9c3", color: "#854d0e" }}>{bandCount.developing} Developing</span>}
@@ -2821,7 +2822,7 @@ export default function App() {
                       </Panel>
 
                       {/* Culture CII */}
-                      <Panel icon="🌡️" title="Culture CII" sub="Latest per provider">
+                      <Panel icon="🌡️" title={<span><span style={{ fontWeight: 800 }}>C.I.I.</span><span style={{ display: "block", fontSize: 9, fontWeight: 500, color: "#92400e", letterSpacing: "0.02em", marginTop: 1 }}>Culture Integration Index</span></span>} sub="Latest per provider">
                         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                           {cultureSorted.map(c => {
                             const trColor = c.tr.dir === "up" ? "#16a34a" : c.tr.dir === "down" ? "#dc2626" : "#16a34a";
