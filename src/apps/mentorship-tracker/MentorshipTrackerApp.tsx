@@ -1878,26 +1878,26 @@ export default function App() {
   return (
     <div style={{ background: "#f1f3f5", minHeight: "100vh", fontFamily: "system-ui, sans-serif", color: "#1c2b3a", display: "flex", flexDirection: "column" }}>
 
-      {/* Go Back pill — fixed below the "meridian" launcher chevron */}
-      {canGoBack && (
-        <button
-          onClick={goBack}
-          style={{ position: "fixed", top: 62, left: 22, zIndex: 1000, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px 6px 10px", border: "1px solid rgba(15,30,22,0.12)", borderRadius: 999, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: 14, fontWeight: 500, letterSpacing: "0.08em", textTransform: "lowercase", background: "rgba(255,255,255,0.92)", color: "#1c2b3a", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: "0 1px 2px rgba(0,0,0,0.10), 0 6px 18px rgba(0,0,0,0.12), 0 16px 36px rgba(0,0,0,0.10)", transition: "background 120ms ease-out, transform 120ms ease-out" }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateX(-2px)"; (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,1)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = ""; (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.92)"; }}
-        >
-          <span style={{ fontSize: 22, fontWeight: 300, lineHeight: 1, marginTop: -2 }}>‹</span>
-          <span>back</span>
-        </button>
-      )}
-
-      {/* Top bar */}
-      <div style={{ background: "#0f1b2d", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Onboarding Tracker</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</span>
-            <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, opacity: saveFlash ? 1 : 0, transition: "opacity 400ms ease" }}>✓ Autosaved</span>
+      {/* Top bar — left padding clears the fixed "meridian" back-to-launcher chevron (~140px) */}
+      <div style={{ background: "#0f1b2d", padding: "12px 24px 12px 150px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+          {canGoBack && (
+            <button
+              onClick={goBack}
+              style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px 5px 8px", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 999, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: 13, fontWeight: 500, letterSpacing: "0.06em", textTransform: "lowercase", background: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.85)", transition: "background 120ms ease-out, transform 120ms ease-out", flexShrink: 0 }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.18)"; (e.currentTarget as HTMLButtonElement).style.transform = "translateX(-2px)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.10)"; (e.currentTarget as HTMLButtonElement).style.transform = ""; }}
+            >
+              <span style={{ fontSize: 20, fontWeight: 300, lineHeight: 1, marginTop: -1 }}>‹</span>
+              <span>back</span>
+            </button>
+          )}
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Onboarding Tracker</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</span>
+              <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, opacity: saveFlash ? 1 : 0, transition: "opacity 400ms ease" }}>✓ Autosaved</span>
+            </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
