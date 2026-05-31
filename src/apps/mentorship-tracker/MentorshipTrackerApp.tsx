@@ -1967,7 +1967,9 @@ export default function App() {
 
       {/* Director dashboard tabs when no provider selected */}
       {isDir && !selId && (() => {
-        const flagCount = PROVS.filter(p => getStatus(p.id) !== "ok").length;
+        const ciiAtRisk = PROVS.filter(p => { const cs = cultureScore(qa, p.id, isAPC(p)); return cs.avg !== null && cs.avg < 5; });
+        const touchpointFlagged = PROVS.filter(p => getStatus(p.id) !== "ok");
+        const flagCount = new Set([...ciiAtRisk.map(p => p.id), ...touchpointFlagged.map(p => p.id)]).size;
         return (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
           {[
@@ -2621,45 +2623,70 @@ export default function App() {
 
               {/* Needs Attention tab */}
               {isDir && mainTab === "flags" && (() => {
-                const flagged = PROVS.map(p => {
+                // Build a unified flag list: CII at-risk + touchpoint issues
+                const flagRows = [];
+                const seen = new Set();
+                PROVS.forEach(p => {
+                  const apc = isAPC(p);
+                  const cs = cultureScore(qa, p.id, apc);
+                  const tr = cultureTrend(qa, p.id, apc);
                   const st = getStatus(p.id);
-                  if (st === "ok") return null;
-                  const track = isAPC(p) ? MP : MP_PHYS;
-                  const curPhLabel = (track.find(x => x.id === p.phase) || {}).label || p.phase;
                   const mentor = USERS.find(u => u.id === p.mentor);
-                  const scoreHistory = QP.map(qp => avgScore(qa, p.id, qp.id)).filter(s => s !== null);
-                  const trending = scoreHistory.length >= 2 ? (scoreHistory[scoreHistory.length - 1] - scoreHistory[scoreHistory.length - 2]) : null;
-                  const trendIcon = trending === null ? "" : trending < -0.5 ? " · score ↓" : trending > 0.5 ? " · score ↑" : "";
-                  return { p, st, curPhLabel, mentor, trendIcon };
-                }).filter(Boolean);
+                  const track = apc ? MP : MP_PHYS;
+                  const curPhLabel = (track.find(x => x.id === p.phase) || {}).label || p.phase;
+
+                  // CII at-risk (avg < 5 with data)
+                  if (cs.avg !== null && cs.avg < 5) {
+                    seen.add(p.id);
+                    flagRows.push({
+                      p, mentor, curPhLabel,
+                      tag: "C.I.I. At Risk",
+                      tone: "red",
+                      reason: "C.I.I. " + cs.display + (tr.dir === "down" ? " · trending ↓" : tr.dir === "up" ? " · trending ↑" : ""),
+                      destTab: "culture",
+                    });
+                  }
+                  // Touchpoint overdue/due (only if not already listed for CII)
+                  if (st !== "ok" && !seen.has(p.id)) {
+                    seen.add(p.id);
+                    flagRows.push({
+                      p, mentor, curPhLabel,
+                      tag: st === "overdue" ? "OVERDUE" : "DUE",
+                      tone: st === "overdue" ? "red" : "warn",
+                      reason: "Touchpoint " + st + " — check-in needed",
+                      destTab: "mentor",
+                    });
+                  }
+                });
+                const totalFlags = flagRows.length;
                 return (
                   <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
                     <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", alignItems: "center", gap: 10 }}>
                       <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Needs Attention</div>
-                      {flagged.length > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 10, background: "#fee2e2", color: "#b91c1c" }}>{flagged.length} provider{flagged.length !== 1 ? "s" : ""}</span>}
-                      <span style={{ fontSize: 12, color: "#868e96", marginLeft: 4 }}>providers behind on touchpoints or overdue for a check-in</span>
+                      {totalFlags > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 10, background: "#fee2e2", color: "#b91c1c" }}>{totalFlags} provider{totalFlags !== 1 ? "s" : ""}</span>}
+                      <span style={{ fontSize: 12, color: "#868e96", marginLeft: 4 }}>low C.I.I. · touchpoint overdue · check-in needed</span>
                     </div>
                     <div style={{ padding: "16px 20px" }}>
-                      {flagged.length === 0 ? (
+                      {totalFlags === 0 ? (
                         <div style={{ padding: "24px 0", textAlign: "center", color: "#16a34a", fontSize: 13, fontWeight: 600 }}>🎉 All providers are on schedule — nothing needs attention right now.</div>
                       ) : (
                         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                          {flagged.map(({ p, st, curPhLabel, mentor, trendIcon }) => (
-                            <div key={p.id}
-                              onClick={() => navigate({ uid, selId: p.id, tab: "mentor", phase: p.phase, mainTab: "roster" })}
-                              style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: st === "overdue" ? "#fff5f5" : "#fffbeb", borderRadius: 9, border: "1px solid " + (st === "overdue" ? "#fca5a5" : "#fde68a"), cursor: "pointer" }}
+                          {flagRows.map(({ p, mentor, curPhLabel, tag, tone, reason, destTab }) => (
+                            <div key={p.id + tag}
+                              onClick={() => navigate({ uid, selId: p.id, tab: destTab, phase: p.phase, mainTab: "roster" })}
+                              style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: tone === "red" ? "#fff5f5" : "#fffbeb", borderRadius: 9, border: "1px solid " + (tone === "red" ? "#fca5a5" : "#fde68a"), cursor: "pointer" }}
                               onMouseEnter={e => { e.currentTarget.style.filter = "brightness(0.97)"; }}
                               onMouseLeave={e => { e.currentTarget.style.filter = ""; }}>
-                              {avatar(p.name, st === "overdue")}
+                              {avatar(p.name, tone === "red")}
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
                                 <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
-                                  {curPhLabel} · Day {p.days}{trendIcon}
+                                  {curPhLabel} · Day {p.days} · {reason}
                                   {mentor ? <span style={{ color: "#adb5bd" }}> · {mentor.name.split(",")[0].replace("Dr. ", "")}</span> : ""}
                                 </div>
                               </div>
-                              <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 6, background: st === "overdue" ? "#ef4444" : "#f97316", color: "white", flexShrink: 0 }}>
-                                {st === "overdue" ? "OVERDUE" : "DUE"}
+                              <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 6, background: tone === "red" ? "#ef4444" : "#f97316", color: "white", flexShrink: 0 }}>
+                                {tag}
                               </span>
                               <span style={{ fontSize: 12, color: "#9ca3af", flexShrink: 0 }}>→</span>
                             </div>
