@@ -3597,21 +3597,27 @@ export default function App() {
 
               {/* Table */}
               <div style={{ padding: "16px 20px 24px" }}>
+                {(() => {
+                  const METRIC_COL_W = 52;
+                  const METRIC_LABELS_DISPLAY = ["Pts/Day", "wRVU/wk", "Inbox", "Note", "Refill"];
+                  const colW = { avatar: 28, phase: 46, metrics: METRIC_COL_W * 5, rvu: 68, status: 72 };
+                  return (
+                    <>
                 {/* Column headers */}
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 8, padding: "0 12px 8px", borderBottom: "2px solid #e9ecef", marginBottom: 4 }}>
-                  <div style={{ width: 32, flexShrink: 0 }} />
-                  <div style={{ flex: 1, fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".05em" }}>Provider</div>
-                  <div style={{ width: 56, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Phase</div>
-                  <div style={{ width: 200, display: "flex", justifyContent: "space-around", flexShrink: 0 }}>
-                    {PROD_METRICS.map((m) => (
-                      <div key={m.key} style={{ width: 36, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                        <span style={{ fontSize: 9, fontWeight: 700, color: "#adb5bd", whiteSpace: "nowrap" }}>{m.short}</span>
-                        <span style={{ fontSize: 8, color: "#d1d5db", fontWeight: 500 }}>goal {m.goal}</span>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, padding: "0 12px 10px", borderBottom: "2px solid #e9ecef", marginBottom: 4 }}>
+                  <div style={{ width: colW.avatar, flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 80, fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".05em" }}>Provider</div>
+                  <div style={{ width: colW.phase, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Phase</div>
+                  <div style={{ width: colW.metrics, display: "flex", flexShrink: 0 }}>
+                    {PROD_METRICS.map((m, i) => (
+                      <div key={m.key} style={{ width: METRIC_COL_W, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", whiteSpace: "nowrap" }}>{METRIC_LABELS_DISPLAY[i]}</span>
+                        <span style={{ fontSize: 9, color: "#9ca3af", fontWeight: 600 }}>goal {m.goal}</span>
                       </div>
                     ))}
                   </div>
-                  <div style={{ width: 72, textAlign: "right", fontSize: 9.5, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>wRVU/wk</div>
-                  <div style={{ width: 68, textAlign: "right", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Status</div>
+                  <div style={{ width: colW.rvu, textAlign: "right", fontSize: 10, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>wRVU/wk</div>
+                  <div style={{ width: colW.status, textAlign: "right", fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Status</div>
                 </div>
 
                 {rows.length === 0 && (
@@ -3630,23 +3636,23 @@ export default function App() {
                   return (
                     <div key={p.id}
                       onClick={() => { setShowProdModal(false); navigate({ selId: p.id, tab: "prod", phase: p.phase }); }}
-                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", marginBottom: 5, borderRadius: 10, background: rowBg, border: rowBorder, cursor: "pointer" }}>
-                      <div style={{ width: 32, flexShrink: 0 }}>{avatar(p.name, flagged)}</div>
+                      style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 12px", marginBottom: 5, borderRadius: 10, background: rowBg, border: rowBorder, cursor: "pointer" }}>
+                      <div style={{ width: colW.avatar, flexShrink: 0 }}>{avatar(p.name, flagged)}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: flagged ? "#b91c1c" : "#0f1b2d", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                         <div style={{ fontSize: 10, color: "#868e96", marginTop: 1 }}>{p.role}</div>
                       </div>
-                      <div style={{ width: 56, flexShrink: 0, textAlign: "center" }}>
+                      <div style={{ width: colW.phase, flexShrink: 0, textAlign: "center" }}>
                         <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 5, background: "#eef2ff", color: "#4f46e5" }}>{p.phase}</span>
                       </div>
-                      <div style={{ width: 200, display: "flex", justifyContent: "space-around", alignItems: "center", flexShrink: 0 }}>
+                      <div style={{ width: colW.metrics, display: "flex", alignItems: "center", flexShrink: 0 }}>
                         {dots.map(d => (
-                          <div key={d.key} title={d.short} style={{ width: 36, textAlign: "center" }}>
-                            <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: DOT_COLOR[d.color] || "#e9ecef", verticalAlign: "middle" }} />
+                          <div key={d.key} style={{ width: METRIC_COL_W, textAlign: "center" }}>
+                            <span style={{ display: "inline-block", width: 13, height: 13, borderRadius: "50%", background: DOT_COLOR[d.color] || "#e9ecef", verticalAlign: "middle" }} />
                           </div>
                         ))}
                       </div>
-                      <div style={{ width: 72, flexShrink: 0, textAlign: "right" }}>
+                      <div style={{ width: colW.rvu, flexShrink: 0, textAlign: "right" }}>
                         {curRvu != null ? (
                           <span style={{ fontSize: 15, fontWeight: 800, color: rvuColor }}>{curRvu}</span>
                         ) : (
@@ -3654,7 +3660,7 @@ export default function App() {
                         )}
                         {rvuPct != null && <div style={{ fontSize: 9, color: "#adb5bd", fontWeight: 600 }}>{rvuPct}% of goal</div>}
                       </div>
-                      <div style={{ width: 68, flexShrink: 0, textAlign: "right" }}>
+                      <div style={{ width: colW.status, flexShrink: 0, textAlign: "right" }}>
                         <span style={{ fontSize: 10.5, fontWeight: 700, padding: "4px 8px", borderRadius: 6, background: statusBg, color: statusColor, whiteSpace: "nowrap" }}>{statusLabel}</span>
                         <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 3, textAlign: "right" }}>{sum.good}/{sum.total} metrics</div>
                       </div>
@@ -3670,9 +3676,12 @@ export default function App() {
                     </span>
                   ))}
                   <span style={{ marginLeft: "auto", fontSize: 10, color: "#adb5bd", fontStyle: "italic" }}>
-                    Pts/Day · wRVU/wk · Inbox · Note time · Refill time · Click any row to open provider
+                    Click any row to open that provider's productivity detail
                   </span>
                 </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
