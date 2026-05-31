@@ -437,6 +437,8 @@ const avatar = (name: string, red: boolean) => (
 /* ─── Seed Data ─── */
 function makeSeedChecks() {
   const c = {};
+  // MD curriculum — all items completed for every provider
+  MD_ITEMS.forEach(item => { SEED_PROVS.forEach(p => { c[p.id + ".md." + item.id] = true; }); });
   const fill = (pid, ids) => {
     ids.forEach(phid => {
       const ph = MP.find(x => x.id === phid);
