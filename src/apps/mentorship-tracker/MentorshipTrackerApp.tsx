@@ -1976,7 +1976,7 @@ export default function App() {
         return (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
           {[
-            { k: "roster", l: "Provider Roster" },
+            { k: "roster", l: "🏠 Home" },
             { k: "compare", l: "Comparison Grid" },
             { k: "trends", l: "Score Trends" },
             { k: "patterns", l: patterns.length > 0 ? "⚠️ Pattern Alerts" : "Pattern Alerts" },
