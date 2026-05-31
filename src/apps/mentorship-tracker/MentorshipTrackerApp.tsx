@@ -1979,6 +1979,7 @@ export default function App() {
             { k: "roster", l: "Provider Roster" },
             { k: "compare", l: "Comparison Grid" },
             { k: "trends", l: "Score Trends" },
+            { k: "patterns", l: patterns.length > 0 ? "⚠️ Pattern Alerts" : "Pattern Alerts" },
             { k: "flags", l: flagCount > 0 ? "⚠️ Needs Attention" : "Needs Attention" },
             { k: "notes", l: "Recent Notes" },
           ].map(t => (
@@ -2126,14 +2127,18 @@ export default function App() {
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 28px" }}>
           {!prov ? (
             <div>
-              {/* ── CROSS-PROVIDER PATTERN ALERTS (always at top, all tabs) ── */}
-              {isDir && patterns.length > 0 && (
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
-                    <span>⚠️ Cross-Provider Pattern Alerts</span>
-                    <span style={{ fontSize: 11, fontWeight: 400, color: "#b91c1c" }}>{"(" + patterns.length + " phase" + (patterns.length !== 1 ? "s" : "") + " — sorted by severity)"}</span>
+              {/* Pattern Alerts tab */}
+              {isDir && mainTab === "patterns" && (
+                <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
+                  <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Cross-Provider Pattern Alerts</div>
+                    {patterns.length > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 10, background: "#fee2e2", color: "#b91c1c" }}>{patterns.length} phase{patterns.length !== 1 ? "s" : ""}</span>}
+                    <span style={{ fontSize: 12, color: "#868e96", marginLeft: 4 }}>phases where multiple providers scored below 6.0 — sorted by severity</span>
                   </div>
-                  {patterns.map(function(a) {
+                  <div style={{ padding: "16px 20px" }}>
+                    {patterns.length === 0 ? (
+                      <div style={{ padding: "24px 0", textAlign: "center", color: "#16a34a", fontSize: 13, fontWeight: 600 }}>🎉 No cross-provider patterns detected — cohort scores look healthy.</div>
+                    ) : patterns.map(function(a) {
                     const isExp = !!expandedAlerts[a.phaseId];
                     const toggleAlert = function() { setExpandedAlerts(function(prev) { const n = Object.assign({}, prev); n[a.phaseId] = !prev[a.phaseId]; return n; }); };
                     const omPhaseLabel = (OP.find(function(x) { return x.id === a.omPhaseId; }) || {label: "—"}).label;
@@ -2225,6 +2230,7 @@ export default function App() {
                       </div>
                     );
                   })}
+                  </div>
                 </div>
               )}
 
