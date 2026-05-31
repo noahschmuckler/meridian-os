@@ -412,18 +412,18 @@ const USERS = [
   {id:"mt3",name:"M. Torres, NP",role:"mentor"},
 ];
 const SEED_PROVS = [
-  // Physician providers — Dr. Smith's panel
-  {id:"p1",name:"Dr. Johnson",   role:"MD", mentor:"mt1", phase:"w7",  days:110},
-  {id:"p2",name:"Dr. Patel",     role:"DO", mentor:"mt1", phase:"m3",  days:87},
-  {id:"p7",name:"Dr. Hassan",    role:"DO", mentor:"mt1", phase:"w3",  days:65},
-  // Physician providers — Dr. Lee's panel
-  {id:"p3",name:"Dr. Williams",  role:"MD", mentor:"mt2", phase:"w7",  days:52},
-  {id:"p4",name:"Dr. Garcia",    role:"DO", mentor:"mt2", phase:"w5",  days:38},
-  {id:"p6",name:"Dr. Park",      role:"MD", mentor:"mt2", phase:"w3",  days:22},
-  // APC providers — M. Torres panel
-  {id:"p5",name:"A. Martinez, NP",role:"NP",mentor:"mt1", phase:"m18", days:545},
-  {id:"p8",name:"R. Okafor, PA", role:"PA", mentor:"mt3", phase:"w7",  days:52},
-  {id:"p9",name:"T. Singh, NP",  role:"NP", mentor:"mt3", phase:"m6",  days:182},
+  // Dr. Smith's panel — physicians
+  {id:"p1",name:"Dr. Elena Vasquez",         role:"MD", mentor:"mt1", phase:"w1",  days:9},
+  {id:"p5",name:"Dr. Ananya Krishnamurthy",  role:"MD", mentor:"mt1", phase:"w3",  days:26},
+  {id:"p2",name:"Dr. James Okonkwo",         role:"DO", mentor:"mt1", phase:"m3",  days:94},
+  // Dr. Lee's panel — physicians
+  {id:"p3",name:"Dr. Sarah Brennan",         role:"MD", mentor:"mt2", phase:"w6",  days:47},
+  {id:"p4",name:"Dr. Michael Chen",          role:"DO", mentor:"mt2", phase:"m6",  days:188},
+  {id:"p6",name:"Dr. Robert Hargrove",       role:"MD", mentor:"mt2", phase:"m9",  days:276},
+  // M. Torres panel — APCs
+  {id:"p8",name:"B. Nguyen, PA",             role:"PA", mentor:"mt3", phase:"m3",  days:91},
+  {id:"p9",name:"L. Ferreira, NP",           role:"NP", mentor:"mt3", phase:"m9",  days:273},
+  {id:"p7",name:"C. Obi, NP",               role:"NP", mentor:"mt3", phase:"m18", days:549},
 ];
 let PROVS = SEED_PROVS;
 
@@ -443,30 +443,40 @@ function makeSeedChecks() {
       if (ph) ph.items.forEach((_, i) => { c[pid + "." + phid + "." + i] = true; });
     });
   };
-  fill("p1", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3"]);
-  fill("p2", ["w0","w1","w2","w3","m1","w5","w6","w7","m2"]);
+  // p1 Vasquez  — w1,  day 9
+  fill("p1", ["w0","w1"]);
+  // p5 Krishnamurthy — w3, day 26
+  fill("p5", ["w0","w1","w2","w3"]);
+  // p2 Okonkwo — m3, day 94
+  fill("p2", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3"]);
+  // p3 Brennan — w6, day 47
   fill("p3", ["w0","w1","w2","w3","m1","w5","w6"]);
-  fill("p4", ["w0","w1","w2","w3","m1"]);
-  fill("p5", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9","m12","m15"]);
-  fill("p6", ["w0","w1","w2"]);
-  fill("p7", ["w0","w1","w2","w3","m1","w5","w6"]);
-  fill("p8", ["w0","w1","w2","w3","m1","w5","w6"]);
-  fill("p9", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5"]);
+  // p4 Chen — m6, day 188
+  fill("p4", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6"]);
+  // p6 Hargrove — m9, day 276  (culturally isolated MD — still completes curriculum)
+  fill("p6", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9"]);
+  // p8 Nguyen PA — m3, day 91  (culturally struggling PA)
+  fill("p8", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3"]);
+  // p9 Ferreira NP — m9, day 273
+  fill("p9", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9"]);
+  // p7 Obi NP — m18, day 549
+  fill("p7", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9","m12","m15","m18"]);
   return c;
 }
 
 function makeSeedQA() {
   const qa = {};
+  // Mentor questionnaire scores — all well-intentioned, solid trajectory
   const scores = {
-    p1:{w0:7,w1:5,w2:6,w3:7,m1:7,w5:4,w6:7,w7:8,m2:8,m3:9},
-    p2:{w0:7,w1:6,w2:6,w3:7,m1:7,w5:4,w6:7,w7:7,m2:8},
-    p3:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5,w6:7},
-    p4:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5},
-    p5:{w0:7,w1:7,w2:7,w3:8,m1:8,w5:7,w6:8,w7:8,m2:8,m3:9,m4:8,m5:8,m6:9,m7:8,m8:8,m9:8,m12:9,m15:8},
-    p6:{w0:8,w1:7,w2:8},
-    p7:{w0:6,w1:5,w2:5,w3:6,m1:6,w5:5,w6:6},
-    p8:{w0:7,w1:7,w2:8,w3:7,m1:8,w5:7,w6:8},
-    p9:{w0:8,w1:8,w2:8,w3:9,m1:8,w5:8,w6:9,w7:9,m2:9,m3:9,m4:8,m5:9},
+    p1:{w0:8,w1:8},
+    p5:{w0:8,w1:8,w2:8,w3:8},
+    p2:{w0:8,w1:7,w2:7,w3:8,m1:8,w5:7,w6:8,w7:8,m2:8,m3:9},
+    p3:{w0:8,w1:7,w2:7,w3:8,m1:8,w5:8,w6:8},
+    p4:{w0:8,w1:7,w2:7,w3:8,m1:8,w5:8,w6:8,w7:8,m2:8,m3:8,m4:8,m5:8,m6:9},
+    p6:{w0:7,w1:6,w2:6,w3:7,m1:7,w5:6,w6:7,w7:7,m2:7,m3:7,m4:7,m5:7,m6:7,m7:7,m8:6,m9:6},
+    p8:{w0:7,w1:6,w2:6,w3:6,m1:6,w5:5,w6:6,w7:6,m2:6,m3:6},
+    p9:{w0:8,w1:8,w2:8,w3:9,m1:8,w5:8,w6:9,w7:9,m2:9,m3:9,m4:8,m5:9,m6:9,m7:8,m8:8,m9:9},
+    p7:{w0:9,w1:8,w2:8,w3:9,m1:8,w5:8,w6:9,w7:9,m2:9,m3:9,m4:9,m5:9,m6:9,m7:9,m8:9,m9:9,m12:9,m15:9,m18:9},
   };
   Object.entries(scores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
@@ -474,32 +484,47 @@ function makeSeedQA() {
       if (qp) qp.qs.forEach(q => { qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Demo response"; });
     });
   });
-  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5},p5:{om1:8,om2:8,om3:9,om6:8},p7:{om1:5},p8:{om1:7},p9:{om1:8,om2:9,om3:9}};
+  // OM scores — generally positive; lower for the two culturally struggling providers
+  const omScores = {
+    p2:{om1:8,om2:8,om3:9},
+    p4:{om1:8,om2:8,om3:8,om6:8},
+    p6:{om1:5,om2:5,om3:5,om6:5},  // Hargrove — OM notices the friction
+    p8:{om1:4,om2:4,om3:5},        // Nguyen — OM flagging concern
+    p9:{om1:8,om2:9,om3:9,om6:8},
+    p7:{om1:9,om2:9,om3:9,om6:9},
+  };
   Object.entries(omScores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const op = OP.find(x => x.id === phid);
       if (op) op.qs.forEach(q => {
-        qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Seems to be adjusting well. Mentioned Epic is taking some getting used to but overall positive.";
+        qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : (avg >= 7 ? "Settling in well, good rapport with staff." : "Seems a bit withdrawn — not connecting with the team as hoped.");
       });
     });
   });
-  // CII stress-test seed: p1 = full 3-phase trend (green→pink→green), p2 = single low point (red),
-  // p3/p4 = no CII data. Scores are intentionally distinct from clinical avg to verify independence.
+  // CII scores — high for most; p6 Hargrove (MD) and p8 Nguyen (PA) are the two at-risk outliers
   const ciiScores = {
-    "p1.m3.ci1":"8","p1.m3.ci2":"9","p1.m3.ci3":"7","p1.m3.ci4":"6",
-    "p1.m6.ci1":"5","p1.m6.ci2":"6","p1.m6.ci3":"5","p1.m6.ci4":"5",
-    "p1.m12.ci1":"9","p1.m12.ci2":"8","p1.m12.ci3":"9","p1.m12.ci4":"8",
-    "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",
-    "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",
-    // p1 m9 — recovering trend after m6 dip
-    "p1.m9.ci1":"7","p1.m9.ci2":"7","p1.m9.ci3":"8","p1.m9.ci4":"7",
-    "p5.m3.ci1":"8","p5.m3.ci2":"8","p5.m3.ci3":"9","p5.m3.ci4":"8",
-    "p5.m6.ci1":"8","p5.m6.ci2":"9","p5.m6.ci3":"8","p5.m6.ci4":"8",
-    "p5.m9.ci1":"9","p5.m9.ci2":"8","p5.m9.ci3":"9","p5.m9.ci4":"9",
-    "p5.m12.ci1":"9","p5.m12.ci2":"9","p5.m12.ci3":"9","p5.m12.ci4":"8",
-    // p5 APC extended phases — consistently high integration
-    "p5.m15.ci1":"9","p5.m15.ci2":"9","p5.m15.ci3":"8","p5.m15.ci4":"9",
-    "p5.m18.ci1":"9","p5.m18.ci2":"9","p5.m18.ci3":"9","p5.m18.ci4":"8",
+    // p2 Okonkwo — thriving at m3
+    "p2.m3.ci1":"9","p2.m3.ci2":"8","p2.m3.ci3":"9","p2.m3.ci4":"8",
+    // p4 Chen — strong at m3 and m6
+    "p4.m3.ci1":"8","p4.m3.ci2":"9","p4.m3.ci3":"8","p4.m3.ci4":"8",
+    "p4.m6.ci1":"9","p4.m6.ci2":"9","p4.m6.ci3":"8","p4.m6.ci4":"9",
+    // p6 Hargrove — culturally isolated MD; low across all checkpoints
+    "p6.m3.ci1":"4","p6.m3.ci2":"3","p6.m3.ci3":"4","p6.m3.ci4":"3",
+    "p6.m6.ci1":"3","p6.m6.ci2":"3","p6.m6.ci3":"4","p6.m6.ci4":"3",
+    "p6.m9.ci1":"3","p6.m9.ci2":"4","p6.m9.ci3":"3","p6.m9.ci4":"3",
+    // p8 Nguyen — culturally struggling PA; low at m3
+    "p8.m3.ci1":"3","p8.m3.ci2":"4","p8.m3.ci3":"3","p8.m3.ci4":"4",
+    // p9 Ferreira — thriving NP across m3/m6/m9
+    "p9.m3.ci1":"8","p9.m3.ci2":"9","p9.m3.ci3":"8","p9.m3.ci4":"8",
+    "p9.m6.ci1":"9","p9.m6.ci2":"8","p9.m6.ci3":"9","p9.m6.ci4":"8",
+    "p9.m9.ci1":"9","p9.m9.ci2":"9","p9.m9.ci3":"8","p9.m9.ci4":"9",
+    // p7 Obi — exemplary NP, high scores through m18
+    "p7.m3.ci1":"9","p7.m3.ci2":"9","p7.m3.ci3":"8","p7.m3.ci4":"9",
+    "p7.m6.ci1":"9","p7.m6.ci2":"9","p7.m6.ci3":"9","p7.m6.ci4":"8",
+    "p7.m9.ci1":"9","p7.m9.ci2":"9","p7.m9.ci3":"9","p7.m9.ci4":"9",
+    "p7.m12.ci1":"9","p7.m12.ci2":"9","p7.m12.ci3":"9","p7.m12.ci4":"9",
+    "p7.m15.ci1":"9","p7.m15.ci2":"9","p7.m15.ci3":"9","p7.m15.ci4":"8",
+    "p7.m18.ci1":"9","p7.m18.ci2":"9","p7.m18.ci3":"9","p7.m18.ci4":"9",
   };
   Object.assign(qa, ciiScores);
   return qa;
