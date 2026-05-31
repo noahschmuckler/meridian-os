@@ -1429,6 +1429,7 @@ export default function App() {
   const [saveFlash, setSaveFlash] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showProdModal, setShowProdModal] = useState(false);
+  const [showCiiModal, setShowCiiModal] = useState(false);
   const firstSaveRef = useRef(true);
 
   // Read localStorage once at mount to seed initial state
@@ -2741,10 +2742,11 @@ export default function App() {
                     {/* ── KPI ROW ── */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 11, marginBottom: 16 }}>
                       {/* Active Providers */}
-                      <div style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px" }}>
+                      <div onClick={() => setSidebarFilter(null)}
+                        style={{ background: "white", border: sidebarFilter === null ? "2px solid #028090" : "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
                         <div style={{ fontSize: 28, fontWeight: 800, color: "#028090", lineHeight: 1 }}>{totalProv}</div>
                         <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Active Providers</div>
-                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#16a34a" }}>in your program</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#028090" }}>show all · {totalProv} in program</div>
                       </div>
                       {/* Productivity On Track — slot 2 */}
                       <div onClick={() => setShowProdModal(true)}
@@ -2768,7 +2770,8 @@ export default function App() {
                         <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>C.I.I. · Prod · checkpoint flags</div>
                       </div>
                       {/* Culture CII */}
-                      <div style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #92400e", borderRadius: 11, padding: "15px 16px" }}>
+                      <div onClick={() => setShowCiiModal(true)}
+                        style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #92400e", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
                         <div style={{ fontSize: 17, fontWeight: 800, color: "#78350f", lineHeight: 1.2 }}>C.I.I.</div>
                         <div style={{ fontSize: 9.5, fontWeight: 600, color: "#92400e", marginTop: 2, letterSpacing: "0.02em" }}>Culture Integration Index</div>
                         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 7 }}>
@@ -3664,6 +3667,134 @@ export default function App() {
                   ))}
                   <span style={{ marginLeft: "auto", fontSize: 10, color: "#adb5bd", fontStyle: "italic" }}>
                     Pts/Day · wRVU/wk · Inbox · Note time · Refill time · Click any row to open provider
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── C.I.I. Cohort Modal ── */}
+      {showCiiModal && (() => {
+        const BAND_STYLE = {
+          thriving:   { bg: "#dcfce7", fg: "#15803d", label: "Thriving" },
+          developing: { bg: "#fef9c3", fg: "#854d0e", label: "Developing" },
+          atrisk:     { bg: "#fee2e2", fg: "#b91c1c", label: "At Risk" },
+          sched:      { bg: "#f1f3f5", fg: "#868e96", label: "Sched'd" },
+        };
+        const TREND_LABEL = { up: "↑ Improving", down: "↓ Declining", flat: "→ Stable", none: "—" };
+        const TREND_COLOR = { up: "#16a34a", down: "#dc2626", flat: "#6b7280", none: "#adb5bd" };
+
+        const rows = PROVS.map(p => {
+          const cs = cultureScore(qa, p.id, isAPC(p));
+          const band = cultureBand(cs.avg);
+          const tr = cultureTrend(qa, p.id, isAPC(p));
+          const overdue = cs.avg === null && getStatus(p.id) !== "ok";
+          return { p, cs, band, tr, overdue };
+        }).sort((a, b) => {
+          const order = { atrisk: 0, developing: 1, sched: 2, thriving: 3 };
+          if (a.overdue && !b.overdue) return -1;
+          if (!a.overdue && b.overdue) return 1;
+          const oa = order[a.band.key] ?? 2, ob = order[b.band.key] ?? 2;
+          if (oa !== ob) return oa - ob;
+          return (a.cs.avg ?? 999) - (b.cs.avg ?? 999);
+        });
+
+        const withScores = rows.filter(r => r.cs.avg !== null);
+        const cohortAvg = withScores.length ? (withScores.reduce((s, r) => s + r.cs.avg, 0) / withScores.length).toFixed(1) : null;
+        const overdueCount = rows.filter(r => r.overdue).length;
+        const atRiskCount = rows.filter(r => r.band.key === "atrisk").length;
+        const thrivingCount = rows.filter(r => r.band.key === "thriving").length;
+
+        return (
+          <div onClick={() => setShowCiiModal(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(10,15,30,0.55)", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 40, paddingBottom: 40, overflowY: "auto" }}>
+            <div onClick={e => e.stopPropagation()}
+              style={{ background: "#f8f9fa", borderRadius: 18, width: "min(780px, 94vw)", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", overflow: "hidden" }}>
+
+              {/* Header */}
+              <div style={{ background: "white", borderBottom: "1px solid #e9ecef", padding: "22px 28px 18px", display: "flex", alignItems: "flex-start", gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#92400e", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>🌡️ Culture Integration Index · Cohort View</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#0f1b2d", lineHeight: 1.2 }}>C.I.I. — All Providers</div>
+                  <div style={{ fontSize: 13, color: "#868e96", marginTop: 4 }}>Sorted At Risk first — click any row to open that provider's Culture tab</div>
+                </div>
+                <button onClick={() => setShowCiiModal(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 20, color: "#adb5bd", lineHeight: 1, padding: "2px 6px", borderRadius: 6 }}>✕</button>
+              </div>
+
+              {/* Headline stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, borderBottom: "1px solid #e9ecef", background: "white" }}>
+                {[
+                  { label: "Cohort Avg Score", value: cohortAvg ? cohortAvg + " / 10" : "—", color: cohortAvg >= 7 ? "#16a34a" : cohortAvg >= 5 ? "#d97706" : "#dc2626", sub: withScores.length + " providers with data" },
+                  { label: "Thriving", value: thrivingCount, color: "#15803d", sub: "score ≥ 7.5" },
+                  { label: "At Risk", value: atRiskCount, color: atRiskCount > 0 ? "#dc2626" : "#16a34a", sub: atRiskCount > 0 ? "needs direct outreach" : "none at risk" },
+                  { label: "Overdue Checkpoints", value: overdueCount, color: overdueCount > 0 ? "#d97706" : "#16a34a", sub: overdueCount > 0 ? "C.I.I. not yet collected" : "all checkpoints current" },
+                ].map((s, i) => (
+                  <div key={i} style={{ padding: "16px 22px", borderLeft: i > 0 ? "1px solid #f0f1f3" : "none" }}>
+                    <div style={{ fontSize: i === 0 ? 22 : 28, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", marginTop: 5 }}>{s.label}</div>
+                    <div style={{ fontSize: 10, color: "#adb5bd", fontWeight: 600, marginTop: 3 }}>{s.sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Table */}
+              <div style={{ padding: "16px 20px 24px" }}>
+                {/* Column headers */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px 8px", borderBottom: "2px solid #e9ecef", marginBottom: 4 }}>
+                  <div style={{ width: 32, flexShrink: 0 }} />
+                  <div style={{ flex: 1, fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".05em" }}>Provider</div>
+                  <div style={{ width: 56, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Phase</div>
+                  <div style={{ width: 80, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Score</div>
+                  <div style={{ width: 100, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Trend</div>
+                  <div style={{ width: 90, textAlign: "right", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Band</div>
+                </div>
+
+                {rows.map(({ p, cs, band, tr, overdue }) => {
+                  const bs = BAND_STYLE[band.key] || BAND_STYLE.sched;
+                  const rowBg = band.key === "atrisk" || overdue ? "#fff5f5" : "white";
+                  const rowBorder = band.key === "atrisk" || overdue ? "1px solid #fca5a5" : "1px solid #f0f1f3";
+                  const trendKey = tr.dir === "up" ? "up" : tr.dir === "down" ? "down" : cs.avg !== null ? "flat" : "none";
+                  return (
+                    <div key={p.id}
+                      onClick={() => { setShowCiiModal(false); navigate({ selId: p.id, tab: "culture", phase: p.phase }); }}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", marginBottom: 5, borderRadius: 10, background: rowBg, border: rowBorder, cursor: "pointer" }}>
+                      <div style={{ width: 32, flexShrink: 0 }}>{avatar(p.name, band.key === "atrisk" || overdue)}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: band.key === "atrisk" || overdue ? "#b91c1c" : "#0f1b2d", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                        <div style={{ fontSize: 10, color: "#868e96", marginTop: 1 }}>{p.role}</div>
+                      </div>
+                      <div style={{ width: 56, flexShrink: 0, textAlign: "center" }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 5, background: "#eef2ff", color: "#4f46e5" }}>{p.phase}</span>
+                      </div>
+                      <div style={{ width: 80, flexShrink: 0, textAlign: "center" }}>
+                        {cs.avg !== null
+                          ? <span style={{ fontSize: 16, fontWeight: 800, color: bs.fg }}>{cs.avg.toFixed(1)}<span style={{ fontSize: 10, fontWeight: 600, color: "#adb5bd" }}> /10</span></span>
+                          : <span style={{ fontSize: 11, color: overdue ? "#d97706" : "#adb5bd", fontWeight: overdue ? 700 : 400 }}>{overdue ? "Overdue" : "Pending"}</span>
+                        }
+                      </div>
+                      <div style={{ width: 100, flexShrink: 0, textAlign: "center" }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: TREND_COLOR[trendKey] }}>{TREND_LABEL[trendKey]}</span>
+                        {tr.delta != null && Math.abs(tr.delta) >= 0.2 && (
+                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 1 }}>{(tr.delta > 0 ? "+" : "") + tr.delta.toFixed(1)} since last</div>
+                        )}
+                      </div>
+                      <div style={{ width: 90, flexShrink: 0, textAlign: "right" }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, padding: "4px 9px", borderRadius: 6, background: bs.bg, color: bs.fg, whiteSpace: "nowrap" }}>{bs.label}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div style={{ display: "flex", gap: 16, marginTop: 14, paddingTop: 12, borderTop: "1px solid #e9ecef", flexWrap: "wrap", alignItems: "center" }}>
+                  {Object.entries(BAND_STYLE).map(([, s]) => (
+                    <span key={s.label} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: "#868e96", fontWeight: 600 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: "50%", background: s.fg, display: "inline-block", flexShrink: 0 }} />{s.label}
+                    </span>
+                  ))}
+                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#adb5bd", fontStyle: "italic" }}>
+                    Checkpoints at m3 · m6 · m9 · m12 (extended to m24 for APC)
                   </span>
                 </div>
               </div>
