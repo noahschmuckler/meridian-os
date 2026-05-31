@@ -2823,7 +2823,7 @@ export default function App() {
                       <div onClick={() => setShowProdModal(true)}
                         style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #4f46e5", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
                         <div style={{ fontSize: 28, fontWeight: 800, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a", lineHeight: 1 }}>{prodOnTrack}<span style={{ fontSize: 16, fontWeight: 600, color: "#868e96" }}>/{prodData.length}</span></div>
-                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Trending to Goal</div>
+                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Productivity</div>
                         <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a" }}>{prodFlagged.length > 0 ? prodFlagged.length + " metrics stalled — tap to review" : "all metrics improving · tap to review"}</div>
                       </div>
                       {/* On Track */}
