@@ -415,9 +415,9 @@ const SEED_PROVS = [
   // Dr. Smith's panel — physicians
   {id:"p1",name:"Dr. Elena Vasquez",         role:"MD", mentor:"mt1", phase:"w1",  days:9},
   {id:"p5",name:"Dr. Ananya Krishnamurthy",  role:"MD", mentor:"mt1", phase:"w3",  days:26},
-  {id:"p2",name:"Dr. James Okonkwo",         role:"DO", mentor:"mt1", phase:"m3",  days:94},
+  {id:"p2",name:"Dr. James Okonkwo",         role:"DO", mentor:"mt1", phase:"m3",  days:180},  // ⚠️ OVERDUE — day 180 but still at m3
   // Dr. Lee's panel — physicians
-  {id:"p3",name:"Dr. Sarah Brennan",         role:"MD", mentor:"mt2", phase:"w6",  days:47},
+  {id:"p3",name:"Dr. Sarah Brennan",         role:"MD", mentor:"mt2", phase:"w6",  days:56},   // ⚠️ DUE — day 56 but still at w6
   {id:"p4",name:"Dr. Michael Chen",          role:"DO", mentor:"mt2", phase:"m6",  days:188},
   {id:"p6",name:"Dr. Robert Hargrove",       role:"MD", mentor:"mt2", phase:"m9",  days:276},
   // M. Torres panel — APCs
