@@ -1463,6 +1463,7 @@ export default function App() {
   const [saveFlash, setSaveFlash] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showProdModal, setShowProdModal] = useState(false);
+  const [showProdKey, setShowProdKey] = useState(false);
   const [showCiiModal, setShowCiiModal] = useState(false);
   const firstSaveRef = useRef(true);
 
@@ -3690,8 +3691,63 @@ export default function App() {
                     })}
                   </div>
                   <div style={{ width: colW.rvu, textAlign: "right", fontSize: 10, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>wRVU/wk</div>
-                  <div style={{ width: colW.status, textAlign: "right", fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Status</div>
+                  <div style={{ width: colW.status, flexShrink: 0, textAlign: "right" }}>
+                    <button onClick={() => setShowProdKey(v => !v)}
+                      style={{ fontSize: 10, fontWeight: 700, color: showProdKey ? "#4f46e5" : "#868e96", background: showProdKey ? "#eef2ff" : "#f3f4f6", border: showProdKey ? "1px solid #c7d2fe" : "1px solid #e5e7eb", borderRadius: 6, padding: "3px 9px", cursor: "pointer", letterSpacing: ".04em", textTransform: "uppercase" }}>
+                      {showProdKey ? "✕ Key" : "Key ▾"}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Legend panel */}
+                {showProdKey && (
+                  <div style={{ margin: "0 0 10px", padding: "14px 16px", background: "white", border: "1px solid #e9ecef", borderRadius: 10, display: "flex", gap: 32, flexWrap: "wrap" }}>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>Metric dots — trajectory</div>
+                      {[
+                        { color: "#22c55e", label: "Trending toward goal" },
+                        { color: "#eab308", label: "Variable — needs monitoring" },
+                        { color: "#ef4444", label: "Moving away from goal" },
+                        { color: "#e9ecef", label: "No data yet" },
+                      ].map(({ color, label }) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                          <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: color, flexShrink: 0 }} />
+                          <span style={{ fontSize: 12, color: "#374151" }}>{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>Status chip — overall trajectory</div>
+                      {[
+                        { label: "At Goal", fg: "#15803d", bg: "#dcfce7", desc: "All 5 metrics trending green" },
+                        { label: "Improving", fg: "#d97706", bg: "#fef9c3", desc: "2–4 metrics trending green" },
+                        { label: "Stalled", fg: "#dc2626", bg: "#fee2e2", desc: "≤1 metric green — needs attention" },
+                      ].map(({ label, fg, bg, desc }) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: bg, color: fg, flexShrink: 0, minWidth: 58, textAlign: "center" }}>{label}</span>
+                          <span style={{ fontSize: 12, color: "#374151" }}>{desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>5 tracked metrics</div>
+                      {[
+                        { name: "Pts/Day", goal: "18", note: "patients per day" },
+                        { name: "wRVU/wk", goal: "185", note: "work RVUs per week" },
+                        { name: "Inbox Time", goal: "22 min", note: "avg inbox response time" },
+                        { name: "Note Time", goal: "14 min", note: "avg note completion time" },
+                        { name: "Refill Time", goal: "6.5 min", note: "avg refill response time" },
+                      ].map(({ name, goal, note }) => (
+                        <div key={name} style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 5 }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#0f1b2d", minWidth: 72 }}>{name}</span>
+                          <span style={{ fontSize: 10, color: "#4f46e5", fontWeight: 600 }}>goal {goal}</span>
+                          <span style={{ fontSize: 10, color: "#9ca3af" }}>· {note}</span>
+                        </div>
+                      ))}
+                      <div style={{ fontSize: 10, color: "#adb5bd", marginTop: 6, fontStyle: "italic" }}>Trajectory, not absolute standing — a provider can be Improving while still below goal</div>
+                    </div>
+                  </div>
+                )}
 
                 {rows.length === 0 && (
                   <div style={{ textAlign: "center", padding: "32px 0", fontSize: 13, color: "#adb5bd" }}>
