@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
-import ProductivityPanel, { hasProductivity, prodSummary, prodMetricDots } from "./ProductivityPanel";
+import ProductivityPanel, { hasProductivity, prodSummary, prodMetricDots, PROD_SERIES, PROD_METRICS } from "./ProductivityPanel";
 import CulturePanel from "./CulturePanel";
 
 /* ─── Medical Director Curriculum (62 items from master checklist, see analysis/) ─── */
@@ -1428,6 +1428,7 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [saveFlash, setSaveFlash] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showProdModal, setShowProdModal] = useState(false);
   const firstSaveRef = useRef(true);
 
   // Read localStorage once at mount to seed initial state
@@ -2745,6 +2746,13 @@ export default function App() {
                         <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Active Providers</div>
                         <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#16a34a" }}>in your program</div>
                       </div>
+                      {/* Productivity On Track — slot 2 */}
+                      <div onClick={() => setShowProdModal(true)}
+                        style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #4f46e5", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
+                        <div style={{ fontSize: 28, fontWeight: 800, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a", lineHeight: 1 }}>{prodOnTrack}<span style={{ fontSize: 16, fontWeight: 600, color: "#868e96" }}>/{prodData.length}</span></div>
+                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Productivity On Track</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a" }}>{prodFlagged.length > 0 ? prodFlagged.length + " flagged — tap to review" : "all clear · tap to review"}</div>
+                      </div>
                       {/* On Track */}
                       <div onClick={() => setSidebarFilter(sidebarFilter === "ok" ? null : "ok")}
                         style={{ background: "white", border: sidebarFilter === "ok" ? "2px solid #16a34a" : "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
@@ -2758,12 +2766,6 @@ export default function App() {
                         <div style={{ fontSize: 28, fontWeight: 800, color: "#d97706", lineHeight: 1 }}>{flags.length}</div>
                         <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Need Attention</div>
                         <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>C.I.I. · Prod · checkpoint flags</div>
-                      </div>
-                      {/* Productivity On Track */}
-                      <div style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px" }}>
-                        <div style={{ fontSize: 28, fontWeight: 800, color: "#16a34a", lineHeight: 1 }}>{prodOnTrack}<span style={{ fontSize: 16, fontWeight: 600, color: "#868e96" }}>/{prodData.length}</span></div>
-                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Productivity On Track</div>
-                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>{prodFlagged.length > 0 ? prodFlagged.length + " flagged — " + prodFlagged.map(x => x.p.name.split(/[\s.,]+/).filter(Boolean).slice(-1)[0]).join(", ") : "all clear"}</div>
                       </div>
                       {/* Culture CII */}
                       <div style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #92400e", borderRadius: 11, padding: "15px 16px" }}>
@@ -3527,6 +3529,148 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── Cohort Productivity Modal ── */}
+      {showProdModal && (() => {
+        const DOT_COLOR = { green: "#22c55e", amber: "#eab308", red: "#ef4444", none: "#e9ecef" };
+        const METRIC_LABELS = ["Pts/Day", "wRVU/wk", "Inbox", "Note", "Refill"];
+        const METRIC_GOALS = PROD_METRICS.map(m => m.goal);
+
+        // build per-provider rows with current wRVU and overall status
+        const rows = PROVS.filter(p => hasProductivity(p.id)).map(p => {
+          const sum = prodSummary(p.id);
+          const dots = prodMetricDots(p.id);
+          const rvuSeries = PROD_SERIES[p.id]?.rvu;
+          const curRvu = rvuSeries ? rvuSeries[rvuSeries.length - 1] : null;
+          const rvuGoal = PROD_METRICS.find(m => m.key === "rvu").goal;
+          const rvuPct = curRvu != null ? Math.round(curRvu / rvuGoal * 100) : null;
+          const flagged = sum.good <= 1;
+          const allGreen = sum.total > 0 && sum.good === sum.total;
+          return { p, sum, dots, curRvu, rvuPct, flagged, allGreen };
+        }).sort((a, b) => (a.sum.good / (a.sum.total || 1)) - (b.sum.good / (b.sum.total || 1)));
+
+        // cohort wRVU stats
+        const rvuRows = rows.filter(r => r.curRvu != null);
+        const cohortAvgRvu = rvuRows.length ? Math.round(rvuRows.reduce((s, r) => s + r.curRvu, 0) / rvuRows.length) : null;
+        const rvuGoal = PROD_METRICS.find(m => m.key === "rvu").goal;
+        const atOrAboveRvu = rvuRows.filter(r => r.curRvu >= rvuGoal * 0.97).length;
+        const flaggedCount = rows.filter(r => r.flagged).length;
+        const onTrackCount = rows.filter(r => !r.flagged).length;
+
+        return (
+          <div onClick={() => setShowProdModal(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(10,15,30,0.55)", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 40, paddingBottom: 40, overflowY: "auto" }}>
+            <div onClick={e => e.stopPropagation()}
+              style={{ background: "#f8f9fa", borderRadius: 18, width: "min(860px, 94vw)", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", overflow: "hidden" }}>
+
+              {/* Header */}
+              <div style={{ background: "white", borderBottom: "1px solid #e9ecef", padding: "22px 28px 18px", display: "flex", alignItems: "flex-start", gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>⚡ Epic Productivity · Cohort View</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#0f1b2d", lineHeight: 1.2 }}>Productivity On Track</div>
+                  <div style={{ fontSize: 13, color: "#868e96", marginTop: 4 }}>All five Epic metrics vs. practice benchmarks — sorted by most concern first</div>
+                </div>
+                <button onClick={() => setShowProdModal(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 20, color: "#adb5bd", lineHeight: 1, padding: "2px 6px", borderRadius: 6 }}>✕</button>
+              </div>
+
+              {/* Headline stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, borderBottom: "1px solid #e9ecef", background: "white" }}>
+                {[
+                  { label: "Providers with data", value: rows.length, color: "#0f1b2d", sub: "in this cohort" },
+                  { label: "On Track", value: onTrackCount, color: "#16a34a", sub: "≥2 metrics green" },
+                  { label: "Needs Attention", value: flaggedCount, color: flaggedCount > 0 ? "#dc2626" : "#16a34a", sub: flaggedCount > 0 ? "≤1 metric green" : "none flagged" },
+                  cohortAvgRvu != null
+                    ? { label: "Cohort Avg wRVU / wk", value: cohortAvgRvu, color: cohortAvgRvu >= rvuGoal * 0.97 ? "#16a34a" : cohortAvgRvu >= rvuGoal * 0.8 ? "#d97706" : "#dc2626", sub: `goal ${rvuGoal} · ${atOrAboveRvu}/${rvuRows.length} at goal` }
+                    : { label: "wRVU Data", value: "—", color: "#adb5bd", sub: "not yet available" },
+                ].map((s, i) => (
+                  <div key={i} style={{ padding: "16px 22px", borderLeft: i > 0 ? "1px solid #f0f1f3" : "none" }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", marginTop: 5 }}>{s.label}</div>
+                    <div style={{ fontSize: 10, color: "#adb5bd", fontWeight: 600, marginTop: 3 }}>{s.sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Table */}
+              <div style={{ padding: "16px 20px 24px" }}>
+                {/* Column headers */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px 8px", borderBottom: "2px solid #e9ecef", marginBottom: 4 }}>
+                  <div style={{ width: 32, flexShrink: 0 }} />
+                  <div style={{ flex: 1, fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".05em" }}>Provider</div>
+                  <div style={{ width: 56, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Phase</div>
+                  <div style={{ width: 130, display: "flex", justifyContent: "space-around", flexShrink: 0 }}>
+                    {METRIC_LABELS.map((l, i) => (
+                      <div key={i} title={PROD_METRICS[i].label + " · goal: " + METRIC_GOALS[i]} style={{ fontSize: 9, fontWeight: 700, color: "#adb5bd", width: 24, textAlign: "center" }}>{l.split("/")[0]}</div>
+                    ))}
+                  </div>
+                  <div style={{ width: 72, textAlign: "right", fontSize: 9.5, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>wRVU/wk</div>
+                  <div style={{ width: 68, textAlign: "right", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Status</div>
+                </div>
+
+                {rows.length === 0 && (
+                  <div style={{ textAlign: "center", padding: "32px 0", fontSize: 13, color: "#adb5bd" }}>
+                    No Epic productivity data available yet for this cohort.
+                  </div>
+                )}
+
+                {rows.map(({ p, sum, dots, curRvu, rvuPct, flagged, allGreen }) => {
+                  const rowBg = flagged ? "#fff5f5" : "white";
+                  const rowBorder = flagged ? "1px solid #fca5a5" : "1px solid #f0f1f3";
+                  const statusColor = allGreen ? "#15803d" : flagged ? "#dc2626" : "#d97706";
+                  const statusBg = allGreen ? "#dcfce7" : flagged ? "#fee2e2" : "#fef9c3";
+                  const statusLabel = allGreen ? "All Green" : flagged ? "Flagged" : "On Track";
+                  const rvuColor = curRvu == null ? "#adb5bd" : curRvu >= rvuGoal * 0.97 ? "#15803d" : curRvu >= rvuGoal * 0.8 ? "#d97706" : "#dc2626";
+                  return (
+                    <div key={p.id}
+                      onClick={() => { setShowProdModal(false); navigate({ selId: p.id, tab: "prod", phase: p.phase }); }}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", marginBottom: 5, borderRadius: 10, background: rowBg, border: rowBorder, cursor: "pointer" }}>
+                      <div style={{ width: 32, flexShrink: 0 }}>{avatar(p.name, flagged)}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: flagged ? "#b91c1c" : "#0f1b2d", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                        <div style={{ fontSize: 10, color: "#868e96", marginTop: 1 }}>{p.role}</div>
+                      </div>
+                      <div style={{ width: 56, flexShrink: 0, textAlign: "center" }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 5, background: "#eef2ff", color: "#4f46e5" }}>{p.phase}</span>
+                      </div>
+                      <div style={{ width: 130, display: "flex", justifyContent: "space-around", alignItems: "center", flexShrink: 0 }}>
+                        {dots.map(d => (
+                          <div key={d.key} title={d.short} style={{ width: 24, textAlign: "center" }}>
+                            <span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", background: DOT_COLOR[d.color] || "#e9ecef", verticalAlign: "middle" }} />
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ width: 72, flexShrink: 0, textAlign: "right" }}>
+                        {curRvu != null ? (
+                          <span style={{ fontSize: 15, fontWeight: 800, color: rvuColor }}>{curRvu}</span>
+                        ) : (
+                          <span style={{ fontSize: 11, color: "#adb5bd" }}>—</span>
+                        )}
+                        {rvuPct != null && <div style={{ fontSize: 9, color: "#adb5bd", fontWeight: 600 }}>{rvuPct}% of goal</div>}
+                      </div>
+                      <div style={{ width: 68, flexShrink: 0, textAlign: "right" }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, padding: "4px 8px", borderRadius: 6, background: statusBg, color: statusColor, whiteSpace: "nowrap" }}>{statusLabel}</span>
+                        <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 3, textAlign: "right" }}>{sum.good}/{sum.total} metrics</div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Legend */}
+                <div style={{ display: "flex", gap: 16, marginTop: 14, paddingTop: 12, borderTop: "1px solid #e9ecef", flexWrap: "wrap", alignItems: "center" }}>
+                  {[["#22c55e","On track / Near goal"],["#eab308","Variable"],["#ef4444","Falling behind"]].map(([c,l]) => (
+                    <span key={l} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: "#868e96", fontWeight: 600 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: "50%", background: c, display: "inline-block", flexShrink: 0 }} />{l}
+                    </span>
+                  ))}
+                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#adb5bd", fontStyle: "italic" }}>
+                    Pts/Day · wRVU/wk · Inbox · Note time · Refill time · Click any row to open provider
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Confirm Remove Provider modal */}
       {confirmRemove && (
