@@ -3691,11 +3691,12 @@ export default function App() {
                     })}
                   </div>
                   <div style={{ width: colW.rvu, textAlign: "right", fontSize: 10, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>wRVU/wk</div>
-                  <div style={{ width: colW.status, flexShrink: 0, textAlign: "right" }}>
+                  <div style={{ width: colW.status, flexShrink: 0, textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
                     <button onClick={() => setShowProdKey(v => !v)}
-                      style={{ fontSize: 10, fontWeight: 700, color: showProdKey ? "#4f46e5" : "#868e96", background: showProdKey ? "#eef2ff" : "#f3f4f6", border: showProdKey ? "1px solid #c7d2fe" : "1px solid #e5e7eb", borderRadius: 6, padding: "3px 9px", cursor: "pointer", letterSpacing: ".04em", textTransform: "uppercase" }}>
+                      style={{ fontSize: 9, fontWeight: 700, color: showProdKey ? "#4f46e5" : "#868e96", background: showProdKey ? "#eef2ff" : "#f3f4f6", border: showProdKey ? "1px solid #c7d2fe" : "1px solid #e5e7eb", borderRadius: 5, padding: "2px 7px", cursor: "pointer", letterSpacing: ".04em", textTransform: "uppercase" }}>
                       {showProdKey ? "✕ Key" : "Key ▾"}
                     </button>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em" }}>Status</span>
                   </div>
                 </div>
 
