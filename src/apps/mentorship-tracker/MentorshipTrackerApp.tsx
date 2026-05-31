@@ -427,6 +427,13 @@ const SEED_PROVS = [
 ];
 let PROVS = SEED_PROVS;
 
+/* ─── Shared UI helpers (module-level so they're in scope for modals) ─── */
+const initialsOf = (name: string) => name.split(/[\s.,]+/).filter(Boolean).slice(0, 2).map((s: string) => s[0]).join("").toUpperCase();
+const dotColor = (c: string) => c === "green" ? "#22c55e" : c === "amber" ? "#eab308" : c === "red" ? "#ef4444" : "#d1d5db";
+const avatar = (name: string, red: boolean) => (
+  <div style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9.5, fontWeight: 700, background: red ? "rgba(239,68,68,0.10)" : "rgba(2,128,144,0.10)", color: red ? "#dc2626" : "#028090" }}>{initialsOf(name)}</div>
+);
+
 /* ─── Seed Data ─── */
 function makeSeedChecks() {
   const c = {};
@@ -2654,12 +2661,6 @@ export default function App() {
                 const totalProv = PROVS.length;
                 const onTrack = PROVS.filter(p => getStatus(p.id) === "ok").length;
 
-                /* Initials avatar (e.g. "Dr. Johnson" → DJ, "A. Martinez, NP" → AM) */
-                const initialsOf = (name) => name.split(/[\s.,]+/).filter(Boolean).slice(0, 2).map(s => s[0]).join("").toUpperCase();
-                const dotColor = (c) => c === "green" ? "#22c55e" : c === "amber" ? "#eab308" : c === "red" ? "#ef4444" : "#d1d5db";
-                const avatar = (name, red) => (
-                  <div style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9.5, fontWeight: 700, background: red ? "rgba(239,68,68,0.10)" : "rgba(2,128,144,0.10)", color: red ? "#dc2626" : "#028090" }}>{initialsOf(name)}</div>
-                );
 
                 /* ── Per-provider derived data ── */
                 const cultureData = PROVS.map(p => {
