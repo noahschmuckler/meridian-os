@@ -3598,13 +3598,16 @@ export default function App() {
               {/* Table */}
               <div style={{ padding: "16px 20px 24px" }}>
                 {/* Column headers */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px 8px", borderBottom: "2px solid #e9ecef", marginBottom: 4 }}>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 8, padding: "0 12px 8px", borderBottom: "2px solid #e9ecef", marginBottom: 4 }}>
                   <div style={{ width: 32, flexShrink: 0 }} />
                   <div style={{ flex: 1, fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".05em" }}>Provider</div>
                   <div style={{ width: 56, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Phase</div>
-                  <div style={{ width: 130, display: "flex", justifyContent: "space-around", flexShrink: 0 }}>
-                    {METRIC_LABELS.map((l, i) => (
-                      <div key={i} title={PROD_METRICS[i].label + " · goal: " + METRIC_GOALS[i]} style={{ fontSize: 9, fontWeight: 700, color: "#adb5bd", width: 24, textAlign: "center" }}>{l.split("/")[0]}</div>
+                  <div style={{ width: 200, display: "flex", justifyContent: "space-around", flexShrink: 0 }}>
+                    {PROD_METRICS.map((m) => (
+                      <div key={m.key} style={{ width: 36, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "#adb5bd", whiteSpace: "nowrap" }}>{m.short}</span>
+                        <span style={{ fontSize: 8, color: "#d1d5db", fontWeight: 500 }}>goal {m.goal}</span>
+                      </div>
                     ))}
                   </div>
                   <div style={{ width: 72, textAlign: "right", fontSize: 9.5, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>wRVU/wk</div>
@@ -3636,10 +3639,10 @@ export default function App() {
                       <div style={{ width: 56, flexShrink: 0, textAlign: "center" }}>
                         <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 5, background: "#eef2ff", color: "#4f46e5" }}>{p.phase}</span>
                       </div>
-                      <div style={{ width: 130, display: "flex", justifyContent: "space-around", alignItems: "center", flexShrink: 0 }}>
+                      <div style={{ width: 200, display: "flex", justifyContent: "space-around", alignItems: "center", flexShrink: 0 }}>
                         {dots.map(d => (
-                          <div key={d.key} title={d.short} style={{ width: 24, textAlign: "center" }}>
-                            <span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", background: DOT_COLOR[d.color] || "#e9ecef", verticalAlign: "middle" }} />
+                          <div key={d.key} title={d.short} style={{ width: 36, textAlign: "center" }}>
+                            <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: DOT_COLOR[d.color] || "#e9ecef", verticalAlign: "middle" }} />
                           </div>
                         ))}
                       </div>
