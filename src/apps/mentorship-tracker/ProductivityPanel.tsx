@@ -84,6 +84,19 @@ export function prodSummary(pid) {
   return { good, total };
 }
 
+/* Per-metric color status for a provider, in PROD_METRICS order. Used by the
+   director dashboard to render the compact 5-dot productivity row. Returns
+   [{ key, short, color }] or [] when the provider has no productivity data. */
+export function prodMetricDots(pid) {
+  const series = PROD_SERIES[pid];
+  if (!series) return [];
+  return PROD_METRICS.map((m) => {
+    if (!series[m.key]) return { key: m.key, short: m.label, color: "none" };
+    const a = analyzeProd(series[m.key], m);
+    return { key: m.key, short: m.label, color: a.color };
+  });
+}
+
 /* ─── Status palette — green = good, amber = variable, red = wrong direction ─ */
 const STATUS = {
   green: { bg:"#dcfce7", fg:"#15803d", line:"#16a34a", fill:"#22c55e", soft:"#f0fdf4", border:"#bbf7d0" },

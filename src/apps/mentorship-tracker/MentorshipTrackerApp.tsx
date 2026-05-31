@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
-import ProductivityPanel, { hasProductivity, prodSummary } from "./ProductivityPanel";
+import ProductivityPanel, { hasProductivity, prodSummary, prodMetricDots } from "./ProductivityPanel";
 import CulturePanel from "./CulturePanel";
 
 /* ─── Medical Director Curriculum (62 items from master checklist, see analysis/) ─── */
@@ -753,6 +753,26 @@ function cultureScore(qa, pid, apcFlag) {
   if (cnt === 0) return { avg: null, pct: 0, display: "Future-Scheduled" };
   const avg = sum / cnt;
   return { avg: avg, pct: Math.round(avg * 10), display: avg.toFixed(1) };
+}
+
+/* Band label + colors for a CII average (null → Future-Scheduled). */
+function cultureBand(avg) {
+  if (avg === null || avg === undefined) return { key: "sched", label: "Future-Sched'd", fg: "#868e96", bg: "#f1f3f5", bar: "#cbd5e1" };
+  if (avg >= 7) return { key: "thriving",   label: "Thriving",   fg: "#15803d", bg: "#dcfce7", bar: "#22c55e" };
+  if (avg >= 5) return { key: "developing", label: "Developing", fg: "#854d0e", bg: "#fef9c3", bar: "#eab308" };
+  return { key: "atrisk", label: "At Risk", fg: "#b91c1c", bg: "#fee2e2", bar: "#ef4444" };
+}
+
+/* Trend arrow comparing the two most recent answered culture checkpoints.
+   Returns { arrow, dir } — dir is "up" | "down" | "flat" | "none". */
+function cultureTrend(qa, pid, apcFlag) {
+  const phases = apcFlag ? [...CULTURE_PHASES, ...CULTURE_PHASES_APC_EXT] : CULTURE_PHASES;
+  const scored = phases.map(phid => culturePhaseScore(qa, pid, phid)).filter(v => v !== null);
+  if (scored.length < 2) return { arrow: "", dir: "none" };
+  const delta = scored[scored.length - 1] - scored[scored.length - 2];
+  if (delta > 0.25) return { arrow: "↑", dir: "up" };
+  if (delta < -0.25) return { arrow: "↓", dir: "down" };
+  return { arrow: "→", dir: "flat" };
 }
 
 /* Overdue status based on days — indices refer to MP_PHYS (0=w0 … 16=m12) */
@@ -2039,28 +2059,42 @@ export default function App() {
                     {p.role} · {phLabel} · Day {p.days} · <span style={{ color: "#c4c9d0" }}>{mentorLastName}</span>
                   </div>
 
-                  {/* Row 3: track grid (director) or single bar (mentor) */}
-                  {isDir ? (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px 10px", paddingLeft: 14 }}>
-                      {[
-                        { label: "Dir. Curriculum", pct: md, color: "#8b5cf6" },
-                        { label: "Mentor", pct: mn, color: "#028090" },
-                        { label: "OM Touchpoints", pct: op, color: "#0ea5e9" },
-                        { label: "Questionnaires", pct: qp, color: "#eab308" },
-                      ].map(({ label, pct, color }) => {
-                        const dc = pct >= 70 ? "#22c55e" : pct >= 30 ? color : pct > 0 ? "#ef4444" : "#d1d5db";
-                        return (
-                          <div key={label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                            <div style={{ width: 32, height: 3, borderRadius: 2, background: "#e9ecef", flexShrink: 0, overflow: "hidden" }}>
-                              <div style={{ height: "100%", width: pct + "%", background: dc, borderRadius: 2 }} />
-                            </div>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: dc, minWidth: 24 }}>{pct}%</span>
-                            <span style={{ fontSize: 9, color: "#b0b8c4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+                  {/* Row 3: MD curriculum bar + CII / Prod chips (director) or single bar (mentor) */}
+                  {isDir ? (() => {
+                    const mdc = md >= 70 ? "#22c55e" : md >= 30 ? "#8b5cf6" : md > 0 ? "#ef4444" : "#d1d5db";
+                    const cs = cultureScore(qa, p.id, isAPC(p));
+                    const band = cultureBand(cs.avg);
+                    const overdueCII = cs.avg === null && getStatus(p.id) !== "ok";
+                    const tr = cultureTrend(qa, p.id, isAPC(p));
+                    const ps = prodSummary(p.id);
+                    const prodCol = ps.total === 0 ? { fg: "#868e96", bg: "#f1f3f5" }
+                      : ps.good >= ps.total - 0 ? { fg: "#15803d", bg: "#dcfce7" }
+                      : ps.good <= 1 ? { fg: "#b91c1c", bg: "#fee2e2" }
+                      : { fg: "#854d0e", bg: "#fef9c3" };
+                    return (
+                      <div style={{ paddingLeft: 14 }}>
+                        {/* MD curriculum bar */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
+                          <div style={{ flex: 1, height: 4, borderRadius: 2, background: "#e9ecef", overflow: "hidden" }}>
+                            <div style={{ height: "100%", width: md + "%", background: mdc, borderRadius: 2 }} />
                           </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", whiteSpace: "nowrap" }}>MD {md}%</span>
+                        </div>
+                        {/* chips row */}
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                            background: overdueCII ? "#fef9c3" : band.bg, color: overdueCII ? "#854d0e" : band.fg }}>
+                            {overdueCII ? "CII overdue" : cs.avg === null ? "CII Future-Sched'd" : "CII " + band.label + " " + cs.display + (tr.arrow ? " " + tr.arrow : "")}
+                          </span>
+                          {ps.total > 0 && (
+                            <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, whiteSpace: "nowrap", flexShrink: 0, background: prodCol.bg, color: prodCol.fg }}>
+                              Prod {ps.good}/{ps.total}{ps.good <= 1 ? " ⚠" : ""}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })() : (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 14 }}>
                       <div style={{ flex: 1, height: 3, borderRadius: 2, background: "#e9ecef", overflow: "hidden" }}>
                         <div style={{ height: "100%", width: mn + "%", background: sc, borderRadius: 2 }} />
@@ -2613,153 +2647,285 @@ export default function App() {
                 </div>
               )}
 
-              {/* ── MEDICAL DIRECTOR DASHBOARD ── */}
+              {/* ── MEDICAL DIRECTOR DASHBOARD — executive cohort overview ── */}
               {isDir && mainTab === "roster" && (() => {
-                const mentors = USERS.filter(u => u.role === "mentor");
                 const totalProv = PROVS.length;
                 const onTrack = PROVS.filter(p => getStatus(p.id) === "ok").length;
-                const behind = PROVS.filter(p => getStatus(p.id) !== "ok").length;
-                const avgCurr = totalProv ? Math.round(PROVS.reduce((acc, p) => acc + mdCurriculumPct(checks, p.id), 0) / totalProv) : 0;
+
+                /* Initials avatar (e.g. "Dr. Johnson" → DJ, "A. Martinez, NP" → AM) */
+                const initialsOf = (name) => name.split(/[\s.,]+/).filter(Boolean).slice(0, 2).map(s => s[0]).join("").toUpperCase();
+                const dotColor = (c) => c === "green" ? "#22c55e" : c === "amber" ? "#eab308" : c === "red" ? "#ef4444" : "#d1d5db";
+                const avatar = (name, red) => (
+                  <div style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9.5, fontWeight: 700, background: red ? "rgba(239,68,68,0.10)" : "rgba(2,128,144,0.10)", color: red ? "#dc2626" : "#028090" }}>{initialsOf(name)}</div>
+                );
+
+                /* ── Per-provider derived data ── */
+                const cultureData = PROVS.map(p => {
+                  const apc = isAPC(p);
+                  const cs = cultureScore(qa, p.id, apc);
+                  const band = cultureBand(cs.avg);
+                  const tr = cultureTrend(qa, p.id, apc);
+                  const overdue = cs.avg === null && getStatus(p.id) !== "ok";
+                  return { p, apc, cs, band, tr, overdue };
+                });
+                const bandCount = { thriving: 0, developing: 0, atrisk: 0, sched: 0 };
+                cultureData.forEach(c => { bandCount[c.band.key]++; });
+
+                const prodData = PROVS.map(p => ({ p, sum: prodSummary(p.id), dots: prodMetricDots(p.id) })).filter(x => x.sum.total > 0);
+                const prodFlagged = prodData.filter(x => x.sum.good <= 1);
+                const prodOnTrack = prodData.length - prodFlagged.length;
+
+                /* ── Needs-attention flags ── */
+                const flags = [];
+                cultureData.forEach(c => {
+                  if (c.cs.avg !== null && c.cs.avg < 5)
+                    flags.push({ pid: c.p.id, name: c.p.name, tag: "CII ⚠", tone: "red", reason: "CII " + c.cs.display + " · At Risk — culture integration score below threshold" + (c.tr.dir === "down" ? " · trending ↓" : ""), go: () => navigate({ selId: c.p.id, tab: "culture", phase: c.p.phase }) });
+                });
+                prodFlagged.forEach(x => {
+                  const bad = x.dots.filter(d => d.color === "red").map(d => d.short.toLowerCase());
+                  flags.push({ pid: x.p.id, name: x.p.name, tag: "Prod ⚠", tone: "red", reason: "Prod " + x.sum.good + "/" + x.sum.total + (bad.length ? " · " + bad.join(" + ") + " trending wrong direction" : ""), go: () => navigate({ selId: x.p.id, tab: "prod", phase: x.p.phase }) });
+                });
+                cultureData.forEach(c => {
+                  if (c.overdue)
+                    flags.push({ pid: c.p.id, name: c.p.name, tag: "Overdue", tone: "warn", reason: "Culture checkpoint overdue · questionnaire not yet submitted", go: () => navigate({ selId: c.p.id, tab: "culture", phase: c.p.phase }) });
+                });
+
+                /* ── Cohort-by-stage buckets ── */
+                const stageOf = (phase) => {
+                  const m = /^([wm])(\d+)$/.exec(phase || "");
+                  if (!m) return 1;
+                  const t = m[1], n = +m[2];
+                  if (t === "w") return n <= 4 ? 0 : 1;
+                  if (n <= 2) return 1; if (n <= 6) return 2; if (n <= 12) return 3; return 4;
+                };
+                const stages = [
+                  { label: "Weeks 1–4", color: "#c084fc" },
+                  { label: "Weeks 5–12", color: "#028090" },
+                  { label: "Months 3–6", color: "#0284c7" },
+                  { label: "Months 6–12", color: "#0284c7" },
+                  { label: "Post Month 12", color: "#64748b" },
+                ];
+                const stageCounts = [0, 0, 0, 0, 0];
+                PROVS.forEach(p => { stageCounts[stageOf(p.phase)]++; });
+                const maxStage = Math.max(1, ...stageCounts);
+                const first90 = stageCounts[0] + stageCounts[1] + stageCounts[2];
+
+                /* ── Touchpoint status counts (live, from getStatus) ── */
+                const dueList = PROVS.filter(p => getStatus(p.id) === "due");
+                const overdueList = PROVS.filter(p => getStatus(p.id) === "overdue");
+                const tpAttention = [...overdueList, ...dueList];
+
+                /* Sort culture list by band severity then score desc */
+                const bandOrder = { thriving: 0, developing: 1, atrisk: 2, sched: 3 };
+                const cultureSorted = [...cultureData].sort((a, b) => {
+                  const oa = a.overdue ? 2.5 : bandOrder[a.band.key], ob = b.overdue ? 2.5 : bandOrder[b.band.key];
+                  if (oa !== ob) return oa - ob;
+                  return (b.cs.avg || 0) - (a.cs.avg || 0);
+                });
+
+                /* Shared panel shell */
+                const Panel = ({ icon, title, sub, children }) => (
+                  <div style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 11, overflow: "hidden" }}>
+                    <div style={{ padding: "12px 15px", borderBottom: "1px solid #f0f1f3", display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 14 }}>{icon}</span>
+                      <span style={{ fontSize: 12.5, fontWeight: 700, color: "#0f1b2d" }}>{title}</span>
+                      {sub && <span style={{ fontSize: 10.5, color: "#adb5bd", marginLeft: "auto" }}>{sub}</span>}
+                    </div>
+                    <div style={{ padding: "13px 15px" }}>{children}</div>
+                  </div>
+                );
+
                 return (
                   <div>
-                    {/* Title */}
-                    <div style={{ fontSize: 18, fontWeight: 700, color: "#0f1b2d", marginBottom: 16 }}>Medical Director Dashboard</div>
+                    {/* ── KPI ROW ── */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 11, marginBottom: 16 }}>
+                      {/* Active Providers */}
+                      <div style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px" }}>
+                        <div style={{ fontSize: 28, fontWeight: 800, color: "#028090", lineHeight: 1 }}>{totalProv}</div>
+                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Active Providers</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#16a34a" }}>in your program</div>
+                      </div>
+                      {/* On Track */}
+                      <div onClick={() => setSidebarFilter(sidebarFilter === "ok" ? null : "ok")}
+                        style={{ background: "white", border: sidebarFilter === "ok" ? "2px solid #16a34a" : "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
+                        <div style={{ fontSize: 28, fontWeight: 800, color: "#16a34a", lineHeight: 1 }}>{onTrack}</div>
+                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>On Track</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#16a34a" }}>{totalProv ? Math.round(onTrack / totalProv * 100) + "% of cohort" : "—"}</div>
+                      </div>
+                      {/* Need Attention */}
+                      <div onClick={() => setSidebarFilter(sidebarFilter === "behind" ? null : "behind")}
+                        style={{ background: "white", border: sidebarFilter === "behind" ? "2px solid #d97706" : "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
+                        <div style={{ fontSize: 28, fontWeight: 800, color: "#d97706", lineHeight: 1 }}>{flags.length}</div>
+                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Need Attention</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>CII · Prod · checkpoint flags</div>
+                      </div>
+                      {/* Productivity On Track */}
+                      <div style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px" }}>
+                        <div style={{ fontSize: 28, fontWeight: 800, color: "#16a34a", lineHeight: 1 }}>{prodOnTrack}<span style={{ fontSize: 16, fontWeight: 600, color: "#868e96" }}>/{prodData.length}</span></div>
+                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Productivity On Track</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>{prodFlagged.length > 0 ? prodFlagged.length + " flagged — " + prodFlagged.map(x => x.p.name.split(/[\s.,]+/).filter(Boolean).slice(-1)[0]).join(", ") : "all clear"}</div>
+                      </div>
+                      {/* Culture CII */}
+                      <div style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #92400e", borderRadius: 11, padding: "15px 16px" }}>
+                        <div style={{ fontSize: 17, fontWeight: 800, color: "#78350f", lineHeight: 1.3 }}>Culture CII</div>
+                        <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 7 }}>
+                          {bandCount.thriving > 0 && <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "#dcfce7", color: "#15803d" }}>{bandCount.thriving} Thriving</span>}
+                          {bandCount.developing > 0 && <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "#fef9c3", color: "#854d0e" }}>{bandCount.developing} Developing</span>}
+                          {bandCount.atrisk > 0 && <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "#fee2e2", color: "#b91c1c" }}>{bandCount.atrisk} At Risk</span>}
+                          {bandCount.sched > 0 && <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "#f1f3f5", color: "#868e96" }}>{bandCount.sched} Sched'd</span>}
+                        </div>
+                        <div style={{ fontSize: 10, marginTop: 6, fontWeight: 700, color: "#92400e" }}>m3 · m6 · m9 · m12 cadence</div>
+                      </div>
+                    </div>
 
-                    {/* Stats row */}
-                    {(() => {
-                      const tiles = [
-                        {
-                          val: totalProv,
-                          label: "Total Providers",
-                          sub: "in your program",
-                          icon: "👥",
-                          accent: "#028090",
-                          bg: "linear-gradient(135deg,#f0fdfe 0%,#e0f9fb 100%)",
-                          filterId: null,
-                          onClick: () => { setSidebarFilter(null); setSearch(""); },
-                        },
-                        {
-                          val: onTrack,
-                          label: "On Track",
-                          sub: totalProv ? Math.round(onTrack / totalProv * 100) + "% of cohort" : "—",
-                          icon: "✅",
-                          accent: "#22c55e",
-                          bg: "linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%)",
-                          filterId: "ok",
-                          onClick: () => setSidebarFilter(sidebarFilter === "ok" ? null : "ok"),
-                        },
-                        {
-                          val: behind,
-                          label: "Behind Schedule",
-                          sub: behind > 0 ? "need attention" : "none — great!",
-                          icon: behind > 0 ? "⚠️" : "🎉",
-                          accent: behind > 0 ? "#ef4444" : "#22c55e",
-                          bg: behind > 0 ? "linear-gradient(135deg,#fff5f5 0%,#fee2e2 100%)" : "linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%)",
-                          filterId: "behind",
-                          onClick: () => setSidebarFilter(sidebarFilter === "behind" ? null : "behind"),
-                        },
-                        {
-                          val: avgCurr + "%",
-                          label: "Dir. Curriculum",
-                          sub: "avg across all providers",
-                          icon: "📋",
-                          accent: "#8b5cf6",
-                          bg: "linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%)",
-                          filterId: "compare",
-                          onClick: () => navigate({ mainTab: "compare" }),
-                        },
-                      ];
-                      return (
-                        <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-                          {tiles.map(({ val, label, sub, icon, accent, bg, filterId, onClick }) => {
-                            const isActive = filterId === "compare" ? mainTab === "compare" : sidebarFilter === filterId;
+                    {/* ── ROW: Cohort by Stage | Needs Attention | Culture CII ── */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1.15fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+
+                      {/* Cohort by Stage */}
+                      <Panel icon="📊" title="Cohort by Stage" sub="Today">
+                        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                          {stages.map((s, i) => (
+                            <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                              <span style={{ fontSize: 11, fontWeight: 600, color: "#495057", width: 88, flexShrink: 0 }}>{s.label}</span>
+                              <div style={{ flex: 1, background: "#f1f3f5", borderRadius: 4, height: 10, overflow: "hidden" }}>
+                                <div style={{ height: "100%", borderRadius: 4, width: (stageCounts[i] / maxStage * 100) + "%", background: s.color }} />
+                              </div>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: "#0f1b2d", width: 14, textAlign: "right", flexShrink: 0 }}>{stageCounts[i]}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #f4f5f7", fontSize: 10.5, color: "#868e96" }}>
+                          <span style={{ fontWeight: 700, color: "#0f1b2d" }}>{totalProv ? Math.round(first90 / totalProv * 100) : 0}%</span> of cohort in first 90 days — highest-intensity supervision period
+                        </div>
+                      </Panel>
+
+                      {/* Needs Attention */}
+                      <Panel icon="⚠️" title="Needs Attention" sub={flags.length + " flag" + (flags.length !== 1 ? "s" : "")}>
+                        {flags.length === 0 ? (
+                          <div style={{ fontSize: 12, color: "#16a34a", padding: "8px 2px" }}>🎉 No flags — every provider is on track.</div>
+                        ) : (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            {flags.map((f, i) => (
+                              <div key={i} onClick={f.go}
+                                style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "9px 10px", borderRadius: 8, cursor: "pointer", background: f.tone === "red" ? "#fff5f5" : "#fffbeb", border: "1px solid " + (f.tone === "red" ? "#fca5a5" : "#fde68a") }}>
+                                {avatar(f.name, f.tone === "red")}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: 11.5, fontWeight: 700, color: "#0f1b2d" }}>{f.name}</div>
+                                  <div style={{ fontSize: 10.5, marginTop: 2, color: f.tone === "red" ? "#991b1b" : "#854d0e" }}>{f.reason}</div>
+                                </div>
+                                <span style={{ marginLeft: "auto", fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 6, whiteSpace: "nowrap", flexShrink: 0, background: f.tone === "red" ? "#fee2e2" : "#fef9c3", color: f.tone === "red" ? "#991b1b" : "#854d0e" }}>{f.tag}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </Panel>
+
+                      {/* Culture CII */}
+                      <Panel icon="🌡️" title="Culture CII" sub="Latest per provider">
+                        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                          {cultureSorted.map(c => {
+                            const trColor = c.tr.dir === "up" ? "#16a34a" : c.tr.dir === "down" ? "#dc2626" : "#16a34a";
                             return (
-                              <div key={label}
-                                onClick={onClick}
-                                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.10)"; }}
-                                onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = isActive ? "0 0 0 2px " + accent : "0 1px 4px rgba(0,0,0,0.06)"; }}
-                                style={{
-                                  flex: 1, borderRadius: 12, padding: "16px 16px 14px",
-                                  background: bg,
-                                  border: isActive ? "2px solid " + accent : "1px solid rgba(0,0,0,0.06)",
-                                  boxShadow: isActive ? "0 0 0 2px " + accent : "0 1px 4px rgba(0,0,0,0.06)",
-                                  cursor: "pointer", position: "relative", transition: "transform 0.15s, box-shadow 0.15s",
-                                  borderTop: "4px solid " + accent,
-                                }}>
-                                <div style={{ position: "absolute", top: 12, right: 12, fontSize: 16, opacity: 0.7 }}>{icon}</div>
-                                <div style={{ fontSize: 30, fontWeight: 800, color: accent, lineHeight: 1, marginBottom: 4 }}>{val}</div>
-                                <div style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>{label}</div>
-                                <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>{sub}</div>
-                                {filterId && filterId !== "compare" && (
-                                  <div style={{ fontSize: 9, color: accent, marginTop: 6, fontWeight: 600, opacity: 0.8 }}>
-                                    {isActive ? "▼ filtering sidebar" : "click to filter ↓"}
-                                  </div>
-                                )}
-                                {filterId === "compare" && (
-                                  <div style={{ fontSize: 9, color: accent, marginTop: 6, fontWeight: 600, opacity: 0.8 }}>click for details →</div>
-                                )}
+                              <div key={c.p.id} onClick={() => navigate({ selId: c.p.id, tab: "culture", phase: c.p.phase })}
+                                style={{ display: "flex", alignItems: "center", gap: 7, cursor: "pointer" }}>
+                                <span style={{ fontSize: 11, fontWeight: 600, color: "#0f1b2d", width: 102, flexShrink: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.p.name}</span>
+                                <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 5px", borderRadius: 5, flexShrink: 0, whiteSpace: "nowrap", background: c.overdue ? "#fef9c3" : c.band.bg, color: c.overdue ? "#854d0e" : c.band.fg, fontStyle: c.band.key === "sched" && !c.overdue ? "italic" : "normal" }}>
+                                  {c.overdue ? "Overdue" : c.band.label}
+                                </span>
+                                <div style={{ flex: 1, background: "#f1f3f5", borderRadius: 3, height: 5, overflow: "hidden" }}>
+                                  <div style={{ height: "100%", borderRadius: 3, width: (c.cs.avg !== null ? c.cs.pct : 0) + "%", background: c.band.bar }} />
+                                </div>
+                                <span style={{ fontSize: c.cs.avg !== null ? 12 : 9, fontWeight: 800, width: 32, textAlign: "right", flexShrink: 0, color: c.cs.avg !== null ? c.band.fg : "#adb5bd" }}>{c.cs.avg !== null ? c.cs.display : "—"}</span>
+                                <span style={{ fontSize: 12, width: 14, textAlign: "center", flexShrink: 0, color: trColor }}>{c.tr.arrow}</span>
                               </div>
                             );
                           })}
                         </div>
-                      );
-                    })()}
-
-                    {/* Mentor panel cards */}
-                    <div style={{ fontSize: 15, fontWeight: 800, color: "#0f1b2d", letterSpacing: "-0.2px", marginBottom: 14, paddingBottom: 10, borderBottom: "2px solid #e9ecef" }}>Mentor Panels</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-                      {mentors.map(mentor => {
-                        const panel = PROVS.filter(p => p.mentor === mentor.id);
-                        const late = panel.filter(p => getStatus(p.id) === "overdue").length;
-                        const due  = panel.filter(p => getStatus(p.id) === "due").length;
-                        const avgMen = panel.length ? Math.round(panel.reduce((acc, p) => acc + mentorPct(checks, p.id), 0) / panel.length) : 0;
-                        const initials = mentor.name.replace("Dr. ", "").replace(/,.*/, "").substring(0, 2).toUpperCase();
-                        return (
-                          <div key={mentor.id} style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", padding: "14px 18px" }}>
-                            {/* Header row */}
-                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                              <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(2,128,144,0.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#028090", flexShrink: 0 }}>
-                                {initials}
-                              </div>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{mentor.name}</div>
-                                <div style={{ fontSize: 11, color: "#868e96" }}>{panel.length} provider{panel.length !== 1 ? "s" : ""}</div>
-                              </div>
-                              {late > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#fef2f2", color: "#ef4444" }}>{late} LATE</span>}
-                              {due  > 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#fefce8", color: "#92400e" }}>{due} DUE</span>}
-                              {late === 0 && due === 0 && <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 6, background: "#dcfce7", color: "#166534" }}>All on track</span>}
-                            </div>
-                            {/* Avg mentor progress bar */}
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                              <div style={{ flex: 1, height: 5, borderRadius: 3, background: "#f1f3f5", overflow: "hidden" }}>
-                                <div style={{ width: avgMen + "%", height: "100%", borderRadius: 3, background: avgMen >= 70 ? "#22c55e" : avgMen >= 40 ? "#eab308" : "#ef4444" }} />
-                              </div>
-                              <span style={{ fontSize: 11, color: "#868e96", whiteSpace: "nowrap" }}>{avgMen}% avg mentor completion</span>
-                            </div>
-                            {/* Provider chips */}
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                              {panel.map(p => {
-                                const pst = getStatus(p.id);
-                                const dot = pst === "overdue" ? "#ef4444" : pst === "due" ? "#f97316" : "#22c55e";
-                                const phLabel = (MP.find(x => x.id === p.phase) || {}).label || p.phase;
-                                return (
-                                  <div key={p.id} onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
-                                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 16, background: "#f8f9fb", border: "1px solid #e9ecef", cursor: "pointer", fontSize: 12, color: "#374151" }}
-                                    onMouseEnter={e => { e.currentTarget.style.background = "#e9ecef"; }}
-                                    onMouseLeave={e => { e.currentTarget.style.background = "#f8f9fb"; }}>
-                                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: dot, flexShrink: 0 }} />
-                                    {p.name} <span style={{ color: "#adb5bd" }}>· {phLabel}</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
+                        <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid #f4f5f7", fontSize: 9.5, color: "#868e96" }}>
+                          Bands: Thriving ≥7 · Developing 5–6 · At Risk &lt;5 · scored at m3/m6/m9/m12 (APCs +m15–m24)
+                        </div>
+                      </Panel>
                     </div>
 
-                    <div style={{ fontSize: 12, color: "#adb5bd", textAlign: "center" }}>
-                      Select a provider from the list or click a name above to open their profile
+                    {/* ── ROW: Touchpoint Summary | Epic Productivity ── */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+
+                      {/* Touchpoint Summary */}
+                      <Panel icon="📅" title="Touchpoint Summary" sub="All providers">
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 13 }}>
+                          <div style={{ borderRadius: 8, padding: "9px 11px", textAlign: "center", background: "#fef9c3", border: "1px solid #fde68a" }}>
+                            <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1, color: "#854d0e" }}>{dueList.length}</div>
+                            <div style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", marginTop: 3, color: "#92400e" }}>Due Now</div>
+                          </div>
+                          <div style={{ borderRadius: 8, padding: "9px 11px", textAlign: "center", background: "#fee2e2", border: "1px solid #fca5a5" }}>
+                            <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1, color: "#b91c1c" }}>{overdueList.length}</div>
+                            <div style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", marginTop: 3, color: "#991b1b" }}>Overdue</div>
+                          </div>
+                          <div style={{ borderRadius: 8, padding: "9px 11px", textAlign: "center", background: "#dcfce7", border: "1px solid #86efac" }}>
+                            <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1, color: "#15803d" }}>{onTrack}</div>
+                            <div style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", marginTop: 3, color: "#166534" }}>On Track</div>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column" }}>
+                          {tpAttention.length === 0 ? (
+                            <div style={{ fontSize: 11.5, color: "#868e96", padding: "4px 0" }}>No due or overdue touchpoints.</div>
+                          ) : tpAttention.map(p => {
+                            const ov = getStatus(p.id) === "overdue";
+                            const phLabel = (MP.find(x => x.id === p.phase) || {}).label || p.phase;
+                            return (
+                              <div key={p.id} onClick={() => navigate({ selId: p.id, tab: "mentor", phase: p.phase })}
+                                style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #f4f5f7", cursor: "pointer" }}>
+                                {avatar(p.name, false)}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: 11.5, fontWeight: 600, color: "#0f1b2d" }}>{p.name}</div>
+                                  <div style={{ fontSize: 10, color: "#868e96", marginTop: 1 }}>Review · {phLabel}</div>
+                                </div>
+                                <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 999, background: ov ? "#fee2e2" : "#fef9c3", color: ov ? "#b91c1c" : "#854d0e" }}>{ov ? "Overdue" : "Due now"}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </Panel>
+
+                      {/* Epic Productivity */}
+                      <Panel icon="📈" title="Epic Productivity" sub={prodOnTrack + " / " + prodData.length + " on track"}>
+                        {/* header */}
+                        <div style={{ display: "flex", alignItems: "center", padding: "0 0 7px", borderBottom: "1.5px solid #e9ecef", marginBottom: 2 }}>
+                          <div style={{ width: 33, flexShrink: 0 }} />
+                          <div style={{ flex: 1, fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em" }}>Provider</div>
+                          {["V", "R", "I", "N", "Rf"].map(h => (
+                            <div key={h} style={{ width: 20, textAlign: "center", fontSize: 9, fontWeight: 700, color: "#adb5bd", flexShrink: 0 }}>{h}</div>
+                          ))}
+                          <div style={{ width: 30, textAlign: "right", fontSize: 9, fontWeight: 700, color: "#868e96", flexShrink: 0 }}>Track</div>
+                        </div>
+                        {prodData.map(x => {
+                          const flagged = x.sum.good <= 1;
+                          const pillColor = x.sum.good === x.sum.total ? "#15803d" : x.sum.good <= 1 ? "#dc2626" : x.sum.good >= x.sum.total - 1 ? "#16a34a" : "#d97706";
+                          return (
+                            <div key={x.p.id} onClick={() => navigate({ selId: x.p.id, tab: "prod", phase: x.p.phase })}
+                              style={{ display: "flex", alignItems: "center", padding: flagged ? "5px 5px" : "5px 0", borderBottom: "1px solid #f4f5f7", cursor: "pointer", background: flagged ? "#fff5f5" : "transparent", border: flagged ? "1px solid #fca5a5" : "none", borderRadius: flagged ? 6 : 0, margin: flagged ? "2px 0" : 0 }}>
+                              <div style={{ marginRight: 7 }}>{avatar(x.p.name, flagged)}</div>
+                              <div style={{ flex: 1, fontSize: 11, fontWeight: flagged ? 700 : 600, color: flagged ? "#b91c1c" : "#0f1b2d", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.p.name}</div>
+                              {x.dots.map(d => (
+                                <div key={d.key} style={{ width: 20, textAlign: "center", flexShrink: 0 }}>
+                                  <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: dotColor(d.color), verticalAlign: "middle" }} />
+                                </div>
+                              ))}
+                              <div style={{ width: 30, textAlign: "right", fontSize: 10, fontWeight: 700, flexShrink: 0, color: pillColor }}>{x.sum.good}/{x.sum.total}</div>
+                            </div>
+                          );
+                        })}
+                        <div style={{ display: "flex", gap: 12, marginTop: 9, paddingTop: 8, borderTop: "1px solid #f4f5f7", fontSize: 9, color: "#868e96", flexWrap: "wrap", alignItems: "center" }}>
+                          <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />On track</span>
+                          <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: "#eab308", display: "inline-block" }} />Variable</span>
+                          <span style={{ display: "flex", alignItems: "center", gap: 3 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ef4444", display: "inline-block" }} />Needs attention</span>
+                          <span style={{ marginLeft: "auto", fontStyle: "italic", color: "#adb5bd" }}>V·Volume R·RVU I·Inbox N·Note Rf·Refill</span>
+                        </div>
+                      </Panel>
+                    </div>
+
+                    <div style={{ fontSize: 12, color: "#adb5bd", textAlign: "center", marginTop: 16 }}>
+                      Select a provider from the list or a card above to open their profile
                     </div>
                   </div>
                 );
