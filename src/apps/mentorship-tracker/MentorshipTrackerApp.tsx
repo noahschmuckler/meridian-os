@@ -3565,7 +3565,7 @@ export default function App() {
           <div onClick={() => setShowProdModal(false)}
             style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(10,15,30,0.55)", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 40, paddingBottom: 40, overflowY: "auto" }}>
             <div onClick={e => e.stopPropagation()}
-              style={{ background: "#f8f9fa", borderRadius: 18, width: "min(860px, 94vw)", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", overflow: "hidden" }}>
+              style={{ background: "#f8f9fa", borderRadius: 18, width: "min(920px, 96vw)", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", overflow: "hidden" }}>
 
               {/* Header */}
               <div style={{ background: "white", borderBottom: "1px solid #e9ecef", padding: "22px 28px 18px", display: "flex", alignItems: "flex-start", gap: 16 }}>
@@ -3599,8 +3599,8 @@ export default function App() {
               <div style={{ padding: "16px 20px 24px" }}>
                 {(() => {
                   const METRIC_COL_W = 52;
-                  const METRIC_LABELS_DISPLAY = ["Pts/Day", "wRVU/wk", "Inbox", "Note", "Refill"];
-                  const colW = { avatar: 28, phase: 46, metrics: METRIC_COL_W * 5, rvu: 68, status: 72 };
+                  const METRIC_LABELS_DISPLAY = [["Pts/Day", null], ["wRVU/wk", null], ["Inbox", "Time"], ["Note", "Time"], ["Refill", "Time"]];
+                  const colW = { avatar: 28, phase: 46, metrics: METRIC_COL_W * 5, rvu: 60, status: 68 };
                   return (
                     <>
                 {/* Column headers */}
@@ -3609,12 +3609,16 @@ export default function App() {
                   <div style={{ flex: 1, minWidth: 80, fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".05em" }}>Provider</div>
                   <div style={{ width: colW.phase, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Phase</div>
                   <div style={{ width: colW.metrics, display: "flex", flexShrink: 0 }}>
-                    {PROD_METRICS.map((m, i) => (
-                      <div key={m.key} style={{ width: METRIC_COL_W, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", whiteSpace: "nowrap" }}>{METRIC_LABELS_DISPLAY[i]}</span>
-                        <span style={{ fontSize: 9, color: "#9ca3af", fontWeight: 600 }}>goal {m.goal}</span>
-                      </div>
-                    ))}
+                    {PROD_METRICS.map((m, i) => {
+                      const [top, sub] = METRIC_LABELS_DISPLAY[i];
+                      return (
+                        <div key={m.key} style={{ width: METRIC_COL_W, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", whiteSpace: "nowrap", lineHeight: 1.3 }}>{top}</span>
+                          {sub && <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", lineHeight: 1.3 }}>{sub}</span>}
+                          <span style={{ fontSize: 9, color: "#9ca3af", fontWeight: 600, marginTop: 2 }}>goal {m.goal}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                   <div style={{ width: colW.rvu, textAlign: "right", fontSize: 10, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>wRVU/wk</div>
                   <div style={{ width: colW.status, textAlign: "right", fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Status</div>
