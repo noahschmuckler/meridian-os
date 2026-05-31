@@ -1941,63 +1941,26 @@ export default function App() {
       />
 
       {/* Director dashboard tabs when no provider selected */}
-      {isDir && !selId && (
+      {isDir && !selId && (() => {
+        const flagCount = PROVS.filter(p => getStatus(p.id) !== "ok").length;
+        return (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
-          {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison Grid" }, { k: "trends", l: "Score Trends" }, { k: "notes", l: "Recent Notes" }].map(t => (
+          {[
+            { k: "roster", l: "Provider Roster" },
+            { k: "compare", l: "Comparison Grid" },
+            { k: "trends", l: "Score Trends" },
+            { k: "flags", l: flagCount > 0 ? "⚠️ Needs Attention" : "Needs Attention" },
+            { k: "notes", l: "Recent Notes" },
+          ].map(t => (
             <button key={t.k} onClick={() => { if (t.k !== mainTab) navigate({ mainTab: t.k }); }}
               style={{ padding: "12px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: mainTab === t.k ? 700 : 400, color: mainTab === t.k ? "#0f1b2d" : "#868e96", borderBottom: mainTab === t.k ? "3px solid #028090" : "3px solid transparent" }}>
               {t.l}
             </button>
           ))}
         </div>
-      )}
-
-      {/* ── NEEDS ATTENTION BANNER — full-width, roster tab only ── */}
-      {isDir && !selId && mainTab === "roster" && (() => {
-        const flagged = PROVS.map(p => {
-          const st = getStatus(p.id);
-          if (st === "ok") return null;
-          const track = isAPC(p) ? MP : MP_PHYS;
-          const curPhLabel = (track.find(x => x.id === p.phase) || {}).label || p.phase;
-          const mentor = USERS.find(u => u.id === p.mentor);
-          const scoreHistory = QP.map(qp => avgScore(qa, p.id, qp.id)).filter(s => s !== null);
-          const trending = scoreHistory.length >= 2
-            ? (scoreHistory[scoreHistory.length - 1] - scoreHistory[scoreHistory.length - 2])
-            : null;
-          const trendIcon = trending === null ? "" : trending < -0.5 ? " · score↓" : trending > 0.5 ? " · score↑" : "";
-          return { p, st, curPhLabel, mentor, trendIcon };
-        }).filter(Boolean);
-
-        if (flagged.length === 0) return null;
-        return (
-          <div style={{ background: "#fff8f0", borderBottom: "2px solid #fed7aa", padding: "12px 24px", display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 14 }}>⚠️</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#9a3412" }}>Needs Attention</span>
-              <span style={{ fontSize: 11, color: "#c2410c", background: "#fee2e2", borderRadius: 10, padding: "1px 8px", fontWeight: 700 }}>{flagged.length}</span>
-              <span style={{ fontSize: 11, color: "#c2410c", marginLeft: 2 }}>provider{flagged.length !== 1 ? "s" : ""} behind schedule — click a row to open their profile</span>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {flagged.map(({ p, st, curPhLabel, mentor, trendIcon }) => (
-                <div key={p.id} onClick={() => navigate({ uid, selId: p.id, tab: "mentor", phase: p.phase, mainTab: "roster" })}
-                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", background: "white", borderRadius: 8, border: "1px solid " + (st === "overdue" ? "#fca5a5" : "#fdba74"), cursor: "pointer", flexShrink: 0 }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#fef9f5"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "white"; }}>
-                  <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: st === "overdue" ? "#ef4444" : "#f97316", color: "white" }}>
-                    {st === "overdue" ? "LATE" : "DUE"}
-                  </span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#0f1b2d" }}>{p.name}</span>
-                  <span style={{ fontSize: 11, color: "#6b7280" }}>
-                    {curPhLabel} · Day {p.days}{trendIcon}
-                    {mentor ? <span style={{ color: "#adb5bd" }}> · {mentor.name.split(",")[0].replace("Dr. ","")}</span> : ""}
-                  </span>
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>→</span>
-                </div>
-              ))}
-            </div>
-          </div>
         );
       })()}
+
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
 
@@ -2630,6 +2593,58 @@ export default function App() {
                   </table>
                 </div>
               )}
+
+              {/* Needs Attention tab */}
+              {isDir && mainTab === "flags" && (() => {
+                const flagged = PROVS.map(p => {
+                  const st = getStatus(p.id);
+                  if (st === "ok") return null;
+                  const track = isAPC(p) ? MP : MP_PHYS;
+                  const curPhLabel = (track.find(x => x.id === p.phase) || {}).label || p.phase;
+                  const mentor = USERS.find(u => u.id === p.mentor);
+                  const scoreHistory = QP.map(qp => avgScore(qa, p.id, qp.id)).filter(s => s !== null);
+                  const trending = scoreHistory.length >= 2 ? (scoreHistory[scoreHistory.length - 1] - scoreHistory[scoreHistory.length - 2]) : null;
+                  const trendIcon = trending === null ? "" : trending < -0.5 ? " · score ↓" : trending > 0.5 ? " · score ↑" : "";
+                  return { p, st, curPhLabel, mentor, trendIcon };
+                }).filter(Boolean);
+                return (
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Needs Attention</div>
+                      {flagged.length > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 10, background: "#fee2e2", color: "#b91c1c" }}>{flagged.length} provider{flagged.length !== 1 ? "s" : ""}</span>}
+                      <span style={{ fontSize: 12, color: "#868e96", marginLeft: 4 }}>providers behind on touchpoints or overdue for a check-in</span>
+                    </div>
+                    <div style={{ padding: "16px 20px" }}>
+                      {flagged.length === 0 ? (
+                        <div style={{ padding: "24px 0", textAlign: "center", color: "#16a34a", fontSize: 13, fontWeight: 600 }}>🎉 All providers are on schedule — nothing needs attention right now.</div>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {flagged.map(({ p, st, curPhLabel, mentor, trendIcon }) => (
+                            <div key={p.id}
+                              onClick={() => navigate({ uid, selId: p.id, tab: "mentor", phase: p.phase, mainTab: "roster" })}
+                              style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: st === "overdue" ? "#fff5f5" : "#fffbeb", borderRadius: 9, border: "1px solid " + (st === "overdue" ? "#fca5a5" : "#fde68a"), cursor: "pointer" }}
+                              onMouseEnter={e => { e.currentTarget.style.filter = "brightness(0.97)"; }}
+                              onMouseLeave={e => { e.currentTarget.style.filter = ""; }}>
+                              {avatar(p.name, st === "overdue")}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
+                                <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+                                  {curPhLabel} · Day {p.days}{trendIcon}
+                                  {mentor ? <span style={{ color: "#adb5bd" }}> · {mentor.name.split(",")[0].replace("Dr. ", "")}</span> : ""}
+                                </div>
+                              </div>
+                              <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 6, background: st === "overdue" ? "#ef4444" : "#f97316", color: "white", flexShrink: 0 }}>
+                                {st === "overdue" ? "OVERDUE" : "DUE"}
+                              </span>
+                              <span style={{ fontSize: 12, color: "#9ca3af", flexShrink: 0 }}>→</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Recent notes hub */}
               {isDir && mainTab === "notes" && (
