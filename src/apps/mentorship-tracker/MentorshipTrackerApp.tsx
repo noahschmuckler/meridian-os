@@ -2753,8 +2753,8 @@ export default function App() {
                       <div onClick={() => setShowProdModal(true)}
                         style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #4f46e5", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
                         <div style={{ fontSize: 28, fontWeight: 800, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a", lineHeight: 1 }}>{prodOnTrack}<span style={{ fontSize: 16, fontWeight: 600, color: "#868e96" }}>/{prodData.length}</span></div>
-                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Productivity On Track</div>
-                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a" }}>{prodFlagged.length > 0 ? prodFlagged.length + " flagged — tap to review" : "all clear · tap to review"}</div>
+                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Trending to Goal</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a" }}>{prodFlagged.length > 0 ? prodFlagged.length + " metrics stalled — tap to review" : "all metrics improving · tap to review"}</div>
                       </div>
                       {/* On Track */}
                       <div onClick={() => setSidebarFilter(sidebarFilter === "ok" ? null : "ok")}
@@ -2895,7 +2895,7 @@ export default function App() {
                       </Panel>
 
                       {/* Epic Productivity */}
-                      <Panel icon="📈" title="Epic Productivity" sub={prodOnTrack + " / " + prodData.length + " on track"}>
+                      <Panel icon="📈" title="Epic Productivity" sub={prodOnTrack + " / " + prodData.length + " trending to goal"}>
                         {/* header */}
                         <div style={{ display: "flex", alignItems: "center", padding: "0 0 7px", borderBottom: "1.5px solid #e9ecef", marginBottom: 2 }}>
                           <div style={{ width: 33, flexShrink: 0 }} />
@@ -3186,7 +3186,7 @@ export default function App() {
                           style={{ background: prodActive ? pColor + "12" : "white", borderRadius: 10, border: "2px solid " + (prodActive ? pColor : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
                           <div style={{ fontSize: 11, color: prodActive ? pColor : "#868e96", marginBottom: 4, fontWeight: prodActive ? 700 : 400 }}>Productivity</div>
                           <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{ps.good}/{ps.total}</div>
-                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>on track · Epic</div>
+                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>trending to goal · Epic</div>
                           <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
                             <div style={{ height: "100%", width: (ps.total > 0 ? ps.good / ps.total * 100 : 0) + "%", background: pColor, borderRadius: 3 }} />
                           </div>
@@ -3571,8 +3571,8 @@ export default function App() {
               <div style={{ background: "white", borderBottom: "1px solid #e9ecef", padding: "22px 28px 18px", display: "flex", alignItems: "flex-start", gap: 16 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>⚡ Epic Productivity · Cohort View</div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: "#0f1b2d", lineHeight: 1.2 }}>Productivity On Track</div>
-                  <div style={{ fontSize: 13, color: "#868e96", marginTop: 4 }}>All five Epic metrics vs. practice benchmarks — sorted by most concern first</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#0f1b2d", lineHeight: 1.2 }}>Epic Productivity — Trending to Goal</div>
+                  <div style={{ fontSize: 13, color: "#868e96", marginTop: 4 }}>Trajectory toward practice benchmarks, not absolute standing — a provider can be trending well while still building volume</div>
                 </div>
                 <button onClick={() => setShowProdModal(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 20, color: "#adb5bd", lineHeight: 1, padding: "2px 6px", borderRadius: 6 }}>✕</button>
               </div>
@@ -3581,7 +3581,7 @@ export default function App() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, borderBottom: "1px solid #e9ecef", background: "white" }}>
                 {[
                   { label: "Providers with data", value: rows.length, color: "#0f1b2d", sub: "in this cohort" },
-                  { label: "On Track", value: onTrackCount, color: "#16a34a", sub: "≥2 metrics green" },
+                  { label: "Trending to Goal", value: onTrackCount, color: "#16a34a", sub: "≥2 metrics improving" },
                   { label: "Needs Attention", value: flaggedCount, color: flaggedCount > 0 ? "#dc2626" : "#16a34a", sub: flaggedCount > 0 ? "≤1 metric green" : "none flagged" },
                   cohortAvgRvu != null
                     ? { label: "Cohort Avg wRVU / wk", value: cohortAvgRvu, color: cohortAvgRvu >= rvuGoal * 0.97 ? "#16a34a" : cohortAvgRvu >= rvuGoal * 0.8 ? "#d97706" : "#dc2626", sub: `goal ${rvuGoal} · ${atOrAboveRvu}/${rvuRows.length} at goal` }
@@ -3635,7 +3635,7 @@ export default function App() {
                   const rowBorder = flagged ? "1px solid #fca5a5" : "1px solid #f0f1f3";
                   const statusColor = allGreen ? "#15803d" : flagged ? "#dc2626" : "#d97706";
                   const statusBg = allGreen ? "#dcfce7" : flagged ? "#fee2e2" : "#fef9c3";
-                  const statusLabel = allGreen ? "All Green" : flagged ? "Flagged" : "On Track";
+                  const statusLabel = allGreen ? "At Goal" : flagged ? "Stalled" : "Improving";
                   const rvuColor = curRvu == null ? "#adb5bd" : curRvu >= rvuGoal * 0.97 ? "#15803d" : curRvu >= rvuGoal * 0.8 ? "#d97706" : "#dc2626";
                   return (
                     <div key={p.id}
