@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Provider Briefing</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap');
+
+:root {
+  --crh-navy: #1a2744;
+  --crh-teal: #00788a;
+  --crh-gold: #d4a017;
+  --crh-coral: #c8442a;
+  --crh-sage: #5a7a5e;
+  --crh-sky: #2e7dbd;
+  --crh-lavender: #6b5b9e;
+  --crh-warm: #b05a2a;
+  --bg: #f5f3ee;
+  --card-bg: #ffffff;
+  --text: #1a2744;
+  --text-light: #5a6070;
+  --border: #d8d3c8;
+  --rule: #c8c0b0;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── ORIENTATION TOGGLE ── */
+.orientation-bar {
+  background: var(--crh-navy);
+  color: #fff;
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  gap: 12px;
+}
+.orientation-bar__left { display: flex; align-items: center; gap: 16px; }
+.orientation-bar__right { display: flex; align-items: center; gap: 16px; }
+.orientation-bar__layout-label { opacity: 0.6; }
+.orientation-bar__badge {
+  background: var(--crh-teal);
+  color: #fff;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+}
+.toggle-group { display: flex; gap: 4px; }
+.toggle-btn {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  border-radius: 3px;
+  padding: 3px 10px;
+  font-size: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.toggle-btn.active { background: var(--crh-teal); border-color: var(--crh-teal); }
+.toggle-btn:hover:not(.active) { background: rgba(255,255,255,0.25); }
+
+/* ── MAIN WRAPPER ── */
+.page-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 24px 32px;
+}
+.page-wrapper.portrait-mode { max-width: 860px; }
+
+/* ── HEADER ── */
+.masthead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--crh-navy);
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+.masthead-left { display: flex; align-items: baseline; gap: 14px; }
+.masthead-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--crh-navy);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.masthead-subtitle {
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+.masthead-meta {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: right;
+  line-height: 1.6;
+}
+.masthead-meta strong { color: var(--crh-navy); font-weight: 700; }
+
+/* ── OUTER LAYOUT ── */
+.briefing-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  align-items: stretch;
+}
+.briefing-grid.landscape .left-bubbles { flex: 0 0 200px; }
+.briefing-grid.portrait .left-bubbles { flex: 0 0 180px; }
+
+.left-bubbles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.right-side {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.top-bubbles {
+  display: flex;
+  gap: 14px;
+}
+.top-bubbles .brief-card { flex: 1; min-width: 0; }
+.briefing-grid.portrait .top-bubbles { flex-wrap: wrap; }
+.briefing-grid.portrait .top-bubbles .brief-card { flex: 1 1 calc(50% - 7px); }
+.briefing-grid.portrait .top-bubbles .brief-card:nth-child(3) { flex-basis: 100%; }
+
+/* ── BRIEFING CARDS ── */
+.brief-card {
+  border-radius: 12px;
+  padding: 14px 16px;
+  position: relative;
+  cursor: default;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.brief-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+
+.left-bubbles .brief-card { min-height: 100px; }
+.top-bubble { min-height: 90px; }
+
+.brief-card-icon {
+  font-size: 22px;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.brief-card-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 15px;
+  line-height: 1.2;
+  margin-bottom: 5px;
+  color: #fff;
+}
+.brief-card-body {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.88);
+  font-weight: 300;
+  white-space: pre-wrap;
+}
+.brief-card-tag {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: #fff;
+}
+
+.brief-card-teal     { background: var(--crh-teal); }
+.brief-card-coral    { background: var(--crh-coral); }
+.brief-card-gold     { background: var(--crh-gold); color: #2a1a00; }
+.brief-card-gold .brief-card-headline { color: #2a1a00; }
+.brief-card-gold .brief-card-body     { color: rgba(42,26,0,0.8); }
+.brief-card-gold .brief-card-tag      { background: rgba(0,0,0,0.12); color: #2a1a00; }
+.brief-card-sky      { background: var(--crh-sky); }
+.brief-card-sage     { background: var(--crh-sage); }
+.brief-card-lavender { background: var(--crh-lavender); }
+.brief-card-warm     { background: var(--crh-warm); }
+
+/* ── PROJECTS PANEL ── */
+.projects-panel {
+  flex: 1 1 auto;
+  background: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.panel-header {
+  background: var(--crh-navy);
+  color: #fff;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+}
+.panel-header-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.projects-table {
+  flex: 1;
+  overflow-y: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+thead th {
+  background: #f0ede6;
+  padding: 7px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+}
+thead th:first-child { width: 28%; }
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #f8f6f1; }
+
+td {
+  padding: 9px 14px;
+  vertical-align: top;
+  line-height: 1.45;
+}
+td:first-child {
+  font-weight: 700;
+  color: var(--crh-navy);
+  font-size: 11.5px;
+}
+td:first-child .initiative-tag {
+  display: block;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-light);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+td:last-child { color: var(--text-light); font-size: 11.5px; white-space: pre-wrap; }
+td .status-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.dot-green  { background: #3aaa60; }
+.dot-yellow { background: #d4a017; }
+.dot-blue   { background: #2e7dbd; }
+.dot-purple { background: #6b5b9e; }
+
+/* Detail view (panel-fill) */
+.panel-back-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #fff;
+  font-family: 'DM Serif Display', serif;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+.panel-back-btn:hover { opacity: 1; }
+.projects-detail {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.detail-meta { display: flex; flex-direction: column; gap: 4px; }
+.detail-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: var(--crh-navy);
+  line-height: 1.2;
+}
+.detail-status {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.detail-status strong { color: var(--text); font-weight: 700; }
+.detail-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.expand-card {
+  background: #fff;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  padding: 11px 13px;
+  flex: 1 1 180px;
+  min-width: 0;
+  word-wrap: break-word;
+}
+.expand-card-title {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-light);
+  margin-bottom: 5px;
+}
+.expand-card-body { font-size: 11.5px; color: var(--text); line-height: 1.5; white-space: pre-wrap; }
+
+/* ── FOOTER ── */
+.page-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+  border-top: 1px solid var(--rule);
+  padding-top: 10px;
+}
+.footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+.footer-links a {
+  color: var(--crh-teal);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+.footer-links a:hover { text-decoration: underline; }
+.footer-meta { display: flex; gap: 12px; align-items: center; }
+.print-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+  transition: border-color 0.15s, color 0.15s;
+}
+.print-btn:hover { border-color: var(--crh-navy); color: var(--crh-navy); }
+
+/* ── LOAD / ERROR STATES ── */
+.briefing-status {
+  padding: 60px 40px;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-light);
+  max-width: 720px;
+  margin: 0 auto;
+}
+.briefing-status--error h2 {
+  margin: 0 0 8px;
+  color: var(--crh-coral);
+  font-family: 'DM Serif Display', serif;
+}
+.briefing-status--error p { margin: 4px 0; }
+.briefing-status--error code {
+  background: #f0ede6;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+/* ── PRINT ── */
+@media print {
+  .orientation-bar, .print-btn { display: none !important; }
+  html, body { background: #fff; }
+  .brief-card, .panel-header, thead th {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page-wrapper { padding: 12px; max-width: 100% !important; }
+  @page { margin: 0.5in; }
+}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="briefing-status">Loading briefing…</div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================================
+   CONFIGURATION — EDIT THESE TWO BLOCKS FOR YOUR SHAREPOINT TENANT.
+   ============================================================================ */
+
+/* The URL of the SharePoint site that hosts the lists. NO trailing slash.
+   Example: "https://contoso.sharepoint.com/sites/regionalops"
+   If this file is loaded from inside the same SharePoint site, you can also
+   set this to "" (empty string) and the renderer will use the current site. */
+const SITE_URL = "";
+
+/* The list titles, exactly as they appear in SharePoint. */
+const LIST_TITLES = {
+  issue:        "Briefing-Issue",
+  left:         "Briefing-LeftAdvisories",
+  top:          "Briefing-TopEvents",
+  initiatives:  "Briefing-Initiatives",
+  footer:       "Briefing-FooterLinks",
+};
+
+/* The internal names of the columns on those lists. If your admin created
+   columns with spaces (so internal names became "Status_x0020_Lead" etc.),
+   replace the values on the right-hand side. The keys on the left are
+   referenced by the renderer and should NOT be renamed. */
+const COLUMN_NAMES = {
+  Title:                "Title",
+  Body:                 "Body",
+  Tag:                  "Tag",
+  Tint:                 "Tint",
+  Icon:                 "Icon",
+  Order:                "Order0",
+  IsActive:             "IsActive",
+  Volume:               "Volume",
+  Issue:                "Issue",
+  Distribution:         "Distribution",
+  Dot:                  "Dot",
+  StatusLead:           "StatusLead",
+  StatusBody:           "StatusBody",
+  WhyThisMatters:       "WhyThisMatters",
+  HowItAffectsWorkflow: "HowItAffectsWorkflow",
+  WhatYouNeedToDo:      "WhatYouNeedToDo",
+  URL:                  "URL",
+};
+
+/* ============================================================================
+   END CONFIGURATION — no edits needed below this line.
+   ============================================================================ */
+
+const ALLOWED_LEFT_TINTS = ["teal", "coral", "sage", "lavender"];
+const ALLOWED_TOP_TINTS  = ["sky", "gold", "warm"];
+const ALLOWED_DOTS       = ["green", "yellow", "blue", "purple"];
+
+const state = {
+  layout: "landscape",     // "landscape" | "portrait"
+  expandedId: null,        // SharePoint list-item Id, or null
+  data: null,              // { issue, left, top, initiatives, footer }
+};
+
+/* ---------- helpers ---------- */
+
+function esc(s) {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function safeChoice(value, allowed, fallback) {
+  return allowed.indexOf(value) >= 0 ? value : fallback;
+}
+
+function siteRoot() {
+  if (SITE_URL && SITE_URL.length) return SITE_URL.replace(/\/+$/, "");
+  // Same-site fallback: derive from current URL up to and including /sites/<name>
+  const m = window.location.pathname.match(/^(\/sites\/[^\/]+|\/teams\/[^\/]+)/i);
+  return window.location.origin + (m ? m[1] : "");
+}
+
+/* ---------- SharePoint REST fetch ---------- */
+
+async function getItems(listTitle, opts) {
+  opts = opts || {};
+  const orderCol = opts.orderBy || COLUMN_NAMES.Order;
+  const orderDir = opts.orderDir || "asc";
+  const filter = opts.skipActiveFilter
+    ? ""
+    : `&$filter=${COLUMN_NAMES.IsActive} eq 1`;
+  const url = `${siteRoot()}/_api/web/lists/getbytitle('${encodeURIComponent(listTitle)}')` +
+              `/items?$orderby=${orderCol} ${orderDir}${filter}&$top=500`;
+  const res = await fetch(url, {
+    headers: { "Accept": "application/json;odata=verbose" },
+    credentials: "same-origin",
+  });
+  if (!res.ok) {
+    let detail = "";
+    try { detail = (await res.text()).slice(0, 200); } catch (e) {}
+    throw new Error(`HTTP ${res.status} on list "${listTitle}". ${detail}`);
+  }
+  const json = await res.json();
+  return (json && json.d && json.d.results) || [];
+}
+
+/* ---------- rendering ---------- */
+
+function renderMastheadMeta(issue) {
+  const dateLabel    = issue[COLUMN_NAMES.Title] || "";
+  const volume       = issue[COLUMN_NAMES.Volume] || "";
+  const issueNum     = issue[COLUMN_NAMES.Issue] || "";
+  const distribution = issue[COLUMN_NAMES.Distribution] || "";
+  const lineTwoParts = [];
+  if (volume)       lineTwoParts.push(volume);
+  if (issueNum)     lineTwoParts.push(issueNum);
+  if (distribution) lineTwoParts.push("Distribution: " + distribution);
+  const lines = [];
+  if (dateLabel) lines.push(`<strong>${esc(dateLabel)}</strong>`);
+  if (lineTwoParts.length) lines.push(esc(lineTwoParts.join(" · ")));
+  return lines.join("<br>");
+}
+
+function renderLeftCard(b) {
+  const tint = safeChoice(b[COLUMN_NAMES.Tint], ALLOWED_LEFT_TINTS, "teal");
+  return `
+    <div class="brief-card brief-card-${tint}">
+      ${b[COLUMN_NAMES.Icon] ? `<div class="brief-card-icon">${esc(b[COLUMN_NAMES.Icon])}</div>` : ""}
+      <div class="brief-card-headline">${esc(b[COLUMN_NAMES.Title] || "")}</div>
+      <div class="brief-card-body">${esc(b[COLUMN_NAMES.Body] || "")}</div>
+      ${b[COLUMN_NAMES.Tag] ? `<span class="brief-card-tag">${esc(b[COLUMN_NAMES.Tag])}</span>` : ""}
+    </div>`;
+}
+
+function renderTopCard(b) {
+  const tint = safeChoice(b[COLUMN_NAMES.Tint], ALLOWED_TOP_TINTS, "sky");
+  return `
+    <div class="brief-card brief-card-${tint} top-bubble">
+      ${b[COLUMN_NAMES.Icon] ? `<div class="brief-card-icon">${esc(b[COLUMN_NAMES.Icon])}</div>` : ""}
+      <div class="brief-card-headline">${esc(b[COLUMN_NAMES.Title] || "")}</div>
+      <div class="brief-card-body">${esc(b[COLUMN_NAMES.Body] || "")}</div>
+      ${b[COLUMN_NAMES.Tag] ? `<span class="brief-card-tag">${esc(b[COLUMN_NAMES.Tag])}</span>` : ""}
+    </div>`;
+}
+
+function renderInitiativeRow(it) {
+  const id  = String(it.Id);
+  const dot = safeChoice(it[COLUMN_NAMES.Dot], ALLOWED_DOTS, "blue");
+  const lead = it[COLUMN_NAMES.StatusLead] || "";
+  const body = it[COLUMN_NAMES.StatusBody] || "";
+  return `
+    <tr data-init-id="${esc(id)}">
+      <td>
+        ${esc(it[COLUMN_NAMES.Title] || "")}
+        ${it[COLUMN_NAMES.Tag] ? `<span class="initiative-tag">${esc(it[COLUMN_NAMES.Tag])}</span>` : ""}
+      </td>
+      <td>
+        <span class="status-dot dot-${dot}"></span><strong>${esc(lead)}</strong>${esc(" " + body)}
+      </td>
+    </tr>`;
+}
+
+function renderInitiativeDetail(it) {
+  const dot  = safeChoice(it[COLUMN_NAMES.Dot], ALLOWED_DOTS, "blue");
+  const lead = it[COLUMN_NAMES.StatusLead] || "";
+  const body = it[COLUMN_NAMES.StatusBody] || "";
+  return `
+    <div class="panel-header">
+      <button type="button" class="panel-back-btn" id="panel-back">‹ Active Initiatives</button>
+      <div class="panel-header-sub">${esc(it[COLUMN_NAMES.Tag] || "")}</div>
+    </div>
+    <div class="projects-detail">
+      <div class="detail-meta">
+        <div class="detail-title">${esc(it[COLUMN_NAMES.Title] || "")}</div>
+        <div class="detail-status">
+          <span class="status-dot dot-${dot}"></span><strong>${esc(lead)}</strong>${esc(" " + body)}
+        </div>
+      </div>
+      <div class="detail-cards">
+        <div class="expand-card">
+          <div class="expand-card-title">Why This Matters</div>
+          <div class="expand-card-body">${esc(it[COLUMN_NAMES.WhyThisMatters] || "")}</div>
+        </div>
+        <div class="expand-card">
+          <div class="expand-card-title">How It Affects Your Workflow</div>
+          <div class="expand-card-body">${esc(it[COLUMN_NAMES.HowItAffectsWorkflow] || "")}</div>
+        </div>
+        <div class="expand-card">
+          <div class="expand-card-title">What You Need To Do</div>
+          <div class="expand-card-body">${esc(it[COLUMN_NAMES.WhatYouNeedToDo] || "")}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderFooterLink(f) {
+  const urlVal = f[COLUMN_NAMES.URL];
+  // Hyperlink columns return { Url, Description } in odata=verbose
+  const url = (urlVal && typeof urlVal === "object" && urlVal.Url) ? urlVal.Url : (urlVal || "#");
+  return `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(f[COLUMN_NAMES.Title] || "")}</a>`;
+}
+
+function paint() {
+  const { data, layout, expandedId } = state;
+  if (!data) return;
+
+  let panelHtml;
+  if (expandedId == null) {
+    const rowsHtml = data.initiatives.map(renderInitiativeRow).join("");
+    panelHtml = `
+      <div class="panel-header">
+        <div class="panel-header-title">Active Initiatives &amp; Projects</div>
+        <div class="panel-header-sub">Click any row for details →</div>
+      </div>
+      <div class="projects-table">
+        <table>
+          <thead>
+            <tr><th>Initiative</th><th>Current Status &amp; Provider Action</th></tr>
+          </thead>
+          <tbody id="init-tbody">${rowsHtml}</tbody>
+        </table>
+      </div>`;
+  } else {
+    const it = data.initiatives.find(i => String(i.Id) === String(expandedId));
+    if (!it) {
+      state.expandedId = null;
+      paint();
+      return;
+    }
+    panelHtml = renderInitiativeDetail(it);
+  }
+
+  document.getElementById("root").innerHTML = `
+    <div class="orientation-bar">
+      <div class="orientation-bar__left">
+        <span class="orientation-bar__badge">Meridian</span>
+        <span>Crystal Run Healthcare · Primary &amp; Urgent Care · Provider Briefing</span>
+      </div>
+      <div class="orientation-bar__right">
+        <span class="orientation-bar__layout-label">Layout:</span>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn ${layout === "landscape" ? "active" : ""}" data-layout="landscape">Landscape</button>
+          <button type="button" class="toggle-btn ${layout === "portrait" ? "active" : ""}" data-layout="portrait">Portrait</button>
+        </div>
+      </div>
+    </div>
+    <div class="page-wrapper ${layout === "portrait" ? "portrait-mode" : ""}">
+      <div class="masthead">
+        <div class="masthead-left">
+          <div class="masthead-title">Provider Briefing</div>
+          <div class="masthead-subtitle">Primary &amp; Urgent Care · Optum NY/NJ</div>
+        </div>
+        <div class="masthead-meta">${renderMastheadMeta(data.issue)}</div>
+      </div>
+      <div class="briefing-grid ${layout}">
+        <div class="left-bubbles">${data.left.map(renderLeftCard).join("")}</div>
+        <div class="right-side">
+          <div class="top-bubbles">${data.top.map(renderTopCard).join("")}</div>
+          <div class="projects-panel">${panelHtml}</div>
+        </div>
+      </div>
+      <div class="page-footer">
+        <div class="footer-links">${data.footer.map(renderFooterLink).join("")}</div>
+        <div class="footer-meta">
+          <span>Medical Director, Primary &amp; Urgent Care · Crystal Run Healthcare · Optum NY/NJ</span>
+          <button type="button" class="print-btn" id="print-btn">🖨 Print</button>
+        </div>
+      </div>
+    </div>`;
+
+  // ---------- wire interaction handlers ----------
+  document.querySelectorAll("[data-layout]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.layout = btn.dataset.layout;
+      paint();
+    });
+  });
+  const tbody = document.getElementById("init-tbody");
+  if (tbody) {
+    tbody.addEventListener("click", e => {
+      const tr = e.target.closest("tr[data-init-id]");
+      if (tr) { state.expandedId = tr.dataset.initId; paint(); }
+    });
+  }
+  const backBtn = document.getElementById("panel-back");
+  if (backBtn) backBtn.addEventListener("click", () => { state.expandedId = null; paint(); });
+  const printBtn = document.getElementById("print-btn");
+  if (printBtn) printBtn.addEventListener("click", () => window.print());
+}
+
+/* ---------- init ---------- */
+
+async function init() {
+  const [issueList, left, top, initiatives, footer] = await Promise.all([
+    getItems(LIST_TITLES.issue,        { orderBy: "Modified", orderDir: "desc" }),
+    getItems(LIST_TITLES.left),
+    getItems(LIST_TITLES.top),
+    getItems(LIST_TITLES.initiatives),
+    getItems(LIST_TITLES.footer),
+  ]);
+  state.data = {
+    issue:        issueList[0] || {},
+    left:         left,
+    top:          top,
+    initiatives:  initiatives,
+    footer:       footer,
+  };
+  paint();
+}
+
+init().catch(err => {
+  console.error("Briefing load failed:", err);
+  document.getElementById("root").innerHTML = `
+    <div class="briefing-status briefing-status--error">
+      <h2>Couldn't load briefing</h2>
+      <p>${esc(err.message)}</p>
+      <p>Common causes:</p>
+      <ul style="text-align: left; display: inline-block;">
+        <li><code>SITE_URL</code> in <code>briefing.html</code> doesn't match the site that hosts the lists.</li>
+        <li>List names in <code>LIST_TITLES</code> don't match the actual SharePoint list titles.</li>
+        <li>Column internal names don't match <code>COLUMN_NAMES</code> — see the spec doc's "Adapting to existing column names" section.</li>
+        <li>Your SharePoint session has timed out — refresh the page.</li>
+      </ul>
+      <p>Open browser dev tools (F12) → Console for the full request URL and response.</p>
+    </div>`;
+});
+</script>
+</body>
+</html>
