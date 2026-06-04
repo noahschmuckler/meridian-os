@@ -109,7 +109,8 @@ export default function CulturePanel({ prov, qa, apc }) {
       <div style={{ marginBottom: 16, padding: "13px 16px", background: vBg, border: `1px solid ${vBorder}`, borderRadius: 10 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 5 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: vColor, textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-            Culture Integration Index
+            <span style={{ fontSize: 13, fontWeight: 800 }}>C.I.I.</span>
+            <span style={{ display: "block", fontSize: 9, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginTop: 1, marginBottom: 4 }}>Culture Integration Index</span>
             {overall !== null && (
               <span style={{ marginLeft: 8 }}>
                 {overall.toFixed(1)} / 10 &nbsp;·&nbsp; {bandLabel(overall)}
@@ -139,7 +140,7 @@ export default function CulturePanel({ prov, qa, apc }) {
       {answered.length >= 1 && (
         <div style={{ marginBottom: 16, background: "white", borderRadius: 10, border: "1px solid #e9ecef", padding: "14px 16px 4px" }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: "#6b7280", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 8 }}>
-            CII Trend — All Checkpoints
+            C.I.I. Trend — All Checkpoints
           </div>
           <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: "block", overflow: "visible" }}>
             <defs>
