@@ -14,6 +14,10 @@ dist-ssr
 *.local
 meridian-os-saw.zip
 
+# Claude Code local (per-machine) state — keep out of the repo
+.claude/settings.local.json
+.claude/*.lock
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

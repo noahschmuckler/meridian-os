@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import masterChecklist from "../../data/seed/mentorship-master-checklist.json";
 import { focusEpicReferenceEntry } from "../../data/epicReferenceFocus";
 import { setLauncherApp } from "../../data/launcherState";
-import ProductivityPanel, { hasProductivity, prodSummary, prodMetricDots } from "./ProductivityPanel";
+import ProductivityPanel, { hasProductivity, prodSummary, prodMetricDots, PROD_SERIES, PROD_METRICS } from "./ProductivityPanel";
 import CulturePanel from "./CulturePanel";
 
 /* ─── Medical Director Curriculum (62 items from master checklist, see analysis/) ─── */
@@ -412,54 +412,73 @@ const USERS = [
   {id:"mt3",name:"M. Torres, NP",role:"mentor"},
 ];
 const SEED_PROVS = [
-  // Physician providers — Dr. Smith's panel
-  {id:"p1",name:"Dr. Johnson",   role:"MD", mentor:"mt1", phase:"w7",  days:110},
-  {id:"p2",name:"Dr. Patel",     role:"DO", mentor:"mt1", phase:"m3",  days:87},
-  {id:"p7",name:"Dr. Hassan",    role:"DO", mentor:"mt1", phase:"w3",  days:65},
-  // Physician providers — Dr. Lee's panel
-  {id:"p3",name:"Dr. Williams",  role:"MD", mentor:"mt2", phase:"w7",  days:52},
-  {id:"p4",name:"Dr. Garcia",    role:"DO", mentor:"mt2", phase:"w5",  days:38},
-  {id:"p6",name:"Dr. Park",      role:"MD", mentor:"mt2", phase:"w3",  days:22},
-  // APC providers — M. Torres panel
-  {id:"p5",name:"A. Martinez, NP",role:"NP",mentor:"mt1", phase:"m18", days:545},
-  {id:"p8",name:"R. Okafor, PA", role:"PA", mentor:"mt3", phase:"w7",  days:52},
-  {id:"p9",name:"T. Singh, NP",  role:"NP", mentor:"mt3", phase:"m6",  days:182},
+  // Dr. Smith's panel — physicians
+  {id:"p1",name:"Dr. Elena Vasquez",         role:"MD", mentor:"mt1", phase:"w1",  days:9},
+  {id:"p5",name:"Dr. Ananya Krishnamurthy",  role:"MD", mentor:"mt1", phase:"w3",  days:26},
+  {id:"p2",name:"Dr. James Okonkwo",         role:"DO", mentor:"mt1", phase:"m3",  days:180},  // ⚠️ OVERDUE — day 180 but still at m3
+  // Dr. Lee's panel — physicians
+  {id:"p3",name:"Dr. Sarah Brennan",         role:"MD", mentor:"mt2", phase:"w6",  days:56},   // ⚠️ DUE — day 56 but still at w6
+  {id:"p4",name:"Dr. Michael Chen",          role:"DO", mentor:"mt2", phase:"m6",  days:188},
+  {id:"p6",name:"Dr. Robert Hargrove",       role:"MD", mentor:"mt2", phase:"m9",  days:276},
+  // M. Torres panel — APCs
+  {id:"p8",name:"B. Nguyen, PA",             role:"PA", mentor:"mt3", phase:"m3",  days:91},
+  {id:"p9",name:"L. Ferreira, NP",           role:"NP", mentor:"mt3", phase:"m9",  days:273},
+  {id:"p7",name:"C. Obi, NP",               role:"NP", mentor:"mt3", phase:"m18", days:549},
 ];
 let PROVS = SEED_PROVS;
+
+/* ─── Shared UI helpers (module-level so they're in scope for modals) ─── */
+const initialsOf = (name: string) => name.split(/[\s.,]+/).filter(Boolean).slice(0, 2).map((s: string) => s[0]).join("").toUpperCase();
+const dotColor = (c: string) => c === "green" ? "#22c55e" : c === "amber" ? "#eab308" : c === "red" ? "#ef4444" : "#d1d5db";
+const avatar = (name: string, red: boolean) => (
+  <div style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9.5, fontWeight: 700, background: red ? "rgba(239,68,68,0.10)" : "rgba(2,128,144,0.10)", color: red ? "#dc2626" : "#028090" }}>{initialsOf(name)}</div>
+);
 
 /* ─── Seed Data ─── */
 function makeSeedChecks() {
   const c = {};
+  // MD curriculum — all items completed for every provider
+  MD_ITEMS.forEach(item => { SEED_PROVS.forEach(p => { c[p.id + ".md." + item.id] = true; }); });
   const fill = (pid, ids) => {
     ids.forEach(phid => {
       const ph = MP.find(x => x.id === phid);
       if (ph) ph.items.forEach((_, i) => { c[pid + "." + phid + "." + i] = true; });
     });
   };
-  fill("p1", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3"]);
-  fill("p2", ["w0","w1","w2","w3","m1","w5","w6","w7","m2"]);
+  // p1 Vasquez  — w1,  day 9
+  fill("p1", ["w0","w1"]);
+  // p5 Krishnamurthy — w3, day 26
+  fill("p5", ["w0","w1","w2","w3"]);
+  // p2 Okonkwo — m3, day 94
+  fill("p2", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3"]);
+  // p3 Brennan — w6, day 47
   fill("p3", ["w0","w1","w2","w3","m1","w5","w6"]);
-  fill("p4", ["w0","w1","w2","w3","m1"]);
-  fill("p5", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9","m12","m15"]);
-  fill("p6", ["w0","w1","w2"]);
-  fill("p7", ["w0","w1","w2","w3","m1","w5","w6"]);
-  fill("p8", ["w0","w1","w2","w3","m1","w5","w6"]);
-  fill("p9", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5"]);
+  // p4 Chen — m6, day 188
+  fill("p4", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6"]);
+  // p6 Hargrove — m9, day 276  (culturally isolated MD — still completes curriculum)
+  fill("p6", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9"]);
+  // p8 Nguyen PA — m3, day 91  (culturally struggling PA)
+  fill("p8", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3"]);
+  // p9 Ferreira NP — m9, day 273
+  fill("p9", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9"]);
+  // p7 Obi NP — m18, day 549
+  fill("p7", ["w0","w1","w2","w3","m1","w5","w6","w7","m2","m3","m4","m5","m6","m7","m8","m9","m12","m15","m18"]);
   return c;
 }
 
 function makeSeedQA() {
   const qa = {};
+  // Mentor questionnaire scores — all well-intentioned, solid trajectory
   const scores = {
-    p1:{w0:7,w1:5,w2:6,w3:7,m1:7,w5:4,w6:7,w7:8,m2:8,m3:9},
-    p2:{w0:7,w1:6,w2:6,w3:7,m1:7,w5:4,w6:7,w7:7,m2:8},
-    p3:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5,w6:7},
-    p4:{w0:7,w1:5,w2:6,w3:6,m1:7,w5:5},
-    p5:{w0:7,w1:7,w2:7,w3:8,m1:8,w5:7,w6:8,w7:8,m2:8,m3:9,m4:8,m5:8,m6:9,m7:8,m8:8,m9:8,m12:9,m15:8},
-    p6:{w0:8,w1:7,w2:8},
-    p7:{w0:6,w1:5,w2:5,w3:6,m1:6,w5:5,w6:6},
-    p8:{w0:7,w1:7,w2:8,w3:7,m1:8,w5:7,w6:8},
-    p9:{w0:8,w1:8,w2:8,w3:9,m1:8,w5:8,w6:9,w7:9,m2:9,m3:9,m4:8,m5:9},
+    p1:{w0:8,w1:8},
+    p5:{w0:8,w1:8,w2:8,w3:8},
+    p2:{w0:8,w1:7,w2:7,w3:8,m1:8,w5:7,w6:8,w7:8,m2:8,m3:9},
+    p3:{w0:8,w1:7,w2:7,w3:8,m1:8,w5:8,w6:8},
+    p4:{w0:8,w1:7,w2:7,w3:8,m1:8,w5:8,w6:8,w7:8,m2:8,m3:5,m4:7,m5:8,m6:5},  // month-3 & month-6 wall before recovery
+    p6:{w0:7,w1:6,w2:6,w3:7,m1:7,w5:6,w6:7,w7:7,m2:7,m3:4,m4:5,m5:6,m6:4,m7:7,m8:6,m9:6},  // dips at m3+m6 alongside p4
+    p8:{w0:7,w1:6,w2:6,w3:6,m1:6,w5:5,w6:6,w7:6,m2:6,m3:4},  // month-3 wall — 3rd provider below 6 at m3
+    p9:{w0:8,w1:8,w2:8,w3:9,m1:8,w5:8,w6:9,w7:9,m2:9,m3:9,m4:8,m5:9,m6:9,m7:8,m8:8,m9:9},
+    p7:{w0:9,w1:8,w2:8,w3:9,m1:8,w5:8,w6:9,w7:9,m2:9,m3:9,m4:9,m5:9,m6:9,m7:9,m8:9,m9:9,m12:9,m15:9,m18:9},
   };
   Object.entries(scores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
@@ -467,32 +486,47 @@ function makeSeedQA() {
       if (qp) qp.qs.forEach(q => { qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Demo response"; });
     });
   });
-  const omScores = {p1:{om1:7,om2:8,om3:9},p2:{om1:6,om2:7},p3:{om1:5},p5:{om1:8,om2:8,om3:9,om6:8},p7:{om1:5},p8:{om1:7},p9:{om1:8,om2:9,om3:9}};
+  // OM scores — generally positive; lower for the two culturally struggling providers
+  const omScores = {
+    p2:{om1:8,om2:8,om3:9},
+    p4:{om1:8,om2:8,om3:8,om6:8},
+    p6:{om1:5,om2:5,om3:5,om6:5},  // Hargrove — OM notices the friction
+    p8:{om1:4,om2:4,om3:5},        // Nguyen — OM flagging concern
+    p9:{om1:8,om2:9,om3:9,om6:8},
+    p7:{om1:9,om2:9,om3:9,om6:9},
+  };
   Object.entries(omScores).forEach(([pid, phases]) => {
     Object.entries(phases).forEach(([phid, avg]) => {
       const op = OP.find(x => x.id === phid);
       if (op) op.qs.forEach(q => {
-        qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : "Seems to be adjusting well. Mentioned Epic is taking some getting used to but overall positive.";
+        qa[pid + "." + phid + "." + q.qid] = q.ty === "s" ? String(avg) : (avg >= 7 ? "Settling in well, good rapport with staff." : "Seems a bit withdrawn — not connecting with the team as hoped.");
       });
     });
   });
-  // CII stress-test seed: p1 = full 3-phase trend (green→pink→green), p2 = single low point (red),
-  // p3/p4 = no CII data. Scores are intentionally distinct from clinical avg to verify independence.
+  // CII scores — high for most; p6 Hargrove (MD) and p8 Nguyen (PA) are the two at-risk outliers
   const ciiScores = {
-    "p1.m3.ci1":"8","p1.m3.ci2":"9","p1.m3.ci3":"7","p1.m3.ci4":"6",
-    "p1.m6.ci1":"5","p1.m6.ci2":"6","p1.m6.ci3":"5","p1.m6.ci4":"5",
-    "p1.m12.ci1":"9","p1.m12.ci2":"8","p1.m12.ci3":"9","p1.m12.ci4":"8",
-    "p2.m3.ci1":"3","p2.m3.ci2":"4","p2.m3.ci3":"3","p2.m3.ci4":"4",
-    "p3.m3.ci1":"5","p3.m3.ci2":"6","p3.m3.ci3":"5","p3.m3.ci4":"5",
-    // p1 m9 — recovering trend after m6 dip
-    "p1.m9.ci1":"7","p1.m9.ci2":"7","p1.m9.ci3":"8","p1.m9.ci4":"7",
-    "p5.m3.ci1":"8","p5.m3.ci2":"8","p5.m3.ci3":"9","p5.m3.ci4":"8",
-    "p5.m6.ci1":"8","p5.m6.ci2":"9","p5.m6.ci3":"8","p5.m6.ci4":"8",
-    "p5.m9.ci1":"9","p5.m9.ci2":"8","p5.m9.ci3":"9","p5.m9.ci4":"9",
-    "p5.m12.ci1":"9","p5.m12.ci2":"9","p5.m12.ci3":"9","p5.m12.ci4":"8",
-    // p5 APC extended phases — consistently high integration
-    "p5.m15.ci1":"9","p5.m15.ci2":"9","p5.m15.ci3":"8","p5.m15.ci4":"9",
-    "p5.m18.ci1":"9","p5.m18.ci2":"9","p5.m18.ci3":"9","p5.m18.ci4":"8",
+    // p2 Okonkwo — thriving at m3
+    "p2.m3.ci1":"9","p2.m3.ci2":"8","p2.m3.ci3":"9","p2.m3.ci4":"8",
+    // p4 Chen — strong at m3 and m6
+    "p4.m3.ci1":"8","p4.m3.ci2":"9","p4.m3.ci3":"8","p4.m3.ci4":"8",
+    "p4.m6.ci1":"9","p4.m6.ci2":"9","p4.m6.ci3":"8","p4.m6.ci4":"9",
+    // p6 Hargrove — culturally isolated MD; low across all checkpoints
+    "p6.m3.ci1":"4","p6.m3.ci2":"3","p6.m3.ci3":"4","p6.m3.ci4":"3",
+    "p6.m6.ci1":"3","p6.m6.ci2":"3","p6.m6.ci3":"4","p6.m6.ci4":"3",
+    "p6.m9.ci1":"3","p6.m9.ci2":"4","p6.m9.ci3":"3","p6.m9.ci4":"3",
+    // p8 Nguyen — culturally struggling PA; low at m3
+    "p8.m3.ci1":"3","p8.m3.ci2":"4","p8.m3.ci3":"3","p8.m3.ci4":"4",
+    // p9 Ferreira — thriving NP across m3/m6/m9
+    "p9.m3.ci1":"8","p9.m3.ci2":"9","p9.m3.ci3":"8","p9.m3.ci4":"8",
+    "p9.m6.ci1":"9","p9.m6.ci2":"8","p9.m6.ci3":"9","p9.m6.ci4":"8",
+    "p9.m9.ci1":"9","p9.m9.ci2":"9","p9.m9.ci3":"8","p9.m9.ci4":"9",
+    // p7 Obi — exemplary NP, high scores through m18
+    "p7.m3.ci1":"9","p7.m3.ci2":"9","p7.m3.ci3":"8","p7.m3.ci4":"9",
+    "p7.m6.ci1":"9","p7.m6.ci2":"9","p7.m6.ci3":"9","p7.m6.ci4":"8",
+    "p7.m9.ci1":"9","p7.m9.ci2":"9","p7.m9.ci3":"9","p7.m9.ci4":"9",
+    "p7.m12.ci1":"9","p7.m12.ci2":"9","p7.m12.ci3":"9","p7.m12.ci4":"9",
+    "p7.m15.ci1":"9","p7.m15.ci2":"9","p7.m15.ci3":"9","p7.m15.ci4":"8",
+    "p7.m18.ci1":"9","p7.m18.ci2":"9","p7.m18.ci3":"9","p7.m18.ci4":"9",
   };
   Object.assign(qa, ciiScores);
   return qa;
@@ -1428,6 +1462,9 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [saveFlash, setSaveFlash] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showProdModal, setShowProdModal] = useState(false);
+  const [showProdKey, setShowProdKey] = useState(false);
+  const [showCiiModal, setShowCiiModal] = useState(false);
   const firstSaveRef = useRef(true);
 
   // Read localStorage once at mount to seed initial state
@@ -1841,26 +1878,26 @@ export default function App() {
   return (
     <div style={{ background: "#f1f3f5", minHeight: "100vh", fontFamily: "system-ui, sans-serif", color: "#1c2b3a", display: "flex", flexDirection: "column" }}>
 
-      {/* Go Back pill — fixed below the "meridian" launcher chevron */}
-      {canGoBack && (
-        <button
-          onClick={goBack}
-          style={{ position: "fixed", top: 62, left: 22, zIndex: 1000, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px 6px 10px", border: "1px solid rgba(15,30,22,0.12)", borderRadius: 999, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: 14, fontWeight: 500, letterSpacing: "0.08em", textTransform: "lowercase", background: "rgba(255,255,255,0.92)", color: "#1c2b3a", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: "0 1px 2px rgba(0,0,0,0.10), 0 6px 18px rgba(0,0,0,0.12), 0 16px 36px rgba(0,0,0,0.10)", transition: "background 120ms ease-out, transform 120ms ease-out" }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateX(-2px)"; (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,1)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = ""; (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.92)"; }}
-        >
-          <span style={{ fontSize: 22, fontWeight: 300, lineHeight: 1, marginTop: -2 }}>‹</span>
-          <span>back</span>
-        </button>
-      )}
-
-      {/* Top bar */}
-      <div style={{ background: "#0f1b2d", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Onboarding Tracker</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</span>
-            <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, opacity: saveFlash ? 1 : 0, transition: "opacity 400ms ease" }}>✓ Autosaved</span>
+      {/* Top bar — left padding clears the fixed "meridian" back-to-launcher chevron (~140px) */}
+      <div style={{ background: "#0f1b2d", padding: "12px 24px 12px 150px", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+          {canGoBack && (
+            <button
+              onClick={goBack}
+              style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "5px 12px 5px 8px", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 999, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: 13, fontWeight: 500, letterSpacing: "0.06em", textTransform: "lowercase", background: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.85)", transition: "background 120ms ease-out, transform 120ms ease-out", flexShrink: 0 }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.18)"; (e.currentTarget as HTMLButtonElement).style.transform = "translateX(-2px)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.10)"; (e.currentTarget as HTMLButtonElement).style.transform = ""; }}
+            >
+              <span style={{ fontSize: 20, fontWeight: 300, lineHeight: 1, marginTop: -1 }}>‹</span>
+              <span>back</span>
+            </button>
+          )}
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "white" }}>Onboarding Tracker</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 12, color: "#868e96" }}>{user.name} — {isDir ? "Medical Director" : "Mentor"}</span>
+              <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 600, opacity: saveFlash ? 1 : 0, transition: "opacity 400ms ease" }}>✓ Autosaved</span>
+            </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -1932,63 +1969,29 @@ export default function App() {
       />
 
       {/* Director dashboard tabs when no provider selected */}
-      {isDir && !selId && (
+      {isDir && !selId && (() => {
+        const ciiAtRisk = PROVS.filter(p => { const cs = cultureScore(qa, p.id, isAPC(p)); return cs.avg !== null && cs.avg < 5; });
+        const touchpointFlagged = PROVS.filter(p => getStatus(p.id) !== "ok");
+        const flagCount = new Set([...ciiAtRisk.map(p => p.id), ...touchpointFlagged.map(p => p.id)]).size;
+        return (
         <div style={{ background: "white", borderBottom: "1px solid #dee2e6", padding: "0 24px" }}>
-          {[{ k: "roster", l: "Provider Roster" }, { k: "compare", l: "Comparison Grid" }, { k: "trends", l: "Score Trends" }, { k: "notes", l: "Recent Notes" }].map(t => (
+          {[
+            { k: "roster", l: "🏠 Home" },
+            { k: "compare", l: "Comparison Grid" },
+            { k: "trends", l: "Score Trends" },
+            { k: "patterns", l: patterns.length > 0 ? "⚠️ Pattern Alerts" : "Pattern Alerts" },
+            { k: "flags", l: flagCount > 0 ? "⚠️ Needs Attention" : "Needs Attention" },
+            { k: "notes", l: "Recent Notes" },
+          ].map(t => (
             <button key={t.k} onClick={() => { if (t.k !== mainTab) navigate({ mainTab: t.k }); }}
               style={{ padding: "12px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: mainTab === t.k ? 700 : 400, color: mainTab === t.k ? "#0f1b2d" : "#868e96", borderBottom: mainTab === t.k ? "3px solid #028090" : "3px solid transparent" }}>
               {t.l}
             </button>
           ))}
         </div>
-      )}
-
-      {/* ── NEEDS ATTENTION BANNER — full-width, roster tab only ── */}
-      {isDir && !selId && mainTab === "roster" && (() => {
-        const flagged = PROVS.map(p => {
-          const st = getStatus(p.id);
-          if (st === "ok") return null;
-          const track = isAPC(p) ? MP : MP_PHYS;
-          const curPhLabel = (track.find(x => x.id === p.phase) || {}).label || p.phase;
-          const mentor = USERS.find(u => u.id === p.mentor);
-          const scoreHistory = QP.map(qp => avgScore(qa, p.id, qp.id)).filter(s => s !== null);
-          const trending = scoreHistory.length >= 2
-            ? (scoreHistory[scoreHistory.length - 1] - scoreHistory[scoreHistory.length - 2])
-            : null;
-          const trendIcon = trending === null ? "" : trending < -0.5 ? " · score↓" : trending > 0.5 ? " · score↑" : "";
-          return { p, st, curPhLabel, mentor, trendIcon };
-        }).filter(Boolean);
-
-        if (flagged.length === 0) return null;
-        return (
-          <div style={{ background: "#fff8f0", borderBottom: "2px solid #fed7aa", padding: "12px 24px", display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 14 }}>⚠️</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#9a3412" }}>Needs Attention</span>
-              <span style={{ fontSize: 11, color: "#c2410c", background: "#fee2e2", borderRadius: 10, padding: "1px 8px", fontWeight: 700 }}>{flagged.length}</span>
-              <span style={{ fontSize: 11, color: "#c2410c", marginLeft: 2 }}>provider{flagged.length !== 1 ? "s" : ""} behind schedule — click a row to open their profile</span>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {flagged.map(({ p, st, curPhLabel, mentor, trendIcon }) => (
-                <div key={p.id} onClick={() => navigate({ uid, selId: p.id, tab: "mentor", phase: p.phase, mainTab: "roster" })}
-                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", background: "white", borderRadius: 8, border: "1px solid " + (st === "overdue" ? "#fca5a5" : "#fdba74"), cursor: "pointer", flexShrink: 0 }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "#fef9f5"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "white"; }}>
-                  <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: st === "overdue" ? "#ef4444" : "#f97316", color: "white" }}>
-                    {st === "overdue" ? "LATE" : "DUE"}
-                  </span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#0f1b2d" }}>{p.name}</span>
-                  <span style={{ fontSize: 11, color: "#6b7280" }}>
-                    {curPhLabel} · Day {p.days}{trendIcon}
-                    {mentor ? <span style={{ color: "#adb5bd" }}> · {mentor.name.split(",")[0].replace("Dr. ","")}</span> : ""}
-                  </span>
-                  <span style={{ fontSize: 10, color: "#9ca3af" }}>→</span>
-                </div>
-              ))}
-            </div>
-          </div>
         );
       })()}
+
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
 
@@ -2084,7 +2087,7 @@ export default function App() {
                         <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
                           <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                             background: overdueCII ? "#fef9c3" : band.bg, color: overdueCII ? "#854d0e" : band.fg }}>
-                            {overdueCII ? "CII overdue" : cs.avg === null ? "CII Future-Sched'd" : "CII " + band.label + " " + cs.display + (tr.arrow ? " " + tr.arrow : "")}
+                            {overdueCII ? "C.I.I. overdue" : cs.avg === null ? "C.I.I. Future-Sched'd" : "C.I.I. " + band.label + " " + cs.display + (tr.arrow ? " " + tr.arrow : "")}
                           </span>
                           {ps.total > 0 && (
                             <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 5, whiteSpace: "nowrap", flexShrink: 0, background: prodCol.bg, color: prodCol.fg }}>
@@ -2124,14 +2127,18 @@ export default function App() {
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 28px" }}>
           {!prov ? (
             <div>
-              {/* ── CROSS-PROVIDER PATTERN ALERTS (always at top, all tabs) ── */}
-              {isDir && patterns.length > 0 && (
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
-                    <span>⚠️ Cross-Provider Pattern Alerts</span>
-                    <span style={{ fontSize: 11, fontWeight: 400, color: "#b91c1c" }}>{"(" + patterns.length + " phase" + (patterns.length !== 1 ? "s" : "") + " — sorted by severity)"}</span>
+              {/* Pattern Alerts tab */}
+              {isDir && mainTab === "patterns" && (
+                <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
+                  <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Cross-Provider Pattern Alerts</div>
+                    {patterns.length > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 10, background: "#fee2e2", color: "#b91c1c" }}>{patterns.length} phase{patterns.length !== 1 ? "s" : ""}</span>}
+                    <span style={{ fontSize: 12, color: "#868e96", marginLeft: 4 }}>phases where multiple providers scored below 6.0 — sorted by severity</span>
                   </div>
-                  {patterns.map(function(a) {
+                  <div style={{ padding: "16px 20px" }}>
+                    {patterns.length === 0 ? (
+                      <div style={{ padding: "24px 0", textAlign: "center", color: "#16a34a", fontSize: 13, fontWeight: 600 }}>🎉 No cross-provider patterns detected — cohort scores look healthy.</div>
+                    ) : patterns.map(function(a) {
                     const isExp = !!expandedAlerts[a.phaseId];
                     const toggleAlert = function() { setExpandedAlerts(function(prev) { const n = Object.assign({}, prev); n[a.phaseId] = !prev[a.phaseId]; return n; }); };
                     const omPhaseLabel = (OP.find(function(x) { return x.id === a.omPhaseId; }) || {label: "—"}).label;
@@ -2223,6 +2230,7 @@ export default function App() {
                       </div>
                     );
                   })}
+                  </div>
                 </div>
               )}
 
@@ -2622,6 +2630,83 @@ export default function App() {
                 </div>
               )}
 
+              {/* Needs Attention tab */}
+              {isDir && mainTab === "flags" && (() => {
+                // Build a unified flag list: CII at-risk + touchpoint issues
+                const flagRows = [];
+                const seen = new Set();
+                PROVS.forEach(p => {
+                  const apc = isAPC(p);
+                  const cs = cultureScore(qa, p.id, apc);
+                  const tr = cultureTrend(qa, p.id, apc);
+                  const st = getStatus(p.id);
+                  const mentor = USERS.find(u => u.id === p.mentor);
+                  const track = apc ? MP : MP_PHYS;
+                  const curPhLabel = (track.find(x => x.id === p.phase) || {}).label || p.phase;
+
+                  // CII at-risk (avg < 5 with data)
+                  if (cs.avg !== null && cs.avg < 5) {
+                    seen.add(p.id);
+                    flagRows.push({
+                      p, mentor, curPhLabel,
+                      tag: "C.I.I. At Risk",
+                      tone: "red",
+                      reason: "C.I.I. " + cs.display + (tr.dir === "down" ? " · trending ↓" : tr.dir === "up" ? " · trending ↑" : ""),
+                      destTab: "culture",
+                    });
+                  }
+                  // Touchpoint overdue/due (only if not already listed for CII)
+                  if (st !== "ok" && !seen.has(p.id)) {
+                    seen.add(p.id);
+                    flagRows.push({
+                      p, mentor, curPhLabel,
+                      tag: st === "overdue" ? "OVERDUE" : "DUE",
+                      tone: st === "overdue" ? "red" : "warn",
+                      reason: "Touchpoint " + st + " — check-in needed",
+                      destTab: "mentor",
+                    });
+                  }
+                });
+                const totalFlags = flagRows.length;
+                return (
+                  <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #dee2e6", display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#0f1b2d" }}>Needs Attention</div>
+                      {totalFlags > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 9px", borderRadius: 10, background: "#fee2e2", color: "#b91c1c" }}>{totalFlags} provider{totalFlags !== 1 ? "s" : ""}</span>}
+                      <span style={{ fontSize: 12, color: "#868e96", marginLeft: 4 }}>low C.I.I. · touchpoint overdue · check-in needed</span>
+                    </div>
+                    <div style={{ padding: "16px 20px" }}>
+                      {totalFlags === 0 ? (
+                        <div style={{ padding: "24px 0", textAlign: "center", color: "#16a34a", fontSize: 13, fontWeight: 600 }}>🎉 All providers are on schedule — nothing needs attention right now.</div>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {flagRows.map(({ p, mentor, curPhLabel, tag, tone, reason, destTab }) => (
+                            <div key={p.id + tag}
+                              onClick={() => navigate({ uid, selId: p.id, tab: destTab, phase: p.phase, mainTab: "roster" })}
+                              style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: tone === "red" ? "#fff5f5" : "#fffbeb", borderRadius: 9, border: "1px solid " + (tone === "red" ? "#fca5a5" : "#fde68a"), cursor: "pointer" }}
+                              onMouseEnter={e => { e.currentTarget.style.filter = "brightness(0.97)"; }}
+                              onMouseLeave={e => { e.currentTarget.style.filter = ""; }}>
+                              {avatar(p.name, tone === "red")}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1b2d" }}>{p.name}</div>
+                                <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+                                  {curPhLabel} · Day {p.days} · {reason}
+                                  {mentor ? <span style={{ color: "#adb5bd" }}> · {mentor.name.split(",")[0].replace("Dr. ", "")}</span> : ""}
+                                </div>
+                              </div>
+                              <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 6, background: tone === "red" ? "#ef4444" : "#f97316", color: "white", flexShrink: 0 }}>
+                                {tag}
+                              </span>
+                              <span style={{ fontSize: 12, color: "#9ca3af", flexShrink: 0 }}>→</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Recent notes hub */}
               {isDir && mainTab === "notes" && (
                 <div style={{ background: "white", borderRadius: 10, border: "1px solid #dee2e6", overflow: "hidden", marginBottom: 16 }}>
@@ -2652,12 +2737,6 @@ export default function App() {
                 const totalProv = PROVS.length;
                 const onTrack = PROVS.filter(p => getStatus(p.id) === "ok").length;
 
-                /* Initials avatar (e.g. "Dr. Johnson" → DJ, "A. Martinez, NP" → AM) */
-                const initialsOf = (name) => name.split(/[\s.,]+/).filter(Boolean).slice(0, 2).map(s => s[0]).join("").toUpperCase();
-                const dotColor = (c) => c === "green" ? "#22c55e" : c === "amber" ? "#eab308" : c === "red" ? "#ef4444" : "#d1d5db";
-                const avatar = (name, red) => (
-                  <div style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9.5, fontWeight: 700, background: red ? "rgba(239,68,68,0.10)" : "rgba(2,128,144,0.10)", color: red ? "#dc2626" : "#028090" }}>{initialsOf(name)}</div>
-                );
 
                 /* ── Per-provider derived data ── */
                 const cultureData = PROVS.map(p => {
@@ -2679,7 +2758,7 @@ export default function App() {
                 const flags = [];
                 cultureData.forEach(c => {
                   if (c.cs.avg !== null && c.cs.avg < 5)
-                    flags.push({ pid: c.p.id, name: c.p.name, tag: "CII ⚠", tone: "red", reason: "CII " + c.cs.display + " · At Risk — culture integration score below threshold" + (c.tr.dir === "down" ? " · trending ↓" : ""), go: () => navigate({ selId: c.p.id, tab: "culture", phase: c.p.phase }) });
+                    flags.push({ pid: c.p.id, name: c.p.name, tag: "C.I.I. ⚠", tone: "red", reason: "C.I.I. " + c.cs.display + " · At Risk — culture integration score below threshold" + (c.tr.dir === "down" ? " · trending ↓" : ""), go: () => navigate({ selId: c.p.id, tab: "culture", phase: c.p.phase }) });
                 });
                 prodFlagged.forEach(x => {
                   const bad = x.dots.filter(d => d.color === "red").map(d => d.short.toLowerCase());
@@ -2740,10 +2819,18 @@ export default function App() {
                     {/* ── KPI ROW ── */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 11, marginBottom: 16 }}>
                       {/* Active Providers */}
-                      <div style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px" }}>
+                      <div onClick={() => setSidebarFilter(null)}
+                        style={{ background: "white", border: sidebarFilter === null ? "2px solid #028090" : "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
                         <div style={{ fontSize: 28, fontWeight: 800, color: "#028090", lineHeight: 1 }}>{totalProv}</div>
                         <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Active Providers</div>
-                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#16a34a" }}>in your program</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#028090" }}>show all · {totalProv} in program</div>
+                      </div>
+                      {/* Productivity On Track — slot 2 */}
+                      <div onClick={() => setShowProdModal(true)}
+                        style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #4f46e5", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
+                        <div style={{ fontSize: 28, fontWeight: 800, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a", lineHeight: 1 }}>{prodOnTrack}<span style={{ fontSize: 16, fontWeight: 600, color: "#868e96" }}>/{prodData.length}</span></div>
+                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Productivity</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: prodFlagged.length > 0 ? "#d97706" : "#16a34a" }}>{prodFlagged.length > 0 ? prodFlagged.length + " metrics stalled — tap to review" : "all metrics improving · tap to review"}</div>
                       </div>
                       {/* On Track */}
                       <div onClick={() => setSidebarFilter(sidebarFilter === "ok" ? null : "ok")}
@@ -2757,17 +2844,13 @@ export default function App() {
                         style={{ background: "white", border: sidebarFilter === "behind" ? "2px solid #d97706" : "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
                         <div style={{ fontSize: 28, fontWeight: 800, color: "#d97706", lineHeight: 1 }}>{flags.length}</div>
                         <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Need Attention</div>
-                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>CII · Prod · checkpoint flags</div>
-                      </div>
-                      {/* Productivity On Track */}
-                      <div style={{ background: "white", border: "1px solid #e9ecef", borderRadius: 11, padding: "15px 16px" }}>
-                        <div style={{ fontSize: 28, fontWeight: 800, color: "#16a34a", lineHeight: 1 }}>{prodOnTrack}<span style={{ fontSize: 16, fontWeight: 600, color: "#868e96" }}>/{prodData.length}</span></div>
-                        <div style={{ fontSize: 10.5, color: "#868e96", marginTop: 6, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em" }}>Productivity On Track</div>
-                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>{prodFlagged.length > 0 ? prodFlagged.length + " flagged — " + prodFlagged.map(x => x.p.name.split(/[\s.,]+/).filter(Boolean).slice(-1)[0]).join(", ") : "all clear"}</div>
+                        <div style={{ fontSize: 10, marginTop: 5, fontWeight: 700, color: "#d97706" }}>C.I.I. · Prod · checkpoint flags</div>
                       </div>
                       {/* Culture CII */}
-                      <div style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #92400e", borderRadius: 11, padding: "15px 16px" }}>
-                        <div style={{ fontSize: 17, fontWeight: 800, color: "#78350f", lineHeight: 1.3 }}>Culture CII</div>
+                      <div onClick={() => setShowCiiModal(true)}
+                        style={{ background: "white", border: "1px solid #e9ecef", borderTop: "3px solid #92400e", borderRadius: 11, padding: "15px 16px", cursor: "pointer" }}>
+                        <div style={{ fontSize: 17, fontWeight: 800, color: "#78350f", lineHeight: 1.2 }}>C.I.I.</div>
+                        <div style={{ fontSize: 9.5, fontWeight: 600, color: "#92400e", marginTop: 2, letterSpacing: "0.02em" }}>Culture Integration Index</div>
                         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 7 }}>
                           {bandCount.thriving > 0 && <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "#dcfce7", color: "#15803d" }}>{bandCount.thriving} Thriving</span>}
                           {bandCount.developing > 0 && <span style={{ fontSize: 8.5, fontWeight: 700, padding: "2px 6px", borderRadius: 5, background: "#fef9c3", color: "#854d0e" }}>{bandCount.developing} Developing</span>}
@@ -2821,7 +2904,7 @@ export default function App() {
                       </Panel>
 
                       {/* Culture CII */}
-                      <Panel icon="🌡️" title="Culture CII" sub="Latest per provider">
+                      <Panel icon="🌡️" title={<span><span style={{ fontWeight: 800 }}>C.I.I.</span><span style={{ display: "block", fontSize: 9, fontWeight: 500, color: "#92400e", letterSpacing: "0.02em", marginTop: 1 }}>Culture Integration Index</span></span>} sub="Latest per provider">
                         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                           {cultureSorted.map(c => {
                             const trColor = c.tr.dir === "up" ? "#16a34a" : c.tr.dir === "down" ? "#dc2626" : "#16a34a";
@@ -2888,7 +2971,7 @@ export default function App() {
                       </Panel>
 
                       {/* Epic Productivity */}
-                      <Panel icon="📈" title="Epic Productivity" sub={prodOnTrack + " / " + prodData.length + " on track"}>
+                      <Panel icon="📈" title="Epic Productivity" sub={prodOnTrack + " / " + prodData.length + " trending to goal"}>
                         {/* header */}
                         <div style={{ display: "flex", alignItems: "center", padding: "0 0 7px", borderBottom: "1.5px solid #e9ecef", marginBottom: 2 }}>
                           <div style={{ width: 33, flexShrink: 0 }} />
@@ -3179,7 +3262,7 @@ export default function App() {
                           style={{ background: prodActive ? pColor + "12" : "white", borderRadius: 10, border: "2px solid " + (prodActive ? pColor : "#dee2e6"), padding: "12px 14px", cursor: "pointer", transition: "border-color 120ms, background 120ms" }}>
                           <div style={{ fontSize: 11, color: prodActive ? pColor : "#868e96", marginBottom: 4, fontWeight: prodActive ? 700 : 400 }}>Productivity</div>
                           <div style={{ fontSize: 24, fontWeight: 700, color: dc }}>{ps.good}/{ps.total}</div>
-                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>on track · Epic</div>
+                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 2 }}>trending to goal · Epic</div>
                           <div style={{ height: 5, background: "#e9ecef", borderRadius: 3, overflow: "hidden", marginTop: 4 }}>
                             <div style={{ height: "100%", width: (ps.total > 0 ? ps.good / ps.total * 100 : 0) + "%", background: pColor, borderRadius: 3 }} />
                           </div>
@@ -3526,6 +3609,348 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── Cohort Productivity Modal ── */}
+      {showProdModal && (() => {
+        const DOT_COLOR = { green: "#22c55e", amber: "#eab308", red: "#ef4444", none: "#e9ecef" };
+        const METRIC_LABELS = ["Pts/Day", "wRVU/wk", "Inbox", "Note", "Refill"];
+        const METRIC_GOALS = PROD_METRICS.map(m => m.goal);
+
+        // build per-provider rows with current wRVU and overall status
+        const rows = PROVS.filter(p => hasProductivity(p.id)).map(p => {
+          const sum = prodSummary(p.id);
+          const dots = prodMetricDots(p.id);
+          const rvuSeries = PROD_SERIES[p.id]?.rvu;
+          const curRvu = rvuSeries ? rvuSeries[rvuSeries.length - 1] : null;
+          const rvuGoal = PROD_METRICS.find(m => m.key === "rvu").goal;
+          const rvuPct = curRvu != null ? Math.round(curRvu / rvuGoal * 100) : null;
+          const flagged = sum.good <= 1;
+          const allGreen = sum.total > 0 && sum.good === sum.total;
+          return { p, sum, dots, curRvu, rvuPct, flagged, allGreen };
+        }).sort((a, b) => (a.sum.good / (a.sum.total || 1)) - (b.sum.good / (b.sum.total || 1)));
+
+        // cohort wRVU stats
+        const rvuRows = rows.filter(r => r.curRvu != null);
+        const cohortAvgRvu = rvuRows.length ? Math.round(rvuRows.reduce((s, r) => s + r.curRvu, 0) / rvuRows.length) : null;
+        const rvuGoal = PROD_METRICS.find(m => m.key === "rvu").goal;
+        const atOrAboveRvu = rvuRows.filter(r => r.curRvu >= rvuGoal * 0.97).length;
+        const flaggedCount = rows.filter(r => r.flagged).length;
+        const onTrackCount = rows.filter(r => !r.flagged).length;
+
+        return (
+          <div onClick={() => setShowProdModal(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(10,15,30,0.55)", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 40, paddingBottom: 40, overflowY: "auto" }}>
+            <div onClick={e => e.stopPropagation()}
+              style={{ background: "#f8f9fa", borderRadius: 18, width: "min(920px, 96vw)", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", overflow: "hidden" }}>
+
+              {/* Header */}
+              <div style={{ background: "white", borderBottom: "1px solid #e9ecef", padding: "22px 28px 18px", display: "flex", alignItems: "flex-start", gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>⚡ Epic Productivity · Cohort View</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#0f1b2d", lineHeight: 1.2 }}>Epic Productivity — Trending to Goal</div>
+                  <div style={{ fontSize: 13, color: "#868e96", marginTop: 4 }}>Trajectory toward practice benchmarks, not absolute standing — a provider can be trending well while still building volume</div>
+                </div>
+                <button onClick={() => setShowProdModal(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 20, color: "#adb5bd", lineHeight: 1, padding: "2px 6px", borderRadius: 6 }}>✕</button>
+              </div>
+
+              {/* Headline stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, borderBottom: "1px solid #e9ecef", background: "white" }}>
+                {[
+                  { label: "Providers with data", value: rows.length, color: "#0f1b2d", sub: "in this cohort" },
+                  { label: "Trending to Goal", value: onTrackCount, color: "#16a34a", sub: "≥2 metrics improving" },
+                  { label: "Needs Attention", value: flaggedCount, color: flaggedCount > 0 ? "#dc2626" : "#16a34a", sub: flaggedCount > 0 ? "≤1 metric green" : "none flagged" },
+                  cohortAvgRvu != null
+                    ? { label: "Cohort Avg wRVU / wk", value: cohortAvgRvu, color: cohortAvgRvu >= rvuGoal * 0.97 ? "#16a34a" : cohortAvgRvu >= rvuGoal * 0.8 ? "#d97706" : "#dc2626", sub: `goal ${rvuGoal} · ${atOrAboveRvu}/${rvuRows.length} at goal` }
+                    : { label: "wRVU Data", value: "—", color: "#adb5bd", sub: "not yet available" },
+                ].map((s, i) => (
+                  <div key={i} style={{ padding: "16px 22px", borderLeft: i > 0 ? "1px solid #f0f1f3" : "none" }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", marginTop: 5 }}>{s.label}</div>
+                    <div style={{ fontSize: 10, color: "#adb5bd", fontWeight: 600, marginTop: 3 }}>{s.sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Table */}
+              <div style={{ padding: "16px 20px 24px" }}>
+                {(() => {
+                  const METRIC_COL_W = 52;
+                  const METRIC_LABELS_DISPLAY = [["Pts/Day", null], ["wRVU/wk", null], ["Inbox", "Time"], ["Note", "Time"], ["Refill", "Time"]];
+                  const colW = { avatar: 28, phase: 46, metrics: METRIC_COL_W * 5, rvu: 60, status: 68 };
+                  return (
+                    <>
+                {/* Column headers */}
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, padding: "0 12px 10px", borderBottom: "2px solid #e9ecef", marginBottom: 4 }}>
+                  <div style={{ width: colW.avatar, flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 80, fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".05em" }}>Provider</div>
+                  <div style={{ width: colW.phase, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Phase</div>
+                  <div style={{ width: colW.metrics, display: "flex", flexShrink: 0 }}>
+                    {PROD_METRICS.map((m, i) => {
+                      const [top, sub] = METRIC_LABELS_DISPLAY[i];
+                      return (
+                        <div key={m.key} style={{ width: METRIC_COL_W, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", whiteSpace: "nowrap", lineHeight: 1.3 }}>{top}</span>
+                          {sub && <span style={{ fontSize: 10, fontWeight: 700, color: "#6b7280", lineHeight: 1.3 }}>{sub}</span>}
+                          <span style={{ fontSize: 9, color: "#9ca3af", fontWeight: 600, marginTop: 2 }}>goal {m.goal}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ width: colW.rvu, textAlign: "right", fontSize: 10, fontWeight: 700, color: "#4f46e5", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>wRVU/wk</div>
+                  <div style={{ width: colW.status, flexShrink: 0, textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+                    <button onClick={() => setShowProdKey(v => !v)}
+                      style={{ fontSize: 9, fontWeight: 700, color: showProdKey ? "#4f46e5" : "#868e96", background: showProdKey ? "#eef2ff" : "#f3f4f6", border: showProdKey ? "1px solid #c7d2fe" : "1px solid #e5e7eb", borderRadius: 5, padding: "2px 7px", cursor: "pointer", letterSpacing: ".04em", textTransform: "uppercase" }}>
+                      {showProdKey ? "✕ Key" : "Key ▾"}
+                    </button>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em" }}>Status</span>
+                  </div>
+                </div>
+
+                {/* Legend panel */}
+                {showProdKey && (
+                  <div style={{ margin: "0 0 10px", padding: "14px 16px", background: "white", border: "1px solid #e9ecef", borderRadius: 10, display: "flex", gap: 32, flexWrap: "wrap" }}>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>Metric dots — trajectory</div>
+                      {[
+                        { color: "#22c55e", label: "Trending toward goal" },
+                        { color: "#eab308", label: "Variable — needs monitoring" },
+                        { color: "#ef4444", label: "Moving away from goal" },
+                        { color: "#e9ecef", label: "No data yet" },
+                      ].map(({ color, label }) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                          <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: "50%", background: color, flexShrink: 0 }} />
+                          <span style={{ fontSize: 12, color: "#374151" }}>{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>Status chip — overall trajectory</div>
+                      {[
+                        { label: "At Goal", fg: "#15803d", bg: "#dcfce7", desc: "All 5 metrics trending green" },
+                        { label: "Improving", fg: "#d97706", bg: "#fef9c3", desc: "2–4 metrics trending green" },
+                        { label: "Stalled", fg: "#dc2626", bg: "#fee2e2", desc: "≤1 metric green — needs attention" },
+                      ].map(({ label, fg, bg, desc }) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: bg, color: fg, flexShrink: 0, minWidth: 58, textAlign: "center" }}>{label}</span>
+                          <span style={{ fontSize: 12, color: "#374151" }}>{desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>5 tracked metrics</div>
+                      {[
+                        { name: "Pts/Day", goal: "18", note: "patients per day" },
+                        { name: "wRVU/wk", goal: "185", note: "work RVUs per week" },
+                        { name: "Inbox Time", goal: "22 min", note: "avg inbox response time" },
+                        { name: "Note Time", goal: "14 min", note: "avg note completion time" },
+                        { name: "Refill Time", goal: "6.5 min", note: "avg refill response time" },
+                      ].map(({ name, goal, note }) => (
+                        <div key={name} style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 5 }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#0f1b2d", minWidth: 72 }}>{name}</span>
+                          <span style={{ fontSize: 10, color: "#4f46e5", fontWeight: 600 }}>goal {goal}</span>
+                          <span style={{ fontSize: 10, color: "#9ca3af" }}>· {note}</span>
+                        </div>
+                      ))}
+                      <div style={{ fontSize: 10, color: "#adb5bd", marginTop: 6, fontStyle: "italic" }}>Trajectory, not absolute standing — a provider can be Improving while still below goal</div>
+                    </div>
+                  </div>
+                )}
+
+                {rows.length === 0 && (
+                  <div style={{ textAlign: "center", padding: "32px 0", fontSize: 13, color: "#adb5bd" }}>
+                    No Epic productivity data available yet for this cohort.
+                  </div>
+                )}
+
+                {rows.map(({ p, sum, dots, curRvu, rvuPct, flagged, allGreen }) => {
+                  const rowBg = flagged ? "#fff5f5" : "white";
+                  const rowBorder = flagged ? "1px solid #fca5a5" : "1px solid #f0f1f3";
+                  const statusColor = allGreen ? "#15803d" : flagged ? "#dc2626" : "#d97706";
+                  const statusBg = allGreen ? "#dcfce7" : flagged ? "#fee2e2" : "#fef9c3";
+                  const statusLabel = allGreen ? "At Goal" : flagged ? "Stalled" : "Improving";
+                  const rvuColor = curRvu == null ? "#adb5bd" : curRvu >= rvuGoal * 0.97 ? "#15803d" : curRvu >= rvuGoal * 0.8 ? "#d97706" : "#dc2626";
+                  return (
+                    <div key={p.id}
+                      onClick={() => { setShowProdModal(false); navigate({ selId: p.id, tab: "prod", phase: p.phase }); }}
+                      style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 12px", marginBottom: 5, borderRadius: 10, background: rowBg, border: rowBorder, cursor: "pointer" }}>
+                      <div style={{ width: colW.avatar, flexShrink: 0 }}>{avatar(p.name, flagged)}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: flagged ? "#b91c1c" : "#0f1b2d", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                        <div style={{ fontSize: 10, color: "#868e96", marginTop: 1 }}>{p.role}</div>
+                      </div>
+                      <div style={{ width: colW.phase, flexShrink: 0, textAlign: "center" }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 5, background: "#eef2ff", color: "#4f46e5" }}>{p.phase}</span>
+                      </div>
+                      <div style={{ width: colW.metrics, display: "flex", alignItems: "center", flexShrink: 0 }}>
+                        {dots.map(d => (
+                          <div key={d.key} style={{ width: METRIC_COL_W, textAlign: "center" }}>
+                            <span style={{ display: "inline-block", width: 13, height: 13, borderRadius: "50%", background: DOT_COLOR[d.color] || "#e9ecef", verticalAlign: "middle" }} />
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ width: colW.rvu, flexShrink: 0, textAlign: "right" }}>
+                        {curRvu != null ? (
+                          <span style={{ fontSize: 15, fontWeight: 800, color: rvuColor }}>{curRvu}</span>
+                        ) : (
+                          <span style={{ fontSize: 11, color: "#adb5bd" }}>—</span>
+                        )}
+                        {rvuPct != null && <div style={{ fontSize: 9, color: "#adb5bd", fontWeight: 600 }}>{rvuPct}% of goal</div>}
+                      </div>
+                      <div style={{ width: colW.status, flexShrink: 0, textAlign: "right" }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, padding: "4px 8px", borderRadius: 6, background: statusBg, color: statusColor, whiteSpace: "nowrap" }}>{statusLabel}</span>
+                        <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 3, textAlign: "right" }}>{sum.good}/{sum.total} metrics</div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Legend */}
+                <div style={{ display: "flex", gap: 16, marginTop: 14, paddingTop: 12, borderTop: "1px solid #e9ecef", flexWrap: "wrap", alignItems: "center" }}>
+                  {[["#22c55e","On track / Near goal"],["#eab308","Variable"],["#ef4444","Falling behind"]].map(([c,l]) => (
+                    <span key={l} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: "#868e96", fontWeight: 600 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: "50%", background: c, display: "inline-block", flexShrink: 0 }} />{l}
+                    </span>
+                  ))}
+                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#adb5bd", fontStyle: "italic" }}>
+                    Click any row to open that provider's productivity detail
+                  </span>
+                </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── C.I.I. Cohort Modal ── */}
+      {showCiiModal && (() => {
+        const BAND_STYLE = {
+          thriving:   { bg: "#dcfce7", fg: "#15803d", label: "Thriving" },
+          developing: { bg: "#fef9c3", fg: "#854d0e", label: "Developing" },
+          atrisk:     { bg: "#fee2e2", fg: "#b91c1c", label: "At Risk" },
+          sched:      { bg: "#f1f3f5", fg: "#868e96", label: "Sched'd" },
+        };
+        const TREND_LABEL = { up: "↑ Improving", down: "↓ Declining", flat: "→ Stable", none: "—" };
+        const TREND_COLOR = { up: "#16a34a", down: "#dc2626", flat: "#6b7280", none: "#adb5bd" };
+
+        const rows = PROVS.map(p => {
+          const cs = cultureScore(qa, p.id, isAPC(p));
+          const band = cultureBand(cs.avg);
+          const tr = cultureTrend(qa, p.id, isAPC(p));
+          const overdue = cs.avg === null && getStatus(p.id) !== "ok";
+          return { p, cs, band, tr, overdue };
+        }).sort((a, b) => {
+          const order = { atrisk: 0, developing: 1, sched: 2, thriving: 3 };
+          if (a.overdue && !b.overdue) return -1;
+          if (!a.overdue && b.overdue) return 1;
+          const oa = order[a.band.key] ?? 2, ob = order[b.band.key] ?? 2;
+          if (oa !== ob) return oa - ob;
+          return (a.cs.avg ?? 999) - (b.cs.avg ?? 999);
+        });
+
+        const withScores = rows.filter(r => r.cs.avg !== null);
+        const cohortAvg = withScores.length ? (withScores.reduce((s, r) => s + r.cs.avg, 0) / withScores.length).toFixed(1) : null;
+        const overdueCount = rows.filter(r => r.overdue).length;
+        const atRiskCount = rows.filter(r => r.band.key === "atrisk").length;
+        const thrivingCount = rows.filter(r => r.band.key === "thriving").length;
+
+        return (
+          <div onClick={() => setShowCiiModal(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(10,15,30,0.55)", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 40, paddingBottom: 40, overflowY: "auto" }}>
+            <div onClick={e => e.stopPropagation()}
+              style={{ background: "#f8f9fa", borderRadius: 18, width: "min(780px, 94vw)", boxShadow: "0 24px 80px rgba(0,0,0,0.22)", overflow: "hidden" }}>
+
+              {/* Header */}
+              <div style={{ background: "white", borderBottom: "1px solid #e9ecef", padding: "22px 28px 18px", display: "flex", alignItems: "flex-start", gap: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#92400e", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>🌡️ Culture Integration Index · Cohort View</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#0f1b2d", lineHeight: 1.2 }}>C.I.I. — All Providers</div>
+                  <div style={{ fontSize: 13, color: "#868e96", marginTop: 4 }}>Sorted At Risk first — click any row to open that provider's Culture tab</div>
+                </div>
+                <button onClick={() => setShowCiiModal(false)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 20, color: "#adb5bd", lineHeight: 1, padding: "2px 6px", borderRadius: 6 }}>✕</button>
+              </div>
+
+              {/* Headline stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0, borderBottom: "1px solid #e9ecef", background: "white" }}>
+                {[
+                  { label: "Cohort Avg Score", value: cohortAvg ? cohortAvg + " / 10" : "—", color: cohortAvg >= 7 ? "#16a34a" : cohortAvg >= 5 ? "#d97706" : "#dc2626", sub: withScores.length + " providers with data" },
+                  { label: "Thriving", value: thrivingCount, color: "#15803d", sub: "score ≥ 7.5" },
+                  { label: "At Risk", value: atRiskCount, color: atRiskCount > 0 ? "#dc2626" : "#16a34a", sub: atRiskCount > 0 ? "needs direct outreach" : "none at risk" },
+                  { label: "Overdue Checkpoints", value: overdueCount, color: overdueCount > 0 ? "#d97706" : "#16a34a", sub: overdueCount > 0 ? "C.I.I. not yet collected" : "all checkpoints current" },
+                ].map((s, i) => (
+                  <div key={i} style={{ padding: "16px 22px", borderLeft: i > 0 ? "1px solid #f0f1f3" : "none" }}>
+                    <div style={{ fontSize: i === 0 ? 22 : 28, fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", marginTop: 5 }}>{s.label}</div>
+                    <div style={{ fontSize: 10, color: "#adb5bd", fontWeight: 600, marginTop: 3 }}>{s.sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Table */}
+              <div style={{ padding: "16px 20px 24px" }}>
+                {/* Column headers */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px 8px", borderBottom: "2px solid #e9ecef", marginBottom: 4 }}>
+                  <div style={{ width: 32, flexShrink: 0 }} />
+                  <div style={{ flex: 1, fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".05em" }}>Provider</div>
+                  <div style={{ width: 56, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Phase</div>
+                  <div style={{ width: 80, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Score</div>
+                  <div style={{ width: 100, textAlign: "center", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Trend</div>
+                  <div style={{ width: 90, textAlign: "right", fontSize: 9.5, fontWeight: 700, color: "#868e96", textTransform: "uppercase", letterSpacing: ".04em", flexShrink: 0 }}>Band</div>
+                </div>
+
+                {rows.map(({ p, cs, band, tr, overdue }) => {
+                  const bs = BAND_STYLE[band.key] || BAND_STYLE.sched;
+                  const rowBg = band.key === "atrisk" || overdue ? "#fff5f5" : "white";
+                  const rowBorder = band.key === "atrisk" || overdue ? "1px solid #fca5a5" : "1px solid #f0f1f3";
+                  const trendKey = tr.dir === "up" ? "up" : tr.dir === "down" ? "down" : cs.avg !== null ? "flat" : "none";
+                  return (
+                    <div key={p.id}
+                      onClick={() => { setShowCiiModal(false); navigate({ selId: p.id, tab: "culture", phase: p.phase }); }}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", marginBottom: 5, borderRadius: 10, background: rowBg, border: rowBorder, cursor: "pointer" }}>
+                      <div style={{ width: 32, flexShrink: 0 }}>{avatar(p.name, band.key === "atrisk" || overdue)}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: band.key === "atrisk" || overdue ? "#b91c1c" : "#0f1b2d", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                        <div style={{ fontSize: 10, color: "#868e96", marginTop: 1 }}>{p.role}</div>
+                      </div>
+                      <div style={{ width: 56, flexShrink: 0, textAlign: "center" }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 7px", borderRadius: 5, background: "#eef2ff", color: "#4f46e5" }}>{p.phase}</span>
+                      </div>
+                      <div style={{ width: 80, flexShrink: 0, textAlign: "center" }}>
+                        {cs.avg !== null
+                          ? <span style={{ fontSize: 16, fontWeight: 800, color: bs.fg }}>{cs.avg.toFixed(1)}<span style={{ fontSize: 10, fontWeight: 600, color: "#adb5bd" }}> /10</span></span>
+                          : <span style={{ fontSize: 11, color: overdue ? "#d97706" : "#adb5bd", fontWeight: overdue ? 700 : 400 }}>{overdue ? "Overdue" : "Pending"}</span>
+                        }
+                      </div>
+                      <div style={{ width: 100, flexShrink: 0, textAlign: "center" }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: TREND_COLOR[trendKey] }}>{TREND_LABEL[trendKey]}</span>
+                        {tr.delta != null && Math.abs(tr.delta) >= 0.2 && (
+                          <div style={{ fontSize: 9, color: "#adb5bd", marginTop: 1 }}>{(tr.delta > 0 ? "+" : "") + tr.delta.toFixed(1)} since last</div>
+                        )}
+                      </div>
+                      <div style={{ width: 90, flexShrink: 0, textAlign: "right" }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, padding: "4px 9px", borderRadius: 6, background: bs.bg, color: bs.fg, whiteSpace: "nowrap" }}>{bs.label}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div style={{ display: "flex", gap: 16, marginTop: 14, paddingTop: 12, borderTop: "1px solid #e9ecef", flexWrap: "wrap", alignItems: "center" }}>
+                  {Object.entries(BAND_STYLE).map(([, s]) => (
+                    <span key={s.label} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: "#868e96", fontWeight: 600 }}>
+                      <span style={{ width: 10, height: 10, borderRadius: "50%", background: s.fg, display: "inline-block", flexShrink: 0 }} />{s.label}
+                    </span>
+                  ))}
+                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#adb5bd", fontStyle: "italic" }}>
+                    Checkpoints at m3 · m6 · m9 · m12 (extended to m24 for APC)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Confirm Remove Provider modal */}
       {confirmRemove && (
