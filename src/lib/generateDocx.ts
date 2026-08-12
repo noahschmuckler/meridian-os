@@ -14,26 +14,12 @@ import {
 } from 'docx';
 import type { ModuleData, ModuleFaqEntry, ModuleFaqQA, ModuleSmartPhrase } from '../types';
 import { normalizeReferences, stripRefMarkers } from './refMarkers';
+import { htmlToBlocks, htmlToPlain } from './htmlBlocks';
 
 const GREEN = '1A5C3A';
 const DARK = '1C1A16';
 const GRAY = '6B6560';
 const LIGHT_GRAY = '999999';
-
-function htmlToPlain(html: string): string {
-  return stripRefMarkers(
-    html
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, ' '),
-  ).trim();
-}
 
 function instruction(text: string): Paragraph {
   return new Paragraph({
@@ -232,7 +218,7 @@ function emitFaqBody(children: Paragraph[], faq: ModuleFaqEntry): void {
     children.push(new Paragraph({ children: [new TextRun({ text: '' })] }));
     children.push(field('First Layer', ''));
     for (const block of htmlToBlocks(faq.first_layer_html ?? '')) {
-      children.push(bodyParagraph(block.text, {
+      children.push(bodyParagraph(block.kind === 'bullet' ? '• ' + block.text : block.text, {
         size: 20,
         color: block.kind === 'callout' ? DARK : GRAY,
         indent: 360,
@@ -271,39 +257,9 @@ function emitQA(children: Paragraph[], qa: ModuleFaqQA, label: 'Question' | 'Sub
   children.push(bodyParagraph(htmlToPlain(qa.answer_html), { size: 20, color: GRAY, indent: 360, spaceAfter: 160 }));
 }
 
-// Decompose first_layer_html into a sequence of (kind, text) blocks for DOCX
-// emission. Recognized:
-//   - <p class="cm-fl-caption">…</p>      → kind: 'caption' (italic)
-//   - <div class="cm-callout">…</div>     → kind: 'callout'
-//   - <ul>/<ol> with <li> children        → kind: 'bullet' (one per li)
-//   - <table> with rows                   → kind: 'tableRow' (one per row, pipe-joined)
-//   - <p>…</p> and any other prose        → kind: 'prose'
-function htmlToBlocks(html: string): Array<{ kind: 'prose' | 'caption' | 'callout' | 'bullet' | 'tableRow'; text: string }> {
-  if (typeof document === 'undefined') return [{ kind: 'prose', text: htmlToPlain(html) }];
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  const blocks: Array<{ kind: 'prose' | 'caption' | 'callout' | 'bullet' | 'tableRow'; text: string }> = [];
-  for (const el of Array.from(tmp.children) as HTMLElement[]) {
-    const tag = el.tagName.toLowerCase();
-    if (tag === 'p' && el.classList.contains('cm-fl-caption')) {
-      blocks.push({ kind: 'caption', text: htmlToPlain(el.innerHTML) });
-    } else if (tag === 'div' && el.classList.contains('cm-callout')) {
-      blocks.push({ kind: 'callout', text: htmlToPlain(el.innerHTML) });
-    } else if (tag === 'ul' || tag === 'ol') {
-      for (const li of Array.from(el.querySelectorAll('li')) as HTMLElement[]) {
-        blocks.push({ kind: 'bullet', text: '• ' + htmlToPlain(li.innerHTML) });
-      }
-    } else if (tag === 'table') {
-      for (const row of Array.from(el.querySelectorAll('tr')) as HTMLElement[]) {
-        const cells = (Array.from(row.querySelectorAll('th, td')) as HTMLElement[]).map((c) => htmlToPlain(c.innerHTML));
-        blocks.push({ kind: 'tableRow', text: cells.join(' | ') });
-      }
-    } else {
-      blocks.push({ kind: 'prose', text: htmlToPlain(el.innerHTML) });
-    }
-  }
-  return blocks;
-}
+// htmlToBlocks now lives in src/lib/htmlBlocks.ts (shared with the
+// interface-simulacrum PPTX exporter). Bullet blocks no longer carry a '• '
+// prefix — the emitter above adds it for the DOCX presentation.
 
 function formatSmartPhrase(sp: ModuleSmartPhrase): string {
   const body = sp.status === 'confirmed' ? (sp.text ?? '') : (sp.description ?? '');
