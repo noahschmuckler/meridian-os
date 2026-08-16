@@ -18,6 +18,9 @@ meridian-os-saw.zip
 .claude/settings.local.json
 .claude/*.lock
 
+# Generated Excel workbooks — rebuild with excel-export/build_workbooks.py
+src/apps/mentorship-tracker/excel-export/out/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

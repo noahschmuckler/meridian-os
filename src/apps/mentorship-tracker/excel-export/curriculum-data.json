@@ -1,0 +1,2369 @@
+{
+  "generated_from": "MentorshipTrackerApp.tsx + ProductivityPanel.tsx + mentorship-master-checklist.json",
+  "master_checklist": {
+    "schema_version": "1.0.0",
+    "source": "~/Downloads/Master checklist.docx (Noah's 62-item MD-edited omnibus)",
+    "epic_ref_source": "~/Downloads/remixed-0de3d5eb.tsx (Scott's Epic Quick Reference SPA)",
+    "phases": [
+      {
+        "id": "pre0",
+        "label": "Pre-Start (3 mo)"
+      },
+      {
+        "id": "pre1",
+        "label": "Pre-Start (~2 wk)"
+      },
+      {
+        "id": "w1",
+        "label": "Week 1"
+      },
+      {
+        "id": "w2",
+        "label": "Week 2"
+      },
+      {
+        "id": "w3",
+        "label": "Week 3"
+      },
+      {
+        "id": "w4",
+        "label": "Week 4"
+      },
+      {
+        "id": "w5",
+        "label": "Week 5"
+      },
+      {
+        "id": "w6",
+        "label": "Week 6"
+      },
+      {
+        "id": "w7",
+        "label": "Week 7"
+      },
+      {
+        "id": "w8",
+        "label": "Week 8"
+      },
+      {
+        "id": "m3",
+        "label": "Month 3"
+      },
+      {
+        "id": "m4",
+        "label": "Month 4"
+      },
+      {
+        "id": "m5",
+        "label": "Month 5"
+      },
+      {
+        "id": "m6",
+        "label": "Month 6"
+      },
+      {
+        "id": "q3",
+        "label": "Month 9"
+      },
+      {
+        "id": "q4",
+        "label": "Month 12"
+      }
+    ],
+    "owners": {
+      "MD": "Medical Director",
+      "Mentor": "Assigned Mentor",
+      "OM": "Office Manager",
+      "CS": "Clinical Staff (MA/RN)"
+    },
+    "items": [
+      {
+        "id": "md-01",
+        "n": 1,
+        "phase": "pre0",
+        "owner": "MD",
+        "partner": "OM",
+        "section": "Pre-Start (3 Months Out)",
+        "text": "Confirmed provider's schedule template (visit lengths, slot types, double-book rules, admin/charting blocks) at 3-month pre-start conversation.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-02",
+        "n": 2,
+        "phase": "pre1",
+        "owner": "MD",
+        "partner": "OM",
+        "section": "Pre-Start (~2 Weeks Out)",
+        "text": "Planned DAX Copilot setup ~2 weeks before start; Day-1 instruction by MD.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-03",
+        "n": 3,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Provider Identity and Access",
+        "text": "Captured provider's Epic ID (5-digit; Epic menu > Session Information Report); gave to provider for keyboard fallback if swipe/print fails.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-04",
+        "n": 4,
+        "phase": "w1",
+        "owner": "MD",
+        "partner": "OM",
+        "section": "First Week Email to New Hire and Office Manager",
+        "text": "Sent first-week site-info email to new hire + OM covering emergency protocols (codes, AED, evac, who calls 911), POC testing workflows (strep/flu/COVID/UA/glucose/Hgb), and procedure inventory (joint inj / skin biopsy / I&D / cryo — supplies, billing, consent).",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-05",
+        "n": 5,
+        "phase": "w1",
+        "owner": "OM",
+        "partner": "MD",
+        "section": "Side-by-Side with Medical Director (Site Orientation)",
+        "text": "Physical site tour (exam rooms, lab, supply, sample closet, vaccine fridge, AED) by office staff or OM.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-06",
+        "n": 6,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Side-by-Side with Medical Director (Site Orientation)",
+        "text": "Established communication channels: OM, MD, and Marc (Senior Regional MD).",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-07",
+        "n": 7,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Side-by-Side with Medical Director (Site Orientation)",
+        "text": "Set up Epic Out-of-Office and in-basket coverage assignments for PTO.",
+        "epic_ref_ids": [
+          "inbasket-organize"
+        ]
+      },
+      {
+        "id": "md-08",
+        "n": 8,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Side-by-Side with Medical Director (Site Orientation)",
+        "text": "Reviewed call schedule, after-hours triage line, urgent-issue patient instructions.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-09",
+        "n": 9,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Daily Workflow Foundations (Day 1 or 2 with Medical Director)",
+        "text": "Walked through daily huddle (timing, attendees, content); tied to closing care gaps as the reason it matters.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-10",
+        "n": 10,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Daily Workflow Foundations (Day 1 or 2 with Medical Director)",
+        "text": "Walked through care-gap identification on the daily schedule and how to close them in the visit.",
+        "epic_ref_ids": [
+          "find-care-gaps",
+          "close-care-gap"
+        ]
+      },
+      {
+        "id": "md-11",
+        "n": 11,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "In-Basket and Message Pool",
+        "text": "Walked through message-pool management including lab results.",
+        "epic_ref_ids": [
+          "inbasket-organize",
+          "result-notification",
+          "staff-message"
+        ]
+      },
+      {
+        "id": "md-12",
+        "n": 12,
+        "phase": "w1",
+        "owner": "MD",
+        "misstep_risk": true,
+        "section": "In-Basket and Message Pool",
+        "text": "Set up ≥5 Quick Action buttons covering most incoming results. Reinforce: these aren't typed individually — that's what makes them fast.",
+        "epic_ref_ids": [
+          "inbasket-quickaction"
+        ]
+      },
+      {
+        "id": "md-13",
+        "n": 13,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "In-Basket and Message Pool",
+        "text": "Created additional Quick Actions / SmartPhrases for routine guidance: BG control, BP control, cholesterol, exercise, repeat-lab timing.",
+        "epic_ref_ids": [
+          "inbasket-quickaction",
+          "create-smartphrase"
+        ]
+      },
+      {
+        "id": "md-14",
+        "n": 14,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "In-Basket and Message Pool",
+        "text": "Taught response patterns for every in-basket category: staff messages, cosign orders, patient requests, MyChart, HCC dept, internal pharmacist, billing.",
+        "epic_ref_ids": [
+          "inbasket-organize",
+          "staff-message",
+          "mychart-respond"
+        ]
+      },
+      {
+        "id": "md-15",
+        "n": 15,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "E/M, Billing, and HCC",
+        "text": "Rearranged LOS and E/M buttons for the new provider (very beginning — first session).",
+        "epic_ref_ids": [
+          "customize-tabs"
+        ]
+      },
+      {
+        "id": "md-16",
+        "n": 16,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "E/M, Billing, and HCC",
+        "text": "Walked through level 3/4/5 billing; stressed accurate level selection.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-17",
+        "n": 17,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "E/M, Billing, and HCC",
+        "text": "Reviewed E/M Pro use.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-18",
+        "n": 18,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "E/M, Billing, and HCC",
+        "text": "Showed where HCC codes appear in Epic and on the daily schedule.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-19",
+        "n": 19,
+        "phase": "w1",
+        "owner": "MD",
+        "misstep_risk": true,
+        "section": "E/M, Billing, and HCC",
+        "text": "Moved the HCC column all the way to the left of the schedule view.",
+        "epic_ref_ids": [
+          "customize-schedule"
+        ]
+      },
+      {
+        "id": "md-20",
+        "n": 20,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "E/M, Billing, and HCC",
+        "text": "Reviewed This Visit tab HCC management: agree / stable / disagree / managed-by-other-provider. Majority should be 'agree' — curated by team research.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-21",
+        "n": 21,
+        "phase": "w2",
+        "owner": "MD",
+        "depends_on": "CAHPS/HOS one-pager from Chris Langerhans",
+        "section": "E/M, Billing, and HCC",
+        "text": "Covered CAHPS and HOS basics; tied to performance.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-22",
+        "n": 22,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Showed vitals entry; confirmed repeated when clinically indicated.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-23",
+        "n": 23,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Showed CC entry; stressed CC required for telemed billable.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-24",
+        "n": 24,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Showed allergy entry.",
+        "epic_ref_ids": [
+          "customize-sidebar"
+        ]
+      },
+      {
+        "id": "md-25",
+        "n": 25,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Showed PMH/PSH/SH/FH entry; reinforced SH alongside the rest.",
+        "epic_ref_ids": [
+          "update-social-hx"
+        ]
+      },
+      {
+        "id": "md-26",
+        "n": 26,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Walked through cleaning/reconciling med list + dx list thoroughly; doing it makes future visits easier.",
+        "epic_ref_ids": [
+          "med-reconciliation",
+          "update-problem-list"
+        ]
+      },
+      {
+        "id": "md-27",
+        "n": 27,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Walked through writing/closing progress notes using SmartPhrases built into top-of-note buttons.",
+        "epic_ref_ids": [
+          "create-smartphrase",
+          "note-from-template"
+        ]
+      },
+      {
+        "id": "md-28",
+        "n": 28,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Discussed creating new SmartPhrases from already-written/transcribed statements.",
+        "epic_ref_ids": [
+          "create-smartphrase"
+        ]
+      },
+      {
+        "id": "md-29",
+        "n": 29,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Established + provided a standard progress note that pulls vitals from last 3 visits (not just most recent).",
+        "epic_ref_ids": [
+          "pull-results-note"
+        ]
+      },
+      {
+        "id": "md-30",
+        "n": 30,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "Showed how to run a telehealth visit end-to-end.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-31",
+        "n": 31,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Visit Charting Workflow",
+        "text": "EKG ordering, performance, interpretation workflow.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-32",
+        "n": 32,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Annual Wellness Visit",
+        "text": "Showed AWV SmartSet location, selection, AWV progress note.",
+        "epic_ref_ids": [
+          "create-smartset"
+        ]
+      },
+      {
+        "id": "md-33",
+        "n": 33,
+        "phase": "w3",
+        "owner": "CS",
+        "partner": "MD",
+        "section": "Annual Wellness Visit",
+        "text": "Clinical staff member walked new provider through AWV questionnaire so provider can complete one solo if needed.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-34",
+        "n": 34,
+        "phase": "w3",
+        "owner": "MD",
+        "section": "Annual Wellness Visit",
+        "text": "Reinforced running AWV themselves is not required, just useful.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-35",
+        "n": 35,
+        "phase": "w3",
+        "owner": "MD",
+        "section": "Annual Wellness Visit",
+        "text": "Below AWV note heading, all current specialists must be listed.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-36",
+        "n": 36,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Annual Wellness Visit",
+        "text": "Labs ordered in AWV (or otherwise) must attach to a diagnosis, not a screening code, so Medicare covers and patient isn't billed.",
+        "epic_ref_ids": [
+          "link-dx-order",
+          "link-dx-billing"
+        ]
+      },
+      {
+        "id": "md-37",
+        "n": 37,
+        "phase": "w3",
+        "owner": "MD",
+        "section": "Annual Wellness Visit",
+        "text": "Covered SDOH screening within reason as it ties into AWV SmartSet/questionnaire.",
+        "epic_ref_ids": [
+          "update-social-hx"
+        ]
+      },
+      {
+        "id": "md-38",
+        "n": 38,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Behavioral Health",
+        "text": "BH screening: PHQ-9, GAD-7, AUDIT — how they trigger, how to act on positive screens. Email LSW workflow.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-39",
+        "n": 39,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Orders: Medications",
+        "text": "Showed how to place medication orders.",
+        "epic_ref_ids": [
+          "eprescribe",
+          "star-order"
+        ]
+      },
+      {
+        "id": "md-40",
+        "n": 40,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Orders: Medications",
+        "text": "Showed how to check pharmacy on Visit tab before signing.",
+        "epic_ref_ids": [
+          "eprescribe"
+        ]
+      },
+      {
+        "id": "md-41",
+        "n": 41,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Orders: Medications",
+        "text": "Showed how to send meds to multiple pharmacies simultaneously.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-42",
+        "n": 42,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Orders: Medications",
+        "text": "Showed how to confirm med was actually transmitted.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-43",
+        "n": 43,
+        "phase": "w1",
+        "owner": "MD",
+        "misstep_risk": true,
+        "section": "Orders: Medications",
+        "text": "Covered 100-day vs 90-day refill protocol. Medicare meds at 100 days to prevent care gaps.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-44",
+        "n": 44,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Orders: Medications",
+        "text": "Saved medication orders with appropriate refill counts and dx attachments.",
+        "epic_ref_ids": [
+          "star-order",
+          "link-dx-order"
+        ]
+      },
+      {
+        "id": "md-45",
+        "n": 45,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Orders: Labs and Diagnostics",
+        "text": "Placed lab orders as Now vs Future.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-46",
+        "n": 46,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Orders: Labs and Diagnostics",
+        "text": "LabCorp vs Quest selection (NJ-relevant).",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-47",
+        "n": 47,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Orders: Labs and Diagnostics",
+        "text": "Spotted/resolved red errors before signing.",
+        "epic_ref_ids": [
+          "close-encounter"
+        ]
+      },
+      {
+        "id": "md-48",
+        "n": 48,
+        "phase": "w2",
+        "owner": "MD",
+        "misstep_risk": true,
+        "section": "Orders: Labs and Diagnostics",
+        "text": "Medicare hard-stop bypass: Medicare-approved dx list (secure window) OR patient signed waiver (specific pull-down — checking 'patient will sign' alone does NOT work).",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-49",
+        "n": 49,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Orders: Labs and Diagnostics",
+        "text": "Used CAC (calcium-score CT heart) as teaching example since never covered + bypass must be done correctly.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-50",
+        "n": 50,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Orders Outside of a Visit",
+        "text": "Covered the two pathways: ambulatory order vs telephone encounter.",
+        "epic_ref_ids": [
+          "telephone-encounter"
+        ]
+      },
+      {
+        "id": "md-51",
+        "n": 51,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Orders Outside of a Visit",
+        "text": "Ambulatory orders don't show in standard progress-notes view by default. Uncheck 'Hide Additional Visits' to make them visible.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-52",
+        "n": 52,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Orders Outside of a Visit",
+        "text": "Recommended telephone encounters when documentation matters; brief note explaining patient/staff request.",
+        "epic_ref_ids": [
+          "telephone-encounter"
+        ]
+      },
+      {
+        "id": "md-53",
+        "n": 53,
+        "phase": "w2",
+        "owner": "MD",
+        "section": "Critical and Abnormal Results",
+        "text": "Critical/abnormal result management: abnormal pap, abnormal mammogram, critical labs. Closed-loop expectations. Reference the patient contract re: results-turnaround time.",
+        "epic_ref_ids": [
+          "result-notification"
+        ]
+      },
+      {
+        "id": "md-54",
+        "n": 54,
+        "phase": "w1",
+        "owner": "MD",
+        "partner": "OM",
+        "section": "Referrals",
+        "text": "Used electronic referrals only. Front office addresses to schedule + track completion.",
+        "epic_ref_ids": [
+          "place-referral"
+        ]
+      },
+      {
+        "id": "md-55",
+        "n": 55,
+        "phase": "w1",
+        "owner": "MD",
+        "partner": "OM",
+        "section": "Referrals",
+        "text": "Confirmed an established referral list is built into provider's Epic orders. If not, alert OM.",
+        "epic_ref_ids": [
+          "place-referral"
+        ]
+      },
+      {
+        "id": "md-56",
+        "n": 56,
+        "phase": "w1",
+        "owner": "MD",
+        "misstep_risk": true,
+        "section": "Referrals",
+        "text": "Chose the correct SPECIFIC referral (individual provider or office location) — never generic. Generic referrals fall into an unattached basket and never get worked.",
+        "epic_ref_ids": [
+          "place-referral"
+        ]
+      },
+      {
+        "id": "md-57",
+        "n": 57,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Referrals",
+        "text": "Defaulted to Internal referral. Outgoing referral occasionally, only for non-group specialists.",
+        "epic_ref_ids": [
+          "place-referral"
+        ]
+      },
+      {
+        "id": "md-58",
+        "n": 58,
+        "phase": "w4",
+        "owner": "MD",
+        "section": "Order Sets and Templates",
+        "text": "Set up tailored order sets by disease type, age group, visit type (e.g., physical), and other categories. Time investment up front, big payoff.",
+        "epic_ref_ids": [
+          "create-smartset"
+        ]
+      },
+      {
+        "id": "md-59",
+        "n": 59,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Documentation and Performance Expectations",
+        "text": "Note closure timeliness expectations (24–72 hr); consequences of open encounters.",
+        "epic_ref_ids": [
+          "close-encounter"
+        ]
+      },
+      {
+        "id": "md-60",
+        "n": 60,
+        "phase": "w4",
+        "owner": "MD",
+        "section": "Epic Power-User Items",
+        "text": "F2 navigation between SmartPhrase fields and asterisk placeholders.",
+        "epic_ref_ids": [
+          "keyboard-shortcuts"
+        ]
+      },
+      {
+        "id": "md-61",
+        "n": 61,
+        "phase": "w2",
+        "owner": "MD",
+        "depends_on": "RLdatix how-to from operations",
+        "section": "Quality and Safety",
+        "text": "Incident reporting via RLdatix.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-62",
+        "n": 62,
+        "phase": "w1",
+        "owner": "Mentor",
+        "partner": "MD",
+        "section": "Mentorship and Ongoing Check-Ins",
+        "text": "Established protected, recurring mentor↔new-hire time on calendar at 30 / 60 / 90 / 180 / 270 days post-start. Email mentor + new hire + pertinent OM(s) to establish.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-63",
+        "n": 63,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Clinical Modules — Introduction",
+        "text": "Introduced the provider to the Meridian clinical modules — walked through the full set (lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos) and explained that these are the practice's reference standard for clinical decision-making. Encouraged them to open each module before they encounter that condition in the first weeks.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-64",
+        "n": 64,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Controlled Substances — Module Review",
+        "text": "Reviewed the Meridian Opiates clinical module together. Discussed the practice's approach to continuing care for established opioid patients — the goal is continuity, not reflexive tapering. Provider understands documentation expectations and the PDMP workflow for existing patients.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-65",
+        "n": 65,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Controlled Substances — Module Review",
+        "text": "Reviewed the Meridian Benzos module together. Discussed how to distinguish appropriate continuation of an inherited benzodiazepine prescription from a regimen that warrants a taper conversation — and how to have that conversation without alienating a long-established patient.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-66",
+        "n": 66,
+        "phase": "w1",
+        "owner": "MD",
+        "section": "Controlled Substances — Module Review",
+        "text": "Reviewed the Meridian ADHD module together. Discussed stimulant prescribing for established patients, Schedule II documentation requirements, and the practice's expectation that new providers will continue existing regimens for stable patients rather than requiring re-evaluation before every refill.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-67",
+        "n": 67,
+        "phase": "m6",
+        "owner": "MD",
+        "section": "Controlled Substances — Six-Month Check-In",
+        "text": "Six-month controlled substances check-in. Review how the provider has been managing inherited opioid, benzodiazepine, and stimulant patients over the first six months. Are they continuing established care appropriately, or have there been patterns of avoidance, unnecessary tapering, or referral out? Use this as a direct coaching conversation.",
+        "epic_ref_ids": []
+      },
+      {
+        "id": "md-68",
+        "n": 68,
+        "phase": "m6",
+        "owner": "MD",
+        "section": "Clinical Modules — Six-Month Check-In",
+        "text": "Six-month clinical modules check-in. Ask which Meridian modules the provider has used — lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos. Which have been most useful? Are there modules they have not opened yet that are relevant to their patient population? Identify any clinical areas where they seem to be avoiding complexity and use the modules as a shared reference point for coaching.",
+        "epic_ref_ids": []
+      }
+    ]
+  },
+  "mentor_physician_track": [
+    {
+      "id": "w0",
+      "label": "Week 0",
+      "items": [
+        "After receiving notification from Deirdre Morgan's team, introduce yourself to the new provider via email or phone — share your name, role, how long you've been at the practice, and that you'll be their go-to person",
+        "Provide your direct contact information and tell them they can reach out anytime, even before day one",
+        "Ask if they have questions or concerns about starting — logistics, parking, dress code, what to bring",
+        "Share one or two practical tips about the practice that nobody puts in the welcome packet",
+        "Confirm you will be available in person during their first week and coordinate your schedule to overlap",
+        "Let them know you are not their evaluator — you are the person who makes sure they never feel lost"
+      ]
+    },
+    {
+      "id": "w1",
+      "label": "Week 1",
+      "items": [
+        "Meet the provider in person on day one — walk them to their workspace and introduce them to daily contacts",
+        "Confirm they know where essentials are: restrooms, break room, supply room, printer, fax, sample closet",
+        "Confirm all system access is working: Epic login, email, phone, building badge, parking",
+        "Introduce them individually to the MAs, front desk staff, and office manager they will work with directly",
+        "Walk them through the daily rhythm: arrival time, huddle, lunch, when most providers leave",
+        "Explain the unwritten rules: how the call schedule actually works, which staff handle which tasks, how to get things done quickly",
+        "Check in at end of day one: How did it go? What was confusing? What do they need tomorrow?",
+        "Check in at end of day three: What has gotten easier? What is still frustrating? Are they eating lunch or working through it?",
+        "Ask if they have met someone on the team they feel comfortable asking questions to besides you",
+        "Confirm they understand how to reach you, the office manager, and the Medical Director if something urgent comes up",
+        "Ask if anything about the physical workspace needs to be fixed — chair, monitor, lighting, noise",
+        "End-of-week check-in: Best and worst moments of week one? Anything they need before Monday?"
+      ]
+    },
+    {
+      "id": "w2",
+      "label": "Week 2",
+      "items": [
+        "Check in on patient encounters — not clinical quality, but workflow: finishing on time? Finding what they need in Epic?",
+        "Ask how the In Basket is going: piling up? Understanding message types? Staying on top of results?",
+        "Ask if any patient interactions left them feeling uncertain or uncomfortable — interpersonally, not clinically",
+        "Observe their general demeanor: overwhelmed, anxious, frustrated, or settling in? If something seems off, ask directly",
+        "Ask if they have questions they feel embarrassed to ask someone else",
+        "Check whether they have been included in team conversations, lunch, or social moments — or eating alone",
+        "Ask if the pace feels sustainable or rushed",
+        "Confirm daily huddle attendance and they understand its purpose, especially care gap review",
+        "Ask if any staff interactions have been confusing, tense, or unclear — offer context about team dynamics",
+        "Flag anything concerning to the Medical Director with appropriate urgency (routine or urgent)"
+      ]
+    },
+    {
+      "id": "w3",
+      "label": "Week 3",
+      "items": [
+        "Ask what part of the daily workflow now feels comfortable and what still feels like a struggle",
+        "Check on Epic efficiency: SmartPhrases helping? Order sets built? Documentation getting faster?",
+        "Ask about In Basket management: under control by end of day, or taking work home?",
+        "Check on schedule management: running on time or consistently behind? Identify whether it is volume, documentation, complexity, or rooming delays",
+        "Ask if they have developed any shortcuts or workarounds — and whether those are helping or masking a problem",
+        "Check on team relationships: part of the team, or still the new person?",
+        "Ask if there is anything the Medical Director should know that the provider might not bring up themselves",
+        "Provide one specific, actionable piece of advice based on what you have observed"
+      ]
+    },
+    {
+      "id": "m1",
+      "label": "Month 1",
+      "items": [
+        "Ask the provider to rate their own first month: what grade would they give themselves, and why?",
+        "Ask what they wish they had known on day one that nobody told them",
+        "Check on documentation speed: notes closing same day? If not, what is causing the delay?",
+        "Ask about care gap identification: noticing care gaps during visits, or still focused on chief complaint only?",
+        "Discuss volume: does the current patient load feel right?",
+        "Ask about the team dynamic from their perspective: respected by staff? Supported?",
+        "Ask if there are concerns they have not raised with the Medical Director that they would raise with you",
+        "Prepare the provider for the Medical Director's Month 1 questionnaire — let them know it is coming and that it is supportive, not evaluative",
+        "Ask how they have been handling inherited controlled substances patients so far — opioids, benzodiazepines, stimulants. Are they continuing existing regimens comfortably, or feeling uncertain about taking them on? Share how you personally approach these patients and normalize the discomfort if it is there.",
+        "Ask if they have opened the Meridian clinical modules yet — lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos. If not, walk them through where to find them and show them one you use regularly. Make it concrete, not aspirational.",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "w5",
+      "label": "Week 5",
+      "items": [
+        "Check how the volume increase is landing: keeping up, or starting to feel rushed?",
+        "Ask about referral workflows: do they know how to route correctly in Epic?",
+        "Ask about encounter closure: closing by end of day, or open encounters piling up?",
+        "Check on In Basket at end of day: manageable, or has increased volume created a backlog?",
+        "Ask if any part of their workflow has broken down as volume increased",
+        "Offer one practical tip for managing the increased pace",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "w6",
+      "label": "Week 6",
+      "items": [
+        "Ask about MyChart messaging: manageable, or becoming a second In Basket?",
+        "Check on medication reconciliation habits: cleaning the med list during visits, or skipping due to time?",
+        "Ask about work-life balance: leaving at a reasonable time? Charting from home? Sleeping well?",
+        "Ask if there is a specific visit type or patient that consistently feels harder than it should",
+        "Check whether they are personalizing their Epic workspace: custom order sets, preference lists, SmartPhrase library",
+        "Ask if they have advice for you — what have they noticed with fresh eyes?",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "w7",
+      "label": "Week 7",
+      "items": [
+        "Ask how confident they feel handling a full day independently",
+        "Check whether they know what to do when they encounter a scenario they are not sure about",
+        "Ask about complex patient management: have they handled a multi-problem visit successfully?",
+        "Ask if they feel ready to shift from weekly to monthly check-ins — and whether that feels supportive or abandoned",
+        "Ask what one skill or area they still want to improve over the next three months",
+        "Share your honest assessment of their progress — specific, positive, and constructive",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "m2",
+      "label": "Month 2",
+      "items": [
+        "Conduct a reflective conversation: highest and lowest moments of the first two months",
+        "Ask what part of the onboarding program has been most helpful and what felt unnecessary",
+        "Check all core workflows: documentation, In Basket, referrals, orders, care gaps, MyChart — any still a daily struggle?",
+        "Ask about team integration: established member, or still the new person?",
+        "Ask if there are unresolved concerns from the first two months",
+        "Set expectations for monthly check-ins: shorter, less structured, focused on how things are going",
+        "Remind them you are still available between scheduled check-ins",
+        "Flag a summary to the Medical Director: overall trajectory and any specific items to address",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "m3",
+      "label": "Month 3",
+      "items": [
+        "Ask how the transition from weekly to monthly support has felt",
+        "Check on volume sustainability: daily load manageable at closer to full capacity?",
+        "Ask about quality metrics: aware of their scores? Understand what is being measured?",
+        "Ask if they have had any difficult conversations with patients, staff, or leadership — and how they handled them",
+        "Check on professional satisfaction: is this what they expected? Glad they took this position?",
+        "Ask if there is anything they need from you, the Medical Director, or the organization",
+        "Controlled substances check-in: how have encounters with inherited opioid, benzodiazepine, and stimulant patients gone over the past two months? Debrief any cases where they felt stuck or over-cautious. Remind them that continuing a stable patient's established regimen is the right call, and that the Meridian modules are there if they need a refresher.",
+        "Clinical modules check-in: which Meridian modules have they actually opened — lipids, CKD, anemia, abdominal pain, ADHD, opiates, benzos? Which have been useful? Are there any they have not tried yet that seem relevant to what they are seeing? Share which ones you rely on most.",
+        "Provider appears energized and engaged",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "m4",
+      "label": "Month 4",
+      "items": [
+        "Check on daily workflow: anything changed since Month 3? New frustrations or inefficiencies?",
+        "Ask about their relationship with the team: deepened, plateaued, or developed tension?",
+        "Ask if they are pursuing any professional development and whether the organization is supporting it",
+        "Check on documentation habits: notes still closing same day?",
+        "Has the provider developed at least one close working relationship on the team — someone they talk to, eat with, or ask questions of beyond surface-level pleasantries?",
+        "Provider appears energized and engaged",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "m5",
+      "label": "Month 5",
+      "items": [
+        "Ask how they would evaluate their own performance over five months — strengths and areas for growth",
+        "Check on burnout signals: energy level, enthusiasm for coming to work — without being intrusive, just genuinely asking",
+        "Ask if there are goals they set at the beginning that they have not yet achieved — and what is in the way",
+        "Preview the six-month milestone: Medical Director questionnaire, office manager assessment, and what those cover",
+        "Has the provider maintained at least one close working relationship on the team, or has social connection faded?",
+        "Provider appears energized and engaged",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "m6",
+      "label": "Month 6",
+      "items": [
+        "Acknowledge the milestone: six months is a real accomplishment. Tell them specifically what you have watched them improve at",
+        "Ask for their honest six-month self-assessment: where are they strongest? Where do they still struggle?",
+        "Check on panel growth: are patients building loyalty? Do patients request them?",
+        "Ask about their long-term vision: do they see themselves here in two years? Five years?",
+        "Ask if the mentorship relationship is still valuable and what format they prefer going forward",
+        "Flag your six-month assessment to the Medical Director: on track for success? Any concerns?",
+        "Provider appears energized and engaged",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "m7",
+      "label": "Month 7",
+      "items": [
+        "Brief check-in: any concerns, changes, or developments since Month 6?",
+        "How is your energy and motivation level?",
+        "Anything you need from me, the Medical Director, or the organization?",
+        "Provider appears energized and engaged"
+      ]
+    },
+    {
+      "id": "m8",
+      "label": "Month 8",
+      "items": [
+        "Brief check-in: anything on your mind professionally?",
+        "How are things going with the team?",
+        "Any emerging issues heading into the Month 9 check-in?",
+        "Provider appears energized and engaged"
+      ]
+    },
+    {
+      "id": "m9",
+      "label": "Month 9",
+      "items": [
+        "Ask how things are going — genuinely. Listen for what they say and what they do not say",
+        "Check whether documentation and workflow efficiency have continued to improve, plateaued, or declined",
+        "Ask if they feel recognized and appreciated — by patients, staff, and leadership",
+        "Ask if anything about the organization, practice, or team has surprised them since last check-in",
+        "Ask if they have started mentoring or helping others informally",
+        "Provider appears energized and engaged",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "m12",
+      "label": "Month 12",
+      "items": [
+        "Conduct a year-in-review conversation: defining moments, breakthroughs, struggles, turning points",
+        "Ask what they know now that they wish they had been told on day one",
+        "Ask directly: Are you happy here? Is this where you want to be?",
+        "Discuss what the relationship looks like going forward: physicians end formally, APCs continue quarterly through Year 2",
+        "Ask if they would recommend this organization to a friend or colleague — and why or why not",
+        "Thank them for trusting you through this process. Make it personal and genuine",
+        "Provider appears energized and engaged",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    }
+  ],
+  "mentor_apc_track": [
+    {
+      "id": "m15",
+      "label": "Month 15",
+      "items": [
+        "Check how the transition from monthly to quarterly check-ins has felt — still supported, or has the gap created distance?",
+        "Ask about clinical confidence: are there still presentations that make them pause, or has most of it become routine?",
+        "Ask about the collaborative relationship with their collaborating physician: working well? Enough access? Respectful and genuinely collaborative?",
+        "Check on professional development: pursuing advanced certifications, specialty training, leadership opportunities?",
+        "Ask if there is anything about their scope of practice, schedule, or role they would like to see change",
+        "Do you feel you are treated as an equal member of the clinical team? (If the answer is anything less than a confident yes, flag for the Medical Director)",
+        "Provider appears energized and engaged"
+      ]
+    },
+    {
+      "id": "m18",
+      "label": "Month 18",
+      "items": [
+        "Ask about workload sustainability at 18 months: has the pace become comfortable, or is fatigue setting in?",
+        "Check on team dynamics: fully integrated, or still treated differently as an NP or PA compared to physicians?",
+        "Ask whether the national education program content has continued to influence their practice",
+        "Ask about compensation satisfaction — not to fix it, but to know whether it is becoming frustration",
+        "Ask what they would change about the APC onboarding program based on their experience",
+        "Provider appears energized and engaged",
+        "Share one specific thing this provider is doing well that they may not realize"
+      ]
+    },
+    {
+      "id": "m21",
+      "label": "Month 21",
+      "items": [
+        "Check on burnout and emotional wellbeing: 21 months is when initial energy has fully worn off",
+        "Ask if they feel their contributions are visible to leadership, or doing good work nobody notices",
+        "Ask whether they are ready and willing to mentor a new provider",
+        "Check on documentation efficiency: by 21 months, charting should not be a burden",
+        "Ask what keeps them here — genuinely, what is the reason you stay?",
+        "Ask whether the collaborative agreement still reflects their current abilities or should be updated — procedure privileges, chart review frequency, scope",
+        "Provider appears energized and engaged"
+      ]
+    },
+    {
+      "id": "m24",
+      "label": "Month 24",
+      "items": [
+        "Conduct a two-year retrospective: where were they on day one vs now? Help them see the distance traveled",
+        "Ask for their final honest assessment: was the mentorship program worth the time? What made it valuable? What was unnecessary?",
+        "Ask whether they have reached full professional confidence in this role",
+        "Discuss the transition: mentorship formally ends, the relationship does not",
+        "Confirm with the Medical Director whether the collaborative agreement should be formally reviewed and updated based on two years of performance",
+        "Ask if they would serve as a mentor for the next new APC",
+        "Close with genuine recognition: tell them specifically what they have contributed to the practice that was not there before they arrived",
+        "Provider appears energized and engaged"
+      ]
+    }
+  ],
+  "office_manager_reviews": [
+    {
+      "id": "om1",
+      "label": "Month 1 — First Impressions",
+      "qs": [
+        {
+          "qid": "a",
+          "label": "Staff dynamics",
+          "text": "Rate how well the existing staff has adjusted to working with this new provider — including willingness to be paired with them, attitude on their clinic days, and any tension or resistance you have observed.",
+          "anchor_low": "significant tension or resistance from staff",
+          "anchor_high": "staff has fully embraced the new provider",
+          "ty": "s"
+        },
+        {
+          "qid": "b",
+          "label": "Patient signals",
+          "text": "Rate the feedback you and the front desk have heard directly from patients about this provider — including comments made during check-in, checkout, or phone calls.",
+          "anchor_low": "mostly negative or concerning feedback",
+          "anchor_high": "consistently positive feedback",
+          "ty": "s"
+        },
+        {
+          "qid": "c",
+          "label": "Operational burden",
+          "text": "Rate whether this provider is creating extra work for the office — for example, orders that need to be corrected, prescriptions that were not transmitted, referrals that went to the wrong place, or encounters left open that delay billing.",
+          "anchor_low": "frequently causing rework and extra steps for staff",
+          "anchor_high": "no additional operational burden",
+          "ty": "s"
+        },
+        {
+          "qid": "d",
+          "label": "Communication",
+          "text": "Rate how clearly this provider communicates their needs and expectations to non-clinical staff — including requests for the front desk, medical assistants, and office manager.",
+          "anchor_low": "staff is constantly guessing or confused about what the provider needs",
+          "anchor_high": "provider communicates clearly every time",
+          "ty": "s"
+        },
+        {
+          "qid": "e",
+          "label": "Integration",
+          "text": "Rate how well this provider is fitting into the team socially and professionally — including whether they are building relationships with staff, participating in conversations, and making an effort to be part of the office culture.",
+          "anchor_low": "isolated, disconnected, or not making an effort",
+          "anchor_high": "naturally fitting in and building relationships",
+          "ty": "s"
+        },
+        {
+          "qid": "f",
+          "label": "Performance metrics",
+          "text": "Rate your overall assessment of this provider's early performance across the following areas: patient volume relative to what was scheduled, patient wait times in the office, productivity for the visits they are completing, and whether patients are showing up for their appointments. Consider all four areas together in your rating.",
+          "anchor_low": "significant concerns across multiple areas",
+          "anchor_high": "all areas are where they should be for a first-month provider",
+          "ty": "s"
+        },
+        {
+          "qid": "g",
+          "label": "Provider check-in",
+          "text": "Please have a brief conversation with the new provider and ask how things are going so far. Record their response word for word in the space provided below.",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "om2",
+      "label": "Month 2 — Settling In",
+      "qs": [
+        {
+          "qid": "a",
+          "label": "Staff dynamics",
+          "text": "Rate the staff's overall comfort level working with this provider now that they have had a full month together — have initial concerns improved, stayed the same, or gotten worse?",
+          "anchor_low": "comfort level has decreased or concerns have grown",
+          "anchor_high": "staff is fully comfortable and working well together",
+          "ty": "s"
+        },
+        {
+          "qid": "b",
+          "label": "Patient signals",
+          "text": "Rate whether patients who have seen this provider are rebooking with the same provider, or whether the front desk is hearing requests to see someone else.",
+          "anchor_low": "patients are frequently asking for other providers",
+          "anchor_high": "patients are consistently rebooking with this provider",
+          "ty": "s"
+        },
+        {
+          "qid": "c",
+          "label": "Operational burden",
+          "text": "Rate this provider's documentation habits from an operational perspective — specifically whether patient encounters are being closed on the same day, or whether open encounters are creating billing delays or additional follow-up work.",
+          "anchor_low": "encounters are routinely left open causing billing and operational delays",
+          "anchor_high": "encounters are closed same day with no issues",
+          "ty": "s"
+        },
+        {
+          "qid": "d",
+          "label": "Communication",
+          "text": "Rate whether this provider is advising patients to schedule their next appointment at the front desk before leaving the office, rather than relying on MyChart or other methods that result in patients not following up.",
+          "anchor_low": "never advises patients to book at checkout",
+          "anchor_high": "consistently ensures patients schedule before leaving",
+          "ty": "s"
+        },
+        {
+          "qid": "e",
+          "label": "Integration",
+          "text": "Rate whether this provider appears engaged and invested in the practice — showing up prepared, participating in huddles, and demonstrating that they want to be part of this team rather than just filling a position.",
+          "anchor_low": "appears disengaged or just going through the motions",
+          "anchor_high": "clearly invested and wants to be here",
+          "ty": "s"
+        },
+        {
+          "qid": "f",
+          "label": "Performance metrics",
+          "text": "Rate this provider's progress across the following areas compared to last month: is their daily patient volume increasing as expected, are patient wait times reasonable, is their productivity per visit appropriate, and are their no-show rates similar to other providers at the site?",
+          "anchor_low": "no improvement or declining in multiple areas",
+          "anchor_high": "improving across all areas as expected",
+          "ty": "s"
+        },
+        {
+          "qid": "g",
+          "label": "Provider check-in",
+          "text": "Please have a brief conversation with the provider and ask how things are going. Record their response word for word in the space provided below.",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "om3",
+      "label": "Month 3 — Independence Check",
+      "qs": [
+        {
+          "qid": "a",
+          "label": "Staff dynamics",
+          "text": "Rate the staff's overall satisfaction with this provider — if any staff members have raised concerns, complaints, or frustrations about this provider at any point in the last three months, factor that into your rating.",
+          "anchor_low": "multiple staff members have raised concerns",
+          "anchor_high": "no concerns raised and staff is fully satisfied",
+          "ty": "s"
+        },
+        {
+          "qid": "b",
+          "label": "Patient signals",
+          "text": "Rate the patient retention signal for this provider — based on what you see at the front desk, are patients returning for follow-ups with this specific provider, or are they asking to see other providers or not returning at all?",
+          "anchor_low": "poor patient retention, patients are not coming back",
+          "anchor_high": "strong patient retention, patients consistently return",
+          "ty": "s"
+        },
+        {
+          "qid": "c",
+          "label": "Operational burden",
+          "text": "Rate this provider's ability to get through their day without creating additional operational work for the office — meaning orders, referrals, prescriptions, and documentation are handled correctly without the office needing to follow up, correct, or redo anything.",
+          "anchor_low": "still creating significant extra work for the staff",
+          "anchor_high": "completely self-sufficient with no rework needed",
+          "ty": "s"
+        },
+        {
+          "qid": "d",
+          "label": "Communication",
+          "text": "Rate how effectively this provider works with the front desk and medical assistants as a team — not just giving instructions, but listening, adapting, and collaborating with the people who support them.",
+          "anchor_low": "one-directional communication, does not collaborate",
+          "anchor_high": "true team player who listens and adapts",
+          "ty": "s"
+        },
+        {
+          "qid": "e",
+          "label": "Integration",
+          "text": "Rate whether any issues or concerns raised in Month 1 or Month 2 have been resolved, and whether this provider is trending in the right direction overall.",
+          "anchor_low": "previous issues remain unresolved or have worsened",
+          "anchor_high": "all prior concerns addressed and clear positive trend",
+          "ty": "s"
+        },
+        {
+          "qid": "f",
+          "label": "Performance metrics",
+          "text": "Rate this provider's current standing across the following areas: daily patient volume compared to the office average, patient wait times compared to other providers, productivity per visit, and no-show rates. At three months, these numbers should be trending toward the office average.",
+          "anchor_low": "significantly behind the office average in multiple areas",
+          "anchor_high": "at or near the office average across all areas",
+          "ty": "s"
+        },
+        {
+          "qid": "g",
+          "label": "Provider check-in",
+          "text": "Please have a brief conversation with the provider and ask how things are going, what is working well, and whether there is anything they would change. Record their response word for word in the space provided below.",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "om6",
+      "label": "Month 6 — Full Speed Check",
+      "qs": [
+        {
+          "qid": "a",
+          "label": "Staff dynamics",
+          "text": "Rate the overall working relationship between this provider and the staff — at six months, any lingering tension or friction should be resolved. If it is not, rate accordingly.",
+          "anchor_low": "unresolved friction that is affecting the team",
+          "anchor_high": "strong working relationship with no issues",
+          "ty": "s"
+        },
+        {
+          "qid": "b",
+          "label": "Patient signals",
+          "text": "Rate whether patients are specifically requesting this provider by name when they call to schedule — this is the strongest indicator that the provider has earned patient trust and loyalty.",
+          "anchor_low": "patients never request this provider",
+          "anchor_high": "patients frequently request this provider by name",
+          "ty": "s"
+        },
+        {
+          "qid": "c",
+          "label": "Operational burden",
+          "text": "Rate whether this provider's presence has made the overall office operations easier or harder compared to before they started — considering schedule flow, staff workload, patient throughput, and any additional operational demands.",
+          "anchor_low": "office operations are harder because of this provider",
+          "anchor_high": "office operations have improved with this provider",
+          "ty": "s"
+        },
+        {
+          "qid": "d",
+          "label": "Communication",
+          "text": "Rate this provider's ability to handle same-day or urgent patient needs — specifically whether they are flexible enough to accommodate walk-ins, urgent calls, or schedule disruptions without creating problems for the office.",
+          "anchor_low": "rigid and unable to accommodate urgent needs",
+          "anchor_high": "flexible and readily accommodates urgent situations",
+          "ty": "s"
+        },
+        {
+          "qid": "e",
+          "label": "Integration",
+          "text": "Rate how fully this provider has become part of the daily fabric of the site — not just doing their job, but being present, engaged, and invested in the success of the office as a whole.",
+          "anchor_low": "still feels like an outsider filling a role",
+          "anchor_high": "feels like they have been here for years",
+          "ty": "s"
+        },
+        {
+          "qid": "f",
+          "label": "Performance metrics",
+          "text": "Rate this provider's performance across the following areas at the six-month mark: daily patient volume relative to their target, patient wait times, productivity per visit compared to other providers, and no-show rates. At six months, these should be at or near the level of an established provider.",
+          "anchor_low": "still well below expectations in multiple areas",
+          "anchor_high": "performing at the level of an established provider across all areas",
+          "ty": "s"
+        },
+        {
+          "qid": "g",
+          "label": "Provider check-in",
+          "text": "Please have a brief conversation with the provider and ask how they feel things are going at this stage. Record their response word for word in the space provided below.",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "om9",
+      "label": "Month 9 — Maturity Assessment",
+      "qs": [
+        {
+          "qid": "a",
+          "label": "Staff dynamics",
+          "text": "Rate this provider's impact on the overall morale and energy of the team — are they someone who lifts up the people around them, or someone who drains energy and creates stress?",
+          "anchor_low": "negatively impacts team morale",
+          "anchor_high": "consistently positive influence on the team",
+          "ty": "s"
+        },
+        {
+          "qid": "b",
+          "label": "Patient signals",
+          "text": "Rate the overall patient loyalty this provider has built — considering rebooking rates, patient requests, patient feedback to the front desk, and whether patients seem genuinely connected to this provider.",
+          "anchor_low": "minimal patient loyalty or connection",
+          "anchor_high": "strong patient loyalty with clear personal connection",
+          "ty": "s"
+        },
+        {
+          "qid": "c",
+          "label": "Operational burden",
+          "text": "Rate whether this provider is contributing to the practice beyond just seeing patients — for example, suggesting workflow improvements, helping train staff, covering for colleagues, mentoring newer team members, or participating in practice initiatives.",
+          "anchor_low": "does not contribute beyond their own patient schedule",
+          "anchor_high": "actively contributes to the practice in multiple ways",
+          "ty": "s"
+        },
+        {
+          "qid": "d",
+          "label": "Communication",
+          "text": "Rate this provider's consistency and reliability — whether you can count on them to show up, perform, communicate, and follow through without surprises or concerns.",
+          "anchor_low": "inconsistent or unpredictable",
+          "anchor_high": "completely reliable and consistent every day",
+          "ty": "s"
+        },
+        {
+          "qid": "e",
+          "label": "Integration",
+          "text": "Rate your confidence that there are no emerging issues — staffing, scheduling, interpersonal, or operational — that could negatively affect this provider's performance or satisfaction in the coming months.",
+          "anchor_low": "there are emerging issues the Medical Director needs to know about",
+          "anchor_high": "no concerns whatsoever",
+          "ty": "s"
+        },
+        {
+          "qid": "f",
+          "label": "Performance metrics",
+          "text": "Rate this provider's sustained performance across the following areas: daily patient volume, patient wait times, productivity per visit, and no-show rates. At nine months, these should be stable and consistent with no concerning trends.",
+          "anchor_low": "declining or inconsistent in multiple areas",
+          "anchor_high": "stable and consistent across all areas",
+          "ty": "s"
+        },
+        {
+          "qid": "g",
+          "label": "Provider check-in",
+          "text": "Please have a brief conversation with the provider and ask how they are feeling about their role and whether they need any additional support. Record their response word for word in the space provided below.",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "om12",
+      "label": "Month 12 — Year-End Verdict",
+      "qs": [
+        {
+          "qid": "a",
+          "label": "Staff dynamics",
+          "text": "Rate this provider's overall impact on the team over the full year — considering every interaction, every day, and every situation you have observed.",
+          "anchor_low": "net negative impact on the team",
+          "anchor_high": "one of the strongest team members at the site",
+          "ty": "s"
+        },
+        {
+          "qid": "b",
+          "label": "Patient signals",
+          "text": "Rate the overall patient response to this provider over the full year — considering feedback, retention, complaints, compliments, and whether patients have come to trust and rely on this provider.",
+          "anchor_low": "patients have not connected with this provider",
+          "anchor_high": "patients are loyal and satisfied",
+          "ty": "s"
+        },
+        {
+          "qid": "c",
+          "label": "Operational burden",
+          "text": "Rate this provider's net impact on the daily operations of the site over the full year — has their presence made your job and the staff's jobs easier or harder?",
+          "anchor_low": "created more operational burden than benefit",
+          "anchor_high": "significantly improved operations",
+          "ty": "s"
+        },
+        {
+          "qid": "d",
+          "label": "Communication",
+          "text": "Rate how this provider compares to other providers at the site in terms of overall operational effectiveness — productivity, reliability, communication, teamwork, and professionalism.",
+          "anchor_low": "well below other providers",
+          "anchor_high": "among the best providers at the site",
+          "ty": "s"
+        },
+        {
+          "qid": "e",
+          "label": "Integration",
+          "text": "Rate how strongly you would want this provider to remain at your site if you had the choice — this is your honest overall assessment of whether this hire worked.",
+          "anchor_low": "would prefer a different provider",
+          "anchor_high": "absolutely want them to stay and would be upset to lose them",
+          "ty": "s"
+        },
+        {
+          "qid": "f",
+          "label": "Performance metrics",
+          "text": "Rate this provider's year-end performance across the following areas: daily patient volume, patient wait times, productivity per visit, and no-show rates. Compare these to where they started in Month 1 and to where other established providers at the site currently stand.",
+          "anchor_low": "still below expectations after a full year",
+          "anchor_high": "fully performing at or above the level of established providers",
+          "ty": "s"
+        },
+        {
+          "qid": "g",
+          "label": "Provider check-in",
+          "text": "Please have a brief conversation with the provider and ask them to reflect on their first year — what went well, what they would change, and what they need going into year two. Record their response word for word in the space provided below.",
+          "ty": "t"
+        }
+      ]
+    }
+  ],
+  "provider_questionnaires": [
+    {
+      "id": "w0",
+      "label": "Week 0 — Post-Hire",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "What aspects of the hiring process stood out as particularly positive for you?",
+          "ty": "t"
+        },
+        {
+          "qid": "b",
+          "text": "Were there any points in the hiring process that felt unclear or challenging?",
+          "ty": "t"
+        },
+        {
+          "qid": "c",
+          "text": "How did the onboarding communication (e.g., emails, calls, materials) prepare you for your first day?",
+          "ty": "t"
+        },
+        {
+          "qid": "d",
+          "text": "Was the timeline between your offer acceptance and start date appropriate, or could it be improved?",
+          "ty": "t"
+        },
+        {
+          "qid": "e",
+          "text": "What suggestions do you have for improving the hiring experience for future candidates?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "w1",
+      "label": "Week 1 — End of Orientation",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "Do you have email access on your phone?",
+          "ty": "t"
+        },
+        {
+          "qid": "b",
+          "text": "Can you access Epic on your laptop in the office? Can you access your email and Epic on your laptop at home?",
+          "ty": "t"
+        },
+        {
+          "qid": "c",
+          "text": "What were two positive or most helpful moments of this week? Was there anything particularly daunting that you would like to discuss?",
+          "ty": "t"
+        },
+        {
+          "qid": "d",
+          "text": "Is there anything specific you would like to learn or gain more clarity on this week?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "w2",
+      "label": "Week 2 — First Clinical Week",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "Are you able to prescribe? Any issues sending controlled substances? Do you have Imprivata access?",
+          "ty": "t"
+        },
+        {
+          "qid": "b",
+          "text": "Do you feel the workflow allows you enough time to learn and adapt at a manageable pace? Why or why not?",
+          "ty": "t"
+        },
+        {
+          "qid": "c",
+          "text": "Are there any resources or tools that would help you perform better in your role?",
+          "ty": "t"
+        },
+        {
+          "qid": "d",
+          "text": "How are your interactions with colleagues, staff, and leadership so far? Which team member has been incredibly helpful? How attentive has medical leadership been during this process?",
+          "ty": "t"
+        },
+        {
+          "qid": "e",
+          "text": "Is there anything specific you would like to learn or gain more clarity on this week?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "w3",
+      "label": "Week 3",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "Has the workflow been organized in a way that supports you in identifying areas where you're still learning or need additional support?",
+          "ty": "t"
+        },
+        {
+          "qid": "b",
+          "text": "Are there any resources or tools that would help you perform better in your role?",
+          "ty": "t"
+        },
+        {
+          "qid": "c",
+          "text": "How are your interactions with colleagues, staff, and leadership so far? Which team member has been incredibly helpful? How attentive has medical leadership been during this process?",
+          "ty": "t"
+        },
+        {
+          "qid": "d",
+          "text": "How are you finding the functionality of Epic? How would you rate the ease of use, or lack thereof? Are there specific areas of Epic where you feel more training is needed? For example, documentation time or managing the in-basket? Or, utilizing the AWV smart set?",
+          "ty": "t"
+        },
+        {
+          "qid": "e",
+          "text": "Is there anything specific you would like to learn or gain more clarity on this week?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "m1",
+      "label": "Month 1",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How satisfied are you with your onboarding experience so far?",
+          "ty": "s",
+          "anchor_low": "poor experience",
+          "anchor_high": "great experience"
+        },
+        {
+          "qid": "b",
+          "text": "How efficient do you feel with Epic documentation?",
+          "ty": "s",
+          "anchor_low": "not efficient at all",
+          "anchor_high": "very efficient"
+        },
+        {
+          "qid": "c",
+          "text": "To what extent do you feel prepared to perform your job after completing the initial onboarding?",
+          "ty": "s",
+          "anchor_low": "not at all prepared",
+          "anchor_high": "very prepared"
+        },
+        {
+          "qid": "d",
+          "text": "How effective was the training you received in helping you understand your role?",
+          "ty": "s",
+          "anchor_low": "not effective at all",
+          "anchor_high": "extremely effective"
+        },
+        {
+          "qid": "e",
+          "text": "How clear and consistent has communication been from your manager and team?",
+          "ty": "s",
+          "anchor_low": "very unclear",
+          "anchor_high": "very clear"
+        },
+        {
+          "qid": "f",
+          "text": "What part of the onboarding process was most helpful, and what could be improved?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "w5",
+      "label": "Week 5",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How comfortable are you with your current patient volume?",
+          "ty": "s",
+          "anchor_low": "not comfortable at all",
+          "anchor_high": "very comfortable"
+        },
+        {
+          "qid": "b",
+          "text": "How confident are you with referral workflows?",
+          "ty": "s",
+          "anchor_low": "not confident at all",
+          "anchor_high": "very confident"
+        },
+        {
+          "qid": "c",
+          "text": "How well are you managing your In Basket at end of day?",
+          "ty": "s",
+          "anchor_low": "not managing at all",
+          "anchor_high": "managing very well"
+        },
+        {
+          "qid": "d",
+          "text": "What is working well in your daily routine?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "w6",
+      "label": "Week 6",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How confident are you with patient messaging (MyChart)?",
+          "ty": "s",
+          "anchor_low": "not confident at all",
+          "anchor_high": "very confident"
+        },
+        {
+          "qid": "b",
+          "text": "How comfortable are you with medication reconciliation?",
+          "ty": "s",
+          "anchor_low": "not comfortable at all",
+          "anchor_high": "very comfortable"
+        },
+        {
+          "qid": "c",
+          "text": "How would you rate your work-life balance so far?",
+          "ty": "s",
+          "anchor_low": "very poor",
+          "anchor_high": "excellent"
+        },
+        {
+          "qid": "d",
+          "text": "Anything you'd change about your workflow?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "w7",
+      "label": "Week 7",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How ready do you feel to practice more independently?",
+          "ty": "s",
+          "anchor_low": "not ready at all",
+          "anchor_high": "completely ready"
+        },
+        {
+          "qid": "b",
+          "text": "How comfortable are you with complex patient management?",
+          "ty": "s",
+          "anchor_low": "not comfortable at all",
+          "anchor_high": "very comfortable"
+        },
+        {
+          "qid": "c",
+          "text": "How satisfied are you with the onboarding program overall?",
+          "ty": "s",
+          "anchor_low": "very dissatisfied",
+          "anchor_high": "very satisfied"
+        },
+        {
+          "qid": "d",
+          "text": "What would you tell the next new provider about this process?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "label": "Month 2",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How confident do you feel in performing your job responsibilities?",
+          "ty": "s",
+          "anchor_low": "not confident at all",
+          "anchor_high": "very confident"
+        },
+        {
+          "qid": "b",
+          "text": "How supported do you feel by leadership?",
+          "ty": "s",
+          "anchor_low": "not supported at all",
+          "anchor_high": "fully supported"
+        },
+        {
+          "qid": "c",
+          "text": "How well do you feel integrated into your team?",
+          "ty": "s",
+          "anchor_low": "not at all integrated",
+          "anchor_high": "fully integrated"
+        },
+        {
+          "qid": "d",
+          "text": "How confident do you feel navigating Epic?",
+          "ty": "s",
+          "anchor_low": "not confident at all",
+          "anchor_high": "very confident"
+        },
+        {
+          "qid": "e",
+          "text": "How effective was the side-by-side Epic training in preparing you for patient care?",
+          "ty": "s",
+          "anchor_low": "not effective at all",
+          "anchor_high": "very effective"
+        },
+        {
+          "qid": "f",
+          "text": "How confident are you in your ability to complete visit-level coding accurately?",
+          "ty": "s",
+          "anchor_low": "not confident at all",
+          "anchor_high": "very confident"
+        },
+        {
+          "qid": "g",
+          "text": "What additional support or resources would help you succeed in your role moving forward?",
+          "ty": "t"
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "label": "Month 3",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How satisfied are you with your role and responsibilities so far?",
+          "ty": "s",
+          "anchor_low": "not satisfied at all",
+          "anchor_high": "extremely satisfied"
+        },
+        {
+          "qid": "b",
+          "text": "How accessible is your medical director when you need guidance?",
+          "ty": "s",
+          "anchor_low": "not accessible at all",
+          "anchor_high": "very accessible"
+        },
+        {
+          "qid": "c",
+          "text": "How would you rate the communication with your clinical team?",
+          "ty": "s",
+          "anchor_low": "poor communication",
+          "anchor_high": "great communication"
+        },
+        {
+          "qid": "d",
+          "text": "How well do you understand and align with the company's culture and values?",
+          "ty": "s",
+          "anchor_low": "not at all clear",
+          "anchor_high": "very clear"
+        },
+        {
+          "qid": "e",
+          "text": "Do you have a clear understanding of growth and development opportunities?",
+          "ty": "s",
+          "anchor_low": "not clear at all",
+          "anchor_high": "very clear"
+        },
+        {
+          "qid": "f",
+          "text": "Looking back on your first 90 days, what has gone well, and what could have been better?",
+          "ty": "t"
+        },
+        {
+          "qid": "ci1",
+          "text": "Do you feel like a valued member of the team?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci2",
+          "text": "Do you have at least one colleague you would consider a friend or close ally here?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci3",
+          "text": "Do you feel comfortable asking for help when you need it?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci4",
+          "text": "Would you recommend this organization to a colleague considering a similar role?",
+          "ty": "s",
+          "culture": true
+        }
+      ]
+    },
+    {
+      "id": "m6",
+      "label": "Month 6",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How confident do you feel in your ability to manage your patient panel independently?",
+          "ty": "s",
+          "anchor_low": "not confident at all",
+          "anchor_high": "very confident"
+        },
+        {
+          "qid": "b",
+          "text": "How well do you feel your workload is sustainable for the long term?",
+          "ty": "s",
+          "anchor_low": "not sustainable at all",
+          "anchor_high": "very sustainable"
+        },
+        {
+          "qid": "c",
+          "text": "How valued do you feel as a member of this organization?",
+          "ty": "s",
+          "anchor_low": "not valued at all",
+          "anchor_high": "very valued"
+        },
+        {
+          "qid": "d",
+          "text": "How satisfied are you with the level of autonomy you have in your role?",
+          "ty": "s",
+          "anchor_low": "not satisfied at all",
+          "anchor_high": "very satisfied"
+        },
+        {
+          "qid": "e",
+          "text": "How confident are you in your ability to meet quality and performance expectations?",
+          "ty": "s",
+          "anchor_low": "not confident at all",
+          "anchor_high": "very confident"
+        },
+        {
+          "qid": "f",
+          "text": "Now that you are six months in, what is one thing you wish you had known on day one?",
+          "ty": "t"
+        },
+        {
+          "qid": "ci1",
+          "text": "Do you feel like a valued member of the team?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci2",
+          "text": "Do you have at least one colleague you would consider a friend or close ally here?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci3",
+          "text": "Do you feel comfortable asking for help when you need it?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci4",
+          "text": "Would you recommend this organization to a colleague considering a similar role?",
+          "ty": "s",
+          "culture": true
+        }
+      ]
+    },
+    {
+      "id": "m9",
+      "label": "Month 9",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How satisfied are you in your current role?",
+          "ty": "s",
+          "anchor_low": "not supported at all",
+          "anchor_high": "fully supported"
+        },
+        {
+          "qid": "b",
+          "text": "How strongly do you feel that your organization supports growth?",
+          "ty": "s",
+          "anchor_low": "not supported at all",
+          "anchor_high": "fully supported"
+        },
+        {
+          "qid": "c",
+          "text": "How efficient do you feel with documentation?",
+          "ty": "s",
+          "anchor_low": "not supported at all",
+          "anchor_high": "fully supported"
+        },
+        {
+          "qid": "d",
+          "text": "What have you found to be the biggest difference that is needed?",
+          "ty": "t"
+        },
+        {
+          "qid": "ci1",
+          "text": "Do you feel like a valued member of the team?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci2",
+          "text": "Do you have at least one colleague you would consider a friend or close ally here?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci3",
+          "text": "Do you feel comfortable asking for help when you need it?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci4",
+          "text": "Would you recommend this organization to a colleague considering a similar role?",
+          "ty": "s",
+          "culture": true
+        }
+      ]
+    },
+    {
+      "id": "m12",
+      "label": "Month 12",
+      "qs": [
+        {
+          "qid": "a",
+          "text": "How motivated do you feel in your current role?",
+          "ty": "s",
+          "anchor_low": "not at all motivated",
+          "anchor_high": "extremely motivated"
+        },
+        {
+          "qid": "b",
+          "text": "How would you rate your current work-life balance?",
+          "ty": "s",
+          "anchor_low": "very poor",
+          "anchor_high": "excellent"
+        },
+        {
+          "qid": "c",
+          "text": "How often do you feel recognized for your contributions?",
+          "ty": "s",
+          "anchor_low": "never",
+          "anchor_high": "always"
+        },
+        {
+          "qid": "d",
+          "text": "How satisfied are you with your career growth and development over the past year?",
+          "ty": "s",
+          "anchor_low": "very dissatisfied",
+          "anchor_high": "very satisfied"
+        },
+        {
+          "qid": "e",
+          "text": "How supported do you feel by your manager in achieving your goals?",
+          "ty": "s",
+          "anchor_low": "not supported at all",
+          "anchor_high": "fully supported"
+        },
+        {
+          "qid": "f",
+          "text": "What would make your experience here even better in the next 12 months?",
+          "ty": "t"
+        },
+        {
+          "qid": "ci1",
+          "text": "Do you feel like a valued member of the team?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci2",
+          "text": "Do you have at least one colleague you would consider a friend or close ally here?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci3",
+          "text": "Do you feel comfortable asking for help when you need it?",
+          "ty": "s",
+          "culture": true
+        },
+        {
+          "qid": "ci4",
+          "text": "Would you recommend this organization to a colleague considering a similar role?",
+          "ty": "s",
+          "culture": true
+        }
+      ]
+    }
+  ],
+  "seed_providers": [
+    {
+      "id": "p1",
+      "name": "Dr. Elena Vasquez",
+      "role": "MD",
+      "mentor": "mt1",
+      "phase": "w1",
+      "days": 9
+    },
+    {
+      "id": "p5",
+      "name": "Dr. Ananya Krishnamurthy",
+      "role": "MD",
+      "mentor": "mt1",
+      "phase": "w3",
+      "days": 26
+    },
+    {
+      "id": "p2",
+      "name": "Dr. James Okonkwo",
+      "role": "DO",
+      "mentor": "mt1",
+      "phase": "m3",
+      "days": 180
+    },
+    {
+      "id": "p3",
+      "name": "Dr. Sarah Brennan",
+      "role": "MD",
+      "mentor": "mt2",
+      "phase": "w6",
+      "days": 56
+    },
+    {
+      "id": "p4",
+      "name": "Dr. Michael Chen",
+      "role": "DO",
+      "mentor": "mt2",
+      "phase": "m6",
+      "days": 188
+    },
+    {
+      "id": "p6",
+      "name": "Dr. Robert Hargrove",
+      "role": "MD",
+      "mentor": "mt2",
+      "phase": "m9",
+      "days": 276
+    },
+    {
+      "id": "p8",
+      "name": "B. Nguyen, PA",
+      "role": "PA",
+      "mentor": "mt3",
+      "phase": "m3",
+      "days": 91
+    },
+    {
+      "id": "p9",
+      "name": "L. Ferreira, NP",
+      "role": "NP",
+      "mentor": "mt3",
+      "phase": "m9",
+      "days": 273
+    },
+    {
+      "id": "p7",
+      "name": "C. Obi, NP",
+      "role": "NP",
+      "mentor": "mt3",
+      "phase": "m18",
+      "days": 549
+    }
+  ],
+  "seed_users": [
+    {
+      "id": "md1",
+      "name": "Dr. Rivera",
+      "role": "director"
+    },
+    {
+      "id": "mt1",
+      "name": "Dr. Smith",
+      "role": "mentor"
+    },
+    {
+      "id": "mt2",
+      "name": "Dr. Lee",
+      "role": "mentor"
+    },
+    {
+      "id": "mt3",
+      "name": "M. Torres, NP",
+      "role": "mentor"
+    }
+  ],
+  "productivity_metrics": [
+    {
+      "key": "volume",
+      "label": "Patients / Day",
+      "short": "pts/day",
+      "goal": 18,
+      "better": "high"
+    },
+    {
+      "key": "rvu",
+      "label": "RVUs / Week",
+      "short": "wRVU/wk",
+      "goal": 185,
+      "better": "high"
+    },
+    {
+      "key": "inbasket",
+      "label": "In-Basket / Day",
+      "short": "min",
+      "goal": 22,
+      "better": "low"
+    },
+    {
+      "key": "note",
+      "label": "Time per Note",
+      "short": "min",
+      "goal": 14,
+      "better": "low"
+    },
+    {
+      "key": "refill",
+      "label": "Refill Time",
+      "short": "min",
+      "goal": 6.5,
+      "better": "low"
+    }
+  ],
+  "seed_scores": {
+    "p1": {
+      "w0": 8,
+      "w1": 8
+    },
+    "p5": {
+      "w0": 8,
+      "w1": 8,
+      "w2": 8,
+      "w3": 8
+    },
+    "p2": {
+      "w0": 8,
+      "w1": 7,
+      "w2": 7,
+      "w3": 8,
+      "m1": 8,
+      "w5": 7,
+      "w6": 8,
+      "w7": 8,
+      "m2": 8,
+      "m3": 9
+    },
+    "p3": {
+      "w0": 8,
+      "w1": 7,
+      "w2": 7,
+      "w3": 8,
+      "m1": 8,
+      "w5": 8,
+      "w6": 8
+    },
+    "p4": {
+      "w0": 8,
+      "w1": 7,
+      "w2": 7,
+      "w3": 8,
+      "m1": 8,
+      "w5": 8,
+      "w6": 8,
+      "w7": 8,
+      "m2": 8,
+      "m3": 5,
+      "m4": 7,
+      "m5": 8,
+      "m6": 5
+    },
+    "p6": {
+      "w0": 7,
+      "w1": 6,
+      "w2": 6,
+      "w3": 7,
+      "m1": 7,
+      "w5": 6,
+      "w6": 7,
+      "w7": 7,
+      "m2": 7,
+      "m3": 4,
+      "m4": 5,
+      "m5": 6,
+      "m6": 4,
+      "m7": 7,
+      "m8": 6,
+      "m9": 6
+    },
+    "p8": {
+      "w0": 7,
+      "w1": 6,
+      "w2": 6,
+      "w3": 6,
+      "m1": 6,
+      "w5": 5,
+      "w6": 6,
+      "w7": 6,
+      "m2": 6,
+      "m3": 4
+    },
+    "p9": {
+      "w0": 8,
+      "w1": 8,
+      "w2": 8,
+      "w3": 9,
+      "m1": 8,
+      "w5": 8,
+      "w6": 9,
+      "w7": 9,
+      "m2": 9,
+      "m3": 9,
+      "m4": 8,
+      "m5": 9,
+      "m6": 9,
+      "m7": 8,
+      "m8": 8,
+      "m9": 9
+    },
+    "p7": {
+      "w0": 9,
+      "w1": 8,
+      "w2": 8,
+      "w3": 9,
+      "m1": 8,
+      "w5": 8,
+      "w6": 9,
+      "w7": 9,
+      "m2": 9,
+      "m3": 9,
+      "m4": 9,
+      "m5": 9,
+      "m6": 9,
+      "m7": 9,
+      "m8": 9,
+      "m9": 9,
+      "m12": 9,
+      "m15": 9,
+      "m18": 9
+    }
+  },
+  "seed_om_scores": {
+    "p2": {
+      "om1": 8,
+      "om2": 8,
+      "om3": 9
+    },
+    "p4": {
+      "om1": 8,
+      "om2": 8,
+      "om3": 8,
+      "om6": 8
+    },
+    "p6": {
+      "om1": 5,
+      "om2": 5,
+      "om3": 5,
+      "om6": 5
+    },
+    "p8": {
+      "om1": 4,
+      "om2": 4,
+      "om3": 5
+    },
+    "p9": {
+      "om1": 8,
+      "om2": 9,
+      "om3": 9,
+      "om6": 8
+    },
+    "p7": {
+      "om1": 9,
+      "om2": 9,
+      "om3": 9,
+      "om6": 9
+    }
+  },
+  "seed_cii_scores": {
+    "p2.m3.ci1": "9",
+    "p2.m3.ci2": "8",
+    "p2.m3.ci3": "9",
+    "p2.m3.ci4": "8",
+    "p4.m3.ci1": "8",
+    "p4.m3.ci2": "9",
+    "p4.m3.ci3": "8",
+    "p4.m3.ci4": "8",
+    "p4.m6.ci1": "9",
+    "p4.m6.ci2": "9",
+    "p4.m6.ci3": "8",
+    "p4.m6.ci4": "9",
+    "p6.m3.ci1": "4",
+    "p6.m3.ci2": "3",
+    "p6.m3.ci3": "4",
+    "p6.m3.ci4": "3",
+    "p6.m6.ci1": "3",
+    "p6.m6.ci2": "3",
+    "p6.m6.ci3": "4",
+    "p6.m6.ci4": "3",
+    "p6.m9.ci1": "3",
+    "p6.m9.ci2": "4",
+    "p6.m9.ci3": "3",
+    "p6.m9.ci4": "3",
+    "p8.m3.ci1": "3",
+    "p8.m3.ci2": "4",
+    "p8.m3.ci3": "3",
+    "p8.m3.ci4": "4",
+    "p9.m3.ci1": "8",
+    "p9.m3.ci2": "9",
+    "p9.m3.ci3": "8",
+    "p9.m3.ci4": "8",
+    "p9.m6.ci1": "9",
+    "p9.m6.ci2": "8",
+    "p9.m6.ci3": "9",
+    "p9.m6.ci4": "8",
+    "p9.m9.ci1": "9",
+    "p9.m9.ci2": "9",
+    "p9.m9.ci3": "8",
+    "p9.m9.ci4": "9",
+    "p7.m3.ci1": "9",
+    "p7.m3.ci2": "9",
+    "p7.m3.ci3": "8",
+    "p7.m3.ci4": "9",
+    "p7.m6.ci1": "9",
+    "p7.m6.ci2": "9",
+    "p7.m6.ci3": "9",
+    "p7.m6.ci4": "8",
+    "p7.m9.ci1": "9",
+    "p7.m9.ci2": "9",
+    "p7.m9.ci3": "9",
+    "p7.m9.ci4": "9",
+    "p7.m12.ci1": "9",
+    "p7.m12.ci2": "9",
+    "p7.m12.ci3": "9",
+    "p7.m12.ci4": "9",
+    "p7.m15.ci1": "9",
+    "p7.m15.ci2": "9",
+    "p7.m15.ci3": "9",
+    "p7.m15.ci4": "8",
+    "p7.m18.ci1": "9",
+    "p7.m18.ci2": "9",
+    "p7.m18.ci3": "9",
+    "p7.m18.ci4": "9"
+  }
+}
