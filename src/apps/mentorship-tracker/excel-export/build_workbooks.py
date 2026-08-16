@@ -260,8 +260,14 @@ def checked_mentor_phases(prov):
     cur = PHASE_IDS.index(prov["phase"])
     return set(PHASE_IDS[: cur + 1])
 
+def nonblank_count(rng):
+    """Count filled cells in a range of *typed* values (never formulas — COUNTA
+    counts a formula returning "" as filled). Used for the roster name column
+    and the metrics provider-ID column, both of which are hand/feed entered."""
+    return f"COUNTA({rng})"
+
 def build_curriculum_sheet(wb, region, key, title_note, blocks, first_prov_col,
-                           seeded_check):
+                           seeded_check, credential_gate=None):
     """Generic checklist grid: blocks = [(header_text, [row_label_cols...])].
     Rows: 1 home, 2 title, 3 completion stats, 5 header, 6+ items."""
     ws = wb.create_sheet(SHEETS[key])
@@ -288,7 +294,15 @@ def build_curriculum_sheet(wb, region, key, title_note, blocks, first_prov_col,
         style_header_cell(hcell, region["accent"])
         ws.column_dimensions[col].width = 13
         rng = f"{col}{first_item_row}:{col}{last_row}"
-        ws[f"{col}3"] = (f'=IF({col}${ROSTER_FIRST_ROW}="","",'
+        # A track that doesn't apply to this provider (e.g. the APC track for a
+        # physician) reads blank rather than 0%, so it neither implies unfinished
+        # work nor drags the cross-provider averages down.
+        blank_when = f'{col}${ROSTER_FIRST_ROW}=""'
+        if credential_gate:
+            cred = f'{q(SHEETS["roster"])}!$C${ROSTER_FIRST_ROW + slot - 1}'
+            tests = ",".join(f'{cred}<>"{c}"' for c in credential_gate)
+            blank_when = f"OR({blank_when},AND({tests}))"
+        ws[f"{col}3"] = (f'=IF({blank_when},"",'
                          f'COUNTIF({rng},"✔")/{n_items})')
         ws[f"{col}3"].number_format = "0%"
         ws[f"{col}3"].font = F(9, bold=True, color=NAVY)
@@ -358,7 +372,7 @@ def build_md_curriculum(wb, region):
         style_header_cell(cell, region["accent"])
     return ws
 
-def build_mentor_sheet(wb, region, key, phases, note, applies):
+def build_mentor_sheet(wb, region, key, phases, note, applies, credential_gate=None):
     seeded_by_prov = {}
     if region["seed"]:
         for slot, p in enumerate(PROVS, start=1):
@@ -371,7 +385,8 @@ def build_mentor_sheet(wb, region, key, phases, note, applies):
             slots = {s for s, phs in seeded_by_prov.items() if ph["id"] in phs}
             items.append(([f"{ph['id']}.{i}", text], slots))
         blocks.append((ph["label"], items))
-    ws = build_curriculum_sheet(wb, region, key, note, blocks, "C", region["seed"])
+    ws = build_curriculum_sheet(wb, region, key, note, blocks, "C", region["seed"],
+                                credential_gate=credential_gate)
     for col, w, h in [("A", 8, "Ref"), ("B", 70, "Check-in Item")]:
         ws.column_dimensions[col].width = w
         cell = ws[f"{col}{ROSTER_FIRST_ROW}"]
@@ -624,7 +639,7 @@ def build_dashboard(wb, region):
     qsheet = q(SHEETS["q"])
 
     tiles = [
-        ("Providers", f'=COUNTIF({name_rng},"?*")', "1F2937", "E5E7EB"),
+        ("Providers", f"={nonblank_count(name_rng)}", "1F2937", "E5E7EB"),
         ("On Track", f'=COUNTIF({status_rng},"On Track")', "15803D", "DCFCE7"),
         ("Due", f'=COUNTIF({status_rng},"Due")', "B45309", "FEF3C7"),
         ("Overdue", f'=COUNTIF({status_rng},"Overdue")', "B91C1C", "FEE2E2"),
@@ -800,16 +815,21 @@ def build_home(wb, region):
 
     tiles = [
         ("Roster", "roster",
-         f'=COUNTIF({roster}!$B${ROSTER_FIRST_ROW}:$B${lastr},"?*")&" providers onboarding"'),
+         f'={nonblank_count(f"{roster}!$B${ROSTER_FIRST_ROW}:$B${lastr}")}&IF('
+         f'{nonblank_count(f"{roster}!$B${ROSTER_FIRST_ROW}:$B${lastr}")}=1,'
+         f'" provider onboarding"," providers onboarding")'),
         ("Medical Director Curriculum", "md", avg_txt(md, "$E$3:$P$3")),
         ("Mentor — Physician Track", "phys", avg_txt(phys, "$C$3:$N$3")),
         ("Mentor — APC Track", "apc", avg_txt(apc, "$C$3:$N$3")),
         ("Office Manager Reviews", "om", score_txt(om_s, 3)),
         ("Provider Questionnaires", "q", score_txt(qs, 3)),
         ("Provider Metrics", "metrics",
-         f'=COUNTIF({met}!$B${METRICS_HEADER_ROW + 1}:$B${METRICS_LAST_ROW},"?*")&" metric rows landed"'),
+         f'={nonblank_count(f"{met}!$B${METRICS_HEADER_ROW + 1}:$B${METRICS_LAST_ROW}")}&IF('
+         f'{nonblank_count(f"{met}!$B${METRICS_HEADER_ROW + 1}:$B${METRICS_LAST_ROW}")}=1,'
+         f'" metric row landed"," metric rows landed")'),
         ("Dashboard", "dash",
-         f'=COUNTIF({roster}!$I${ROSTER_FIRST_ROW}:$I${lastr},"Overdue")&" providers overdue"'),
+         f'=COUNTIF({roster}!$I${ROSTER_FIRST_ROW}:$I${lastr},"Overdue")&IF(COUNTIF('
+         f'{roster}!$I${ROSTER_FIRST_ROW}:$I${lastr},"Overdue")=1," provider overdue"," providers overdue")'),
     ]
     starts = ["B", "F", "J", "N"]
     for i, (label, key, stat) in enumerate(tiles):
@@ -866,7 +886,8 @@ def build_region(region):
                        lambda p: True)
     build_mentor_sheet(wb, region, "apc", APC,
                        "quarterly mentor check-ins — Advanced Practice Clinicians (NP/PA) only, Months 15–24",
-                       lambda p: p["role"] in ("NP", "PA"))
+                       lambda p: p["role"] in ("NP", "PA"),
+                       credential_gate=("NP", "PA"))
     build_question_sheet(wb, region, "om", OM,
                          "office manager review checkpoints — scores 1–10 with a verbatim provider check-in",
                          om_seed, culture_aware=False)
@@ -885,6 +906,11 @@ def build_region(region):
     for s in wb._sheets:
         s.sheet_properties.tabColor = region["accent"]
     wb.active = 0
+
+    # openpyxl writes formulas with no cached values, so every computed cell
+    # would read as blank until something recalculates. Force Excel to do a
+    # full recalculation the first time the workbook is opened.
+    wb.calculation.fullCalcOnLoad = True
 
     out = OUT_DIR / f"Onboarding-Tracker-{region['name'].replace(' ', '-')}.xlsx"
     wb.save(out)
