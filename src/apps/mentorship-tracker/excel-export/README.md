@@ -21,8 +21,11 @@ the two program administrators get all four.
 ```bash
 node extract-data.mjs        # TSX/JSON curriculum  ->  curriculum-data.json
 python3 build_workbooks.py   # curriculum-data.json ->  out/*.xlsx
-python3 /root/.claude/skills/synced/xlsx/scripts/recalc.py out/<file>.xlsx
 ```
+
+Requires `openpyxl` (`pip install openpyxl`). It is deliberately not a
+`package.json` dependency — the generator is standalone and must never affect
+the Vite build.
 
 `extract-data.mjs` slices the data literals (`MP_PHYS`, `MP_APC`, `OP`, `QP`,
 `SEED_PROVS`, `PROD_METRICS`, and the seed score maps) straight out of
@@ -30,9 +33,24 @@ python3 /root/.claude/skills/synced/xlsx/scripts/recalc.py out/<file>.xlsx
 `mentorship-master-checklist.json` directly. It throws if a constant is renamed
 or stops being a literal, rather than silently emitting stale data.
 
-The recalc step is not optional: openpyxl writes formulas without cached
-values, so a workbook that skips it opens with blank-looking computed cells
-until Excel recalculates.
+## Verifying a build
+
+openpyxl writes formulas with no cached values, so the builder sets
+`fullCalcOnLoad` and Excel computes everything on first open. To check the
+formulas *before* handing a workbook over, evaluate it with the pure-Python
+`formulas` package (`pip install formulas`) and assert no cell yields an error
+value. The xlsx skill's LibreOffice-based `recalc.py` is the normal tool for
+this but could not load xlsx in the environment where these were built.
+
+Two traps found by doing exactly that, worth remembering if you extend the
+generator:
+
+- `COUNTIF(range,"?*")` miscounts styled-but-empty cells. Use `COUNTA` over
+  columns that hold typed values (it would over-count a column of formulas
+  returning `""`).
+- A track that does not apply to a provider must read blank, not `0%`.
+  The APC sheet gates its completion row on the roster credential so
+  physicians do not appear to have unfinished APC work.
 
 **Curriculum edits belong in the source data, not in the workbook.** Hand edits
 to item text in a generated `.xlsx` are lost on the next regeneration.
