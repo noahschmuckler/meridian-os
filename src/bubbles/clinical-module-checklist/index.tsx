@@ -59,7 +59,7 @@ export function ClinicalModuleChecklist({ instance, workspaceId, selfBubbleId, o
     onRequestSiblingFocus?.('module-faq', 0.6);
   }
 
-  const [busy, setBusy] = useState<null | 'docx' | 'pptx'>(null);
+  const [busy, setBusy] = useState<null | 'docx' | 'pptx' | 'interface'>(null);
 
   function downloadBlob(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);
@@ -96,6 +96,24 @@ export function ClinicalModuleChecklist({ instance, workspaceId, selfBubbleId, o
       downloadBlob(blob, `${selected.module_id}.pptx`);
     } catch (err) {
       alert('PPTX export failed: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  // Interface-simulacrum export (docs/interface-pptx-export-spec.md): a deck
+  // reproducing the module interface with internal slide-jump links, meant to
+  // be Saved-as-PDF from PowerPoint so the jumps survive as an offline
+  // interactive PDF.
+  async function exportInterfacePptx(): Promise<void> {
+    if (!selected || busy) return;
+    setBusy('interface');
+    try {
+      const { generateInterfacePptx } = await import('../../lib/generateInterfacePptx');
+      const blob = await generateInterfacePptx(selected);
+      downloadBlob(blob, `${selected.module_id}-interactive.pptx`);
+    } catch (err) {
+      alert('Interactive PPTX export failed: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
       setBusy(null);
     }
@@ -142,6 +160,23 @@ export function ClinicalModuleChecklist({ instance, workspaceId, selfBubbleId, o
               opacity: busy && busy !== 'pptx' ? 0.5 : 1,
             }}
           >{busy === 'pptx' ? '…' : '.pptx'}</button>
+          <button
+            type="button"
+            title={busy === 'interface' ? 'Generating…' : 'Export as interactive PowerPoint (linked slides; Save-as-PDF keeps the links)'}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); void exportInterfacePptx(); }}
+            disabled={busy !== null}
+            style={{
+              border: '1px solid rgba(0,0,0,0.15)',
+              background: 'rgba(255,255,255,0.55)',
+              cursor: busy ? 'wait' : 'pointer',
+              font: 'inherit',
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 3,
+              opacity: busy && busy !== 'interface' ? 0.5 : 1,
+            }}
+          >{busy === 'interface' ? '…' : '⧉ .pptx'}</button>
           <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 4 }}>
             {selected.checklist.length} checks
           </span>

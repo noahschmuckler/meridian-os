@@ -108,7 +108,7 @@ For local Pages Functions testing (`/api/chat`): `npx wrangler pages dev dist` a
 Current state, in-flight work, shipped milestones, and pending roadmap live in **[STATE.md](STATE.md)** at the repo root. **Read STATE.md before starting any work that isn't a one-line change** — it has the resume recipes, the recent-work history, and the pending-plan ordering.
 
 Quick links to canonical artifacts:
-- **Reference docs (this repo):** [docs/file-map.md](docs/file-map.md) — full file tree; [docs/inter-instance-archive.md](docs/inter-instance-archive.md) — trimmed inter-instance log history.
+- **Reference docs (this repo):** [docs/file-map.md](docs/file-map.md) — full file tree; [docs/inter-instance-archive.md](docs/inter-instance-archive.md) — trimmed inter-instance log history; [docs/interface-pptx-export-spec.md](docs/interface-pptx-export-spec.md) — spec + rationale + implementation notes for the interface-simulacrum PPTX→PDF export (hyperlinked deck that reproduces the clinical-module interface for enterprise hosting; v1 lipid pilot built 2026-08-12, see spec §14).
 - **Provider Briefing (separate repo):** `~/GitHub_Repos/meridian-briefing` — the live/secure build of the password-gated Briefing publisher (Node→PowerShell deploy). The `src/apps/briefing/` app in *this* repo is the parallel design canvas only; no runtime coupling. See STATE.md current-state for phase status.
 - **Plans:** `~/.claude/plans/` — implementation plans + scoping docs
 - **Verification:** `verification/{adhd,opiates,benzos,lipids}.md` — module rewrite tracker rows
